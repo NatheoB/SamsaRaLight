@@ -8,31 +8,23 @@ https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-infor
 }
 \usage{
 get_monthly_rad(
-  coords,
+  latitude,
+  longitude,
   start_year = 2005,
   end_year = 2020,
-  average_years = TRUE,
-  as_list = TRUE
+  average_years = TRUE
 )
 }
 \arguments{
-\item{coords}{\itemize{
-\item data.frame with n rows and 4 columns:
-\itemize{
-\item{"id": }{Unique id of the point (character)}
-\item{"longitude": }{Longitude of the point (WGS84 - epsg:4326 - x coord) (double)}
-\item{"latitude": }{Latitude of the point (WGS84 - epsg:4326 - y coord) (double)}
-}
-}}
+\item{latitude}{latitude of the plot}
+
+\item{longitude}{longitude of the plot}
 
 \item{start_year}{positive integer between 2005 and 2020 - start year on which to fetch monthly data}
 
 \item{end_year}{positive integer between 2005 and 2020 - end year on which to fetch monthly data}
 
 \item{average_years}{if TRUE, years are averaged to obtain a single value for each month}
-
-\item{as_list}{if TRUE, return a named list with a dataframe for each id, otherwise,
-rowbind all sites}
 }
 \value{
 Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)

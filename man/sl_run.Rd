@@ -6,7 +6,6 @@
 \usage{
 sl_run(
   trees,
-  cells,
   monthly_rad,
   latitude = 46,
   start_day = 1,
@@ -35,16 +34,6 @@ sl_run(
 \item{"crown_p"}{Crown openness (no unit)}
 \item{"crown_type"}{Between "P" for paraboloid and "E" for ellipsoid}
 \item{"id_cell"}{Unique id of the cell the tree belong to (i.e. \code{cells} data.frame parameter)}
-}}
-
-\item{cells}{a data.frame with one row per cell of the plot and 6 columns
-\itemize{
-\item{"id_cell"}{The unique id of the cell}
-\item{"x_id"}{Cell ID within X-axis}
-\item{"y_id"}{Cell ID within Y-axis}
-\item{"x_center}{X-coordinate of the center of the cell}
-\item{"y_center}{Y-coordinate of the center of the cell}
-\item{"z_center}{Z-coordinate of the center of the cell}
 }}
 
 \item{monthly_rad}{data.frame - Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
