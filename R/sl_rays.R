@@ -97,9 +97,9 @@ sl_create_monthly_rays <- function(monthly_rad,
                                        direct_startoffset_rad)
 
   # Create rays and return only rays with stricly positive energy (within growing season)
-  rays <- bind_rows(direct_rays$rays, diffuse_rays$rays)
+  rays <- dplyr::bind_rows(direct_rays$rays, diffuse_rays$rays)
   rays <- rays[rays$e_incident > 0,]
-  rays <- bind_cols(id_ray = 1:nrow(rays), rays)
+  rays <- dplyr::bind_cols(id_ray = 1:nrow(rays), rays)
 
 
   ### Return all rays and energies ----
