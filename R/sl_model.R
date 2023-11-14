@@ -9,6 +9,7 @@
 #' @return a list of trees and cells interception datasets
 #'
 #' @import data.table
+#' @importFrom dplyr case_when
 #' @export
 sl_summarize_interceptions <- function(interceptions, trees_id,
                                        cells,
@@ -237,7 +238,7 @@ sl_get_potentialcells_rays_relative <- function(rays,
       # rectangle to take into account cells center
       # instead of trees position.
       # The boundary depends on beam azimut.
-      azt = case_when(
+      azt = dplyr::case_when(
         azimut < pi / 4 ~ azimut,
         (azimut >= pi / 4) & (azimut < pi / 2) ~ pi / 2 - azimut,
         (azimut >= pi / 2) & (azimut < 3 * pi / 4) ~ azimut - pi / 2,

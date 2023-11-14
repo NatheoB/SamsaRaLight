@@ -156,7 +156,8 @@ out <- SamsaRaLight::sl_run(
   trees, monthly_rad,
   latitude = latitude, slope = slope, 
   aspect = aspect, north_to_x_cw = north_to_x_cw,
-  cell_size = cell_size, n_cells = n_cells
+  cell_size = cell_size, n_cells = n_cells,
+  use_rcpp = T
 )
 ```
 
@@ -190,7 +191,7 @@ summary(out$trees)
     has been intercepted by above trees).
 
 ```{r}
- summary(out$cells)
+summary(out$cells)
 ```
 
 ## Other parameters
@@ -227,14 +228,14 @@ microbenchmark::microbenchmark(
 # microbenchmark::microbenchmark(
 #   "r" = SamsaRaLight::sl_run(
 #     trees, monthly_rad,
-#     latitude = latitude, slope = slope, 
+#     latitude = latitude, slope = slope,
 #     aspect = aspect, north_to_x_cw = north_to_x_cw,
 #     cell_size = 5, n_cells = 20,
 #     use_rcpp = FALSE
 #   ),
 #   "rcpp" = SamsaRaLight::sl_run(
 #     trees, monthly_rad,
-#     latitude = latitude, slope = slope, 
+#     latitude = latitude, slope = slope,
 #     aspect = aspect, north_to_x_cw = north_to_x_cw,
 #     cell_size = 5, n_cells = 20,
 #     use_rcpp = TRUE

@@ -2,6 +2,6 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 sl_run_rcpp <- function(trees, cells, rays, total_energy_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus, turbid_medium) {
-    .Call('_SamsaRaLight_sl_run_rcpp', PACKAGE = 'SamsaRaLight', trees, cells, rays, total_energy_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus, turbid_medium)
+    .Call(`_SamsaRaLight_sl_run_rcpp`, trees, cells, rays, total_energy_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus, turbid_medium)
 }
 

@@ -180,7 +180,8 @@ out <- SamsaRaLight::sl_run(
   trees, monthly_rad,
   latitude = latitude, slope = slope, 
   aspect = aspect, north_to_x_cw = north_to_x_cw,
-  cell_size = cell_size, n_cells = n_cells
+  cell_size = cell_size, n_cells = n_cells,
+  use_rcpp = T
 )
 ```
 
@@ -221,7 +222,7 @@ summary(out$trees)
   been intercepted by above trees).
 
 ``` r
- summary(out$cells)
+summary(out$cells)
 #>     id_cell             e               erel        
 #>  Min.   :  1.00   Min.   : 253.8   Min.   :0.05497  
 #>  1st Qu.: 25.75   1st Qu.: 558.3   1st Qu.:0.12092  
@@ -258,12 +259,9 @@ microbenchmark::microbenchmark(
   times = 10
 )
 #> Unit: milliseconds
-#>  expr        min         lq       mean     median         uq        max neval
-#>     r 10301.5682 10909.2967 11698.6835 11298.7528 12003.7309 15066.7850    10
-#>  rcpp   165.7329   174.3573   187.8694   185.2281   206.9962   212.2717    10
-#>  cld
-#>   a 
-#>    b
+#>  expr       min        lq      mean    median        uq       max neval
+#>     r 4617.8213 5372.5481 5502.4529 5527.6550 5770.8762 5954.3618    10
+#>  rcpp  145.0663  146.4532  163.9661  158.2322  176.2554  195.3409    10
 ```
 
 ### With 5m cells
@@ -272,14 +270,14 @@ microbenchmark::microbenchmark(
 # microbenchmark::microbenchmark(
 #   "r" = SamsaRaLight::sl_run(
 #     trees, monthly_rad,
-#     latitude = latitude, slope = slope, 
+#     latitude = latitude, slope = slope,
 #     aspect = aspect, north_to_x_cw = north_to_x_cw,
 #     cell_size = 5, n_cells = 20,
 #     use_rcpp = FALSE
 #   ),
 #   "rcpp" = SamsaRaLight::sl_run(
 #     trees, monthly_rad,
-#     latitude = latitude, slope = slope, 
+#     latitude = latitude, slope = slope,
 #     aspect = aspect, north_to_x_cw = north_to_x_cw,
 #     cell_size = 5, n_cells = 20,
 #     use_rcpp = TRUE

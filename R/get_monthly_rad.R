@@ -20,7 +20,7 @@
 #' @source https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
 #'
 #' @import readr httr
-#' @importFrom dplyr recode mutate select arrange group_by summarize_all
+#' @importFrom dplyr recode mutate select arrange group_by summarize_all %>% 
 #'
 #' @export
 get_monthly_rad <- function(latitude, longitude,
