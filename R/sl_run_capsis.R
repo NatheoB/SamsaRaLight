@@ -1,6 +1,5 @@
 #' Run SamsaraLight from Capsis
 #'
-#' @import RCapsis
 sl_run_capsis <- function(capsis_folderpath, inv_fp,
                           use_rcapsis = TRUE,
                           java_server_started = FALSE,

@@ -22,7 +22,6 @@ Used when computing interception with a crown considered as a turbid medium. (do
 Used when computing interception with a crown considered as a porous envelop. (double)}
 }
 }
-}
 \source{
 Courbaud Benoit (LESSEM Grenoble)
 }
