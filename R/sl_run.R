@@ -34,6 +34,7 @@
 #'  computation. Otherwise, run SamsaraLight with only R-based scripts
 #'
 #' @import data.table
+#' @useDynLib SamsaRaLight, .registration = TRUE
 #'
 #' @export
 #'
