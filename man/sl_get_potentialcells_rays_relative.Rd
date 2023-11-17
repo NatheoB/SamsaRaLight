@@ -49,3 +49,4 @@ their center located in a competition rectangle of length L (beam X direction)
 \item R (opposite direction) and width R (directions perpendicular X to beam).
 }
 }
+\keyword{internal}

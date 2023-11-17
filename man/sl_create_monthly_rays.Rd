@@ -60,3 +60,4 @@ and rays (data.frame) with n rows and 5 columns:
 \description{
 Compute direct and diffuse rays of a growing season
 }
+\keyword{internal}

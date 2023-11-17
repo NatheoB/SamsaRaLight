@@ -16,3 +16,4 @@ sl_compute_energy_porous(
 Compute potential and intercepted energy from interceptions (rays X trees)
 using porous envelop (cf Ligot et al. 10.1139/cjfr-2013-0494)
 }
+\keyword{internal}

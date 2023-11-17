@@ -65,8 +65,12 @@ is_equal_3d <- function(x1, y1, z1,
 #' @param y Y-coordinate of the point
 #' @param slope_rad Slope of the stand (in radians)
 #' @param bottom_azimut_rad Azimuth of the vector orthogonal to the ground in the x,y system (in radians)
-#' @export
+#' 
 #' @importFrom data.table fifelse
+#' 
+#' @export
+#' @keywords internals
+#' 
 get_z <- function(x, y,
                   slope_rad,
                   bottom_azimut_rad) {

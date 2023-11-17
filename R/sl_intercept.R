@@ -23,6 +23,8 @@
 #' @importFrom matrixStats rowMaxs rowMins
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_intercept_crown_paraboloid <- function(cos_elevation, sin_elevation,
                                           cos_azimut, sin_azimut,
                                           x, y, z,
@@ -155,6 +157,8 @@ sl_intercept_crown_paraboloid <- function(cos_elevation, sin_elevation,
 #'  the origin (i.e. the target cell center) (NA is no interception)
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_intercept_crown_ellipsoid <- function(cos_elevation, sin_elevation,
                                          cos_azimut, sin_azimut,
                                          x, y, z,
@@ -260,6 +264,8 @@ sl_intercept_crown_ellipsoid <- function(cos_elevation, sin_elevation,
 #'  the origin (i.e. the target cell center) (NA is no interception)
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_intercept_crown_8thellipsoidal <- function(elevation, azimut,
                                               x, y, z,
                                               x_shift, y_shift, z_shift,
@@ -427,7 +433,6 @@ sl_intercept_crown_8thellipsoidal <- function(elevation, azimut,
 #' Solve a quadratic equation (ax^2 + bx + c) and only compute positive delta
 #' @return Return a matrix with the 2 solutions as columns (NULL values for negative delta)
 #' @noRd
-#' @export
 solve_quadratic_equation_onlypos <- function(a, b, c) {
 
   # Compute discriminant
@@ -463,7 +468,7 @@ solve_quadratic_equation_onlypos <- function(a, b, c) {
 #' @return a vector containing the coordinates of the interception point and
 #' its distance to the target cell
 #'
-#' @export
+#' @noRd
 get_intercept_coords <- function(length,
                                  cos_elevation, sin_elevation,
                                  cos_azimut, sin_azimut) {
@@ -512,8 +517,9 @@ in_bbox <- function(x, y, z,
 #' @param y_bbox_max Maximum y-coordinate of the box (double)
 #' @param z_bbox_max Maximum z-coordinate of the box (double)
 #' @param epsilon Accepted error for rounding approximation (double)
+#' 
 #' @noRd
-#' @export
+#' 
 in_bbox_epsilon <- function(x, y, z,
                             x_bbox_min, y_bbox_min, z_bbox_min,
                             x_bbox_max, y_bbox_max, z_bbox_max,
@@ -536,8 +542,9 @@ in_bbox_epsilon <- function(x, y, z,
 #' @param a double - Parameter a of paraboloid = semi-axis of basal ellipse along X axis
 #' @param b double - Parameter b of paraboloid = semi-axis of basal ellipse along Y axis
 #' @param h double - Parameter h of paraboloid = crown height, along Z axis
+#' 
 #' @noRd
-#' @export
+#' 
 in_paraboloid <- function(x, y, z,
                           x_par, y_par, z_par,
                           a, b, h) {
@@ -561,8 +568,9 @@ in_paraboloid <- function(x, y, z,
 #' @param a double - Parameter a of ellipsoid semi-principal axes (X-axis, semi-major)
 #' @param b double - Parameter b of ellipsoid semi-principal axes (Y-axis, semi-minor)
 #' @param c double - Parameter c of ellipsoid semi-principal axes (Z-axis, height)
+#' 
 #' @noRd
-#' @export
+#'
 in_ellipsoid <- function(x, y, z,
                          x_el, y_el, z_el,
                          a, b, c) {

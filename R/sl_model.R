@@ -10,7 +10,10 @@
 #'
 #' @import data.table
 #' @importFrom dplyr case_when
+#' 
 #' @export
+#' @keywords internal
+#' 
 sl_summarize_interceptions <- function(interceptions, trees_id,
                                        cells,
                                        cell_surface_slope,
@@ -58,7 +61,10 @@ sl_summarize_interceptions <- function(interceptions, trees_id,
 #' using turbid medium (cf Ligot et al. 10.1139/cjfr-2013-0494)
 #'
 #' @import data.table
+#' 
 #' @export
+#' @keywords internal
+#' 
 sl_compute_energy_turbid <- function(interceptions,
                                      slope_rad, bottom_azimut_rad,
                                      cell_surface) {
@@ -119,7 +125,10 @@ sl_compute_energy_turbid <- function(interceptions,
 #' using porous envelop (cf Ligot et al. 10.1139/cjfr-2013-0494)
 #'
 #' @import data.table
+#' 
 #' @export
+#' @keywords internal
+#' 
 sl_compute_energy_porous <- function(interceptions,
                                      slope_rad, bottom_azimut_rad,
                                      cell_surface) {
@@ -159,6 +168,8 @@ sl_compute_energy_porous <- function(interceptions,
 #' Search for interceptions between all rays coming to all target cells and trees
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_get_interceptions <- function(potcells_rays, trees) {
 
   # Create the table with all possible trees intercepted by each ray (adding ray info)
@@ -225,6 +236,8 @@ sl_get_interceptions <- function(potcells_rays, trees) {
 #' }
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_get_potentialcells_rays_relative <- function(rays,
                                                 cell_size,
                                                 slope_rad,
@@ -332,6 +345,9 @@ sl_get_potentialcells_rays_relative <- function(rays,
 #' @param extinction_coef Probability of a leaf to intercept the ray (linked to leaf orientation)
 #' @param clumping_factor Aggregation of leaves within the crown volume (1 is homogeneous)
 #'
+#' @export
+#' @keywords internal
+#' 
 sl_beerlambert <- function(incident_energy,
                            path_length,
                            leaf_area_density = 0.5,

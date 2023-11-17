@@ -26,3 +26,4 @@ sl_beerlambert(
 \description{
 Compute intercepted energy using Beer Lambert law
 }
+\keyword{internal}

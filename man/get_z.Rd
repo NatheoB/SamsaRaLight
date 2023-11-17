@@ -18,3 +18,4 @@ get_z(x, y, slope_rad, bottom_azimut_rad)
 \description{
 Compute z coordinate of a point (x,y).
 }
+\keyword{internals}

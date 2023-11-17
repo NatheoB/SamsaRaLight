@@ -29,6 +29,8 @@
 #' @importFrom data.table fifelse
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_create_monthly_rays <- function(monthly_rad,
                                    latitude,
                                    start_day = 1, end_day = 365,
@@ -125,6 +127,8 @@ sl_create_monthly_rays <- function(monthly_rad,
 #' @return Energy per square meter of a horizontal plan (in MJ.m-2)
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_compute_nrj_diffuse <- function(soc, total_diffuse,
                                    height_angle_rad,
                                    diffuse_anglestep_rad) {
@@ -170,6 +174,8 @@ sl_compute_nrj_diffuse <- function(soc, total_diffuse,
 #' and diffuse rays (data.frame)
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_create_rays_diffuse <- function(soc, total_diffuse,
                                    height_anglemin_rad,
                                    diffuse_anglestep_rad,
@@ -252,6 +258,8 @@ sl_create_rays_diffuse <- function(soc, total_diffuse,
 #' and diffuse rays (data.frame)
 #'
 #' @export
+#' @keywords internal
+#' 
 sl_create_rays_direct <- function(latitude_rad,
                                   declination_rad,
                                   nrj_direct_months,
@@ -353,8 +361,12 @@ sl_create_rays_direct <- function(latitude_rad,
 #' @param height_angle_rad double - Angle between beam and soil (in radians)
 #' @param southazimut_ccw_rad double - Azimuth of south counterclockwise from x axis
 #'  in the (x,y) system (in radians)
+#'  
 #' @importFrom data.table fifelse
+#' 
 #' @export
+#' @keywords internal
+#' 
 sl_compute_sunazimut <- function(latitude_rad,
                                  declination_rad,
                                  hour_angle_rad,

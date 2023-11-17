@@ -5,11 +5,11 @@
 #' size of the crown and crown information. All the variables needed to run SamsaRaLight.
 #'
 #' @format `data_trees_prenovel`
-#' A data.frame with 333 rows and 12 columns:
+#' A data.frame with 333 rows and 11 columns:
 #' \describe{
 #'    \item{id_tree}{Unique id of the tree. (integer)}
 #'    \item{species}{Species Latin name. (character)}
-#'    \item{x, y, z}{Coordinates of the base of the tree in the forest stand in m. (double)}
+#'    \item{x, y}{Coordinates of the base of the tree in the forest stand in m. (double)}
 #'    \item{dbh_cm}{Diameter at breast height (1.30m) of the trunk of the tree in cm. (double)}
 #'    \item{height_m}{Height of the tree trunk in m. (double)}
 #'    \item{cbh_m}{Crown base height of the tree (i.e. height at wich the crown start) in m. (double)}
@@ -24,3 +24,23 @@
 #' @source Courbaud Benoit (LESSEM Grenoble)
 #'
 "data_trees_prenovel"
+
+
+#' Radiation dataset for Prenovel (Jura)
+#'
+#' @description Dataset with monthly radiation of Prenovel forest in Jura.
+#' It is useful for runnning SamsaRaLight on Prenovel stand using `SamsaRaLight::data_trees_prenovel` dataset.
+#' Data were fecteched from PVGIS using the function `SamsaRaLight::get_monthly_rad()` at 
+#' latitude 46.52666 and longitude 5.82765
+#'
+#' @format `data_rad_prenovel`
+#' A data.frame with 12 rows and 3 columns:
+#' \describe{
+#'    \item{month}{Unique id of the tree. (integer)}
+#'    \item{Hrad}{Monthly radiation in a horizontal plane in MJ. (double)}
+#'    \item{DGratio}{Ratio between monthly diffuse and global energies. (double)}
+#'    }
+#'
+#' @source PVGIS : https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
+#'
+"data_rad_prenovel"

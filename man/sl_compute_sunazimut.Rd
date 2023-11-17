@@ -30,3 +30,4 @@ in the (x,y) system (in radians)}
 Computaion of sun azimut for a given height angle reference system with
 angle origin on X > 0 axis and trigonometric rotation
 }
+\keyword{internal}

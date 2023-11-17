@@ -6,11 +6,11 @@
 \title{Trees dataset for Prenovel stand (Jura)}
 \format{
 \code{data_trees_prenovel}
-A data.frame with 333 rows and 12 columns:
+A data.frame with 333 rows and 11 columns:
 \describe{
 \item{id_tree}{Unique id of the tree. (integer)}
 \item{species}{Species Latin name. (character)}
-\item{x, y, z}{Coordinates of the base of the tree in the forest stand in m. (double)}
+\item{x, y}{Coordinates of the base of the tree in the forest stand in m. (double)}
 \item{dbh_cm}{Diameter at breast height (1.30m) of the trunk of the tree in cm. (double)}
 \item{height_m}{Height of the tree trunk in m. (double)}
 \item{cbh_m}{Crown base height of the tree (i.e. height at wich the crown start) in m. (double)}

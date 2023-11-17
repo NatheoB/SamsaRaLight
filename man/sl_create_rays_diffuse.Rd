@@ -36,3 +36,4 @@ Create SamsaraLight diffuse rays of a plane with a classical sky
 hemisphere divided by meridians and parallels
 can use Standard Overcast Sky or Uniform Overcast Sky
 }
+\keyword{internal}

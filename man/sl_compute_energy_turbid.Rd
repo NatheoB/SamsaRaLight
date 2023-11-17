@@ -16,3 +16,4 @@ sl_compute_energy_turbid(
 Compute potential and intercepted energy from interceptions (rays X trees)
 using turbid medium (cf Ligot et al. 10.1139/cjfr-2013-0494)
 }
+\keyword{internal}

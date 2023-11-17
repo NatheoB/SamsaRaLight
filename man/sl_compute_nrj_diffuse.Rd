@@ -28,3 +28,4 @@ Calculating SamsaraLight rays diffuse Energy in MJ/m2 of a plane
 perpendicular to beam ray direction for a Standard Overcast Sky or
 Uniform Overcast Sky are possible
 }
+\keyword{internal}

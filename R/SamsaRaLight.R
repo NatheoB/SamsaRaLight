@@ -6,4 +6,5 @@
 #'
 #' @name SamsaRaLight
 #' @docType package
+#' @noRd
 NULL

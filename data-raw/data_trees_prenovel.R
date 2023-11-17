@@ -41,7 +41,7 @@ data_trees_prenovel <- trees %>%
     2 ~ "Fagus sylvatica"
   )) %>% 
   dplyr::select(id_tree = Id, species,
-                x = X, y = Y, z = Z,
+                x = X, y = Y,
                 dbh_cm = Dbh, height_m = H,
                 cbh_m = CBH, cradius_m = CR) %>% 
   dplyr::mutate(

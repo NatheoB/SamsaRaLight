@@ -51,6 +51,7 @@ sl_run <- function(trees,
                    use_torus = TRUE,
                    turbid_medium = TRUE,
                    use_rcpp = TRUE) {
+
   
   # Create monthly rays
   rays <- sl_create_monthly_rays(monthly_rad = monthly_rad,
@@ -83,7 +84,10 @@ sl_run <- function(trees,
   # Search for cell in which the tree belong to
   trees <- as.data.table(trees)
   
-  trees <- trees[, `:=`(xid_cell = x %/% cell_size,
+  trees <- trees[, `:=`(z := get_z(x, y,
+                                   deg2rad(slope),
+                                   deg2rad(-aspect + north_to_x_cw)),
+                        xid_cell = x %/% cell_size,
                         yid_cell = n_cells - y %/% cell_size - 1)]
   
   trees <- cells[, .(id_cell, x_id, y_id)][trees, on = c(x_id = "xid_cell", y_id = "yid_cell")]

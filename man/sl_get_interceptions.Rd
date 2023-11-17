@@ -9,3 +9,4 @@ sl_get_interceptions(potcells_rays, trees)
 \description{
 Search for interceptions between all rays coming to all target cells and trees
 }
+\keyword{internal}

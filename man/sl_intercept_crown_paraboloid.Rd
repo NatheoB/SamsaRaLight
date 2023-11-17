@@ -55,3 +55,4 @@ the origin (i.e. the target cell center) (NA is no interception)
 Evaluates if the given ray intercepts this crown, previously relocated
 with the given shifts.
 }
+\keyword{internal}
