@@ -41,7 +41,7 @@ install.packages("devtools")
 devtools::install_github("NatheoB/SamsaRaLight")
 ```
 
-## Example
+## Small example
 
 This is a basic example which shows you how to solve a common problem:
 
@@ -49,6 +49,7 @@ This is a basic example which shows you how to solve a common problem:
 library(SamsaRaLight)
 library(data.table)
 ```
+
 
 ### Set the stand geometry
 
@@ -87,7 +88,7 @@ correct name and type of the column:
 
 -   `species`: Species Latin name. (character)
 
--   `x`, `y`, `z`: Coordinates of the base of the tree in the forest
+-   `x`, `y`: Coordinates of the base of the tree in the forest
     stand in m. (double)
 
 -   `dbh_cm`: Diameter at breast height (1.30m) of the trunk of the tree
@@ -141,6 +142,9 @@ start and end year (range between 2005 and 2020) from the PVGIS database
 Here, you can choose to average the monthly values between all the years
 between 2005 and 2020 or to choose values of a given year.
 
+Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_prenovel`.
+The dataset is fetched using the above function.
+
 ```{r monthly_rad}
 monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
 monthly_rad
@@ -178,7 +182,7 @@ The function returns a list with two dataframes:
     totally in competition for light (all the energy from the rays
     coming to the tree crown has been intercepted by the neighbours).
 
-```{r}
+```{r out_trees}
 summary(out$trees)
 ```
 
@@ -190,56 +194,8 @@ summary(out$trees)
     canopy. It ranges from 0 (no light on the ground) to 1 (no energy
     has been intercepted by above trees).
 
-```{r}
+```{r out_cells}
 summary(out$cells)
 ```
 
-## Other parameters
 
-Cf turbid medium, use_rcpp, use_torus...
-
-## Speed comparison
-
-### With 10m cells
-
-```{r speed_10m}
-microbenchmark::microbenchmark(
-  "r" = SamsaRaLight::sl_run(
-    trees, monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = 10, n_cells = 10,
-    use_rcpp = FALSE
-  ),
-  "rcpp" = SamsaRaLight::sl_run(
-    trees, monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = 10, n_cells = 10,
-    use_rcpp = TRUE
-  ),
-  times = 10
-)
-```
-
-### With 5m cells
-
-```{r speed_5m}
-# microbenchmark::microbenchmark(
-#   "r" = SamsaRaLight::sl_run(
-#     trees, monthly_rad,
-#     latitude = latitude, slope = slope,
-#     aspect = aspect, north_to_x_cw = north_to_x_cw,
-#     cell_size = 5, n_cells = 20,
-#     use_rcpp = FALSE
-#   ),
-#   "rcpp" = SamsaRaLight::sl_run(
-#     trees, monthly_rad,
-#     latitude = latitude, slope = slope,
-#     aspect = aspect, north_to_x_cw = north_to_x_cw,
-#     cell_size = 5, n_cells = 20,
-#     use_rcpp = TRUE
-#   ),
-#   times = 10
-# )
-```

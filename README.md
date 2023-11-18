@@ -26,7 +26,7 @@ install.packages("devtools")
 devtools::install_github("NatheoB/SamsaRaLight")
 ```
 
-## Example
+## Small example
 
 This is a basic example which shows you how to solve a common problem:
 
@@ -72,7 +72,7 @@ correct name and type of the column:
 
 - `species`: Species Latin name. (character)
 
-- `x`, `y`, `z`: Coordinates of the base of the tree in the forest stand
+- `x`, `y`: Coordinates of the base of the tree in the forest stand
   in m. (double)
 
 - `dbh_cm`: Diameter at breast height (1.30m) of the trunk of the tree
@@ -105,30 +105,30 @@ of fir, spruce, beech located in Prenovel (Jura, France).
 ``` r
 trees <- as.data.table(SamsaRaLight::data_trees_prenovel) # Try to give a data.table to the function to avoid converting inside the function
 trees
-#>      id_tree     species       x       y       z  dbh_cm height_m  cbh_m
-#>   1:       1  Abies alba 77.7336 71.0808  7.4709 22.9320  14.8120 3.3073
-#>   2:       2  Abies alba 62.5783 65.1864  6.8514 18.2397  12.9612 4.7429
-#>   3:       3  Abies alba 84.0060 95.2483 10.0110 22.8472  15.8187 4.9055
-#>   4:       4  Abies alba 58.9521 97.9011 10.2898 19.1539  11.7033 4.2050
-#>   5:       5  Abies alba 33.3423 39.4053  4.1416 19.8852  14.6597 3.8346
-#>  ---                                                                    
-#> 329:     329  Abies alba 83.6769 29.9210  3.1448 16.1720  12.9273 2.7850
-#> 330:     330  Abies alba 20.1081 22.6300  2.3785 13.9037  10.4369 4.6049
-#> 331:     331  Abies alba 90.7703 27.8787  2.9302  9.4128   8.1643 2.3558
-#> 332:     332 Picea abies 90.1975 15.2572  1.6036 17.1754  16.0397 6.7220
-#> 333:     333  Abies alba 94.8614 14.0905  1.4810 15.3389   9.3093 2.3800
-#>      cradius_m crown_type crown_lad crown_p
-#>   1:    3.0204          1       0.5     0.2
-#>   2:    3.0896          1       0.5     0.2
-#>   3:    2.8350          1       0.5     0.2
-#>   4:    2.5196          1       0.5     0.2
-#>   5:    2.8208          1       0.5     0.2
-#>  ---                                       
-#> 329:    2.7448          1       0.5     0.2
-#> 330:    2.3478          1       0.5     0.2
-#> 331:    1.8538          1       0.5     0.2
-#> 332:    2.3005          1       0.5     0.2
-#> 333:    2.6004          1       0.5     0.2
+#>      id_tree     species       x       y  dbh_cm height_m  cbh_m cradius_m
+#>   1:       1  Abies alba 77.7336 71.0808 22.9320  14.8120 3.3073    3.0204
+#>   2:       2  Abies alba 62.5783 65.1864 18.2397  12.9612 4.7429    3.0896
+#>   3:       3  Abies alba 84.0060 95.2483 22.8472  15.8187 4.9055    2.8350
+#>   4:       4  Abies alba 58.9521 97.9011 19.1539  11.7033 4.2050    2.5196
+#>   5:       5  Abies alba 33.3423 39.4053 19.8852  14.6597 3.8346    2.8208
+#>  ---                                                                      
+#> 329:     329  Abies alba 83.6769 29.9210 16.1720  12.9273 2.7850    2.7448
+#> 330:     330  Abies alba 20.1081 22.6300 13.9037  10.4369 4.6049    2.3478
+#> 331:     331  Abies alba 90.7703 27.8787  9.4128   8.1643 2.3558    1.8538
+#> 332:     332 Picea abies 90.1975 15.2572 17.1754  16.0397 6.7220    2.3005
+#> 333:     333  Abies alba 94.8614 14.0905 15.3389   9.3093 2.3800    2.6004
+#>      crown_type crown_lad crown_p
+#>   1:          1       0.5     0.2
+#>   2:          1       0.5     0.2
+#>   3:          1       0.5     0.2
+#>   4:          1       0.5     0.2
+#>   5:          1       0.5     0.2
+#>  ---                             
+#> 329:          1       0.5     0.2
+#> 330:          1       0.5     0.2
+#> 331:          1       0.5     0.2
+#> 332:          1       0.5     0.2
+#> 333:          1       0.5     0.2
 ```
 
 ### Get monthly radiation
@@ -149,6 +149,10 @@ start and end year (range between 2005 and 2020) from the PVGIS database
 <https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en>.
 Here, you can choose to average the monthly values between all the years
 between 2005 and 2020 or to choose values of a given year.
+
+Monthly radiation for Prenovel example is stored within the package
+using `SamsaRaLight::data_rad_prenovel`. The dataset is fetched using
+the above function.
 
 ``` r
 monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
@@ -206,11 +210,11 @@ The function returns a list with two dataframes:
 summary(out$trees)
 #>     id_tree         epot              e                 lci         
 #>  Min.   :  1   Min.   :  8080   Min.   :   681.3   Min.   :0.06347  
-#>  1st Qu.: 84   1st Qu.:138419   1st Qu.: 24617.7   1st Qu.:0.53748  
-#>  Median :167   Median :250658   Median : 71870.9   Median :0.69330  
-#>  Mean   :167   Mean   :280214   Mean   :114401.8   Mean   :0.66048  
-#>  3rd Qu.:250   3rd Qu.:397578   3rd Qu.:179545.3   3rd Qu.:0.81312  
-#>  Max.   :333   Max.   :934841   Max.   :695745.0   Max.   :0.97177
+#>  1st Qu.: 84   1st Qu.:138418   1st Qu.: 24617.8   1st Qu.:0.53748  
+#>  Median :167   Median :250659   Median : 71870.9   Median :0.69330  
+#>  Mean   :167   Mean   :280214   Mean   :114401.8   Mean   :0.66047  
+#>  3rd Qu.:250   3rd Qu.:397578   3rd Qu.:179546.3   3rd Qu.:0.81312  
+#>  Max.   :333   Max.   :934842   Max.   :695744.2   Max.   :0.97177
 ```
 
 `cells`: Light coming to each cell of the plot
@@ -230,58 +234,4 @@ summary(out$cells)
 #>  Mean   : 50.50   Mean   : 828.3   Mean   :0.17941  
 #>  3rd Qu.: 75.25   3rd Qu.:1008.0   3rd Qu.:0.21832  
 #>  Max.   :100.00   Max.   :1695.5   Max.   :0.36723
-```
-
-## Other parameters
-
-Cf turbid medium, use_rcpp, use_torus…
-
-## Speed comparison
-
-### With 10m cells
-
-``` r
-microbenchmark::microbenchmark(
-  "r" = SamsaRaLight::sl_run(
-    trees, monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = 10, n_cells = 10,
-    use_rcpp = FALSE
-  ),
-  "rcpp" = SamsaRaLight::sl_run(
-    trees, monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = 10, n_cells = 10,
-    use_rcpp = TRUE
-  ),
-  times = 10
-)
-#> Unit: milliseconds
-#>  expr       min        lq      mean    median        uq       max neval
-#>     r 4617.8213 5372.5481 5502.4529 5527.6550 5770.8762 5954.3618    10
-#>  rcpp  145.0663  146.4532  163.9661  158.2322  176.2554  195.3409    10
-```
-
-### With 5m cells
-
-``` r
-# microbenchmark::microbenchmark(
-#   "r" = SamsaRaLight::sl_run(
-#     trees, monthly_rad,
-#     latitude = latitude, slope = slope,
-#     aspect = aspect, north_to_x_cw = north_to_x_cw,
-#     cell_size = 5, n_cells = 20,
-#     use_rcpp = FALSE
-#   ),
-#   "rcpp" = SamsaRaLight::sl_run(
-#     trees, monthly_rad,
-#     latitude = latitude, slope = slope,
-#     aspect = aspect, north_to_x_cw = north_to_x_cw,
-#     cell_size = 5, n_cells = 20,
-#     use_rcpp = TRUE
-#   ),
-#   times = 10
-# )
 ```

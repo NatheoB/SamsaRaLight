@@ -80,13 +80,12 @@ sl_run <- function(trees,
   setorder(cells, x_id, y_id)
   cells <- data.table(id_cell = 1:nrow(cells), cells)
   
-  
   # Search for cell in which the tree belong to
   trees <- as.data.table(trees)
   
-  trees <- trees[, `:=`(z := get_z(x, y,
-                                   deg2rad(slope),
-                                   deg2rad(-aspect + north_to_x_cw)),
+  trees <- trees[, `:=`(z = get_z(x, y,
+                                  deg2rad(slope),
+                                  deg2rad(-aspect + north_to_x_cw)),
                         xid_cell = x %/% cell_size,
                         yid_cell = n_cells - y %/% cell_size - 1)]
   
