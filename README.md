@@ -185,7 +185,8 @@ out <- SamsaRaLight::sl_run(
   latitude = latitude, slope = slope, 
   aspect = aspect, north_to_x_cw = north_to_x_cw,
   cell_size = cell_size, n_cells = n_cells,
-  use_rcpp = T
+  use_rcpp = T,
+  turbid_medium = FALSE
 )
 ```
 
@@ -208,13 +209,13 @@ The function returns a list with two dataframes:
 
 ``` r
 summary(out$trees)
-#>     id_tree         epot              e                 lci         
-#>  Min.   :  1   Min.   :  8080   Min.   :   681.3   Min.   :0.06347  
-#>  1st Qu.: 84   1st Qu.:138418   1st Qu.: 24617.8   1st Qu.:0.53748  
-#>  Median :167   Median :250659   Median : 71870.9   Median :0.69330  
-#>  Mean   :167   Mean   :280214   Mean   :114401.8   Mean   :0.66047  
-#>  3rd Qu.:250   3rd Qu.:397578   3rd Qu.:179546.3   3rd Qu.:0.81312  
-#>  Max.   :333   Max.   :934842   Max.   :695744.2   Max.   :0.97177
+#>     id_tree         epot               e               lci         
+#>  Min.   :  1   Min.   :  26748   Min.   :  1261   Min.   :0.09977  
+#>  1st Qu.: 84   1st Qu.: 208775   1st Qu.: 28580   1st Qu.:0.60472  
+#>  Median :167   Median : 332141   Median : 76059   Median :0.75194  
+#>  Mean   :167   Mean   : 355382   Mean   :121462   Mean   :0.71659  
+#>  3rd Qu.:250   3rd Qu.: 478041   3rd Qu.:189110   3rd Qu.:0.86189  
+#>  Max.   :333   Max.   :1009107   Max.   :734282   Max.   :0.98626
 ```
 
 `cells`: Light coming to each cell of the plot
@@ -227,11 +228,11 @@ summary(out$trees)
 
 ``` r
 summary(out$cells)
-#>     id_cell             e               erel        
-#>  Min.   :  1.00   Min.   : 253.8   Min.   :0.05497  
-#>  1st Qu.: 25.75   1st Qu.: 558.3   1st Qu.:0.12092  
-#>  Median : 50.50   Median : 749.6   Median :0.16235  
-#>  Mean   : 50.50   Mean   : 828.3   Mean   :0.17941  
-#>  3rd Qu.: 75.25   3rd Qu.:1008.0   3rd Qu.:0.21832  
-#>  Max.   :100.00   Max.   :1695.5   Max.   :0.36723
+#>     id_cell             e                erel        
+#>  Min.   :  1.00   Min.   :  85.07   Min.   :0.01843  
+#>  1st Qu.: 25.75   1st Qu.: 343.15   1st Qu.:0.07432  
+#>  Median : 50.50   Median : 506.78   Median :0.10976  
+#>  Mean   : 50.50   Mean   : 594.51   Mean   :0.12876  
+#>  3rd Qu.: 75.25   3rd Qu.: 758.91   3rd Qu.:0.16437  
+#>  Max.   :100.00   Max.   :1421.08   Max.   :0.30779
 ```

@@ -6,7 +6,6 @@ remove.packages("SamsaRaLight")
 devtools::clean_dll()
 .rs.restartR()
 
-
 rm(list = ls())
 
 devtools::load_all('.')

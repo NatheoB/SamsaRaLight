@@ -608,7 +608,7 @@ public:
 
 	}
 
-	void summarizeInterceptions(Stand &stand) {
+	void summarizeInterceptions(Stand &stand, bool turbid_medium) {
 
 		// Remove uselss memory on the interception vector
 		this->interceptions.shrink_to_fit();
@@ -626,7 +626,6 @@ public:
 		// Initialize intermediate variables
 		int id_target = 0;
 		double current_energy = e_incident_slope_cell;
-		double intercepted_energy = 0;
 
 		int n_interceptions = this->interceptions.size();
 		for (int i = 0; i < n_interceptions; i++) {
@@ -639,22 +638,42 @@ public:
 
 			}
 
-			// Add the potential energy to the tree (energy without attenuation by neighbours)
-			this->interceptions[i].getTree()->addEnergyPotential(
-				this->applyBeerLambert(e_incident_slope_cell,
-					this->interceptions[i].getTree()->getExtinctionCoef(), this->interceptions[i].getTree()->getClumpingFactor(), this->interceptions[i].getTree()->getCrownLAD(),
-					this->interceptions[i].getLength())
-			);
+			// Compute the potential energy to the tree (energy without attenuation by neighbours)
+			// and compute energy with attenuation
+			// Different considering crown as turbid medium or porous envelop
+			double potential_energy = 0;
+			double intercepted_energy = 0;
 
-			// Compute energy with attenuation
-			intercepted_energy = this->applyBeerLambert(current_energy,
-				this->interceptions[i].getTree()->getExtinctionCoef(), this->interceptions[i].getTree()->getClumpingFactor(), this->interceptions[i].getTree()->getCrownLAD(),
-				this->interceptions[i].getLength());
+			// Turbid medium ==> apply beer lambert law
+			if (turbid_medium) {
 
-			// Add to the intercepted energy by the tree and remove the intercepted energy from the energy that left
+				potential_energy = this->applyBeerLambert(
+					e_incident_slope_cell,
+					this->interceptions[i].getTree()->getExtinctionCoef(), 
+					this->interceptions[i].getTree()->getClumpingFactor(), 
+					this->interceptions[i].getTree()->getCrownLAD(),
+					this->interceptions[i].getLength());
+
+				intercepted_energy = this->applyBeerLambert(
+					current_energy,
+					this->interceptions[i].getTree()->getExtinctionCoef(), 
+					this->interceptions[i].getTree()->getClumpingFactor(), 
+					this->interceptions[i].getTree()->getCrownLAD(),
+					this->interceptions[i].getLength());
+			}
+			// Porous envelop ==> reduce the energy by a fixed amount
+			else {
+				potential_energy = e_incident_slope_cell * (1 - this->interceptions[i].getTree()->getCrownOpenness());
+				intercepted_energy = current_energy * (1 - this->interceptions[i].getTree()->getCrownOpenness());
+			}
+
+			// Add to the potential and intercepted energy by the tree
+			this->interceptions[i].getTree()->addEnergyPotential(potential_energy);
 			this->interceptions[i].getTree()->addEnergy(intercepted_energy);
-			current_energy -= intercepted_energy;
 
+			// And remove the intercepted energy from the energy that left
+			current_energy -= intercepted_energy;
+			
 			// Remove the intercepted energy from the total energy above the cell
 			this->interceptions[i].getTargetCell()->interceptEnergy(intercepted_energy);
 		}
@@ -1115,7 +1134,7 @@ public:
 		int n_rays = this->rays.size();
 		for (int i = 0; i < n_rays; i++) {
 
-			this->rays[i]->summarizeInterceptions(this->stand);
+			this->rays[i]->summarizeInterceptions(this->stand, this->turbidMedium);
 		}
 	}
 
