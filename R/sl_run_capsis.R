@@ -1,5 +1,9 @@
 #' Run SamsaraLight from Capsis
 #'
+#' @param capsis_folderpath Folderpath of the capsis source directory
+#' @param inv_fp Filepath of the samsaralight inventory
+#'
+#' @noRd
 sl_run_capsis <- function(capsis_folderpath, inv_fp,
                           use_rcapsis = TRUE,
                           java_server_started = FALSE,

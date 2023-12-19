@@ -40,19 +40,20 @@ data_trees_prenovel <- trees %>%
     1 ~ "Abies alba",
     2 ~ "Fagus sylvatica"
   )) %>% 
-  dplyr::select(id_tree = Id, species,
-                x = X, y = Y,
-                dbh_cm = Dbh, height_m = H,
-                cbh_m = CBH, cradius_m = CR) %>% 
   dplyr::mutate(
     crown_type = case_match(
       species,
-      c("Abies alba", "Picea abies") ~ 1,
-      "Fagus sylvatica" ~ 2
+      c("Abies alba", "Picea abies") ~ "P",
+      "Fagus sylvatica" ~ "E"
     ),
     crown_lad = 0.5,
-    crown_p = 0.2
-  )
+    crown_openess = 0.2
+  ) %>% 
+  dplyr::select(id_tree = Id, species,
+                x = X, y = Y, dbh_cm = Dbh, 
+                crown_type,
+                h_m = H, hbase_m = CBH, r_m = CR,
+                crown_openess, crown_lad)
 
 # Add dataset to package resources
 usethis::use_data(data_trees_prenovel, overwrite = TRUE)
