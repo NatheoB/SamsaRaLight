@@ -1,6 +1,7 @@
 #' Trees dataset for Prenovel stand (Jura)
 #'
 #' @description Dataset containing information about Prenovel forest stand in Jura (France).
+#' The dataset is used as an example for light itnerception by symetrical crowns.
 #' It contains for each trees of the plot, the information about loalisation, species, size,
 #' size of the crown and crown information. All the variables needed to run SamsaRaLight.
 #'
@@ -11,19 +12,48 @@
 #'    \item{species}{Species Latin name. (character)}
 #'    \item{x, y}{Coordinates of the base of the tree in the forest stand in m. (double)}
 #'    \item{dbh_cm}{Diameter at breast height (1.30m) of the trunk of the tree in cm. (double)}
-#'    \item{height_m}{Height of the tree trunk in m. (double)}
-#'    \item{cbh_m}{Crown base height of the tree (i.e. height at wich the crown start) in m. (double)}
-#'    \item{cradius_m}{Biggest radius of the tree crown in m (double)}
+#'    \item{crown_type}{Type of the crown between paraboloid (P) and ellispoid (E). (character)}
+#'    \item{h_m}{Height of the tree trunk in m. (double)}
+#'    \item{hbase_m}{Crown base height of the tree (i.e. height at wich the crown start) in m. (double)}
+#'    \item{r_m}{Biggest radius of the tree crown in m (double)}
+#'    \item{crown_openess}{Crown Openness of the tree (no unit) (i.e. Fraction of the energy of a light ray crossing the crown that is intercepted).
+#'    Used when computing interception with a crown considered as a porous envelop. (double)}
+#'    \item{crown_lad}{Leaf Area Density of the tree crown in m2/m3 (i.e. surface of leave per volume of crown, considering an homogeneous crown). 
+#'    Used when computing interception with a crown considered as a turbid medium. (double)}
+#'    }
+#'
+#' @source Courbaud Benoit (LESSEM Grenoble)
+#'
+"data_trees_prenovel"
+
+
+#' Trees dataset for Bechefa stand (Belgium)
+#'
+#' @description Dataset containing information about Bechefa forest stand in Belgium.
+#' The dataset is used as an example for light itnerception by irregular crowns.
+#' It contains for each trees of the plot, the information about loalisation, species, size,
+#' size of the crown and crown information. All the variables needed to run SamsaRaLight.
+#'
+#' @format `data_trees_bechefa`
+#' A data.frame with 201 rows and 15 columns:
+#' \describe{
+#'    \item{id_tree}{Unique id of the tree. (integer)}
+#'    \item{species}{Species Latin name. (character)}
+#'    \item{x, y}{Coordinates of the base of the tree in the forest stand in m. (double)}
+#'    \item{dbh_cm}{Diameter at breast height (1.30m) of the trunk of the tree in cm. (double)}
 #'    \item{crown_type}{Type of the crown between "paraboloid" (1) and "ellispoid (2). (integer)}
+#'    \item{h_m}{Height of the tree trunk in m. (double)}
+#'    \item{hbase_m}{Crown base height of the tree (i.e. height at wich the crown start) in m. (double)}
+#'    \item{cradius_m}{Biggest radius of the tree crown in m (double)}
 #'    \item{crown_lad}{Leaf Area Density of the tree crown in m2/m3 (i.e. surface of leave per volume of crown, considering an homogeneous crown). 
 #'    Used when computing interception with a crown considered as a turbid medium. (double)}
 #'    \item{crown_p}{Crown Openness of the tree (no unit) (i.e. Fraction of the energy of a light ray crossing the crown that is intercepted).
 #'    Used when computing interception with a crown considered as a porous envelop. (double)}
 #'    }
 #'
-#' @source Courbaud Benoit (LESSEM Grenoble)
+#' @source Gauthier Ligot (Gembloux Agro-Bio Tech)
 #'
-"data_trees_prenovel"
+"data_trees_bechefa"
 
 
 #' Radiation dataset for Prenovel (Jura)
@@ -34,6 +64,26 @@
 #' latitude 46.52666 and longitude 5.82765
 #'
 #' @format `data_rad_prenovel`
+#' A data.frame with 12 rows and 3 columns:
+#' \describe{
+#'    \item{month}{Unique id of the tree. (integer)}
+#'    \item{Hrad}{Monthly radiation in a horizontal plane in MJ. (double)}
+#'    \item{DGratio}{Ratio between monthly diffuse and global energies. (double)}
+#'    }
+#'
+#' @source PVGIS : https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
+#'
+"data_rad_prenovel"
+
+
+#' Radiation dataset for Bechefa (Belgium)
+#'
+#' @description Dataset with monthly radiation of Bechefa forest in Belgium.
+#' It is useful for runnning SamsaRaLight on Bechefa stand using `SamsaRaLight::data_trees_bechefa` dataset.
+#' Data were fecteched from PVGIS using the function `SamsaRaLight::get_monthly_rad()` at 
+#' latitude 50.04 and longitude 5.2
+#'
+#' @format `data_rad_bechefa`
 #' A data.frame with 12 rows and 3 columns:
 #' \describe{
 #'    \item{month}{Unique id of the tree. (integer)}

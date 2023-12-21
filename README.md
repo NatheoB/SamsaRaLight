@@ -56,7 +56,7 @@ aspect <- 144
 north_to_x_cw <- 54
 
 # Considering a squared plot, number and size of the cells composing the grid
-n_cells <-  10 # Number of cells within one length
+n_cells <- 20 # Number of cells within one length
 cell_size <- 10 # Size of the length of a cell
 ```
 
@@ -103,32 +103,40 @@ You can find an example tree dataset
 of fir, spruce, beech located in Prenovel (Jura, France).
 
 ``` r
-trees <- as.data.table(SamsaRaLight::data_trees_prenovel) # Try to give a data.table to the function to avoid converting inside the function
+# trees <- as.data.table(SamsaRaLight::data_trees_prenovel %>% 
+#                          dplyr::mutate(rn_m = r_m,
+#                                        re_m = r_m,
+#                                        rs_m = r_m,
+#                                        rw_m = r_m,
+#                                        crown_type = "8E",
+#                                        hmax_m = hbase_m + 1/2*(h_m - hbase_m)) %>% 
+#                          dplyr::select(-r_m)) # Try to give a data.table to the function to avoid converting inside the function trees
+trees <- as.data.table(SamsaRaLight::data_trees_bechefa)
 trees
-#>      id_tree     species       x       y  dbh_cm height_m  cbh_m cradius_m
-#>   1:       1  Abies alba 77.7336 71.0808 22.9320  14.8120 3.3073    3.0204
-#>   2:       2  Abies alba 62.5783 65.1864 18.2397  12.9612 4.7429    3.0896
-#>   3:       3  Abies alba 84.0060 95.2483 22.8472  15.8187 4.9055    2.8350
-#>   4:       4  Abies alba 58.9521 97.9011 19.1539  11.7033 4.2050    2.5196
-#>   5:       5  Abies alba 33.3423 39.4053 19.8852  14.6597 3.8346    2.8208
-#>  ---                                                                      
-#> 329:     329  Abies alba 83.6769 29.9210 16.1720  12.9273 2.7850    2.7448
-#> 330:     330  Abies alba 20.1081 22.6300 13.9037  10.4369 4.6049    2.3478
-#> 331:     331  Abies alba 90.7703 27.8787  9.4128   8.1643 2.3558    1.8538
-#> 332:     332 Picea abies 90.1975 15.2572 17.1754  16.0397 6.7220    2.3005
-#> 333:     333  Abies alba 94.8614 14.0905 15.3389   9.3093 2.3800    2.6004
-#>      crown_type crown_lad crown_p
-#>   1:          1       0.5     0.2
-#>   2:          1       0.5     0.2
-#>   3:          1       0.5     0.2
-#>   4:          1       0.5     0.2
-#>   5:          1       0.5     0.2
-#>  ---                             
-#> 329:          1       0.5     0.2
-#> 330:          1       0.5     0.2
-#> 331:          1       0.5     0.2
-#> 332:          1       0.5     0.2
-#> 333:          1       0.5     0.2
+#>      id_tree     species     x    y    dbh_cm crown_type  h_m hbase_m hmax_m
+#>   1:     103       abies 163.1 67.3  68.43663         8E 38.5    16.6   28.2
+#>   2:     615 pseudotsuga  66.8 41.4  95.49297         8E 50.2    14.0   33.3
+#>   3:     102 pseudotsuga 159.2 58.2 111.72677         8E 48.2    10.8   27.1
+#>   4:     708 pseudotsuga  43.8 34.2 116.81973         8E 51.0    15.8   27.0
+#>   5:     707 pseudotsuga  51.4 34.1  99.94930         8E 50.5    16.0   26.7
+#>  ---                                                                        
+#> 197:      15       fagus 195.0 79.1  16.55211         8E 13.7     0.6    2.3
+#> 198:     703       fagus  42.2 48.7  28.64789         8E 21.1     1.0    2.1
+#> 199:     704       fagus  55.8 44.5  20.05352         8E 11.2     1.8    1.8
+#> 200:     511       fagus  75.3 57.7  21.00845         8E  8.4     1.3    1.8
+#> 201:     700       fagus  20.2 76.5  44.88169         8E 18.4     1.0    1.6
+#>      rn_m rs_m re_m rw_m crown_openess crown_lad
+#>   1: 4.32 4.12 3.70 5.20         0.035       0.6
+#>   2: 7.01 6.45 5.87 4.15         0.035       0.6
+#>   3: 8.38 6.72 4.69 6.51         0.035       0.6
+#>   4: 7.37 7.43 9.85 5.44         0.035       0.6
+#>   5: 6.73 5.16 3.40 5.76         0.035       0.6
+#>  ---                                            
+#> 197: 3.27 4.80 3.00 4.65         0.035       0.6
+#> 198: 6.27 4.40 6.85 6.02         0.035       0.6
+#> 199: 3.51 5.65 4.85 0.64         0.035       0.6
+#> 200: 5.12 2.60 3.60 3.72         0.035       0.6
+#> 201: 2.03 4.07 2.22 6.04         0.035       0.6
 ```
 
 ### Get monthly radiation
@@ -181,13 +189,28 @@ radiation, you can run SamsaRaLight using the function `sl_run()`.
 
 ``` r
 out <- SamsaRaLight::sl_run(
-  trees, monthly_rad,
-  latitude = latitude, slope = slope, 
-  aspect = aspect, north_to_x_cw = north_to_x_cw,
-  cell_size = cell_size, n_cells = n_cells,
-  use_rcpp = T,
-  turbid_medium = FALSE
-)
+    trees, monthly_rad,
+    latitude = latitude, slope = slope, 
+    aspect = aspect, north_to_x_cw = north_to_x_cw,
+    cell_size = cell_size, n_cells = n_cells,
+    use_rcpp = T,
+    turbid_medium = TRUE
+  )
+```
+
+``` r
+microbenchmark::microbenchmark(
+  "sl" = SamsaRaLight::sl_run(
+    trees, monthly_rad,
+    latitude = latitude, slope = slope, 
+    aspect = aspect, north_to_x_cw = north_to_x_cw,
+    cell_size = cell_size, n_cells = n_cells,
+    use_rcpp = T,
+    turbid_medium = TRUE
+  ))
+#> Unit: milliseconds
+#>  expr     min       lq     mean   median      uq     max neval
+#>    sl 44.6723 47.10285 50.38295 48.85395 53.0911 60.5104   100
 ```
 
 The function returns a list with two dataframes:
@@ -209,13 +232,13 @@ The function returns a list with two dataframes:
 
 ``` r
 summary(out$trees)
-#>     id_tree         epot               e               lci         
-#>  Min.   :  1   Min.   :  26748   Min.   :  1261   Min.   :0.09977  
-#>  1st Qu.: 84   1st Qu.: 208775   1st Qu.: 28580   1st Qu.:0.60472  
-#>  Median :167   Median : 332141   Median : 76059   Median :0.75194  
-#>  Mean   :167   Mean   : 355382   Mean   :121462   Mean   :0.71659  
-#>  3rd Qu.:250   3rd Qu.: 478041   3rd Qu.:189110   3rd Qu.:0.86189  
-#>  Max.   :333   Max.   :1009107   Max.   :734282   Max.   :0.98626
+#>     id_tree           epot              e           
+#>  Min.   :  1.0   Min.   :     0   Min.   :     0.0  
+#>  1st Qu.:210.0   1st Qu.:  3678   1st Qu.:   308.6  
+#>  Median :413.0   Median :  9284   Median :  1934.2  
+#>  Mean   :403.3   Mean   : 26908   Mean   :  8973.6  
+#>  3rd Qu.:607.0   3rd Qu.: 26233   3rd Qu.:  6891.9  
+#>  Max.   :815.0   Max.   :274064   Max.   :152579.9
 ```
 
 `cells`: Light coming to each cell of the plot
@@ -228,11 +251,11 @@ summary(out$trees)
 
 ``` r
 summary(out$cells)
-#>     id_cell             e                erel        
-#>  Min.   :  1.00   Min.   :  85.07   Min.   :0.01843  
-#>  1st Qu.: 25.75   1st Qu.: 343.15   1st Qu.:0.07432  
-#>  Median : 50.50   Median : 506.78   Median :0.10976  
-#>  Mean   : 50.50   Mean   : 594.51   Mean   :0.12876  
-#>  3rd Qu.: 75.25   3rd Qu.: 758.91   3rd Qu.:0.16437  
-#>  Max.   :100.00   Max.   :1421.08   Max.   :0.30779
+#>     id_cell            e               erel        
+#>  Min.   :  1.0   Min.   :-246.2   Min.   :-0.5362  
+#>  1st Qu.:100.8   1st Qu.: 459.2   1st Qu.: 1.0000  
+#>  Median :200.5   Median : 459.2   Median : 1.0000  
+#>  Mean   :200.5   Mean   : 414.3   Mean   : 0.9023  
+#>  3rd Qu.:300.2   3rd Qu.: 459.2   3rd Qu.: 1.0000  
+#>  Max.   :400.0   Max.   : 459.2   Max.   : 1.0000
 ```
