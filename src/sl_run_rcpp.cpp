@@ -479,7 +479,7 @@ public:
 
 		// Create a Tree object and store it in a vector of trees
 		for (int i = 0; i < n_rays; i++) {
-			Ray* ray = new Ray(id[i], energy[i], height_angle[i], azimuth[i]);
+			Ray* ray = new Ray(id[i]-1, energy[i], height_angle[i], azimuth[i]);
 			this->rays.push_back(ray);
 		}
 	}
@@ -804,9 +804,6 @@ private:
 	// Id of the tree to which the crown belong
 	int idTree;
 
-	// Radius of the crown
-	double radiusMax;
-
 	// Crown parts in the crown
 	std::map<int, CrownPart*> crownParts;
 
@@ -821,16 +818,12 @@ private:
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad) {
 
-		// Maximum radius is the mean crown radius of the four directions
-		this->radiusMax = cr_n;
-		this->radiusMax += cr_e;
-		this->radiusMax += cr_s;
-		this->radiusMax += cr_w;
-		this->radiusMax /= 4.0;
+		// Radius is the same for all directions and is defined by mean crown radius of the four directions
+		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
 
 		// Compute height of maximum crown radius as the middle height of the crown depth
 		double cdepth = (h - hbase);
-		double hmax = hbase + 1.0 / 2.0 * cdepth;
+		double hmax = hbase + cdepth / 2.0;
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
@@ -841,9 +834,10 @@ private:
 		// Create full ellipsoid crown
 		this->crownParts[1] = new CrownPartEllipsoid(this->idTree, 1, 
 			false, false,
-			x0, y0, z0, this->radiusMax, this->radiusMax, 1.0 / 2.0 * cdepth,
+			x0, y0, z0, crown_radius, crown_radius, cdepth / 2.0,
 			crown_openess, crown_lad);
 	}
+
 
 	// Irregular crown composed of 2 above and below semi-ellipsoids
 	void initCrownEllipsoidSemi(double x, double y, double z,
@@ -851,12 +845,8 @@ private:
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad) {
 
-		// Maximum radius is the mean crown radius of the four directions
-		this->radiusMax = cr_n;
-		this->radiusMax += cr_e;
-		this->radiusMax += cr_s;
-		this->radiusMax += cr_w;
-		this->radiusMax /= 4.0;
+		// Radius is the same for all directions and is defined by mean crown radius of the four directions
+		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
@@ -872,7 +862,7 @@ private:
 		if (depth_up > 0) {
 			this->crownParts[1] = new CrownPartEllipsoid(this->idTree, 1,
 				false, true,
-				x0, y0, z0, this->radiusMax, this->radiusMax, depth_up,
+				x0, y0, z0, crown_radius, crown_radius, depth_up,
 				crown_openess, crown_lad);
 		}
 
@@ -880,7 +870,7 @@ private:
 		if (depth_down > 0) {
 			this->crownParts[2] = new CrownPartEllipsoid(this->idTree, 2,
 				false, true,
-				x0, y0, z0, this->radiusMax, this->radiusMax, -depth_down,
+				x0, y0, z0, crown_radius, crown_radius, -depth_down,
 				crown_openess, crown_lad);
 		}
 	}
@@ -890,9 +880,6 @@ private:
 		double h, double hbase, double hmax,
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad) {
-
-		// Maximum radius is the maximum radius between the four directions
-		this->radiusMax = std::max({ cr_n, cr_e, cr_s, cr_w });
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
@@ -981,7 +968,7 @@ public:
 
 	// Getters
 	CrownPart* getCrownPart(int id) { return(this->crownParts[id]); }
-	double getRadiusMax() { return(this->radiusMax); }
+	std::map<int, CrownPart*> getCrownParts() { return(this->crownParts); }
 
 	double getEnergy() { 
 		double energy = 0.0;
@@ -1005,15 +992,9 @@ public:
 		
 		std::vector<interception*> interceptions_crown;
 
-		//#ifdef _OPENMP
-		//	#pragma omp parallel for
-		//#endif
 		for (auto const& x : this->crownParts) {
 			interception* interc = x.second->computeInterception(id_target_cell, ray, shift);
 			if (interc != nullptr) {
-				//#ifdef _OPENMP
-				//	#pragma omp critical
-				//#endif
 				interceptions_crown.push_back(interc);
 			}
 		}
@@ -1071,18 +1052,13 @@ public:
 	double getZ() { return(this->z); }
 	double getHeight() { return(this->height); }
 	double getDbh() { return(this->dbh); }
-	double getRadiusMax() { return(this->crown.getRadiusMax()); }
 
 	CrownPart* getCrownPart(int id) { return(this->crown.getCrownPart(id)); }
+	std::map<int, CrownPart*> getCrownParts() { return(this->crown.getCrownParts()); }
 
 	double getEnergy() { return(this->crown.getEnergy()); }
 	double getEnergyPotential() { return(this->crown.getEnergyPotential()); }
 
-
-	// Methods
-	std::vector<interception*> computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
-		return(this->crown.computeInterception(id_target_cell, ray, shift));
-	}
 };
 
 class Cell {
@@ -1119,7 +1095,7 @@ public:
 
 		// Energy of the cell (in MJ)
 		this->energyAboveCanopy = e_above; // Energy coming to the cell above the canopy (energy of the cell without trees above)
-		this->energy = e_above; // Current energy above the cell (will be decreased by successive interception by the abov trees
+		this->energy = e_above; // Current energy above the cell (will be decreased by successive interception by the abov trees)
 	}
 
 	~Cell() {
@@ -1185,16 +1161,16 @@ private:
 	// Stand size
 	double cellSize; // Length of the size of a single cell (in m)
 	int nCells; // Number of cells in a row (in m)
-	double cellAreaPlane; // Area	of the cell at horizontal (in m2)
+	double cellAreaPlane; // Area of the cell at horizontal (in m2)
 	double cellArea; // Area of the cell considering slope (in m2)
 	bool useTorus; // Whether we want to use a torus system for light ray tracing
 
 
 public:
-	Stand(DataFrame cells, DataFrame trees,
+	Stand(DataFrame cells, DataFrame trees, double e_above_m2,
 		double slope, double north_to_x_cw, double aspect,
-		double cell_size, double n_cells, bool use_torus,
-		double e_above_m2)
+		double cell_size, double n_cells, bool use_torus
+		)
 	{
 		// Stand orientation (all in radians)
 		this->slope = slope * M_PI / 180.0;
@@ -1240,7 +1216,7 @@ public:
 		NumericVector clad = trees["crown_lad"];
 
 		// Get energy above canopy that is coming toward a cell
-		double e_above_cell = e_above_m2 * this->cellSize;
+		double e_above_cell = e_above_m2 * this->cellArea;
 
 		// Create a Cell pointer and store it in a vector and grid of target cells
 		for (int i = 0; i < n_cells_grid; i++) {
@@ -1306,9 +1282,8 @@ struct shiftedCell {
 class InterceptionManager {
 
 private:
-	// Map of all interceptions per ray per target cell
-	// First int of the pair key is the target cell, the second one is the ray
-	std::map<std::pair<int, int>, std::vector<interception*>> interceptions;
+	// Store all interceptions in a vector (each element correspond to interceptions for a target cell X a ray)
+	std::vector<std::vector<interception*>> interceptions;
 
 	// Light interception method by the crowns : either porous envelop(use "crownOpenness") or turbid medium(use "crownLAD")
 	bool turbidMedium;
@@ -1335,38 +1310,45 @@ public:
 
 	~InterceptionManager() {
 		// Delete interception pointers
-		for (auto const& x : this->interceptions) {
-			int n_intercs = x.second.size();
-			for (int i = 0; i < n_intercs; i++) {
-				delete x.second[i];
+		for (auto const& x1 : this->interceptions) {
+			for (auto const& x2 : x1) {
+				delete x2;
 			}
 		}
 	}
 
 	// Setters
-	void addInterception(int cell_id, int ray_id, interception* interc) {
-		this->interceptions[std::make_pair(cell_id, ray_id)].push_back(interc);
+	void addInterceptions(std::vector<interception*> v_interc) {
+		this->interceptions.push_back(v_interc);
 	}
+
 
 	// Methods
 	void orderInterceptions() {
-		// Sort interceptions by distance to the target cell for each ray X target cell
-		// Furthest first
-		for (auto & x : this->interceptions) {
-			std::sort(x.second.begin(), x.second.end(), [](interception const* i1, interception const* i2) {
-				return i1->distance > i2->distance;
-				});
-		}
+
+		int n_ray_target = this->interceptions.size();
+		#ifdef _OPENMP
+		#pragma omp parallel for
+		#endif
+		for (int i = 0; i < n_ray_target; i++)
+			std::sort(this->interceptions[i].begin(), this->interceptions[i].end(), [](interception const* i1, interception const* i2) {
+				// Sort by distance to the target cell center, furthest first
+				return (i1->distance > i2->distance);
+			});
 	}
 
 	void summarizeInterceptions(RayManager& rays, Stand& stand) {
 
-		// iterate over all rays going towards each target cell
-		for (auto const& x : this->interceptions) {
+		// Iterate over all ray toward each target cell
+		int n_ray_target = this->interceptions.size();
+		#ifdef _OPENMP
+		#pragma omp parallel for
+		#endif	
+		for (int i = 0; i < n_ray_target; i++) {
 
-			// Get ray and target cell of this interceptions vector
-			Cell* target_cell = stand.getCell(x.first.first);
-			Ray* ray = rays.getRay(x.first.second);
+			// Get ray and target cell
+			Ray* ray = rays.getRay(this->interceptions[i][0]->idRay);
+			Cell* target_cell = stand.getCell(this->interceptions[i][0]->idTargetCell);
 
 			// Compute projection of energy on plane parallel to slope
 			double scalar_slope = cos(stand.getSlope()) * ray->getSinHeightAngle() +
@@ -1379,12 +1361,12 @@ public:
 			// Initialize the energy of the ray coming toward the cell above the canopy
 			double current_energy = e_incident_slope_cell;
 
-			// Compute attenuation of energy across successives crown interceptions for each ray X target cell
-			int n_interceptions = x.second.size();
-			for (int i = 0; i < n_interceptions; i++) {
+			//Compute attenuation of energy across successives crown interceptions for each ray X target cell
+			int n_interceptions = this->interceptions[i].size();
+			for (int j = 0; j < n_interceptions; j++) {
 
 				// Get the interception
-				CrownPart* crown_part = stand.getTree(x.second[i]->idTree)->getCrownPart(x.second[i]->idCrownPart);
+				CrownPart* crown_part = stand.getTree(this->interceptions[i][j]->idTree)->getCrownPart(this->interceptions[i][j]->idCrownPart);
 
 				// Compute the potential energy to the tree (energy without attenuation by neighbours)
 				// and compute energy with attenuation
@@ -1400,13 +1382,13 @@ public:
 						e_incident_slope_cell,
 						this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 						crown_part->getCrownLAD(),
-						x.second[i]->length);
+						this->interceptions[i][j]->length);
 
 					intercepted_energy = this->applyBeerLambert(
 						current_energy,
 						this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 						crown_part->getCrownLAD(),
-						x.second[i]->length);
+						this->interceptions[i][j]->length);
 				}
 				// Porous envelop ==> reduce the energy by a fixed amount
 				else {
@@ -1415,17 +1397,27 @@ public:
 				}
 
 				// Add to the potential and intercepted energy by the tree
-				crown_part->addEnergyPotential(potential_energy);
-				crown_part->addEnergy(intercepted_energy);
+				#ifdef _OPENMP
+				#pragma omp critical
+				{
+				#endif
+					crown_part->addEnergyPotential(potential_energy);
+					crown_part->addEnergy(intercepted_energy);
+				#ifdef _OPENMP
+				}
+				#endif
+			
 
 				// And remove the intercepted energy from the energy that left
 				current_energy -= intercepted_energy;
 
-				// Remove the intercepted energy from the total energy above the cell
+				// Remove the intercepted energy by the crown from the total energy above the cell
+				#ifdef _OPENMP
+				#pragma omp critical
+				#endif
 				target_cell->interceptEnergy(intercepted_energy);
 			}
 		}
-
 	}
 
 };
@@ -1451,7 +1443,7 @@ public:
 		double cell_size, double n_cells,
 		bool use_torus, bool turbid_medium) :
 
-		stand(cells, trees, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus, e_above_m2),
+		stand(cells, trees, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus),
 		rays(rays, e_above_m2),
 		interceptions(turbid_medium)
 	{}
@@ -1622,20 +1614,21 @@ public:
 	void computeInterceptions() {
 
 		int n_rays = this->rays.getNRays();
-		int n_cells = this->stand.getNCells();
+		int n_cells = this->stand.getCells().size();
 
 		// For each target cell
 		#ifdef _OPENMP
-			#pragma omp parallel for
+		#pragma omp parallel for collapse(2)
 		#endif
 		for (int c = 0; c < n_cells; c++) {
-
-			Cell* target_cell = this->stand.getCell(c);
 
 			// Get interceptions for all rays X all trees
 			for (int r = 0; r < n_rays; r++) {
 
+				Cell* target_cell = this->stand.getCell(c);
 				Ray* ray = this->rays.getRay(r);
+
+				std::vector<interception*> v_interc;
 
 				// For each possible relative cell coordinates
 				int n_relcells = ray->getNPotCells();
@@ -1660,21 +1653,23 @@ public:
 					int n_pot_trees = pot_cell.cell->getNTrees();
 					for (int t = 0; t < n_pot_trees; t++) {
 
-						// Get tree pointer
-						Tree* tree_p = pot_cell.cell->getTree(t);
+						// Compute interception for each crown part of the tree
+						std::map<int, CrownPart*> crown_parts = pot_cell.cell->getTree(t)->getCrownParts();
+						for (auto & c_part: crown_parts) {
 
-						// Compute interception path length and distance form target cell if ray intercepted the crown parts of the tree
-						std::vector<interception*> interceptions_tree = tree_p->computeInterception(target_cell->getId(), ray, shift_tree);
-
-						// Store the interceptions
-						int n_interceptions_tree = interceptions_tree.size();
-						for (int i = 0; i < n_interceptions_tree; i++) {
-							#ifdef _OPENMP
-								#pragma omp critical
-							#endif
-							this->interceptions.addInterception(rc, r, interceptions_tree[i]);
+							interception* interc = c_part.second->computeInterception(target_cell->getId(), ray, shift_tree);
+							if (interc != nullptr) {
+								v_interc.push_back(interc);
+							}
 						}
 					}
+				}
+				// Add interceptions for a ray toward a target cell
+				if (v_interc.size() > 0) {
+					#ifdef _OPENMP
+					#pragma omp critical
+					#endif
+					this->interceptions.addInterceptions(v_interc);
 				}
 			}
 		}
@@ -1705,6 +1700,9 @@ public:
 
 		// Init RCPP vectors for cells
 		IntegerVector id_cell(n_cells);
+		NumericVector x_cell(n_cells);
+		NumericVector y_cell(n_cells);
+		NumericVector z_cell(n_cells);
 		NumericVector e_cell(n_cells);
 		NumericVector erel_cell(n_cells);
 
@@ -1715,6 +1713,9 @@ public:
 
 			// Add cell to vectors
 			id_cell[icell] = cell.second->getId() + 1;
+			x_cell[icell] = cell.second->getX();
+			y_cell[icell] = cell.second->getY();
+			z_cell[icell] = cell.second->getZ();
 			e_cell[icell] = cell.second->getEnergyM2(this->stand.getCellArea());
 			erel_cell[icell] = cell.second->getEnergyRelative();
 
@@ -1743,6 +1744,9 @@ public:
 
 		DataFrame output_cells = DataFrame::create(
 			Named("id_cell") = id_cell,
+			Named("x_center") = x_cell,
+			Named("y_center") = y_cell,
+			Named("z_center") = z_cell,
 			Named("e") = e_cell,
 			Named("erel") = erel_cell
 		);
@@ -1762,7 +1766,7 @@ public:
 // [[Rcpp::export]]
 List sl_run_rcpp(
 	DataFrame trees, DataFrame cells,
-	DataFrame rays, double total_energy_m2,
+	DataFrame rays, double e_above_m2,
 	double slope, double north_to_x_cw, double aspect,
 	double cell_size, double n_cells,
 	bool use_torus, bool turbid_medium
@@ -1775,11 +1779,13 @@ List sl_run_rcpp(
 	// - Trunk interception
 	// - Other forms E, P, C and 8P, 8C
 	// - Not squared plot (rectangle or shape weird)
+	// PB when many part in the crown, many dcrease of energy whereas same crown
+
 
 
 	// Initialize the model
 	Model sl_model = Model(trees, cells,
-		rays, total_energy_m2,
+		rays, e_above_m2,
 		slope, north_to_x_cw, aspect,
 		cell_size, n_cells, use_torus, turbid_medium);
 
@@ -1802,8 +1808,5 @@ List sl_run_rcpp(
 
 	return(output);
 }
-
-
-
 
 

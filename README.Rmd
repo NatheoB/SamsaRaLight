@@ -177,7 +177,7 @@ out <- SamsaRaLight::sl_run(
 ```
 
 
-```{r out_sl}
+```{r out_sl, echo=FALSE}
 microbenchmark::microbenchmark(
   "sl" = SamsaRaLight::sl_run(
     trees, monthly_rad,

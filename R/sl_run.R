@@ -95,7 +95,7 @@ sl_run <- function(trees,
 
   # USING RCPP (C++ script in src folder)
   if (use_rcpp) {
-    
+
     # Run call to c++ script
     out <- sl_run_rcpp(
       trees, cells, rays$rays,
