@@ -196,13 +196,14 @@ out <- SamsaRaLight::sl_run(
     aspect = aspect, north_to_x_cw = north_to_x_cw,
     cell_size = cell_size, n_cells = n_cells,
     use_rcpp = T,
-    turbid_medium = TRUE
+    turbid_medium = TRUE,
+    trunk_interception = TRUE
   )
 ```
 
     #> Unit: milliseconds
-    #>  expr      min      lq     mean  median       uq      max neval
-    #>    sl 198.7417 207.083 234.1921 213.138 221.1911 464.6904   100
+    #>  expr      min       lq     mean   median       uq      max neval
+    #>    sl 202.5835 308.3343 361.8635 392.2158 415.1744 509.2371   100
 
 The function returns a list with two dataframes:
 
@@ -227,7 +228,7 @@ summary(out$trees)
 #>  Min.   :  1   Min.   :  10072   Min.   :   562  
 #>  1st Qu.: 84   1st Qu.: 163738   1st Qu.: 22453  
 #>  Median :167   Median : 299307   Median : 57445  
-#>  Mean   :167   Mean   : 330761   Mean   :119931  
+#>  Mean   :167   Mean   : 330753   Mean   :119931  
 #>  3rd Qu.:250   3rd Qu.: 470347   3rd Qu.:171867  
 #>  Max.   :333   Max.   :1085693   Max.   :794042
 ```
@@ -243,17 +244,17 @@ summary(out$trees)
 ``` r
 summary(out$cells)
 #>     id_cell          x_center     y_center     z_center            e         
-#>  Min.   :  1.00   Min.   : 5   Min.   : 5   Min.   :0.5255   Min.   : 195.7  
-#>  1st Qu.: 25.75   1st Qu.:25   1st Qu.:25   1st Qu.:2.6276   1st Qu.: 451.9  
-#>  Median : 50.50   Median :50   Median :50   Median :5.2552   Median : 575.0  
-#>  Mean   : 50.50   Mean   :50   Mean   :50   Mean   :5.2552   Mean   : 645.2  
-#>  3rd Qu.: 75.25   3rd Qu.:75   3rd Qu.:75   3rd Qu.:7.8828   3rd Qu.: 772.2  
-#>  Max.   :100.00   Max.   :95   Max.   :95   Max.   :9.9849   Max.   :1329.8  
+#>  Min.   :  1.00   Min.   : 5   Min.   : 5   Min.   :0.5255   Min.   :   0.0  
+#>  1st Qu.: 25.75   1st Qu.:25   1st Qu.:25   1st Qu.:2.6276   1st Qu.: 426.4  
+#>  Median : 50.50   Median :50   Median :50   Median :5.2552   Median : 564.5  
+#>  Mean   : 50.50   Mean   :50   Mean   :50   Mean   :5.2552   Mean   : 621.6  
+#>  3rd Qu.: 75.25   3rd Qu.:75   3rd Qu.:75   3rd Qu.:7.8828   3rd Qu.: 756.4  
+#>  Max.   :100.00   Max.   :95   Max.   :95   Max.   :9.9849   Max.   :1326.7  
 #>       erel        
-#>  Min.   :0.04238  
-#>  1st Qu.:0.09789  
-#>  Median :0.12454  
-#>  Mean   :0.13974  
-#>  3rd Qu.:0.16724  
-#>  Max.   :0.28803
+#>  Min.   :0.00000  
+#>  1st Qu.:0.09235  
+#>  Median :0.12227  
+#>  Mean   :0.13464  
+#>  3rd Qu.:0.16383  
+#>  Max.   :0.28734
 ```

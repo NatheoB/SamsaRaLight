@@ -32,6 +32,7 @@
 #'  considered as porous envelope
 #' @param use_rcpp If TRUE, use Rcpp package and C++ implementation of SamsaraLight for faster
 #'  computation. Otherwise, run SamsaraLight with only R-based scripts
+#' @param trunk_interception Consider interception of rays by trunks
 #'
 #' @import data.table
 #' @importFrom Rcpp sourceCpp
@@ -50,7 +51,8 @@ sl_run <- function(trees,
                    n_cells = 10,
                    use_torus = TRUE,
                    turbid_medium = TRUE,
-                   use_rcpp = TRUE) {
+                   use_rcpp = TRUE,
+                   trunk_interception = FALSE) {
 
   
   # Create monthly rays
@@ -102,7 +104,7 @@ sl_run <- function(trees,
       sum(rays$e_slope),
       slope, north_to_x_cw, aspect,
       cell_size, n_cells,
-      use_torus, turbid_medium)
+      use_torus, turbid_medium, trunk_interception)
     
     # Convert dataframe into data.table
     out$trees <- as.data.table(out$trees)

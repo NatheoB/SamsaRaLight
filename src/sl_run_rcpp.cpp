@@ -45,6 +45,9 @@ struct interception {
 	// Crown part intercepted by the ray
 	int idCrownPart;
 
+	// Interception by crown or trunk ?
+	bool withTrunk;
+
 	// Length of the path across the crown
 	double length;
 
@@ -498,30 +501,16 @@ public:
 	double getEnergyAboveM2() { return(this->energyAboveM2); }
 };
 
-class CrownPart {
+class TreeVolume {
 
 protected:
-	// Id of the crown part and of the tree to which the crown part belong
+	// Id the tree to which the crown part belong
 	int idTree;
-	int id;
-
-	// Do we consider 8th of ellipsoid, a semi-ellipsoid split on a horizontal plane or the full ellipsoid
-	bool is8th;
-	bool isSemi;
 
 	// Position of the center of the crown (in meters)
 	double x;
 	double y;
 	double z;
-
-	// Leaves charcteristics
-	double crownOpeness; // between 0 and 1, percentage of ligth energy of a ray that is not absorbed by the crown (for porous envelop method)
-	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
-
-	// Output energy (in MJ)
-	double energy; // Intercepted energy
-	double energyPotential; // Intercepted energy without considering neighbours
-
 
 protected:
 	// Get point of interception
@@ -551,32 +540,56 @@ protected:
 			pmin.z - p.z <= EPSILON && p.z - pmax.z <= EPSILON);
 	}
 
-	bool isInEllipsoid(vertex3D p0, vertex3D p, double a, double b, double c) {
+public:
+	TreeVolume(int id_tree, double x, double y, double z) {
+		this->idTree = id_tree;
 
-		double value = (p.x - p0.x) * (p.x - p0.x) / (a * a) +
-			(p.y - p0.y) * (p.y - p0.y) / (b * b) +
-			(p.z - p0.z) * (p.z - p0.z) / (c * c);
-
-		return (value < 1.0);
+		this->x = x;
+		this->y = y;
+		this->z = z;
 	}
 
+	int getIdTree() { return(this->idTree); }
+	double getX() { return(this->x); }
+	double getY() { return(this->y); }
+	double getZ() { return(this->z); }
+
+	// interception generic function
+	virtual interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) { return(nullptr); }
+
+};
+
+class CrownPart: public TreeVolume {
+
+protected:
+	// Id of the crown part
+	int id;
+
+	// Do we consider 8th of ellipsoid, a semi-ellipsoid split on a horizontal plane or the full ellipsoid
+	bool is8th;
+	bool isSemi;
+
+	// Leaves charcteristics
+	double crownOpeness; // between 0 and 1, percentage of ligth energy of a ray that is not absorbed by the crown (for porous envelop method)
+	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
+
+	// Output energy (in MJ)
+	double energy; // Intercepted energy
+	double energyPotential; // Intercepted energy without considering neighbours
 
 public:
 
 	CrownPart(int id_tree, int id,
 		bool is_8th, bool is_semi,
 		double x, double y, double z,
-		double crown_openess, double crown_lad)
+		double crown_openess, double crown_lad):
+		TreeVolume(id_tree, x, y, z)
 	{
-		this->idTree = id_tree;
 		this->id = id;
 
 		this->is8th = is_8th;
 		this->isSemi = this->is8th ? true : is_semi; // If 8th thus semi ellipsoid is mandatory
 
-		this->x = x;
-		this->y = y;
-		this->z = z;
 		this->crownOpeness = crown_openess;
 		this->crownLAD = crown_lad;
 
@@ -588,12 +601,8 @@ public:
 
 	// Getters
 	int getId() { return(this->id); }
-	int getIdTree() { return(this->idTree); }
 	bool getIs8th() { return(this->is8th); }
 	bool getIsSemi() { return(this->isSemi); }
-	double getX() { return(this->x); }
-	double getY() { return(this->y); }
-	double getZ() { return(this->z); }
 	double getCrownOpeness() { return(this->crownOpeness); }
 	double getCrownLAD() { return(this->crownLAD); }
 	double getEnergy() { return(this->energy); }
@@ -602,9 +611,6 @@ public:
 	// Setter
 	void addEnergy(double e) { this->energy += e; }
 	void addEnergyPotential(double epot) { this->energyPotential += epot; }
-
-	// interception generic function
-	virtual interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) { return(nullptr); }
 
 };
 
@@ -617,6 +623,15 @@ private:
 	double b;
 	double c;
 
+private:
+	bool isInEllipsoid(vertex3D p0, vertex3D p, double a, double b, double c) {
+
+		double value = (p.x - p0.x) * (p.x - p0.x) / (a * a) +
+			(p.y - p0.y) * (p.y - p0.y) / (b * b) +
+			(p.z - p0.z) * (p.z - p0.z) / (c * c);
+
+		return (value < 1.0);
+	}
 
 public:
 	CrownPartEllipsoid(int id_tree, int id,
@@ -637,7 +652,7 @@ public:
 	double getC() { return(this->c); }
 
 
-	// interception of a 8th of an ellispoid between a shifted tree and a ray coming toward a target cell
+	// interception of a 8th, semi or full ellispoid between a shifted tree and a ray coming toward a target cell
 	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
 
 		// SHIFT POSITION OF THE ELLIPSOID
@@ -790,7 +805,7 @@ public:
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
-		interception* interc = new interception { ray->getId(), id_target_cell, this->idTree, this->id, length, distance };
+		interception* interc = new interception { ray->getId(), id_target_cell, this->idTree, this->id, false, length, distance };
 
 		return(interc);
 	}
@@ -1002,23 +1017,155 @@ public:
 	}
 };
 
+class Trunk : public TreeVolume {
+
+private:
+	// Id of the tree to which the trunk belong
+	int idTree;
+
+	// Position of the trunk (in meters)
+	double x;
+	double y;
+	double z;
+
+	// Dimensions of the tree
+	double height;
+	double radius;
+
+private:
+
+	bool isInCylinder(vertex3D p0, vertex3D p, double radius) {
+		return (p0.x - p.x) * (p0.x - p.x) + (p0.y - p.y) * (p0.y - p.y) <= radius * radius;
+	}
+
+		
+
+public:
+	Trunk(double id_tree, double x, double y, double z,
+		double height, double radius) :
+		TreeVolume(id_tree, x, y, z)
+	{
+		this->height = height;
+		this->radius = radius;
+	}
+
+	// Compute interception betwene a cylinder and a ray coming toward a target cell
+	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
+
+		// SHIFT POSITION OF THE CYLINDER
+		// 2 shifts: the first one to set the target cell as origin, and the second to acoount for outside tree when torus system
+		vertex3D p0_shift = {
+			this->x + shift.x,
+			this->y + shift.y,
+			this->z + shift.z
+		};
+
+		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
+		// Equation giving distance between ray intersection with infinite height cylinder and target cell center
+		// Compute a, b and c coefficients
+		double coef_a = ray->getCosHeightAngle() * ray->getCosHeightAngle();
+		double coef_b = -2.0 * p0_shift.x * ray->getCosHeightAngle() * ray->getCosAzimuth() - 
+			2.0 * p0_shift.y * ray->getCosHeightAngle() * ray->getSinAzimuth();
+		double coef_c = p0_shift.x * p0_shift.x + p0_shift.y * p0_shift.y - this->radius * this->radius;
+
+		// Find point of intersection between the ray and the whole cylinder
+		// Find positive solutions of the above quadratic equations (distance to target cell)
+		// if not 2 solutions, leave the function
+		// Because negative = no interception and null = 1 interception = do not consider tangent rays with crown
+		double delta = coef_b * coef_b - 4.0 * coef_a * coef_c;
+
+		if (delta <= 0.0) { return nullptr; }
+
+		double delta_sqrt = sqrt(delta);
+		double solc1 = (-coef_b + delta_sqrt) / (2.0 * coef_a);
+		double solc2 = (-coef_b - delta_sqrt) / (2.0 * coef_a);
+
+
+		// COMPUTE COORDINATES OF INTERCEPTION POINTS WITH TRUNK LIMITS AND TARGET POINT
+
+			// Coordinates of the two interception points with the full ellipsoid
+		vertex3D pc1 = this->getInterceptionPoint(solc1, ray);
+		vertex3D pc2 = this->getInterceptionPoint(solc2, ray);
+
+		// Interception with the top horizontal base of the trunk  
+		double ztop = p0_shift.z + this->height;
+		double solztop = ztop / ray->getSinHeightAngle();
+		vertex3D pztop = this->getInterceptionPoint(solztop, ray);
+		pztop.z = ztop;
+
+		double solzbot = p0_shift.z / ray->getSinHeightAngle();
+		vertex3D pzbot = this->getInterceptionPoint(solzbot, ray);
+		pzbot.z = p0_shift.z;
+
+		// interception with the target point
+		vertex3D ptarget = getInterceptionPoint(0.0, ray);
+
+
+		// FIND SOLUTIONS OF INTERSECTION WITH THE EIGHTH ELLIPSOID
+		// Get the limits of the bounding box of the 8th paraboloid
+		vertex3D p_bbox_min = { p0_shift.x - this->radius, p0_shift.y - this->radius, p0_shift.z };
+		vertex3D p_bbox_max = { p0_shift.x + this->radius, p0_shift.y + this->radius, ztop };
+
+
+		double EPSILON = 1e-10; // accounts for rounding errors in boolean operations below
+		std::vector<double> sols;
+
+		// The first interception point with the full ellipsoid is in the trunk
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, EPSILON) && pc1.z >= 0.0 && pc1.z >= p0_shift.z)
+			sols.push_back(solc1);
+
+		// The second interception point with the full ellipsoid is in the trunk
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON) && pc2.z >= 0.0 && pc2.z >= p0_shift.z)
+			sols.push_back(solc2);
+
+		// The ray intersects the ground or top horizontal plane of the trunk
+		if (this->isInCylinder(p0_shift, pztop, this->radius) && ztop >= p0_shift.z && ztop >= 0.0)
+			sols.push_back(solztop);
+		if (this->isInCylinder(p0_shift, pzbot, this->radius) && p0_shift.z >= 0.0)
+			sols.push_back(solzbot);
+
+		// The ray intersects the center of the target cell
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInCylinder(p0_shift, ptarget, this->radius) && ptarget.z != pzbot.z && ptarget.z != pztop.z)
+			sols.push_back(0.0);
+
+
+		// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
+		int nsols = sols.size();
+
+		// Did not intersect the trunk
+		if (nsols == 0) { return(nullptr); }
+
+		// If not 0 or 2 solutions ==> problem
+		if (sols.size() != 2) {
+			std::cout << "Not 0 or 2 solutions" << std::endl;
+			return nullptr;
+		}
+
+		// Distance between target cell and middle point between two interceptions
+		// Length is the length of the ray path across the crown
+		double sol1 = sols.back();
+		sols.pop_back();
+		double sol2 = sols.back();
+
+		double length = abs(sol1 - sol2);
+		double distance = (sol1 + sol2) / 2.0;
+
+		// Create interception 
+		interception* interc = new interception{ ray->getId(), id_target_cell, this->idTree, 0, true, length, distance };
+
+		return(interc);
+	}
+};
+
 class Tree {
 
 private:
 	// Id of the tree
 	int id;
 
-	// Tree position
-	double x;
-	double y;
-	double z;
-
-	// Tree dimensions
-	double dbh;
-	double height;
-
-	// Crown
+	// Tree volumes: trunk and crown
 	Crown crown;
+	Trunk trunk;
 
 
 public:
@@ -1030,31 +1177,22 @@ public:
 		double crown_openess, double crown_lad):
 
 		crown(id, crown_type, x, y, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
-			crown_openess, crown_lad)
+			crown_openess, crown_lad),
+		trunk(id, x, y, z, dbh/200.0, h)
 	{
-		// Init tree variables
 		this->id = id;
-		this->x = x;
-		this->y = y;
-		this->z = z;
-
-		// Init tree dimensions
-		this->dbh = dbh;
-		this->height = h;
-
 	}
 
 
 	// Getters
 	int getId() { return(this->id); }
-	double getX() { return(this->x); }
-	double getY() { return(this->y); }
-	double getZ() { return(this->z); }
-	double getHeight() { return(this->height); }
-	double getDbh() { return(this->dbh); }
 
 	CrownPart* getCrownPart(int id) { return(this->crown.getCrownPart(id)); }
 	std::map<int, CrownPart*> getCrownParts() { return(this->crown.getCrownParts()); }
+
+	interception* computeTrunkInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
+		return( this->trunk.computeInterception(id_target_cell, ray, shift) );
+	}
 
 	double getEnergy() { return(this->crown.getEnergy()); }
 	double getEnergyPotential() { return(this->crown.getEnergyPotential()); }
@@ -1132,6 +1270,12 @@ public:
 	// Setters
 	void addTree(Tree* tree) { this->trees.push_back(tree); }
 	void interceptEnergy(double e) { this->energy -= e; }
+	void correctNullEnergy(double epsilon) {
+		if (this->energy < -epsilon)
+			std::cout << "Problem with energy in cell " << this->id << ": energy of " << this->energy << "MJ";
+		if (abs(this->energy) < epsilon)
+			this->energy = 0.0;
+	}
 
 };
 
@@ -1288,6 +1432,9 @@ private:
 	// Light interception method by the crowns : either porous envelop(use "crownOpenness") or turbid medium(use "crownLAD")
 	bool turbidMedium;
 
+	// Consider interception with trunks ?
+	bool trunkInterception;
+
 	// Global variable for turbid medium
 	const double EXTINCTION_COEF; // Probability of a leaf to intercept the ray (linked to leaf orientation)
 	const double CLUMPING_FACTOR; // Aggregation of leaves within the crown volume (1 is homogeneous)
@@ -1302,10 +1449,11 @@ private:
 
 
 public:
-	InterceptionManager(bool turbid_medium):
+	InterceptionManager(bool turbid_medium, bool trunk_interception):
 		EXTINCTION_COEF(0.5), CLUMPING_FACTOR(1.0)
 	{
 		this->turbidMedium = turbid_medium;
+		this->trunkInterception = trunk_interception;
 	}
 
 	~InterceptionManager() {
@@ -1316,6 +1464,9 @@ public:
 			}
 		}
 	}
+
+	// Getters
+	bool isTrunkInterception() { return(this->trunkInterception); }
 
 	// Setters
 	void addInterceptions(std::vector<interception*> v_interc) {
@@ -1364,6 +1515,19 @@ public:
 			//Compute attenuation of energy across successives crown interceptions for each ray X target cell
 			int n_interceptions = this->interceptions[i].size();
 			for (int j = 0; j < n_interceptions; j++) {
+
+				// Intrception with a trunk
+				if (this->interceptions[i][j]->withTrunk) {
+					// Remove the current energy from the total energy above the cell (no energy are coming to the cell)
+					#ifdef _OPENMP
+					#pragma omp critical
+					#endif
+					target_cell->interceptEnergy(current_energy);
+
+					// Stop the loop over the ray coming to the target cell 
+					// It has been stopped by the trunk
+					break;
+				}
 
 				// Get the interception
 				CrownPart* crown_part = stand.getTree(this->interceptions[i][j]->idTree)->getCrownPart(this->interceptions[i][j]->idCrownPart);
@@ -1441,11 +1605,11 @@ public:
 		double e_above_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells,
-		bool use_torus, bool turbid_medium) :
+		bool use_torus, bool turbid_medium, bool trunk_interception) :
 
 		stand(cells, trees, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus),
 		rays(rays, e_above_m2),
-		interceptions(turbid_medium)
+		interceptions(turbid_medium, trunk_interception)
 	{}
 
 	// Getters
@@ -1662,6 +1826,14 @@ public:
 								v_interc.push_back(interc);
 							}
 						}
+
+						// If specified, compute interception by trunks
+						if (this->interceptions.isTrunkInterception()) {
+							interception* interc = pot_cell.cell->getTree(t)->computeTrunkInterception(target_cell->getId(), ray, shift_tree);
+							if (interc != nullptr) {
+								v_interc.push_back(interc);
+							}
+						}
 					}
 				}
 				// Add interceptions for a ray toward a target cell
@@ -1716,6 +1888,10 @@ public:
 			x_cell[icell] = cell.second->getX();
 			y_cell[icell] = cell.second->getY();
 			z_cell[icell] = cell.second->getZ();
+
+			// Correct for rounding errors
+			cell.second->correctNullEnergy(1e-6);
+
 			e_cell[icell] = cell.second->getEnergyM2(this->stand.getCellArea());
 			erel_cell[icell] = cell.second->getEnergyRelative();
 
@@ -1769,7 +1945,7 @@ List sl_run_rcpp(
 	DataFrame rays, double e_above_m2,
 	double slope, double north_to_x_cw, double aspect,
 	double cell_size, double n_cells,
-	bool use_torus, bool turbid_medium
+	bool use_torus, bool turbid_medium, bool trunk_interception
 )
 {
 	// TESTS:
@@ -1787,7 +1963,8 @@ List sl_run_rcpp(
 	Model sl_model = Model(trees, cells,
 		rays, e_above_m2,
 		slope, north_to_x_cw, aspect,
-		cell_size, n_cells, use_torus, turbid_medium);
+		cell_size, n_cells, 
+		use_torus, turbid_medium, trunk_interception);
 
 	// [OPTIMIZATION]: find the extend of possible interception of each ray
 	// i.e. for each ray coming to an unknown target cell, find relative cells around the target containing tree that could possibly intercept the ray

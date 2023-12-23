@@ -11,8 +11,8 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // sl_run_rcpp
-List sl_run_rcpp(DataFrame trees, DataFrame cells, DataFrame rays, double e_above_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells, bool use_torus, bool turbid_medium);
-RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP cellsSEXP, SEXP raysSEXP, SEXP e_above_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cellsSEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP) {
+List sl_run_rcpp(DataFrame trees, DataFrame cells, DataFrame rays, double e_above_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells, bool use_torus, bool turbid_medium, bool trunk_interception);
+RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP cellsSEXP, SEXP raysSEXP, SEXP e_above_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cellsSEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP trunk_interceptionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -27,13 +27,14 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type n_cells(n_cellsSEXP);
     Rcpp::traits::input_parameter< bool >::type use_torus(use_torusSEXP);
     Rcpp::traits::input_parameter< bool >::type turbid_medium(turbid_mediumSEXP);
-    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, cells, rays, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus, turbid_medium));
+    Rcpp::traits::input_parameter< bool >::type trunk_interception(trunk_interceptionSEXP);
+    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, cells, rays, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus, turbid_medium, trunk_interception));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 11},
+    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 12},
     {NULL, NULL, 0}
 };
 
