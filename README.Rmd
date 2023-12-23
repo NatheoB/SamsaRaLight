@@ -48,6 +48,7 @@ This is a basic example which shows you how to solve a common problem:
 ```{r example, message=FALSE, warning=FALSE}
 library(SamsaRaLight)
 library(data.table)
+library(dplyr)
 ```
 
 
@@ -58,7 +59,7 @@ You first need to precise the geometry of the stand with:
 ```{r stand_geom}
 # Coordinates of the stand (for monthly radiation and rays geometry)
 latitude <- 46 # The latitude of the stand (Y-coord in WGS85)
-longitude <- 2 # The longitud eof the plot (X-coord in WGS85)
+longitude <- 2 # The longitude of the plot (X-coord in WGS85)
 
 # The slope of the stand
 slope <- 6
@@ -72,7 +73,7 @@ aspect <- 144
 north_to_x_cw <- 54
 
 # Considering a squared plot, number and size of the cells composing the grid
-n_cells <- 20 # Number of cells within one length
+n_cells <- 10 # Number of cells within one length
 cell_size <- 10 # Size of the length of a cell
 ```
 
@@ -119,15 +120,16 @@ You can find an example tree dataset
 of fir, spruce, beech located in Prenovel (Jura, France).
 
 ```{r data_trees}
-# trees <- as.data.table(SamsaRaLight::data_trees_prenovel %>% 
-#                          dplyr::mutate(rn_m = r_m,
-#                                        re_m = r_m,
-#                                        rs_m = r_m,
-#                                        rw_m = r_m,
-#                                        crown_type = "8E",
-#                                        hmax_m = hbase_m + 1/2*(h_m - hbase_m)) %>% 
-#                          dplyr::select(-r_m)) # Try to give a data.table to the function to avoid converting inside the function trees
-trees <- as.data.table(SamsaRaLight::data_trees_bechefa)
+trees <- as.data.table(SamsaRaLight::data_trees_prenovel %>%
+                         dplyr::mutate(rn_m = r_m,
+                                       re_m = r_m,
+                                       rs_m = r_m,
+                                       rw_m = r_m,
+                                       crown_type = "E",
+                                       hmax_m = hbase_m + 1/2*(h_m - hbase_m)) %>%
+                         dplyr::select(-r_m)) 
+# Try to give a data.table to the function to avoid converting inside the function trees
+# trees <- as.data.table(SamsaRaLight::data_trees_bechefa)
 trees
 ```
 

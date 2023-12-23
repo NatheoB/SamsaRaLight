@@ -505,6 +505,10 @@ protected:
 	int idTree;
 	int id;
 
+	// Do we consider 8th of ellipsoid, a semi-ellipsoid split on a horizontal plane or the full ellipsoid
+	bool is8th;
+	bool isSemi;
+
 	// Position of the center of the crown (in meters)
 	double x;
 	double y;
@@ -559,12 +563,17 @@ protected:
 
 public:
 
-	CrownPart(int id_tree, int id, 
+	CrownPart(int id_tree, int id,
+		bool is_8th, bool is_semi,
 		double x, double y, double z,
 		double crown_openess, double crown_lad)
 	{
 		this->idTree = id_tree;
 		this->id = id;
+
+		this->is8th = is_8th;
+		this->isSemi = this->is8th ? true : is_semi; // If 8th thus semi ellipsoid is mandatory
+
 		this->x = x;
 		this->y = y;
 		this->z = z;
@@ -580,6 +589,8 @@ public:
 	// Getters
 	int getId() { return(this->id); }
 	int getIdTree() { return(this->idTree); }
+	bool getIs8th() { return(this->is8th); }
+	bool getIsSemi() { return(this->isSemi); }
 	double getX() { return(this->x); }
 	double getY() { return(this->y); }
 	double getZ() { return(this->z); }
@@ -597,7 +608,7 @@ public:
 
 };
 
-class CrownPartEllipsoid8th : public CrownPart {
+class CrownPartEllipsoid : public CrownPart {
 
 private:
 	// Ellipsoid parameters (semi-principal axes)
@@ -606,12 +617,14 @@ private:
 	double b;
 	double c;
 
+
 public:
-	CrownPartEllipsoid8th(int id_tree, int id,
+	CrownPartEllipsoid(int id_tree, int id,
+		bool is_8th, bool is_semi,
 		double x, double y, double z,
 		double a, double b, double c,
 		double crown_openess, double crown_lad) :
-		CrownPart(id_tree, id, x, y, z, crown_openess, crown_lad) {
+		CrownPart(id_tree, id, is_8th, is_semi, x, y, z, crown_openess, crown_lad) {
 
 		this->a = a;
 		this->b = b;
@@ -670,33 +683,57 @@ public:
 		vertex3D pc1 = getInterceptionPoint(solc1, ray);
 		vertex3D pc2 = getInterceptionPoint(solc2, ray);
 
-		// interception with respectively plane x = x0, y = y0, z = z0
-		// And correct for rounding errors
+			// Interception with the horizontal base of the crown 
+			// Checked only if semi or 8th ellispoid
+		double solz0 = p0_shift.z / ray->getSinHeightAngle();
+		vertex3D pz0 = getInterceptionPoint(solz0, ray);
+		pz0.z = p0_shift.z;
+
+
+			// If interception with a eighth of ellipsoid, consider interception with the X and Y vertical planes
+			// Checked only in the case of a eihth of ellipsoid
 		double solx0 = p0_shift.x / (ray->getCosHeightAngle() * ray->getCosAzimuth());
 		double soly0 = p0_shift.y / (ray->getCosHeightAngle() * ray->getSinAzimuth());
-		double solz0 = p0_shift.z / ray->getSinHeightAngle();
 
 		vertex3D px0 = getInterceptionPoint(solx0, ray);
 		vertex3D py0 = getInterceptionPoint(soly0, ray);
-		vertex3D pz0 = getInterceptionPoint(solz0, ray);
 
 		px0.x = p0_shift.x;
 		py0.y = p0_shift.y;
-		pz0.z = p0_shift.z;
 
-		// interception with the target point
+
+			// interception with the target point
 		vertex3D ptarget = getInterceptionPoint(0.0, ray);
 
 
-		// FIND SOLUTIONS OF INTERSECTIO WITH THE EIGHTH ELLIPSOID
+		// FIND SOLUTIONS OF INTERSECTION WITH THE EIGHTH ELLIPSOID
+
+		double xa_add = p0_shift.x + a;
+		double yb_add = p0_shift.y + b;
+		double zc_add = p0_shift.z + c;
+
+		double xa_sub = p0_shift.x - a;
+		double yb_sub = p0_shift.y - b;
+		double zc_sub = p0_shift.z - c;
 
 		// Get the limits of the bounding box of the 8th paraboloid
-		double xa = p0_shift.x + a;
-		double yb = p0_shift.y + b;
-		double zc = p0_shift.z + c;
+		vertex3D p_bbox_min = { 0.0, 0.0, 0.0 };
+		vertex3D p_bbox_max = { 0.0, 0.0, 0.0 };
+		if (this->is8th) {
+			p_bbox_min = { std::min(p0_shift.x, xa_add), std::min(p0_shift.y, yb_add), std::min(p0_shift.z, zc_add) };
+			p_bbox_max = { std::max(p0_shift.x, xa_add), std::max(p0_shift.y, yb_add), std::max(p0_shift.z, zc_add) };
+		}
+		// Get the limits of the bounding box of the semi-ellipsoid
+		else if (this->isSemi) {
+			p_bbox_min = { xa_sub, yb_sub, std::min(p0_shift.z, zc_add) };
+			p_bbox_max = { xa_add, yb_add, std::max(p0_shift.z, zc_add) };
+		}
+		// Get the limit of the bounding box of the full ellispoid
+		else {
+			p_bbox_min = { xa_sub, yb_sub, zc_sub };
+			p_bbox_max = { xa_add, yb_add, zc_add };
+		}
 
-		vertex3D p_bbox_min = { std::min(p0_shift.x, xa), std::min(p0_shift.y, yb), std::min(p0_shift.z, zc) };
-		vertex3D p_bbox_max = { std::max(p0_shift.x, xa), std::max(p0_shift.y, yb), std::max(p0_shift.z, zc) };
 
 		double EPSILON = 1e-10; // accounts for rounding errors in boolean operations below
 		std::vector<double> sols;
@@ -709,21 +746,26 @@ public:
 		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON) && pc2.z >= 0.0)
 			sols.push_back(solc2);
 
-		// The ray intersects the X vertical plane of the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInEllipsoid(p0_shift, px0, this->a, this->b, this->c) && px0.z > 0.0)
-			sols.push_back(solx0);
-
-		// The ray intersects the Y vertical plane of the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInEllipsoid(p0_shift, py0, this->a, this->b, this->c) && py0.z > 0.0 && !this->areEquals(py0, px0, EPSILON))
-			sols.push_back(soly0);
-
-		// The ray intersects the Z horizontal plane of the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInEllipsoid(p0_shift, pz0, this->a, this->b, this->c) && pz0.z > 0.0 && !this->areEquals(pz0, px0, EPSILON) && !this->areEquals(pz0, py0, EPSILON))
-			sols.push_back(solz0);
-
 		// The ray intersects the center of the target cell
 		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInEllipsoid(p0_shift, ptarget, this->a, this->b, this->c))
 			sols.push_back(0.0);
+
+		// The ray intersects the Z horizontal plane of the eight ellipsoid
+		if (this->isSemi) {
+			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInEllipsoid(p0_shift, pz0, this->a, this->b, this->c) && pz0.z > 0.0)
+				sols.push_back(solz0);
+		}
+
+		// Add interception with the verticla planes of the 8th ellipsoid
+		if (this->is8th) {
+			// The ray intersects the X vertical plane of the eight ellipsoid
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInEllipsoid(p0_shift, px0, this->a, this->b, this->c) && px0.z > 0.0 && !this->areEquals(px0, pz0, EPSILON))
+				sols.push_back(solx0);
+
+			// The ray intersects the Y vertical plane of the eight ellipsoid
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInEllipsoid(p0_shift, py0, this->a, this->b, this->c) && py0.z > 0.0 && !this->areEquals(py0, pz0, EPSILON) && !this->areEquals(py0, px0, EPSILON))
+				sols.push_back(soly0);
+		}
 
 
 		// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
@@ -764,7 +806,6 @@ private:
 
 	// Radius of the crown
 	double radiusMax;
-	double radiusMean;
 
 	// Crown parts in the crown
 	std::map<int, CrownPart*> crownParts;
@@ -774,11 +815,84 @@ private:
 
 	// --- FUNCTIONS TO INITIALIZE DIFFERENT CROWN FORMS ---
 
+	// Symetric ellispoidal crown
+	void initCrownEllipsoid(double x, double y, double z,
+		double h, double hbase,
+		double cr_n, double cr_e, double cr_s, double cr_w,
+		double crown_openess, double crown_lad) {
+
+		// Maximum radius is the mean crown radius of the four directions
+		this->radiusMax = cr_n;
+		this->radiusMax += cr_e;
+		this->radiusMax += cr_s;
+		this->radiusMax += cr_w;
+		this->radiusMax /= 4.0;
+
+		// Compute height of maximum crown radius as the middle height of the crown depth
+		double cdepth = (h - hbase);
+		double hmax = hbase + 1.0 / 2.0 * cdepth;
+
+		// Get center of the crown 
+		// x, y, z are tree coordinates
+		double x0 = x;
+		double y0 = y;
+		double z0 = z + hmax;
+
+		// Create full ellipsoid crown
+		this->crownParts[1] = new CrownPartEllipsoid(this->idTree, 1, 
+			false, false,
+			x0, y0, z0, this->radiusMax, this->radiusMax, 1.0 / 2.0 * cdepth,
+			crown_openess, crown_lad);
+	}
+
+	// Irregular crown composed of 2 above and below semi-ellipsoids
+	void initCrownEllipsoidSemi(double x, double y, double z,
+		double h, double hbase, double hmax,
+		double cr_n, double cr_e, double cr_s, double cr_w,
+		double crown_openess, double crown_lad) {
+
+		// Maximum radius is the mean crown radius of the four directions
+		this->radiusMax = cr_n;
+		this->radiusMax += cr_e;
+		this->radiusMax += cr_s;
+		this->radiusMax += cr_w;
+		this->radiusMax /= 4.0;
+
+		// Get center of the crown 
+		// x, y, z are tree coordinates
+		double x0 = x;
+		double y0 = y;
+		double z0 = z + hmax;
+
+		// Get depth of respectively top and bottom parts of the crown
+		double depth_up = h - hmax;
+		double depth_down = hmax - hbase;
+
+		// Init top semi part of the crown
+		if (depth_up > 0) {
+			this->crownParts[1] = new CrownPartEllipsoid(this->idTree, 1,
+				false, true,
+				x0, y0, z0, this->radiusMax, this->radiusMax, depth_up,
+				crown_openess, crown_lad);
+		}
+
+		// Init bottom semi part of the crown
+		if (depth_down > 0) {
+			this->crownParts[2] = new CrownPartEllipsoid(this->idTree, 2,
+				false, true,
+				x0, y0, z0, this->radiusMax, this->radiusMax, -depth_down,
+				crown_openess, crown_lad);
+		}
+	}
+
 	// Irregular crown composed of 8 eighth of ellipsoids
 	void initCrownEllipsoid8th(double x, double y, double z,
 		double h, double hbase, double hmax,
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad) {
+
+		// Maximum radius is the maximum radius between the four directions
+		this->radiusMax = std::max({ cr_n, cr_e, cr_s, cr_w });
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
@@ -793,26 +907,34 @@ private:
 		// Init top eighth parts of the crown
 		if (depth_up > 0) {
 			// Create pointors
-			this->crownParts[1] = new CrownPartEllipsoid8th(this->idTree, 1,
+			this->crownParts[1] = new CrownPartEllipsoid(this->idTree, 1, 
+				true, true,
 				x0, y0, z0, cr_e, cr_n, depth_up, crown_openess, crown_lad);
-			this->crownParts[2] = new CrownPartEllipsoid8th(this->idTree, 2,
+			this->crownParts[2] = new CrownPartEllipsoid(this->idTree, 2,
+				true, true,
 				x0, y0, z0, cr_e, -cr_s, depth_up, crown_openess, crown_lad);
-			this->crownParts[3] = new CrownPartEllipsoid8th(this->idTree, 3,
+			this->crownParts[3] = new CrownPartEllipsoid(this->idTree, 3,
+				true, true,
 				x0, y0, z0, -cr_w, -cr_s, depth_up, crown_openess, crown_lad);
-			this->crownParts[4] = new CrownPartEllipsoid8th(this->idTree, 4,
+			this->crownParts[4] = new CrownPartEllipsoid(this->idTree, 4,
+				true, true,
 				x0, y0, z0, -cr_w, cr_n, depth_up, crown_openess, crown_lad);
 		}
 
 		// Init bottom eighth parts of the crown
 		if (depth_down > 0) {
 			// Create pointors
-			this->crownParts[5] = new CrownPartEllipsoid8th(this->idTree, 5,
+			this->crownParts[5] = new CrownPartEllipsoid(this->idTree, 5,
+				true, true,
 				x0, y0, z0, cr_e, cr_n, -depth_down, crown_openess, crown_lad);
-			this->crownParts[6] = new CrownPartEllipsoid8th(this->idTree, 6,
+			this->crownParts[6] = new CrownPartEllipsoid(this->idTree, 6,
+				true, true,
 				x0, y0, z0, cr_e, -cr_s, -depth_down, crown_openess, crown_lad);
-			this->crownParts[7] = new CrownPartEllipsoid8th(this->idTree, 7,
+			this->crownParts[7] = new CrownPartEllipsoid(this->idTree, 7,
+				true, true,
 				x0, y0, z0, -cr_w, -cr_s, -depth_down, crown_openess, crown_lad);
-			this->crownParts[8] = new CrownPartEllipsoid8th(this->idTree, 8,
+			this->crownParts[8] = new CrownPartEllipsoid(this->idTree, 8,
+				true, true,
 				x0, y0, z0, -cr_w, cr_n, -depth_down, crown_openess, crown_lad);
 		}
 	}
@@ -828,14 +950,20 @@ public:
 	{
 		this->idTree = id_tree;
 
-		// Maximum and average radius 
-		this-> radiusMax = std::max({ cr_n, cr_e, cr_s, cr_w });
-		//this->radiusMean = std::ave({ cr_n, cr_e, cr_s, cr_w });
-
 		// Init the crown parts depending on the type
 		if (crown_type == "8E") {
 			this->initCrownEllipsoid8th(x, y, z,
 				h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+				crown_openess, crown_lad);
+		}
+		else if (crown_type == "2E") {
+			this->initCrownEllipsoidSemi(x, y, z,
+				h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+				crown_openess, crown_lad);
+		}
+		else if (crown_type == "E") {
+			this->initCrownEllipsoid(x, y, z,
+				h, hbase, cr_n, cr_e, cr_s, cr_w,
 				crown_openess, crown_lad);
 		}
 		else {
