@@ -565,10 +565,6 @@ protected:
 	// Id of the crown part
 	int id;
 
-	// Do we consider 8th of ellipsoid, a semi-ellipsoid split on a horizontal plane or the full ellipsoid
-	bool is8th;
-	bool isSemi;
-
 	// Leaves charcteristics
 	double crownOpeness; // between 0 and 1, percentage of ligth energy of a ray that is not absorbed by the crown (for porous envelop method)
 	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
@@ -580,15 +576,11 @@ protected:
 public:
 
 	CrownPart(int id_tree, int id,
-		bool is_8th, bool is_semi,
 		double x, double y, double z,
 		double crown_openess, double crown_lad):
 		TreeVolume(id_tree, x, y, z)
 	{
 		this->id = id;
-
-		this->is8th = is_8th;
-		this->isSemi = this->is8th ? true : is_semi; // If 8th thus semi ellipsoid is mandatory
 
 		this->crownOpeness = crown_openess;
 		this->crownLAD = crown_lad;
@@ -601,8 +593,6 @@ public:
 
 	// Getters
 	int getId() { return(this->id); }
-	bool getIs8th() { return(this->is8th); }
-	bool getIsSemi() { return(this->isSemi); }
 	double getCrownOpeness() { return(this->crownOpeness); }
 	double getCrownLAD() { return(this->crownLAD); }
 	double getEnergy() { return(this->energy); }
@@ -617,40 +607,43 @@ public:
 class CrownPartEllipsoid : public CrownPart {
 
 private:
+
+	// Do we consider 8th of volume, a semi-volume split on a horizontal plane or the full volume
+	bool isSemi;
+	bool is8th;
+
 	// Ellipsoid parameters (semi-principal axes)
 	// The signs of a, b and c determine which 8th is considered.
 	double a;
 	double b;
 	double c;
 
-private:
-	bool isInEllipsoid(vertex3D p0, vertex3D p, double a, double b, double c) {
 
-		double value = (p.x - p0.x) * (p.x - p0.x) / (a * a) +
-			(p.y - p0.y) * (p.y - p0.y) / (b * b) +
-			(p.z - p0.z) * (p.z - p0.z) / (c * c);
+private:
+	bool isInEllipsoid(vertex3D p0, vertex3D p) {
+
+		double value = (p.x - p0.x) * (p.x - p0.x) / (this->a * this->a) +
+			(p.y - p0.y) * (p.y - p0.y) / (this->b * this->b) +
+			(p.z - p0.z) * (p.z - p0.z) / (this->c * this->c);
 
 		return (value < 1.0);
 	}
 
 public:
 	CrownPartEllipsoid(int id_tree, int id,
-		bool is_8th, bool is_semi,
+		bool is_semi, bool is_8th,
 		double x, double y, double z,
 		double a, double b, double c,
 		double crown_openess, double crown_lad) :
-		CrownPart(id_tree, id, is_8th, is_semi, x, y, z, crown_openess, crown_lad) {
+		CrownPart(id_tree, id, x, y, z, crown_openess, crown_lad) {
+
+		this->isSemi = is_8th ? true : is_semi; // If 8th thus semi ellipsoid is mandatory
+		this->is8th = is_8th;
 
 		this->a = a;
 		this->b = b;
 		this->c = c;
 	}
-
-	// Getters
-	double getA() { return(this->a); }
-	double getB() { return(this->b); }
-	double getC() { return(this->c); }
-
 
 	// interception of a 8th, semi or full ellispoid between a shifted tree and a ray coming toward a target cell
 	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
@@ -723,13 +716,13 @@ public:
 
 		// FIND SOLUTIONS OF INTERSECTION WITH THE EIGHTH ELLIPSOID
 
-		double xa_add = p0_shift.x + a;
-		double yb_add = p0_shift.y + b;
-		double zc_add = p0_shift.z + c;
+		double xa_add = p0_shift.x + this->a;
+		double yb_add = p0_shift.y + this->b;
+		double zc_add = p0_shift.z + this->c;
 
-		double xa_sub = p0_shift.x - a;
-		double yb_sub = p0_shift.y - b;
-		double zc_sub = p0_shift.z - c;
+		double xa_sub = p0_shift.x - this->a;
+		double yb_sub = p0_shift.y - this->b;
+		double zc_sub = p0_shift.z - this->c;
 
 		// Get the limits of the bounding box of the 8th paraboloid
 		vertex3D p_bbox_min = { 0.0, 0.0, 0.0 };
@@ -762,23 +755,23 @@ public:
 			sols.push_back(solc2);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInEllipsoid(p0_shift, ptarget, this->a, this->b, this->c))
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInEllipsoid(p0_shift, ptarget))
 			sols.push_back(0.0);
 
 		// The ray intersects the Z horizontal plane of the eight ellipsoid
 		if (this->isSemi) {
-			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInEllipsoid(p0_shift, pz0, this->a, this->b, this->c) && pz0.z > 0.0)
+			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0)
 				sols.push_back(solz0);
 		}
 
 		// Add interception with the verticla planes of the 8th ellipsoid
 		if (this->is8th) {
 			// The ray intersects the X vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInEllipsoid(p0_shift, px0, this->a, this->b, this->c) && px0.z > 0.0 && !this->areEquals(px0, pz0, EPSILON))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0, EPSILON))
 				sols.push_back(solx0);
 
 			// The ray intersects the Y vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInEllipsoid(p0_shift, py0, this->a, this->b, this->c) && py0.z > 0.0 && !this->areEquals(py0, pz0, EPSILON) && !this->areEquals(py0, px0, EPSILON))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0, EPSILON) && !this->areEquals(py0, px0, EPSILON))
 				sols.push_back(soly0);
 		}
 
@@ -812,6 +805,193 @@ public:
 
 };
 
+class CrownPartParaboloid : public CrownPart {
+
+private:
+	// Do we consider 4th of paraboloid or the full volume
+	bool is4th;
+
+	// Paraboloid parameters (semi-principal axes)
+	// Sign of a and b determine which 4th of paraboloid we consider
+	double a;
+	double b;
+	double h;
+
+
+private:
+	bool isInParaboloid(vertex3D p0, vertex3D p) {
+
+		double value = (p.x - p0.x) * (p.x - p0.x) / (this->a * this->a) +
+			(p.y - p0.y) * (p.y - p0.y) / (this->b * this->b) +
+			(p.z - p0.z) / (this->h * this->h);
+
+		return (value <= 1.0);
+	}
+
+public:
+	CrownPartParaboloid(int id_tree, int id,
+		bool is_4th,
+		double x, double y, double z,
+		double a, double b, double h,
+		double crown_openess, double crown_lad) :
+		CrownPart(id_tree, id, x, y, z, crown_openess, crown_lad) {
+
+		this->is4th = is_4th;
+
+		this->a = a;
+		this->b = b;
+		this->h = h;
+	}
+
+	// interception of a 4th, semi or full ellispoid between a shifted tree and a ray coming toward a target cell
+	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
+
+		// SHIFT POSITION OF THE ELLIPSOID
+		// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside (*tree) when torus system
+		vertex3D p0_shift = {
+			this->x + shift.x,
+			this->y + shift.y,
+			this->z + shift.z
+		};
+
+		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
+		// Equation giving distance between ray intersection with (*tree) crown and target cell center
+		// Compute a, b and c coefficients
+		double coef_a = ray->getCosHeightAngle() * ray->getCosHeightAngle() * ray->getCosAzimuth() * ray->getCosAzimuth() / (this->a * this->a) +
+			ray->getCosHeightAngle() * ray->getCosHeightAngle() * ray->getSinAzimuth() * ray->getSinAzimuth() / (this->b * this->b);
+
+		double coef_b = -2.0 * p0_shift.x * ray->getCosHeightAngle() * ray->getCosAzimuth() / (this->a * this->a) -
+			2.0 * p0_shift.y * ray->getSinAzimuth() * ray->getCosHeightAngle() / (this->b * this->b) + 
+			ray->getSinHeightAngle() / this->h;
+
+		double coef_c = (p0_shift.x * p0_shift.x) / (this->a * this->a) +
+			(p0_shift.y * p0_shift.y) / (this->b * this->b) - 
+			(p0_shift.z + this->h) / this->h;
+
+
+		// Find point of intersection between the ray and the whole ellipsoid
+		// Find positive solutions of the above quadratic equations (distance to target cell)
+		// if not 2 solutions, leave the function
+		// Because negative = no interception and null = 1 interception = do not consider tangent rays with crown
+		double delta = coef_b * coef_b - 4.0 * coef_a * coef_c;
+
+		if (delta <= 0.0) { return nullptr; }
+
+		double delta_sqrt = sqrt(delta);
+		double solc1 = (-coef_b + delta_sqrt) / (2.0 * coef_a);
+		double solc2 = (-coef_b - delta_sqrt) / (2.0 * coef_a);
+
+
+		// COMPUTE COORDINATES OF INTERCEPTION POINTS WITH CROWN LIMITS AND TARGET POINT
+
+			// Coordinates of the two interception points with the full paraboloid
+		vertex3D pc1 = getInterceptionPoint(solc1, ray);
+		vertex3D pc2 = getInterceptionPoint(solc2, ray);
+
+			// Interception with the horizontal base of the crown 
+		double solz0 = p0_shift.z / ray->getSinHeightAngle();
+		vertex3D pz0 = getInterceptionPoint(solz0, ray);
+		pz0.z = p0_shift.z;
+
+
+			// If interception with a fourth of paraboloid, consider interception with the X and Y vertical planes
+			// Checked only in the case of a fourth of paraboloid
+		double solx0 = p0_shift.x / (ray->getCosHeightAngle() * ray->getCosAzimuth());
+		double soly0 = p0_shift.y / (ray->getCosHeightAngle() * ray->getSinAzimuth());
+
+		vertex3D px0 = getInterceptionPoint(solx0, ray);
+		vertex3D py0 = getInterceptionPoint(soly0, ray);
+
+		px0.x = p0_shift.x;
+		py0.y = p0_shift.y;
+
+
+			// interception with the target point
+		vertex3D ptarget = getInterceptionPoint(0.0, ray);
+
+
+		// FIND SOLUTIONS OF INTERSECTION WITH THE EIGHTH ELLIPSOID
+
+		double xa_add = p0_shift.x + this->a;
+		double yb_add = p0_shift.y + this->b;
+
+		double xa_sub = p0_shift.x - this->a;
+		double yb_sub = p0_shift.y - this->b;
+
+		// Get the limits of the bounding box of the 4th paraboloid
+		vertex3D p_bbox_min = { 0.0, 0.0, 0.0 };
+		vertex3D p_bbox_max = { 0.0, 0.0, 0.0 };
+		if (this->is4th) {
+			p_bbox_min = { std::min(p0_shift.x, xa_add), std::min(p0_shift.y, yb_add), p0_shift.z };
+			p_bbox_max = { std::max(p0_shift.x, xa_add), std::max(p0_shift.y, yb_add), p0_shift.z + this->h };
+		}
+		// Get the limit of the bounding box of the full ellispoid
+		else {
+			p_bbox_min = { xa_sub, yb_sub, p0_shift.z };
+			p_bbox_max = { xa_add, yb_add, p0_shift.z + this->h };
+		}
+
+
+		double EPSILON = 1e-10; // accounts for rounding errors in boolean operations below
+		std::vector<double> sols;
+
+		// The first interception point with the full paraboloid is in the fourth paraboloid
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, EPSILON) && pc1.z >= 0.0)
+			sols.push_back(solc1);
+
+		// The second interception point with the full paraboloid is in the fourth paraboloid
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON) && pc2.z >= 0.0)
+			sols.push_back(solc2);
+
+		// The ray intersects the center of the target cell
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInParaboloid(p0_shift, ptarget))
+			sols.push_back(0.0);
+
+		// The ray intersects the Z horizontal plane of the fourth paraboloid
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInParaboloid(p0_shift, pz0) && pz0.z > 0.0)
+			sols.push_back(solz0);
+
+		// Add interception with the verticla planes of the 4th paraboloid
+		if (this->is4th) {
+			// The ray intersects the X vertical plane of the fourth paraboloid
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0, EPSILON))
+				sols.push_back(solx0);
+
+			// The ray intersects the Y vertical plane of the fourth paraboloid
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0, EPSILON) && !this->areEquals(py0, px0, EPSILON))
+				sols.push_back(soly0);
+		}
+
+
+		// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
+		int nsols = sols.size();
+
+		// intersected the parabol outside the half quarter
+		if (nsols == 0) { return(nullptr); }
+
+		// If not 0 or 2 solutions ==> problem
+		if (sols.size() != 2) {
+			std::cout << "Not 0 or 2 solutions" << std::endl;
+			return nullptr;
+		}
+
+		// Distance between target cell and middle point between two interceptions
+		// Length is the length of the ray path across the crown
+		double sol1 = sols.back();
+		sols.pop_back();
+		double sol2 = sols.back();
+
+		double length = abs(sol1 - sol2);
+		double distance = (sol1 + sol2) / 2.0;
+
+		// Create interception 
+		interception* interc = new interception{ ray->getId(), id_target_cell, this->idTree, this->id, false, length, distance };
+
+		return(interc);
+	}
+
+};
+
 class Crown {
 
 private:
@@ -826,6 +1006,63 @@ private:
 private:
 
 	// --- FUNCTIONS TO INITIALIZE DIFFERENT CROWN FORMS ---
+
+	// Symetric paraboloid crown
+	void initCrownParaboloid(double x, double y, double z,
+		double h, double hbase,
+		double cr_n, double cr_e, double cr_s, double cr_w,
+		double crown_openess, double crown_lad) {
+
+		// Radius is the same for all directions and is defined by mean crown radius of the four directions
+		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
+
+		// Compute height of maximum crown radius as the crown base height
+		double cdepth = (h - hbase);
+		double hmax = hbase;
+
+		// Get center of the crown 
+		// x, y, z are tree coordinates
+		double x0 = x;
+		double y0 = y;
+		double z0 = z + hmax;
+
+		// Create full paraboloid crown
+		this->crownParts[1] = new CrownPartParaboloid(this->idTree, 1, 
+			false,
+			x0, y0, z0, crown_radius, crown_radius, cdepth,
+			crown_openess, crown_lad);
+	}
+
+	// Irregular crown composed of 4 eighth of paraboloids
+	void initCrownParaboloid4th(double x, double y, double z,
+		double h, double hbase,
+		double cr_n, double cr_e, double cr_s, double cr_w,
+		double crown_openess, double crown_lad) {
+
+		// Compute height of maximum crown radius as the crown base height
+		double depth = h - hbase;
+		double hmax = hbase;
+
+		// Get center of the crown 
+		// x, y, z are tree coordinates
+		double x0 = x;
+		double y0 = y;
+		double z0 = z + hmax;
+
+		// Init fourth parts of the crown
+		this->crownParts[1] = new CrownPartParaboloid(this->idTree, 1,
+			true,
+			x0, y0, z0, cr_e, cr_n, depth, crown_openess, crown_lad);
+		this->crownParts[2] = new CrownPartParaboloid(this->idTree, 2,
+			true,
+			x0, y0, z0, cr_e, -cr_s, depth, crown_openess, crown_lad);
+		this->crownParts[3] = new CrownPartParaboloid(this->idTree, 3,
+			true,
+			x0, y0, z0, -cr_w, -cr_s, depth, crown_openess, crown_lad);
+		this->crownParts[4] = new CrownPartParaboloid(this->idTree, 4,
+			true,
+			x0, y0, z0, -cr_w, cr_n, depth, crown_openess, crown_lad);
+	}
 
 	// Symetric ellispoidal crown
 	void initCrownEllipsoid(double x, double y, double z,
@@ -853,7 +1090,6 @@ private:
 			crown_openess, crown_lad);
 	}
 
-
 	// Irregular crown composed of 2 above and below semi-ellipsoids
 	void initCrownEllipsoidSemi(double x, double y, double z,
 		double h, double hbase, double hmax,
@@ -876,7 +1112,7 @@ private:
 		// Init top semi part of the crown
 		if (depth_up > 0) {
 			this->crownParts[1] = new CrownPartEllipsoid(this->idTree, 1,
-				false, true,
+				true, false,
 				x0, y0, z0, crown_radius, crown_radius, depth_up,
 				crown_openess, crown_lad);
 		}
@@ -884,7 +1120,7 @@ private:
 		// Init bottom semi part of the crown
 		if (depth_down > 0) {
 			this->crownParts[2] = new CrownPartEllipsoid(this->idTree, 2,
-				false, true,
+				true, false,
 				x0, y0, z0, crown_radius, crown_radius, -depth_down,
 				crown_openess, crown_lad);
 		}
@@ -953,24 +1189,33 @@ public:
 		this->idTree = id_tree;
 
 		// Init the crown parts depending on the type
-		if (crown_type == "8E") {
+		if (crown_type == "8E")
 			this->initCrownEllipsoid8th(x, y, z,
-				h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+				h, hbase, hmax, 
+				cr_n, cr_e, cr_s, cr_w,
 				crown_openess, crown_lad);
-		}
-		else if (crown_type == "2E") {
+		else if (crown_type == "2E") 
 			this->initCrownEllipsoidSemi(x, y, z,
-				h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+				h, hbase, hmax, 
+				cr_n, cr_e, cr_s, cr_w,
 				crown_openess, crown_lad);
-		}
-		else if (crown_type == "E") {
+		else if (crown_type == "E")
 			this->initCrownEllipsoid(x, y, z,
-				h, hbase, cr_n, cr_e, cr_s, cr_w,
+				h, hbase, 
+				cr_n, cr_e, cr_s, cr_w,
 				crown_openess, crown_lad);
-		}
-		else {
+		else if (crown_type == "4P")
+			this->initCrownParaboloid4th(x, y, z,
+				h, hbase,
+				cr_n, cr_e, cr_s, cr_w,
+				crown_openess, crown_lad);
+		else if (crown_type == "P") 
+			this->initCrownParaboloid(x, y, z,
+				h, hbase, 
+				cr_n, cr_e, cr_s, cr_w,
+				crown_openess, crown_lad);
+		else
 			std::cout << "Unrecognized crown type" << std::endl;
-		}
 
 	}
 
@@ -1950,10 +2195,9 @@ List sl_run_rcpp(
 {
 	// TESTS:
 	// - If plots is big enough for tree coordinates
+	// - If hmax is needed
 
 	// TODO:
-	// - Trunk interception
-	// - Other forms E, P, C and 8P, 8C
 	// - Not squared plot (rectangle or shape weird)
 	// PB when many part in the crown, many dcrease of energy whereas same crown
 
