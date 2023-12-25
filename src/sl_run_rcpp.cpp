@@ -107,353 +107,6 @@ public:
 	relativeCoords getPotentialRelCell(int id) { return(this->potentialRelCells[id]); }
 	int getNPotCells() { return(this->potentialRelCells.size()); }
 
-
-private:
-	//void computeInterceptionCrownParaboloid(Cell* target_cell, Tree* tree, shiftedCell& shifted_cell) {
-
-	//	// GET POSITION OF THE PARABOLOID
-	//	double x = tree->getX();
-	//	double y = tree->getY();
-	//	double z = tree->getZ() + tree->getCrownBaseHeight();
-
-	//	// SHIFT POSITION OF THE PARABOLOID
-	//	// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside (*tree) when torus system
-	//	x = x + shifted_cell.xShift - target_cell->getX();
-	//	y = y + shifted_cell.yShift - target_cell->getY();
-	//	z = z + shifted_cell.zShift - target_cell->getZ();
-
-	//	// GET PARAMETERS OF THE PARABOLOID
-	//	double a = tree->getCrownRadius();
-	//	double b = tree->getCrownRadius();
-	//	double h = tree->getHeight() - tree->getCrownBaseHeight();
-
-
-	//	// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
-	//	// Equation giving distance between ray intersection with (*tree) crown and target cell center
-
-	//	   // Compute a, b and c coefficients
-	//	double coef_a = this->cosHeightAngle * this->cosHeightAngle * this->cosAzimuth * this->cosAzimuth / (a * a) +
-	//		this->cosHeightAngle * this->cosHeightAngle * this->sinAzimuth * this->sinAzimuth / (b * b);
-
-	//	double coef_b = -2 * x * this->cosHeightAngle * this->cosAzimuth / (a * a) -
-	//		2 * y * this->sinAzimuth * this->cosHeightAngle / (b * b) +
-	//		this->sinHeightAngle / h;
-
-	//	double coef_c = (x * x) / (a * a) + (y * y) / (b * b) - (z + h) / h;
-
-
-	//	// Find positive solutions of the above quadratic equations (distance to target cell)
-	//	// if not 2 solutions, set to NaN
-	//	// Because negative = no interception and null = 1 interception = do not consider tangent rays with crown
-	//	double delta = coef_b * coef_b - 4 * coef_a * coef_c;
-
-	//	double sol1 = std::numeric_limits<double>::quiet_NaN();
-	//	double sol2 = std::numeric_limits<double>::quiet_NaN();
-
-	//	if (delta > 0) {
-	//		double delta_sqrt = sqrt(delta);
-	//		sol1 = (-coef_b + delta_sqrt) / (2 * coef_a);
-	//		sol2 = (-coef_b - delta_sqrt) / (2 * coef_a);
-	//	}
-
-
-
-	//	// COMPUTE COORDINATES OF INTERCEPTION POINTS WITH CROWN LIMITS AND TARGET POINT
-
-	//		// interception coords of the two roots
-	//	double v1_x = sol1 * this->cosHeightAngle * this->cosAzimuth;
-	//	double v1_y = sol1 * this->cosHeightAngle * this->sinAzimuth;
-	//	double v1_z = sol1 * this->sinHeightAngle;
-
-	//	double v2_x = sol2 * this->cosHeightAngle * this->cosAzimuth;
-	//	double v2_y = sol2 * this->cosHeightAngle * this->sinAzimuth;
-	//	double v2_z = sol2 * this->sinHeightAngle;
-
-	//	// interception with the base plane
-	//	double solb = z / this->sinHeightAngle;
-
-	//	double vb_x = solb * this->cosHeightAngle * this->cosAzimuth;
-	//	double vb_y = solb * this->cosHeightAngle * this->sinAzimuth;
-	//	double vb_z = z; // solb * this->sinHeightAngle
-
-
-
-	//	// FIND SOLUTIONS
-
-	//		// Get the limits of the box between shifted paraboloid center and crown limit
-	//	double x_bbox_max = x + a;
-	//	double y_bbox_max = y + b;
-	//	double z_bbox_max = z + h;
-
-	//	double x_bbox_min = x - a;
-	//	double y_bbox_min = y - b;
-	//	double z_bbox_min = z;
-
-	//	// Find interception points within the crown (edge of ellipsoid or z axis if half ellipsoid = crown base plane)
-
-	//	bool is_v1 =
-	//		// interception 2 with crown is above the ground AND
-	//		v1_z >= 0 &&
-	//		v1_x >= x_bbox_min && v1_x <= x_bbox_max &&
-	//		v1_y >= y_bbox_min && v1_y <= y_bbox_max &&
-	//		// interception 2 with crown is in crown bbox AND
-	//		v1_z >= z_bbox_min && v1_z <= z_bbox_max;
-
-
-	//	bool is_v2 =
-	//		// interception 2 with crown is above the ground AND
-	//		v2_z >= 0 &&
-	//		// interception 2 with crown is in crown bbox AND
-	//		v2_x >= x_bbox_min && v2_x <= x_bbox_max &&
-	//		v2_y >= y_bbox_min && v2_y <= y_bbox_max &&
-	//		v2_z >= z_bbox_min && v2_z <= z_bbox_max;
-
-
-	//	bool is_vb =
-	//		// interception with crown base is above the ground AND
-	//		vb_z >= 0 &&
-	//		// interception with crown base is in crown bbox AND
-	//		vb_x >= x_bbox_min && vb_x <= x_bbox_max &&
-	//		vb_y >= y_bbox_min && vb_y <= y_bbox_max &&
-	//		vb_z >= z_bbox_min && vb_z <= z_bbox_max &&
-	//		// interception with crown base is in the paraboloid
-	//		((vb_x - x) * (vb_x - x) / (a * a) +
-	//			(vb_y - y) * (vb_y - y) / (b * b) -
-	//			(vb_z - z) / (h * h)) <= 1;
-
-
-	//	bool is_target =
-	//		// interception with target point is in crown bbox AND
-	//		0 >= x_bbox_min && 0 <= x_bbox_max &&
-	//		0 >= y_bbox_min && 0 <= y_bbox_max &&
-	//		0 >= z_bbox_min && 0 <= z_bbox_max &&
-	//		// interception with target point is in the paraboloid
-	//		(x * x / (a * a) +
-	//			y * y / (b * b) -
-	//			-z / (h * h)) <= 1;
-
-
-	//	// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
-	//	// Distance between target cell and middle point between two interceptions
-	//	// Length is the length of the ray path across the crown
-	//	double distance = 0.0;
-	//	double length = 0.0;
-
-	//	// If 0 solution, no interception
-	//	if (!(!std::isnan(sol1) && is_v1) && !(!std::isnan(sol2) && is_v2) && !is_vb && !is_target) {
-	//		return;
-	//	}
-
-	//	std::stack<double> distance_tmp;
-	//	std::stack<double> length_tmp;
-
-	//	int nsols = 0;
-	//	if (!std::isnan(sol1) && is_v1) {
-	//		nsols++;
-	//		distance_tmp.push(sol1);
-	//		length_tmp.push(sol1);
-	//	}
-
-	//	if (!std::isnan(sol2) && is_v2) {
-	//		nsols++;
-	//		distance_tmp.push(sol2);
-	//		length_tmp.push(sol2);
-	//	}
-
-	//	if (is_vb) {
-	//		nsols++;
-	//		distance_tmp.push(solb);
-	//		length_tmp.push(solb);
-	//	}
-
-	//	if (is_target) {
-	//		nsols++;
-	//		distance_tmp.push(0.0);
-	//		length_tmp.push(0.0);
-	//	}
-
-
-	//	// Compute length and distance if 2 solutions
-	//	if (nsols == 2) {
-
-	//		// Length
-	//		double l1 = length_tmp.top();
-	//		length_tmp.pop();
-	//		double l2 = length_tmp.top();
-
-	//		length = abs(l1 - l2);
-
-	//		// Distance
-	//		double d1 = distance_tmp.top();
-	//		distance_tmp.pop();
-	//		double d2 = distance_tmp.top();
-
-	//		distance = (d1 + d2) / 2.0;
-	//	}
-	//	// Otherwise, there is a problem
-	//	else {
-	//		std::cout << "Not 0 or 2 solutions" << std::endl;
-	//	}
-
-	//	// Create and push interception to the vector of ray interceptions
-	//	#ifdef _OPENMP
-	//		#pragma omp critical
-	//	#endif
-	//	{
-	//		this->interceptions.emplace_back(interception(target_cell, tree, length, distance, shifted_cell.outside));
-	//	}
-	//}
-
-	//void computeInterceptionCrownEllipsoid(Cell* target_cell, Tree* tree, shiftedCell& shifted_cell) {
-
-	//	// GET POSITION OF THE ELLIPSOID
-	//	double x = tree->getX();
-	//	double y = tree->getY();
-	//	double z = tree->getZ() + tree->getCrownBaseHeight() + (tree->getHeight() - tree->getCrownBaseHeight()) / 2.0;
-
-	//	// SHIFT POSITION OF THE ELLIPSOID
-	//	// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside (*tree) when torus system
-	//	x = x + shifted_cell.xShift - target_cell->getX();
-	//	y = y + shifted_cell.yShift - target_cell->getY();
-	//	z = z + shifted_cell.zShift - target_cell->getZ();
-
-	//	// GET PARAMETERS OF THE ELLIPSOID
-	//	double a = tree->getCrownRadius();
-	//	double b = tree->getCrownRadius();
-	//	double c = (tree->getHeight() - tree->getCrownBaseHeight()) / 2.0;
-
-
-	//	// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
-	//	// Equation giving distance between ray intersection with (*tree) crown and target cell center
-
-	//	   // Compute a, b and c coefficients
-	//	double coef_a = this->cosHeightAngle * this->cosHeightAngle * this->cosAzimuth * this->cosAzimuth / (a * a) +
-	//		this->cosHeightAngle * this->cosHeightAngle * this->sinAzimuth * this->sinAzimuth / (b * b) +
-	//		this->sinHeightAngle * this->sinHeightAngle / (c * c);
-
-	//	double coef_b = -2 * x * this->cosHeightAngle * this->cosAzimuth / (a * a) -
-	//		2 * y * this->sinAzimuth * this->cosHeightAngle / (b * b) -
-	//		2 * z * this->sinHeightAngle / (c * c);
-
-	//	double coef_c = (x * x) / (a * a) + (y * y) / (b * b) + (z * z) / (c * c) - 1;
-
-
-	//	// Find positive solutions of the above quadratic equations (distance to target cell)
-	//	// if not 2 solutions, set to NaN
-	//	// Because negative = no interception and null = 1 interception = do not consider tangent rays with crown
-	//	double delta = coef_b * coef_b - 4 * coef_a * coef_c;
-
-	//	double sol1 = std::numeric_limits<double>::quiet_NaN();
-	//	double sol2 = std::numeric_limits<double>::quiet_NaN();
-
-	//	if (delta > 0) {
-	//		double delta_sqrt = sqrt(delta);
-	//		sol1 = (-coef_b + delta_sqrt) / (2 * coef_a);
-	//		sol2 = (-coef_b - delta_sqrt) / (2 * coef_a);
-	//	}
-
-
-
-	//	// COMPUTE COORDINATES OF INTERCEPTION POINTS WITH CROWN LIMITS AND TARGET POINT
-
-	//		// interception coords of the two roots
-	//	double v1_x = sol1 * this->cosHeightAngle * this->cosAzimuth;
-	//	double v1_y = sol1 * this->cosHeightAngle * this->sinAzimuth;
-	//	double v1_z = sol1 * this->sinHeightAngle;
-
-	//	double v2_x = sol2 * this->cosHeightAngle * this->cosAzimuth;
-	//	double v2_y = sol2 * this->cosHeightAngle * this->sinAzimuth;
-	//	double v2_z = sol2 * this->sinHeightAngle;
-
-	//	// FIND SOLUTIONS
-
-	//		// Get the limits of the box between shifted paraboloid center and crown limit
-	//	double x_bbox_max = x + a;
-	//	double y_bbox_max = y + b;
-	//	double z_bbox_max = z + c;
-
-	//	double x_bbox_min = x - a;
-	//	double y_bbox_min = y - b;
-	//	double z_bbox_min = z - c;
-
-	//	// Find interception points within the crown (edge of ellipsoid or z axis if half ellipsoid = crown base plane)
-
-	//	bool is_v1 =
-	//		// interception 2 with crown is above the ground AND
-	//		v1_z >= 0 &&
-	//		v1_x >= x_bbox_min && v1_x <= x_bbox_max &&
-	//		v1_y >= y_bbox_min && v1_y <= y_bbox_max &&
-	//		// interception 2 with crown is in crown bbox AND
-	//		v1_z >= z_bbox_min && v1_z <= z_bbox_max;
-
-
-	//	bool is_v2 =
-	//		// interception 2 with crown is above the ground AND
-	//		v2_z >= 0 &&
-	//		// interception 2 with crown is in crown bbox AND
-	//		v2_x >= x_bbox_min && v2_x <= x_bbox_max &&
-	//		v2_y >= y_bbox_min && v2_y <= y_bbox_max &&
-	//		v2_z >= z_bbox_min && v2_z <= z_bbox_max;
-
-
-	//	// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
-	//	// Distance between target cell and middle point between two interceptions
-	//	// Length is the length of the ray path across the crown
-	//	double distance = 0.0;
-	//	double length = 0.0;
-
-	//	// If 0 solution, no interception
-	//	if (!(!std::isnan(sol1) && is_v1) && !(!std::isnan(sol2) && is_v2)) {
-	//		return;
-	//	}
-
-	//	std::stack<double> distance_tmp;
-	//	std::stack<double> length_tmp;
-
-	//	int nsols = 0;
-	//	if (!std::isnan(sol1) && is_v1) {
-	//		nsols++;
-	//		distance_tmp.push(sol1);
-	//		length_tmp.push(sol1);
-	//	}
-
-	//	if (!std::isnan(sol2) && is_v2) {
-	//		nsols++;
-	//		distance_tmp.push(sol2);
-	//		length_tmp.push(sol2);
-	//	}
-
-	//	// Compute length and distance if 2 solutions
-	//	if (nsols == 2) {
-
-	//		// Length
-	//		double l1 = length_tmp.top();
-	//		length_tmp.pop();
-	//		double l2 = length_tmp.top();
-
-	//		length = abs(l1 - l2);
-
-	//		// Distance
-	//		double d1 = distance_tmp.top();
-	//		distance_tmp.pop();
-	//		double d2 = distance_tmp.top();
-
-	//		distance = (d1 + d2) / 2.0;
-	//	}
-	//	// Otherwise, there is a problem
-	//	else {
-	//		std::cout << "Not 0 or 2 solutions" << std::endl;
-	//	}
-
-	//	// Create and push interception to the vector of ray interceptions
-	//	#ifdef _OPENMP
-	//		#pragma omp critical
-	//	#endif
-	//	{
-	//		this->interceptions.emplace_back(interception(target_cell, tree, length, distance, shifted_cell.outside));
-	//	}
-	//}
-
 };
 
 class RayManager {
@@ -1668,11 +1321,14 @@ struct shiftedCell {
 	vertex3D shift;
 };
 
-class InterceptionManager {
+class Model {
 
 private:
-	// Store all interceptions in a vector (each element correspond to interceptions for a target cell X a ray)
-	std::vector<std::vector<interception*>> interceptions;
+	// Stand object with cells, trees and geometric variables
+	Stand stand;
+
+	// Rays that are coming toward a cell
+	RayManager rays;
 
 	// Light interception method by the crowns : either porous envelop(use "crownOpenness") or turbid medium(use "crownLAD")
 	bool turbidMedium;
@@ -1684,164 +1340,212 @@ private:
 	const double EXTINCTION_COEF; // Probability of a leaf to intercept the ray (linked to leaf orientation)
 	const double CLUMPING_FACTOR; // Aggregation of leaves within the crown volume (1 is homogeneous)
 
+
 private:
 
-	double applyBeerLambert(double incident_energy, double extinction_coef, double clumping_factor, double leaf_area_density, double path_length) {
+	shiftedCell getPotentialCell(Ray* ray, int rel_cell_id, Cell* target_cell) {
 
-		return(incident_energy * (1 - exp(-extinction_coef * clumping_factor * leaf_area_density * path_length)));
+		relativeCoords rel_cell = ray->getPotentialRelCell(rel_cell_id);
 
+		// Get row and column of potential cell
+		int row_pot = target_cell->getRow() + rel_cell.row;
+		int col_pot = target_cell->getCol() + rel_cell.col;
+
+		// Search if cells is outside the this->stand
+		bool is_outside = row_pot < 0 || row_pot >= this->stand.getNCells() || col_pot < 0 || col_pot >= this->stand.getNCells();
+
+		// If cel is outside the main this->stand, do not keep as potential if we are not in a torus system
+		if (is_outside && !this->stand.isUseTorus()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
+
+		// Get row and column of the original cell in the grid cell (diffrent only within a torus system, if cell is outside)
+		int row_pot_original = (this->stand.getNCells() + (row_pot % this->stand.getNCells())) % this->stand.getNCells();
+		int col_pot_original = (this->stand.getNCells() + (col_pot % this->stand.getNCells())) % this->stand.getNCells();
+
+		// Get corresponding original cell
+		Cell* original_cell = this->stand.getCell(row_pot_original, col_pot_original);
+
+		// Check if it contains trees, otherwise, do not add as potential cell
+		if ((*original_cell).isEmpty()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
+
+		// Compute shift in coordinates to apply on trees within the original cell (torus system)
+		// Shift is a multiple of stand_size : how many this->stand size we have to shift tree coordinates times this->stand size, to apply torus system
+		// If we have a potential cell with negative or gretaer than n_cells row or column
+		// ==> Thus, we want to substract coordinates of original cells in order to have potential cell outside the main this->stand
+		// Be careful, y - coordinates system is opposite direction of y - grid system
+		double stand_size = this->stand.getCellSize() * this->stand.getNCells();
+
+		double x_shift = (col_pot / this->stand.getNCells() - (col_pot % this->stand.getNCells() < 0 ? 1 : 0)) * stand_size; // Negative x_id ==> negative shift
+		double y_shift = -(row_pot / this->stand.getNCells() - (row_pot % this->stand.getNCells() < 0 ? 1 : 0)) * stand_size; // Negative y_id ==> positive shift
+
+
+		// Compute altitudinal shift (only if (x,y) shifted
+		double z_shift = 0.0;
+		if (x_shift != 0.0 || y_shift != 0.0) {
+			double d = sqrt(x_shift * x_shift + y_shift * y_shift);
+			double azimuth_xy = 0;
+			if (d != 0) {
+				if (y_shift >= 0) {
+					azimuth_xy = acos(x_shift / d);
+				}
+				else {
+					azimuth_xy = 2.0 * M_PI - acos(x_shift / d);
+				}
+			}
+			z_shift = -d * cos(azimuth_xy - this->stand.getBottomAzimuth()) * tan(this->stand.getSlope());
+		}
+
+		// Return the shifted cell
+		vertex3D shift = { x_shift, y_shift, z_shift };
+		shiftedCell pot_cell = { original_cell, shift };
+
+		return(pot_cell);
 	}
 
+	std::vector<interception*> computeInterceptionsRayToTarget(Ray* ray, Cell* target_cell) {
 
-public:
-	InterceptionManager(bool turbid_medium, bool trunk_interception):
-		EXTINCTION_COEF(0.5), CLUMPING_FACTOR(1.0)
-	{
-		this->turbidMedium = turbid_medium;
-		this->trunkInterception = trunk_interception;
-	}
+		std::vector<interception*> v_interc;
 
-	~InterceptionManager() {
-		// Delete interception pointers
-		for (auto const& x1 : this->interceptions) {
-			for (auto const& x2 : x1) {
-				delete x2;
+		// For each possible relative cell coordinates
+		int n_relcells = ray->getNPotCells();
+		for (int rc = 0; rc < n_relcells; rc++) {
+
+			// Get a pointer to the original potential cell and its associated shift
+			shiftedCell pot_cell = this->getPotentialCell(ray, rc, target_cell);
+
+			// Cell is not potential if there is no trees or it is outside the main plot and torus system is disabled
+			if (!pot_cell.cell) { continue; }
+
+			// Compute the shift applied to the tree (2 shifts)
+			// 1. Shift when torus system is enable and the tree is outside the main plot
+			// 2. Set the center of the target cell as origin of tree and ray interception
+			vertex3D shift_tree = {
+				pot_cell.shift.x - target_cell->getX(),
+				pot_cell.shift.y - target_cell->getY(),
+				pot_cell.shift.z - target_cell->getZ()
+			};
+
+			// Compute interception for each tree within the potential cell (with a given shift if the potential cell is outside the plot)
+			int n_pot_trees = pot_cell.cell->getNTrees();
+			for (int t = 0; t < n_pot_trees; t++) {
+
+				// Compute interception for each crown part of the tree
+				std::map<int, CrownPart*> crown_parts = pot_cell.cell->getTree(t)->getCrownParts();
+				for (auto& c_part : crown_parts) {
+
+					interception* interc = c_part.second->computeInterception(target_cell->getId(), ray, shift_tree);
+					if (interc != nullptr) {
+						v_interc.push_back(interc);
+					}
+				}
+
+				// If specified, compute interception by trunks
+				if (this->trunkInterception) {
+					interception* interc = pot_cell.cell->getTree(t)->computeTrunkInterception(target_cell->getId(), ray, shift_tree);
+					if (interc != nullptr) {
+						v_interc.push_back(interc);
+					}
+				}
 			}
 		}
+
+		return(v_interc);
 	}
 
-	// Getters
-	bool isTrunkInterception() { return(this->trunkInterception); }
-
-	// Setters
-	void addInterceptions(std::vector<interception*> v_interc) {
-		this->interceptions.push_back(v_interc);
-	}
-
-
-	// Methods
-	void orderInterceptions() {
-
-		int n_ray_target = this->interceptions.size();
-		#ifdef _OPENMP
-		#pragma omp parallel for
-		#endif
-		for (int i = 0; i < n_ray_target; i++)
-			std::sort(this->interceptions[i].begin(), this->interceptions[i].end(), [](interception const* i1, interception const* i2) {
-				// Sort by distance to the target cell center, furthest first
-				return (i1->distance > i2->distance);
+	void orderInterceptionsRayToTarget(std::vector<interception*>& v_interc) {
+		std::sort(v_interc.begin(), v_interc.end(), [](interception const* i1, interception const* i2) {
+			// Sort by distance to the target cell center, furthest first
+			return (i1->distance > i2->distance);
 			});
 	}
 
-	void summarizeInterceptions(RayManager& rays, Stand& stand) {
+	void summarizeInterceptionsRayToTarget(Ray* ray, Cell* target_cell, std::vector<interception*>& v_interc) {
 
-		// Iterate over all ray toward each target cell
-		int n_ray_target = this->interceptions.size();
-		#ifdef _OPENMP
-		#pragma omp parallel for
-		#endif	
-		for (int i = 0; i < n_ray_target; i++) {
+		// Compute projection of energy on plane parallel to slope
+		double scalar_slope = cos(stand.getSlope()) * ray->getSinHeightAngle() +
+			sin(stand.getSlope()) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
 
-			// Get ray and target cell
-			Ray* ray = rays.getRay(this->interceptions[i][0]->idRay);
-			Cell* target_cell = stand.getCell(this->interceptions[i][0]->idTargetCell);
+		//  in MJ / m2 and convert it into MJ per cell
+		double e_incident_slope_m2 = scalar_slope * ray->getIncidentEnergy();
+		double e_incident_slope_cell = e_incident_slope_m2 * stand.getCellArea();
 
-			// Compute projection of energy on plane parallel to slope
-			double scalar_slope = cos(stand.getSlope()) * ray->getSinHeightAngle() +
-				sin(stand.getSlope()) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
+		// Initialize the energy of the ray coming toward the cell above the canopy
+		double current_energy = e_incident_slope_cell;
 
-			//  in MJ / m2 and convert it into MJ per cell
-			double e_incident_slope_m2 = scalar_slope * ray->getIncidentEnergy();
-			double e_incident_slope_cell = e_incident_slope_m2 * stand.getCellArea();
+		//Compute attenuation of energy across successives crown interceptions for each ray X target cell
+		int n_interceptions = v_interc.size();
+		for (int j = 0; j < n_interceptions; j++) {
 
-			// Initialize the energy of the ray coming toward the cell above the canopy
-			double current_energy = e_incident_slope_cell;
+			// Intrception with a trunk
+			if (v_interc[j]->withTrunk) {
+				// Remove the current energy from the total energy above the cell (no energy are coming to the cell)
+				#ifdef _OPENMP
+				#pragma omp critical
+				#endif
+				target_cell->interceptEnergy(current_energy);
 
-			//Compute attenuation of energy across successives crown interceptions for each ray X target cell
-			int n_interceptions = this->interceptions[i].size();
-			for (int j = 0; j < n_interceptions; j++) {
+				// Stop the loop over the ray coming to the target cell 
+				// It has been stopped by the trunk
+				return;
+			}
 
-				// Intrception with a trunk
-				if (this->interceptions[i][j]->withTrunk) {
-					// Remove the current energy from the total energy above the cell (no energy are coming to the cell)
-					#ifdef _OPENMP
-					#pragma omp critical
-					#endif
-					target_cell->interceptEnergy(current_energy);
+			// Get the interception
+			CrownPart* crown_part = stand.getTree(v_interc[j]->idTree)->getCrownPart(v_interc[j]->idCrownPart);
 
-					// Stop the loop over the ray coming to the target cell 
-					// It has been stopped by the trunk
-					break;
-				}
-
-				// Get the interception
-				CrownPart* crown_part = stand.getTree(this->interceptions[i][j]->idTree)->getCrownPart(this->interceptions[i][j]->idCrownPart);
-
-				// Compute the potential energy to the tree (energy without attenuation by neighbours)
-				// and compute energy with attenuation
-				// Different considering crown as turbid medium or porous envelop
-				double potential_energy = 0.0;
-				double intercepted_energy = 0.0;
+			// Compute the potential energy to the tree (energy without attenuation by neighbours)
+			// and compute energy with attenuation
+			// Different considering crown as turbid medium or porous envelop
+			double potential_energy = 0.0;
+			double intercepted_energy = 0.0;
 
 
-				// Turbid medium ==> apply beer lambert law
-				if (this->turbidMedium) {
+			// Turbid medium ==> apply beer lambert law
+			if (this->turbidMedium) {
 
-					potential_energy = this->applyBeerLambert(
-						e_incident_slope_cell,
-						this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
-						crown_part->getCrownLAD(),
-						this->interceptions[i][j]->length);
+				potential_energy = this->applyBeerLambert(
+					e_incident_slope_cell,
+					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
+					crown_part->getCrownLAD(),
+					v_interc[j]->length);
 
-					intercepted_energy = this->applyBeerLambert(
-						current_energy,
-						this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
-						crown_part->getCrownLAD(),
-						this->interceptions[i][j]->length);
-				}
-				// Porous envelop ==> reduce the energy by a fixed amount
-				else {
-					potential_energy = e_incident_slope_cell * (1 - crown_part->getCrownOpeness());
-					intercepted_energy = current_energy * (1 - crown_part->getCrownOpeness());
-				}
+				intercepted_energy = this->applyBeerLambert(
+					current_energy,
+					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
+					crown_part->getCrownLAD(),
+					v_interc[j]->length);
+			}
+			// Porous envelop ==> reduce the energy by a fixed amount
+			else {
+				potential_energy = e_incident_slope_cell * (1 - crown_part->getCrownOpeness());
+				intercepted_energy = current_energy * (1 - crown_part->getCrownOpeness());
+			}
 
-				// Add to the potential and intercepted energy by the tree
+			// Add to the potential and intercepted energy by the tree
 				#ifdef _OPENMP
 				#pragma omp critical
 				{
 				#endif
-					crown_part->addEnergyPotential(potential_energy);
-					crown_part->addEnergy(intercepted_energy);
+				crown_part->addEnergyPotential(potential_energy);
+				crown_part->addEnergy(intercepted_energy);
 				#ifdef _OPENMP
 				}
 				#endif
-			
 
-				// And remove the intercepted energy from the energy that left
-				current_energy -= intercepted_energy;
 
-				// Remove the intercepted energy by the crown from the total energy above the cell
-				#ifdef _OPENMP
-				#pragma omp critical
-				#endif
-				target_cell->interceptEnergy(intercepted_energy);
-			}
+			// And remove the intercepted energy from the energy that left
+			current_energy -= intercepted_energy;
+
+			// Remove the intercepted energy by the crown from the total energy above the cell
+			#ifdef _OPENMP
+			#pragma omp critical
+			#endif
+			target_cell->interceptEnergy(intercepted_energy);
 		}
 	}
 
-};
+	double applyBeerLambert(double incident_energy, double extinction_coef, double clumping_factor, double leaf_area_density, double path_length) {
 
-class Model {
-
-private:
-	// Stand object with cells, trees and geometric variables
-	Stand stand;
-
-	// Rays that are coming toward a cell
-	RayManager rays;
-
-	// Interceptions between a crown part and a ray toward a target cell center
-	InterceptionManager interceptions;
+		return(incident_energy * (1 - exp(-extinction_coef * clumping_factor * leaf_area_density * path_length)));
+	}
 
 
 public:
@@ -1854,8 +1558,11 @@ public:
 
 		stand(cells, trees, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus),
 		rays(rays, e_above_m2),
-		interceptions(turbid_medium, trunk_interception)
-	{}
+		EXTINCTION_COEF(0.5), CLUMPING_FACTOR(1.0)
+	{
+		this->turbidMedium = turbid_medium;
+		this->trunkInterception = trunk_interception;
+	}
 
 	// Getters
 	double getMaximumTreeHeight() { return(this->stand.getMaximumTreeHeight()); }
@@ -1962,142 +1669,31 @@ public:
 		}
 	}
 
-	shiftedCell getPotentialCell(Ray* ray, int rel_cell_id, Cell* target_cell) {
-
-		relativeCoords rel_cell = ray->getPotentialRelCell(rel_cell_id);
-
-		// Get row and column of potential cell
-		int row_pot = target_cell->getRow() + rel_cell.row;
-		int col_pot = target_cell->getCol() + rel_cell.col;
-
-		// Search if cells is outside the this->stand
-		bool is_outside = row_pot < 0 || row_pot >= this->stand.getNCells() || col_pot < 0 || col_pot >= this->stand.getNCells();
-
-		// If cel is outside the main this->stand, do not keep as potential if we are not in a torus system
-		if (is_outside && !this->stand.isUseTorus()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
-
-		// Get row and column of the original cell in the grid cell (diffrent only within a torus system, if cell is outside)
-		int row_pot_original = (this->stand.getNCells() + (row_pot % this->stand.getNCells())) % this->stand.getNCells();
-		int col_pot_original = (this->stand.getNCells() + (col_pot % this->stand.getNCells())) % this->stand.getNCells();
-
-		// Get corresponding original cell
-		Cell* original_cell = this->stand.getCell(row_pot_original, col_pot_original);
-
-		// Check if it contains trees, otherwise, do not add as potential cell
-		if ((*original_cell).isEmpty()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
-
-		// Compute shift in coordinates to apply on trees within the original cell (torus system)
-		// Shift is a multiple of stand_size : how many this->stand size we have to shift tree coordinates times this->stand size, to apply torus system
-		// If we have a potential cell with negative or gretaer than n_cells row or column
-		// ==> Thus, we want to substract coordinates of original cells in order to have potential cell outside the main this->stand
-		// Be careful, y - coordinates system is opposite direction of y - grid system
-		double stand_size = this->stand.getCellSize() * this->stand.getNCells();
-
-		double x_shift = (col_pot / this->stand.getNCells() - (col_pot % this->stand.getNCells() < 0 ? 1 : 0)) * stand_size; // Negative x_id ==> negative shift
-		double y_shift = -(row_pot / this->stand.getNCells() - (row_pot % this->stand.getNCells() < 0 ? 1 : 0)) * stand_size; // Negative y_id ==> positive shift
-
-
-		// Compute altitudinal shift (only if (x,y) shifted
-		double z_shift = 0.0;
-		if (x_shift != 0.0 || y_shift != 0.0) {
-			double d = sqrt(x_shift * x_shift + y_shift * y_shift);
-			double azimuth_xy = 0;
-			if (d != 0) {
-				if (y_shift >= 0) {
-					azimuth_xy = acos(x_shift / d);
-				}
-				else {
-					azimuth_xy = 2.0 * M_PI - acos(x_shift / d);
-				}
-			}
-			z_shift = -d * cos(azimuth_xy - this->stand.getBottomAzimuth()) * tan(this->stand.getSlope());
-		}
-
-		// Return the shifted cell
-		vertex3D shift = { x_shift, y_shift, z_shift };
-		shiftedCell pot_cell = { original_cell, shift };
-
-		return(pot_cell);
-	}
-
 	void computeInterceptions() {
 
 		int n_rays = this->rays.getNRays();
 		int n_cells = this->stand.getCells().size();
 
-		// For each target cell
+		// For each ray toward each target cell
 		#ifdef _OPENMP
 		#pragma omp parallel for collapse(2)
 		#endif
 		for (int c = 0; c < n_cells; c++) {
-
-			// Get interceptions for all rays X all trees
 			for (int r = 0; r < n_rays; r++) {
 
 				Cell* target_cell = this->stand.getCell(c);
 				Ray* ray = this->rays.getRay(r);
 
-				std::vector<interception*> v_interc;
+				// Get interceptions
+				std::vector<interception*> v_interc = this->computeInterceptionsRayToTarget(ray, target_cell);
 
-				// For each possible relative cell coordinates
-				int n_relcells = ray->getNPotCells();
-				for (int rc = 0; rc < n_relcells; rc++) {
+				// Order interceptions
+				this->orderInterceptionsRayToTarget(v_interc);
 
-					// Get a pointer to the original potential cell and its associated shift
-					shiftedCell pot_cell = this->getPotentialCell(ray, rc, target_cell);
-
-					// Cell is not potential if there is no trees or it is outside the main plot and torus system is disabled
-					if (!pot_cell.cell) { continue; }
-
-					// Compute the shift applied to the tree (2 shifts)
-					// 1. Shift when torus system is enable and the tree is outside the main plot
-					// 2. Set the center of the target cell as origin of tree and ray interception
-					vertex3D shift_tree = {
-						pot_cell.shift.x - target_cell->getX(),
-						pot_cell.shift.y - target_cell->getY(),
-						pot_cell.shift.z - target_cell->getZ()
-					};
-
-					// Compute interception for each tree within the potential cell (with a given shift if the potential cell is outside the plot)
-					int n_pot_trees = pot_cell.cell->getNTrees();
-					for (int t = 0; t < n_pot_trees; t++) {
-
-						// Compute interception for each crown part of the tree
-						std::map<int, CrownPart*> crown_parts = pot_cell.cell->getTree(t)->getCrownParts();
-						for (auto & c_part: crown_parts) {
-
-							interception* interc = c_part.second->computeInterception(target_cell->getId(), ray, shift_tree);
-							if (interc != nullptr) {
-								v_interc.push_back(interc);
-							}
-						}
-
-						// If specified, compute interception by trunks
-						if (this->interceptions.isTrunkInterception()) {
-							interception* interc = pot_cell.cell->getTree(t)->computeTrunkInterception(target_cell->getId(), ray, shift_tree);
-							if (interc != nullptr) {
-								v_interc.push_back(interc);
-							}
-						}
-					}
-				}
-				// Add interceptions for a ray toward a target cell
-				if (v_interc.size() > 0) {
-					#ifdef _OPENMP
-					#pragma omp critical
-					#endif
-					this->interceptions.addInterceptions(v_interc);
-				}
+				// Summarize interceptions into energy
+				this->summarizeInterceptionsRayToTarget(ray, target_cell, v_interc);
 			}
 		}
-	}
-
-	void orderInterceptions() {
-		this->interceptions.orderInterceptions();
-	}
-
-	void summarizeInterceptions() {
-		this->interceptions.summarizeInterceptions(this->rays, this->stand);
 	}
 
 	List exportResults() {
@@ -2217,12 +1813,6 @@ List sl_run_rcpp(
 
 	// For each target cell and each ray (target cells can be parallelized)
 	sl_model.computeInterceptions();
-
-	// Order the interceptions by distance to the target cell
-	sl_model.orderInterceptions();
-
-	// Get energy for each tree and each cell
-	sl_model.summarizeInterceptions();
 
 	// Convert teh output into R format
 	List output = sl_model.exportResults();
