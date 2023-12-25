@@ -1470,6 +1470,7 @@ private:
 
 		// Initialize the energy of the ray coming toward the cell above the canopy
 		double current_energy = e_incident_slope_cell;
+		bool trunk_intercepted = false;
 
 		//Compute attenuation of energy across successives crown interceptions for each ray X target cell
 		int n_interceptions = v_interc.size();
@@ -1477,15 +1478,9 @@ private:
 
 			// Intrception with a trunk
 			if (v_interc[j]->withTrunk) {
-				// Remove the current energy from the total energy above the cell (no energy are coming to the cell)
-				#ifdef _OPENMP
-				#pragma omp critical
-				#endif
-				target_cell->interceptEnergy(current_energy);
-
-				// Stop the loop over the ray coming to the target cell 
-				// It has been stopped by the trunk
-				return;
+				// Set the current energy to 0
+				current_energy = 0.0;
+				continue;
 			}
 
 			// Get the interception
@@ -1507,7 +1502,7 @@ private:
 					crown_part->getCrownLAD(),
 					v_interc[j]->length);
 
-				intercepted_energy = this->applyBeerLambert(
+				intercepted_energy = trunk_intercepted ? 0.0 : this->applyBeerLambert(
 					current_energy,
 					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 					crown_part->getCrownLAD(),
@@ -1516,19 +1511,19 @@ private:
 			// Porous envelop ==> reduce the energy by a fixed amount
 			else {
 				potential_energy = e_incident_slope_cell * (1 - crown_part->getCrownOpeness());
-				intercepted_energy = current_energy * (1 - crown_part->getCrownOpeness());
+				intercepted_energy = trunk_intercepted ? 0.0 : current_energy * (1 - crown_part->getCrownOpeness());
 			}
 
 			// Add to the potential and intercepted energy by the tree
-				#ifdef _OPENMP
-				#pragma omp critical
-				{
-				#endif
-				crown_part->addEnergyPotential(potential_energy);
-				crown_part->addEnergy(intercepted_energy);
-				#ifdef _OPENMP
-				}
-				#endif
+			#ifdef _OPENMP
+			#pragma omp critical
+			{
+			#endif
+			crown_part->addEnergyPotential(potential_energy);
+			crown_part->addEnergy(intercepted_energy);
+			#ifdef _OPENMP
+			}
+			#endif
 
 
 			// And remove the intercepted energy from the energy that left
@@ -1796,6 +1791,7 @@ List sl_run_rcpp(
 	// TODO:
 	// - Not squared plot (rectangle or shape weird)
 	// - PB when many part in the crown, many dcrease of energy whereas same crown
+	//- PB with trunk interception and potential interception by crown
 
 
 	// Initialize the model
