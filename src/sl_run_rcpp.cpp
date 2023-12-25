@@ -1,5 +1,7 @@
 #define _USE_MATH_DEFINES
 
+constexpr double EPSILON = 10e-10; // For rounding errors
+
 #include <vector>
 #include <map>
 #include <string> 
@@ -179,14 +181,14 @@ protected:
 	}
 
 	// Two points are equal
-	bool areEquals(vertex3D p1, vertex3D p2, double EPSILON) {
+	bool areEquals(vertex3D p1, vertex3D p2) {
 		return(abs(p1.x - p2.x) < EPSILON &&
 			abs(p1.y - p2.y) < EPSILON &&
 			abs(p1.z - p2.z) < EPSILON);
 	}
 
 	// Functions for finding if a point is in a volume
-	bool isInBBox(vertex3D pmin, vertex3D pmax, vertex3D p, double EPSILON) {
+	bool isInBBox(vertex3D pmin, vertex3D pmax, vertex3D p) {
 
 		return (pmin.x - p.x <= EPSILON && p.x - pmax.x <= EPSILON &&
 			pmin.y - p.y <= EPSILON && p.y - pmax.y <= EPSILON &&
@@ -396,35 +398,34 @@ public:
 		}
 
 
-		double EPSILON = 1e-10; // accounts for rounding errors in boolean operations below
 		std::vector<double> sols;
 
 		// The first interception point with the full ellipsoid is in the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, EPSILON) && pc1.z >= 0.0)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0)
 			sols.push_back(solc1);
 
 		// The second interception point with the full ellipsoid is in the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON) && pc2.z >= 0.0)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0)
 			sols.push_back(solc2);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInEllipsoid(p0_shift, ptarget))
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInEllipsoid(p0_shift, ptarget))
 			sols.push_back(0.0);
 
 		// The ray intersects the Z horizontal plane of the eight ellipsoid
 		if (this->isSemi) {
-			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0)
+			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0)
 				sols.push_back(solz0);
 		}
 
 		// Add interception with the verticla planes of the 8th ellipsoid
 		if (this->is8th) {
 			// The ray intersects the X vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0, EPSILON))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0))
 				sols.push_back(solx0);
 
 			// The ray intersects the Y vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0, EPSILON) && !this->areEquals(py0, px0, EPSILON))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0))
 				sols.push_back(soly0);
 		}
 
@@ -584,34 +585,32 @@ public:
 			p_bbox_max = { xa_add, yb_add, p0_shift.z + this->h };
 		}
 
-
-		double EPSILON = 1e-10; // accounts for rounding errors in boolean operations below
 		std::vector<double> sols;
 
 		// The first interception point with the full paraboloid is in the fourth paraboloid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, EPSILON) && pc1.z >= 0.0)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0)
 			sols.push_back(solc1);
 
 		// The second interception point with the full paraboloid is in the fourth paraboloid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON) && pc2.z >= 0.0)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0)
 			sols.push_back(solc2);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInParaboloid(p0_shift, ptarget))
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInParaboloid(p0_shift, ptarget))
 			sols.push_back(0.0);
 
 		// The ray intersects the Z horizontal plane of the fourth paraboloid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, EPSILON) && this->isInParaboloid(p0_shift, pz0) && pz0.z > 0.0)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pz0) && this->isInParaboloid(p0_shift, pz0) && pz0.z > 0.0)
 			sols.push_back(solz0);
 
 		// Add interception with the verticla planes of the 4th paraboloid
 		if (this->is4th) {
 			// The ray intersects the X vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, EPSILON) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0, EPSILON))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0))
 				sols.push_back(solx0);
 
 			// The ray intersects the Y vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, EPSILON) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0, EPSILON) && !this->areEquals(py0, px0, EPSILON))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0))
 				sols.push_back(soly0);
 		}
 
@@ -932,8 +931,8 @@ private:
 
 private:
 
-	bool isInCylinder(vertex3D p0, vertex3D p, double radius) {
-		return (p0.x - p.x) * (p0.x - p.x) + (p0.y - p.y) * (p0.y - p.y) <= radius * radius;
+	bool isInCylinder(vertex3D p0, vertex3D p) {
+		return (p0.x - p.x) * (p0.x - p.x) + (p0.y - p.y) * (p0.y - p.y) < this->radius * this->radius;
 	}
 
 		
@@ -957,6 +956,9 @@ public:
 			this->y + shift.y,
 			this->z + shift.z
 		};
+		// Correct for rounding errors after with equality between trunk base shifted center and target cell center
+		if (abs(p0_shift.z) < EPSILON)
+			p0_shift.z = 0.0;
 
 		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
 		// Equation giving distance between ray intersection with infinite height cylinder and target cell center
@@ -1004,26 +1006,24 @@ public:
 		vertex3D p_bbox_min = { p0_shift.x - this->radius, p0_shift.y - this->radius, p0_shift.z };
 		vertex3D p_bbox_max = { p0_shift.x + this->radius, p0_shift.y + this->radius, ztop };
 
-
-		double EPSILON = 1e-10; // accounts for rounding errors in boolean operations below
 		std::vector<double> sols;
 
 		// The first interception point with the full ellipsoid is in the trunk
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, EPSILON) && pc1.z >= 0.0 && pc1.z >= p0_shift.z)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0 && pc1.z >= p0_shift.z) 
 			sols.push_back(solc1);
 
 		// The second interception point with the full ellipsoid is in the trunk
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON) && pc2.z >= 0.0 && pc2.z >= p0_shift.z)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0 && pc2.z >= p0_shift.z)
 			sols.push_back(solc2);
 
 		// The ray intersects the ground or top horizontal plane of the trunk
-		if (this->isInCylinder(p0_shift, pztop, this->radius) && ztop >= p0_shift.z && ztop >= 0.0)
+		if (this->isInCylinder(p0_shift, pztop) && ztop >= 0.0 && ztop >= p0_shift.z)
 			sols.push_back(solztop);
-		if (this->isInCylinder(p0_shift, pzbot, this->radius) && p0_shift.z >= 0.0)
+		if (this->isInCylinder(p0_shift, pzbot) && p0_shift.z >= 0.0)
 			sols.push_back(solzbot);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON) && this->isInCylinder(p0_shift, ptarget, this->radius) && ptarget.z != pzbot.z && ptarget.z != pztop.z)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInCylinder(p0_shift, ptarget) && ptarget.z != pzbot.z && ptarget.z != pztop.z)
 			sols.push_back(0.0);
 
 
@@ -1035,7 +1035,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Not 0 or 2 solutions" << std::endl;
+			std::cout << "Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -1795,8 +1795,7 @@ List sl_run_rcpp(
 
 	// TODO:
 	// - Not squared plot (rectangle or shape weird)
-	// PB when many part in the crown, many dcrease of energy whereas same crown
-
+	// - PB when many part in the crown, many dcrease of energy whereas same crown
 
 
 	// Initialize the model
