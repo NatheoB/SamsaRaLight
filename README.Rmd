@@ -165,7 +165,7 @@ monthly_rad
 Now, given the stand geometry, the trees dataset and the monthly
 radiation, you can run SamsaRaLight using the function `sl_run()`.
 
-```{r}
+```{r out_sl}
 out <- SamsaRaLight::sl_run(
     trees, monthly_rad,
     latitude = latitude, slope = slope, 
@@ -178,7 +178,7 @@ out <- SamsaRaLight::sl_run(
 ```
 
 
-```{r out_sl, echo=FALSE}
+```{r time_sl, echo=FALSE}
 microbenchmark::microbenchmark(
   "sl" = SamsaRaLight::sl_run(
     trees, monthly_rad,

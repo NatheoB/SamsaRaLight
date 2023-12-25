@@ -202,8 +202,8 @@ out <- SamsaRaLight::sl_run(
 ```
 
     #> Unit: milliseconds
-    #>  expr      min       lq     mean   median       uq      max neval
-    #>    sl 202.5835 308.3343 361.8635 392.2158 415.1744 509.2371   100
+    #>  expr      min       lq     mean  median       uq      max neval
+    #>    sl 113.0989 118.7841 121.3309 121.097 123.2503 134.7485   100
 
 The function returns a list with two dataframes:
 
