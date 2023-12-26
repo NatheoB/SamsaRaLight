@@ -105,7 +105,7 @@ sl_run <- function(trees,
       slope, north_to_x_cw, aspect,
       cell_size, n_cells,
       use_torus, turbid_medium, trunk_interception)
-    
+
     # Convert dataframe into data.table
     out$trees <- as.data.table(out$trees)
     out$cells <- as.data.table(out$cells)

@@ -186,7 +186,8 @@ microbenchmark::microbenchmark(
     aspect = aspect, north_to_x_cw = north_to_x_cw,
     cell_size = cell_size, n_cells = n_cells,
     use_rcpp = T,
-    turbid_medium = TRUE
+    turbid_medium = TRUE,
+    trunk_interception = FALSE
   ))
 ```
 
