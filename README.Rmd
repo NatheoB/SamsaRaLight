@@ -185,7 +185,7 @@ microbenchmark::microbenchmark(
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
     cell_size = cell_size, n_cells = n_cells,
-    use_rcpp = T,
+    use_rcpp = TRUE,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   ))

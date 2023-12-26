@@ -434,11 +434,12 @@ private:
 	bool isInParaboloid(vertex3D p0, vertex3D p) {
 
 		double value = (p.x - p0.x) * (p.x - p0.x) / (this->a * this->a) +
-			(p.y - p0.y) * (p.y - p0.y) / (this->b * this->b) +
-			(p.z - p0.z) / (this->h * this->h);
+			(p.y - p0.y) * (p.y - p0.y) / (this->b * this->b) +  // Here, + not - because inverted paraboloid (i.e. paraboloid with apex at the top, not U-saphed paraboloid)
+			(p.z - p0.z) / this->h; 
 
-		return (value <= 1.0);
+		return value < 0.0;
 	}
+
 
 public:
 	CrownPartParaboloid(int id_tree,
@@ -454,16 +455,20 @@ public:
 		this->h = h;
 	}
 
-	// interception of a 4th, semi or full ellispoid between a shifted tree and a ray coming toward a target cell
+	// interception of a 4th or full paraboloid between a shifted tree and a ray coming toward a target cell
 	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
 
-		// SHIFT POSITION OF THE ELLIPSOID
-		// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside (*tree) when torus system
+		// SHIFT POSITION OF THE PARABOLOID
+		// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside tree when torus system
 		vertex3D p0_shift = {
 			this->x + shift.x,
 			this->y + shift.y,
-			this->z + shift.z
+			this->z + shift.z + this->h // Be careful, the reference point of the paraboloid is not the center of the base but the top point of the paraboloid
 		};
+
+		// Get the Z-coordinate of the base plane of the shifted paraboloid
+		double zbase = p0_shift.z - this->h;
+		
 
 		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
 		// Equation giving distance between ray intersection with (*tree) crown and target cell center
@@ -477,7 +482,7 @@ public:
 
 		double coef_c = (p0_shift.x * p0_shift.x) / (this->a * this->a) +
 			(p0_shift.y * p0_shift.y) / (this->b * this->b) - 
-			(p0_shift.z + this->h) / this->h;
+			p0_shift.z / this->h;
 
 
 		// Find point of intersection between the ray and the whole ellipsoid
@@ -500,9 +505,9 @@ public:
 		vertex3D pc2 = getInterceptionPoint(solc2, ray);
 
 			// Interception with the horizontal base of the crown 
-		double solz0 = p0_shift.z / ray->getSinHeightAngle();
-		vertex3D pz0 = getInterceptionPoint(solz0, ray);
-		pz0.z = p0_shift.z;
+		double solbase = zbase / ray->getSinHeightAngle();
+		vertex3D pbase = getInterceptionPoint(solbase, ray);
+		pbase.z = zbase;
 
 
 			// If interception with a fourth of paraboloid, consider interception with the X and Y vertical planes
@@ -522,52 +527,51 @@ public:
 
 
 		// FIND SOLUTIONS OF INTERSECTION WITH THE EIGHTH ELLIPSOID
+		double xa_sub = p0_shift.x - this->a;
+		double yb_sub = p0_shift.y - this->b;
 
 		double xa_add = p0_shift.x + this->a;
 		double yb_add = p0_shift.y + this->b;
-
-		double xa_sub = p0_shift.x - this->a;
-		double yb_sub = p0_shift.y - this->b;
 
 		// Get the limits of the bounding box of the 4th paraboloid
 		vertex3D p_bbox_min = { 0.0, 0.0, 0.0 };
 		vertex3D p_bbox_max = { 0.0, 0.0, 0.0 };
 		if (this->is4th) {
-			p_bbox_min = { std::min(p0_shift.x, xa_add), std::min(p0_shift.y, yb_add), p0_shift.z };
-			p_bbox_max = { std::max(p0_shift.x, xa_add), std::max(p0_shift.y, yb_add), p0_shift.z + this->h };
+			p_bbox_min = { std::min(p0_shift.x, xa_add), std::min(p0_shift.y, yb_add), zbase };
+			p_bbox_max = { std::max(p0_shift.x, xa_add), std::max(p0_shift.y, yb_add), p0_shift.z };
 		}
 		// Get the limit of the bounding box of the full ellispoid
 		else {
-			p_bbox_min = { xa_sub, yb_sub, p0_shift.z };
-			p_bbox_max = { xa_add, yb_add, p0_shift.z + this->h };
+			p_bbox_min = { xa_sub, yb_sub, zbase };
+			p_bbox_max = { xa_add, yb_add, p0_shift.z };
 		}
 
 		std::vector<double> sols;
 
-		// The first interception point with the full paraboloid is in the fourth paraboloid
+		// The first interception point with the the infinite paraboloid is in the paraboloidal crown
 		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0)
 			sols.push_back(solc1);
 
-		// The second interception point with the full paraboloid is in the fourth paraboloid
+		// The second interception point with the infinite paraboloid is in the paraboloidal crown
 		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0)
 			sols.push_back(solc2);
+
+		// The ray intersects the Z horizontal base of the paraboloid
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pbase) && this->isInParaboloid(p0_shift, pbase) && pbase.z > 0.0)
+			sols.push_back(solbase);
 
 		// The ray intersects the center of the target cell
 		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInParaboloid(p0_shift, ptarget))
 			sols.push_back(0.0);
 
-		// The ray intersects the Z horizontal plane of the fourth paraboloid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pz0) && this->isInParaboloid(p0_shift, pz0) && pz0.z > 0.0)
-			sols.push_back(solz0);
-
 		// Add interception with the verticla planes of the 4th paraboloid
 		if (this->is4th) {
 			// The ray intersects the X vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pbase))
 				sols.push_back(solx0);
 
 			// The ray intersects the Y vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0))
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pbase) && !this->areEquals(py0, px0))
 				sols.push_back(soly0);
 		}
 
@@ -580,7 +584,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Not 0 or 2 solutions" << std::endl;
+			std::cout << std::endl << "Not 0 or 2 solutions" << std::endl;
 			return nullptr;
 		}
 
@@ -632,15 +636,14 @@ private:
 		// Radius is the same for all directions and is defined by mean crown radius of the four directions
 		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
 
-		// Compute height of maximum crown radius as the crown base height
+		// Compute height of the crown
 		double cdepth = (h - hbase);
-		double hmax = hbase;
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
 		double x0 = x;
 		double y0 = y;
-		double z0 = z + hmax;
+		double z0 = z + hbase;
 
 		// Create full paraboloid crown
 		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, false,
@@ -652,25 +655,24 @@ private:
 		double h, double hbase,
 		double cr_n, double cr_e, double cr_s, double cr_w) {
 
-		// Compute height of maximum crown radius as the crown base height
-		double depth = h - hbase;
-		double hmax = hbase;
+		// Compute height of the crown
+		double cdepth = h - hbase;
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
 		double x0 = x;
 		double y0 = y;
-		double z0 = z + hmax;
+		double z0 = z + hbase;
 
 		// Init fourth parts of the crown
 		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
-			x0, y0, z0, cr_e, cr_n, depth));
+			x0, y0, z0, cr_e, cr_n, cdepth));
 		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
-			x0, y0, z0, cr_e, -cr_s, depth));
+			x0, y0, z0, cr_e, -cr_s, cdepth));
 		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
-			x0, y0, z0, -cr_w, -cr_s, depth));
+			x0, y0, z0, -cr_w, -cr_s, cdepth));
 		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
-			x0, y0, z0, -cr_w, cr_n, depth));
+			x0, y0, z0, -cr_w, cr_n, cdepth));
 	}
 
 	// Symetric ellispoidal crown
