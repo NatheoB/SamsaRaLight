@@ -14,7 +14,9 @@ sl_run(
   north_to_x_cw = 90,
   aspect = 0,
   cell_size = 10,
-  n_cells = 10,
+  n_cells_x = 10,
+  n_cells_y = 10,
+  soc = TRUE,
   height_anglemin = 10,
   direct_startoffset = 0,
   direct_anglestep = 5,
@@ -77,7 +79,7 @@ northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect 
 
 \item{cell_size}{Length of the side of a squared cell composing the stand (in meters)}
 
-\item{n_cells}{integer - Number of cells of the side of a squared stand}
+\item{soc}{boolean - Standard Overcast Sky, if false: Uniform Overcast Sky}
 
 \item{height_anglemin}{double - Angle minimum between beam and soil (in degrees)}
 
@@ -94,6 +96,8 @@ torus system, otherwise,borders are open grasslands}
 considered as porous envelope}
 
 \item{trunk_interception}{Consider interception of rays by trunks}
+
+\item{n_cells}{integer - Number of cells of the side of a squared stand}
 }
 \description{
 Compute samsara ligth radiative balance

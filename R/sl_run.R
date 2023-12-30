@@ -44,6 +44,7 @@
 #'    northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
 #' @param cell_size Length of the side of a squared cell composing the stand (in meters)
 #' @param n_cells integer - Number of cells of the side of a squared stand
+#' @param soc boolean - Standard Overcast Sky, if false: Uniform Overcast Sky
 #' @param height_anglemin double - Angle minimum between beam and soil (in degrees)
 #' @param direct_startoffset double - Angle at which to start first direct ray (in degrees)
 #' @param direct_anglestep double - Hour angle between two direct beams (in degrees)
@@ -68,7 +69,9 @@ sl_run <- function(trees,
                    north_to_x_cw = 90,
                    aspect = 0,
                    cell_size = 10,
-                   n_cells = 10,
+                   n_cells_x = 10,
+                   n_cells_y = 10,
+                   soc = TRUE,
                    height_anglemin = 10,
                    direct_startoffset = 0,
                    direct_anglestep = 5,
@@ -83,7 +86,7 @@ sl_run <- function(trees,
                                  latitude = latitude,
                                  start_day = start_day,
                                  end_day = end_day,
-                                 soc = TRUE,
+                                 soc = soc,
                                  slope = slope,
                                  north_to_x_cw = north_to_x_cw,
                                  aspect = aspect,
@@ -92,43 +95,14 @@ sl_run <- function(trees,
                                  direct_anglestep = direct_anglestep,
                                  diffuse_anglestep = diffuse_anglestep)
 
-  # Create cells dataframe
-  cells <- data.table(
-    x_id = rep(0:(n_cells-1), times = n_cells),
-    y_id = rep(0:(n_cells-1), each = n_cells)
-  )
-  
-  cells <- cells[, `:=`(x_center = x_id * cell_size + cell_size / 2,
-                        y_center = n_cells * cell_size - (y_id * cell_size + cell_size / 2))]
-  cells <- cells[, z_center := get_z(x_center, y_center, deg2rad(slope), deg2rad(north_to_x_cw - aspect))]
-  
-  setorder(cells, x_id, y_id)
-  cells <- data.table(id_cell = 1:nrow(cells), cells)
-  
-  # Search for cell in which the tree belong to
-  trees <- as.data.table(trees)
-  
-  trees <- trees[, `:=`(z = get_z(x, y,
-                                  deg2rad(slope),
-                                  deg2rad(-aspect + north_to_x_cw)),
-                        xid_cell = x %/% cell_size,
-                        yid_cell = n_cells - y %/% cell_size - 1)]
-  
-  trees <- cells[, .(id_cell, x_id, y_id)][trees, on = c(x_id = "xid_cell", y_id = "yid_cell")]
-  trees <- trees[, `:=`(x_id = NULL, y_id = NULL)]
-  
   # Run call to c++ script
   out <- sl_run_rcpp(
-    trees, cells, rays$rays,
+    trees, rays$rays,
     sum(rays$e_slope),
     slope, north_to_x_cw, aspect,
-    cell_size, n_cells,
+    cell_size, n_cells_x, n_cells_y,
     use_torus, turbid_medium, trunk_interception)
-  
-  # Convert dataframe into data.table
-  out$trees <- as.data.table(out$trees)
-  out$cells <- as.data.table(out$cells)
-  
+
   return(out)
 }
 

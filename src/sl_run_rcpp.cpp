@@ -1038,8 +1038,8 @@ private:
 	double y;
 	double z;
 
-	// Trees in the cell
-	std::vector<Tree*> trees;
+	// Id of the tree in the cell (id in the sense of id in the trees vector in Stand object)
+	std::vector<int> vectIdTrees;
 
 	// Energy of the cell (in MJ)
 	double energyAboveCanopy; // Energy coming to the cell above the canopy (energy of the cell without trees above)
@@ -1060,14 +1060,6 @@ public:
 		this->energy = e_above; // Current energy above the cell (will be decreased by successive interception by the abov trees)
 	}
 
-	~Cell() {
-		// Delete trees pointers
-		int n_trees = this->trees.size();
-		for (int i = 0; i < n_trees; i++) {
-			delete this->trees[i];
-		}
-	}
-
 	// Getters
 	int getId() { return(this->id); }
 	int getRow() { return(this->row); }
@@ -1076,9 +1068,9 @@ public:
 	double getY() { return(this->y); }
 	double getZ() { return(this->z); }
 
-	bool isEmpty() { return(this->trees.empty()); }
-	int getNTrees() { return(this->trees.size()); }
-	Tree* getTree(int i) { return(this->trees[i]); }
+	bool isEmpty() { return(this->vectIdTrees.empty()); }
+	int getVectIdTree(int i_tree) { return(this->vectIdTrees[i_tree]); }
+	int getNTrees() { return(this->vectIdTrees.size()); }
 
 	double getEnergy() { return(this->energy); }
 	double getEnergyM2(double cell_area) { return(this->energy / cell_area); }
@@ -1086,7 +1078,7 @@ public:
 
 
 	// Setters
-	void addTree(Tree* tree) { this->trees.push_back(tree); }
+	void addTree(int vect_id) { this->vectIdTrees.push_back(vect_id); }
 	void interceptEnergy(double e) { this->energy -= e; }
 	void correctNullEnergy(double epsilon) {
 		if (this->energy < -epsilon)
@@ -1100,15 +1092,11 @@ public:
 class Stand {
 
 private:
-	// 2D map of cell pointers (grid stand) stored by <row, column>
-	std::map<std::pair<int, int>, Cell*> grid;
+	// 2D grid of cells stored by <row, column>
+	std::vector<std::vector<Cell*>> grid;
 
-	// Vector of cells and trees sorted by vectIdCell and vectIdTree stored in the considered object
-	std::map<int, Cell*> cells;
+	// Vector of trees
 	std::vector<Tree*> trees;
-
-	// Number of trees
-	int nTrees;
 
 	// Tree maximum sizes
 	double maxTreeHeight;
@@ -1122,16 +1110,19 @@ private:
 
 	// Stand size
 	double cellSize; // Length of the size of a single cell (in m)
-	int nCells; // Number of cells in a row (in m)
+	int nCellsX; // Number of cells in a row
+	int nCellsY; // Number of cells in a column
+	int nCells; // Total number of cells
 	double cellAreaPlane; // Area of the cell at horizontal (in m2)
 	double cellArea; // Area of the cell considering slope (in m2)
 	bool useTorus; // Whether we want to use a torus system for light ray tracing
 
 
 public:
-	Stand(DataFrame cells, DataFrame trees, double e_above_m2,
+	Stand(DataFrame trees, double e_above_m2,
 		double slope, double north_to_x_cw, double aspect,
-		double cell_size, double n_cells, bool use_torus
+		double cell_size, double n_cells_x, double n_cells_y, 
+		bool use_torus
 		)
 	{
 		// Stand orientation (all in radians)
@@ -1140,31 +1131,47 @@ public:
 		this->aspect = aspect * M_PI / 180.0;
 		this->bottomAzimuth = (-aspect + north_to_x_cw) * M_PI / 180.0;
 
+
 		// Stand size
 		this->cellSize = cell_size;
-		this->nCells = n_cells;
+
+		this->nCellsX = n_cells_x;
+		this->nCellsY = n_cells_y;
+		this->nCells = n_cells_x * n_cells_y;
+
 		this->cellAreaPlane = cell_size * cell_size;
 		this->cellArea = this->cellAreaPlane / cos(this->slope);
 		this->useTorus = use_torus;
 
-		// Number of cells and trees
-		int n_cells_grid = cells.nrows();
-		this->nTrees = trees.nrows();
 
-		// Get vectors from the cells R dataframe
-		IntegerVector cells_id = cells["id_cell"];
-		IntegerVector cells_col = cells["x_id"];
-		IntegerVector cells_row = cells["y_id"];
-		NumericVector cells_x = cells["x_center"];
-		NumericVector cells_y = cells["y_center"];
-		NumericVector cells_z = cells["z_center"];
+		// Get energy above canopy that is coming toward a cell
+		double e_above_cell = e_above_m2 * this->cellArea;
+
+
+		// Create grid of cells
+		for (int r = 0; r < this->nCellsY; r++) {
+			std::vector<Cell*> cells_in_row;
+			for (int c = 0; c < this->nCellsX; c++) {
+				
+				// Find position of cell center
+				double x = this->cellSize * (c + 1.0 / 2.0);
+				double y = this->cellSize * (this->nCellsX - r - 1.0 / 2.0); // Be careful, grid is first rows on the top but Y coordinate is greater for first rows
+				
+				// Create cell object
+				cells_in_row.push_back(new Cell(
+					this->nCellsY*r + c + 1, 
+					r, c, x, y, this->computeZ(x, y),
+					e_above_cell
+				));
+			}
+			this->grid.push_back(cells_in_row);
+		}
+
 
 		// Get vectors from the trees R dataframe
 		IntegerVector trees_id = trees["id_tree"];
-		IntegerVector trees_id_cell = trees["id_cell"];
 		NumericVector trees_x = trees["x"];
 		NumericVector trees_y = trees["y"];
-		NumericVector trees_z = trees["z"];
 		NumericVector dbh = trees["dbh_cm"];
 		NumericVector height = trees["h_m"];
 		NumericVector hbase = trees["hbase_m"];
@@ -1177,25 +1184,20 @@ public:
 		NumericVector cp = trees["crown_openess"];
 		NumericVector clad = trees["crown_lad"];
 
-		// Get energy above canopy that is coming toward a cell
-		double e_above_cell = e_above_m2 * this->cellArea;
-
-		// Create a Cell pointer and store it in a vector and grid of target cells
-		for (int i = 0; i < n_cells_grid; i++) {
-			Cell* cell = new Cell(cells_id[i] - 1, cells_row[i], cells_col[i], cells_x[i], cells_y[i], cells_z[i], e_above_cell);
-			this->cells.emplace(cell->getId(), cell);
-			this->grid.emplace(std::make_pair(cell->getRow(), cell->getCol()), cell);
-		}
-
 		// Add a Tree object to the associated Cell they belong to
-		for (int i = 0; i < this->nTrees; i++) {
-			Tree* tree = new Tree(
-				i, trees_id[i], trees_x[i], trees_y[i], trees_z[i],
-				dbh[i], height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
-				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]);
+		int n_trees = trees.nrows();
+		for (int i = 0; i < n_trees; i++) {
 
-			this->trees.push_back(tree);
-			this->cells.find(trees_id_cell[i] - 1)->second->addTree(tree);
+			// Create tree object
+			this->trees.push_back(new Tree(
+				i, trees_id[i], trees_x[i], trees_y[i], this->computeZ(trees_x[i], trees_y[i]),
+				dbh[i], height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
+				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]));
+
+			// Find row and column of the cell and add tree id to the corresponding cell
+			int cell_col = (int)(trees_x[i] / this->cellSize);
+			int cell_row = this->nCellsY - (int)(trees_y[i] / this->cellSize) - 1;
+			this->grid[cell_row][cell_col]->addTree(i);
 		}
 
 		// Get maximum height and crown radius of the trees
@@ -1204,21 +1206,27 @@ public:
 	}
 
 	~Stand() {
-		// Delete cells pointers (also destroy tree pointors within the given cell)
-		int n_cells = this->cells.size();
-		for (int i = 0; i < n_cells; i++) {
-			delete this->cells[i];
+		// Delete cells pointers
+		for (int r = 0; r < this->nCellsY; r++) {
+			for (int c = 0; c < this->nCellsX; c++) {
+				delete this->grid[r][c];
+			}
+		}
+		// Delete tree pointers
+		int n_trees = this->trees.size();
+		for (int i = 0; i < n_trees; i++) {
+			delete this->trees[i];
 		}
 	}
 
 	// Getters
-	Cell* getCell(int row, int col) { return(this->grid[std::make_pair(row, col)]); }
-	Cell* getCell(int id) { return(this->cells[id]); }
-	std::map<int, Cell*> getCells() { return(this->cells); }
+	Cell* getCell(int row, int col) { return(this->grid[row][col]); }
 	int getNCells() { return(this->nCells); }
+	int getNCellsX() { return(this->nCellsX); }
+	int getNCellsY() { return(this->nCellsY); }
 
 	Tree* getTree(int vectid) { return(this->trees[vectid]); }
-	int getNTrees() { return(this->nTrees); }
+	int getNTrees() { return(this->trees.size()); }
 
 	double getSlope() { return(this->slope); }
 	double getNorthToXcw() { return(this->northToXcw); }
@@ -1230,6 +1238,21 @@ public:
 	double isUseTorus() { return(this->useTorus); }
 	double getMaximumTreeCrownRadius() { return(this->maxTreeCrownRadius); }
 	double getMaximumTreeHeight() { return(this->maxTreeHeight); }
+
+
+	// Methods
+	double computeZ(double x, double y) {
+
+		double d = sqrt(x*x + y*y);
+		double azimuth_xy = 0;
+		if (d != 0) {
+			if (y >= 0) 
+				azimuth_xy = acos(x / d);
+			else
+				azimuth_xy = 2.0 * M_PI - acos(x / d);
+		}
+		return(-d * cos(azimuth_xy - this->bottomAzimuth) * tan(this->slope));
+	}
 
 };
 
@@ -1273,14 +1296,14 @@ private:
 		int col_pot = target_cell->getCol() + rel_cell.col;
 
 		// Search if cells is outside the this->stand
-		bool is_outside = row_pot < 0 || row_pot >= this->stand.getNCells() || col_pot < 0 || col_pot >= this->stand.getNCells();
+		bool is_outside = row_pot < 0 || row_pot >= this->stand.getNCellsY() || col_pot < 0 || col_pot >= this->stand.getNCellsX();
 
 		// If cel is outside the main this->stand, do not keep as potential if we are not in a torus system
 		if (is_outside && !this->stand.isUseTorus()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
 
 		// Get row and column of the original cell in the grid cell (diffrent only within a torus system, if cell is outside)
-		int row_pot_original = (this->stand.getNCells() + (row_pot % this->stand.getNCells())) % this->stand.getNCells();
-		int col_pot_original = (this->stand.getNCells() + (col_pot % this->stand.getNCells())) % this->stand.getNCells();
+		int row_pot_original = (this->stand.getNCellsY() + (row_pot % this->stand.getNCellsY())) % this->stand.getNCellsY();
+		int col_pot_original = (this->stand.getNCellsX() + (col_pot % this->stand.getNCellsX())) % this->stand.getNCellsX();
 
 		// Get corresponding original cell
 		Cell* original_cell = this->stand.getCell(row_pot_original, col_pot_original);
@@ -1293,28 +1316,14 @@ private:
 		// If we have a potential cell with negative or gretaer than n_cells row or column
 		// ==> Thus, we want to substract coordinates of original cells in order to have potential cell outside the main this->stand
 		// Be careful, y - coordinates system is opposite direction of y - grid system
-		double stand_size = this->stand.getCellSize() * this->stand.getNCells();
-
-		double x_shift = (col_pot / this->stand.getNCells() - (col_pot % this->stand.getNCells() < 0 ? 1 : 0)) * stand_size; // Negative x_id ==> negative shift
-		double y_shift = -(row_pot / this->stand.getNCells() - (row_pot % this->stand.getNCells() < 0 ? 1 : 0)) * stand_size; // Negative y_id ==> positive shift
-
+		double x_shift = (col_pot / this->stand.getNCellsX() - (col_pot % this->stand.getNCellsX() < 0 ? 1 : 0)) * (this->stand.getCellSize() * this->stand.getNCellsX()); // Negative x_id ==> negative shift
+		double y_shift = -(row_pot / this->stand.getNCellsY() - (row_pot % this->stand.getNCellsY() < 0 ? 1 : 0)) * (this->stand.getCellSize() * this->stand.getNCellsY()); // Negative y_id ==> positive shift
 
 		// Compute altitudinal shift (only if (x,y) shifted
 		double z_shift = 0.0;
-		if (x_shift != 0.0 || y_shift != 0.0) {
-			double d = sqrt(x_shift * x_shift + y_shift * y_shift);
-			double azimuth_xy = 0;
-			if (d != 0) {
-				if (y_shift >= 0) {
-					azimuth_xy = acos(x_shift / d);
-				}
-				else {
-					azimuth_xy = 2.0 * M_PI - acos(x_shift / d);
-				}
-			}
-			z_shift = -d * cos(azimuth_xy - this->stand.getBottomAzimuth()) * tan(this->stand.getSlope());
-		}
-
+		if (x_shift != 0.0 || y_shift != 0.0)
+			z_shift = this->stand.computeZ(x_shift, y_shift);
+		
 		// Return the shifted cell
 		vertex3D shift = { x_shift, y_shift, z_shift };
 		shiftedCell pot_cell = { original_cell, shift };
@@ -1339,7 +1348,7 @@ private:
 			// Compute the shift applied to the tree (2 shifts)
 			// 1. Shift when torus system is enable and the tree is outside the main plot
 			// 2. Set the center of the target cell as origin of tree and ray interception
-			vertex3D shift_tree = {
+			vertex3D shift = {
 				pot_cell.shift.x - target_cell->getX(),
 				pot_cell.shift.y - target_cell->getY(),
 				pot_cell.shift.z - target_cell->getZ()
@@ -1350,12 +1359,12 @@ private:
 			for (int t = 0; t < n_pot_trees; t++) {
 
 				// Get intercepted tree
-				Tree* tree = pot_cell.cell->getTree(t);
+				Tree* tree = this->stand.getTree(pot_cell.cell->getVectIdTree(t));
 				
 				// Compute interception for each crown part of the tree
 				int n_parts = tree->getCrown().getNParts();
 				for (int p = 0; p < n_parts; p++) {
-					interception* interc_crownpart = tree->computeCrownpartInterception(p, target_cell->getId(), ray, shift_tree);
+					interception* interc_crownpart = tree->computeCrownpartInterception(p, target_cell->getId(), ray, shift);
 					if (interc_crownpart != nullptr) {
 						v_interc.push_back(interc_crownpart);
 					}
@@ -1363,7 +1372,7 @@ private:
 
 				// If specified, compute interception by trunks
 				if (this->trunkInterception) {
-					interception* interc_trunk = tree->computeTrunkInterception(target_cell->getId(), ray, shift_tree);
+					interception* interc_trunk = tree->computeTrunkInterception(target_cell->getId(), ray, shift);
 					if (interc_trunk != nullptr) {
 						v_interc.push_back(interc_trunk);
 					}
@@ -1478,6 +1487,9 @@ private:
 			#pragma omp critical
 			#endif
 			target_cell->interceptEnergy(intercepted_energy);
+
+			// Delete interception pointer
+			delete v_interc[j];
 		}
 	}
 
@@ -1490,13 +1502,13 @@ private:
 
 public:
 
-	Model(DataFrame trees, DataFrame cells, DataFrame rays,
+	Model(DataFrame trees, DataFrame rays,
 		double e_above_m2,
 		double slope, double north_to_x_cw, double aspect,
-		double cell_size, double n_cells,
+		double cell_size, double n_cells_x, double n_cells_y,
 		bool use_torus, bool turbid_medium, bool trunk_interception) :
 
-		stand(cells, trees, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells, use_torus),
+		stand(trees, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus),
 		rays(rays, e_above_m2),
 		EXTINCTION_COEF(0.5), CLUMPING_FACTOR(1.0)
 	{
@@ -1612,37 +1624,37 @@ public:
 	void computeInterceptions() {
 
 		int n_rays = this->rays.getNRays();
-		int n_cells = this->stand.getCells().size();
+		int n_cells_x = this->stand.getNCellsX();
+		int n_cells_y = this->stand.getNCellsY();
 
 		// For each ray toward each target cell
 		#ifdef _OPENMP
-		#pragma omp parallel for collapse(2)
+		#pragma omp parallel for collapse(3)
 		#endif
-		for (int c = 0; c < n_cells; c++) {
-			for (int r = 0; r < n_rays; r++) {
+		for (int r = 0; r < n_cells_y; r++) {
+			for (int c = 0; c < n_cells_x; c++) {
+				for (int i = 0; i < n_rays; i++) {
 
-				Cell* target_cell = this->stand.getCell(c);
-				Ray* ray = this->rays.getRay(r);
+					Cell* target_cell = this->stand.getCell(r, c);
+					Ray* ray = this->rays.getRay(i);
 
-				// Get interceptions
-				std::vector<interception*> v_interc = this->computeInterceptionsRayToTarget(ray, target_cell);
+					// Get interceptions
+					std::vector<interception*> v_interc = this->computeInterceptionsRayToTarget(ray, target_cell);
 
-				// Order interceptions
-				this->orderInterceptionsRayToTarget(v_interc);
+					// Order interceptions
+					this->orderInterceptionsRayToTarget(v_interc);
 
-				// Summarize interceptions into energy
-				this->summarizeInterceptionsRayToTarget(ray, target_cell, v_interc);
+					// Summarize interceptions into energy
+					this->summarizeInterceptionsRayToTarget(ray, target_cell, v_interc);
+				}
 			}
 		}
 	}
 
 	List exportResults() {
 
-		// Get cells
-		std::map<int, Cell*> cells = this->stand.getCells();
-
 		// Get number of trees and cells
-		int n_cells = cells.size();
+		int n_cells = this->stand.getNCells();
 		int n_trees = this->stand.getNTrees();
 
 		// Init RCPP vectors for trees
@@ -1662,34 +1674,41 @@ public:
 		// For each cell
 		int icell = 0;
 		int itree = 0;
-		for (auto& cell : cells) {
+		int n_rows = this->stand.getNCellsY();
+		int n_cols = this->stand.getNCellsX();
+		for (int r = 0; r < n_rows; r++) {
+			for (int c = 0; c < n_cols; c++) {
 
-			// Add cell to vectors
-			id_cell[icell] = cell.second->getId() + 1;
-			x_cell[icell] = cell.second->getX();
-			y_cell[icell] = cell.second->getY();
-			z_cell[icell] = cell.second->getZ();
+				// Get cell
+				Cell* cell = this->stand.getCell(r, c);
 
-			// Correct for rounding errors
-			cell.second->correctNullEnergy(1e-6);
+				// Add cell to vectors
+				id_cell[icell] = cell->getId() + 1;
+				x_cell[icell] = cell->getX();
+				y_cell[icell] = cell->getY();
+				z_cell[icell] = cell->getZ();
 
-			e_cell[icell] = cell.second->getEnergyM2(this->stand.getCellArea());
-			erel_cell[icell] = cell.second->getEnergyRelative();
+				// Correct for rounding errors
+				cell->correctNullEnergy(1e-6);
 
-			// For each tree composing the cell
-			int n_trees_cell = cell.second->getNTrees();
-			for (int t = 0; t < n_trees_cell; t++) {
+				e_cell[icell] = cell->getEnergyM2(this->stand.getCellArea());
+				erel_cell[icell] = cell->getEnergyRelative();
 
-				Tree* tree = cell.second->getTree(t);
+				// For each tree composing the cell
+				int n_trees_cell = cell->getNTrees();
+				for (int t = 0; t < n_trees_cell; t++) {
 
-				id_tree[itree] = tree->getId();
-				e_tree[itree] = tree->getCrownEnergy();
-				epot_tree[itree] = tree->getCrownEnergyPotential();
+					Tree* tree = this->stand.getTree(cell->getVectIdTree(t));
 
-				itree++;
+					id_tree[itree] = tree->getId();
+					e_tree[itree] = tree->getCrownEnergy();
+					epot_tree[itree] = tree->getCrownEnergyPotential();
+
+					itree++;
+				}
+
+				icell++;
 			}
-
-			icell++;
 		}
 
 		// Create trees and cells RCPP DataFrames
@@ -1722,10 +1741,9 @@ public:
 
 // [[Rcpp::export]]
 List sl_run_rcpp(
-	DataFrame trees, DataFrame cells,
-	DataFrame rays, double e_above_m2,
+	DataFrame trees, DataFrame rays, double e_above_m2,
 	double slope, double north_to_x_cw, double aspect,
-	double cell_size, double n_cells,
+	double cell_size, double n_cells_x, double n_cells_y,
 	bool use_torus, bool turbid_medium, bool trunk_interception
 )
 {
@@ -1734,14 +1752,14 @@ List sl_run_rcpp(
 	// - If hmax is needed
 
 	// TODO:
-	// - Not squared plot (rectangle or shape weird)
+	// - core plot
 
 
 	// Initialize the model
-	Model sl_model = Model(trees, cells,
+	Model sl_model = Model(trees,
 		rays, e_above_m2,
 		slope, north_to_x_cw, aspect,
-		cell_size, n_cells, 
+		cell_size, n_cells_x, n_cells_y, 
 		use_torus, turbid_medium, trunk_interception);
 
 	// [OPTIMIZATION]: find the extend of possible interception of each ray

@@ -57,7 +57,8 @@ aspect <- 144
 north_to_x_cw <- 54
 
 # Considering a squared plot, number and size of the cells composing the grid
-n_cells <- 10 # Number of cells within one length
+n_cells_x <- 10 # Number of cells columns
+n_cells_y <- 10 # Number of cells rows
 cell_size <- 10 # Size of the length of a cell
 ```
 
@@ -104,41 +105,35 @@ You can find an example tree dataset
 of fir, spruce, beech located in Prenovel (Jura, France).
 
 ``` r
-trees <- as.data.table(SamsaRaLight::data_trees_prenovel %>%
-                         dplyr::mutate(rn_m = r_m,
-                                       re_m = r_m,
-                                       rs_m = r_m,
-                                       rw_m = r_m,
-                                       crown_type = "E",
-                                       hmax_m = hbase_m + 1/2*(h_m - hbase_m)) %>%
-                         dplyr::select(-r_m)) 
-# Try to give a data.table to the function to avoid converting inside the function trees
-# trees <- as.data.table(SamsaRaLight::data_trees_bechefa)
-trees
-#>      id_tree     species       x       y  dbh_cm crown_type     h_m hbase_m
-#>   1:       1  Abies alba 77.7336 71.0808 22.9320          E 14.8120  3.3073
-#>   2:       2  Abies alba 62.5783 65.1864 18.2397          E 12.9612  4.7429
-#>   3:       3  Abies alba 84.0060 95.2483 22.8472          E 15.8187  4.9055
-#>   4:       4  Abies alba 58.9521 97.9011 19.1539          E 11.7033  4.2050
-#>   5:       5  Abies alba 33.3423 39.4053 19.8852          E 14.6597  3.8346
-#>  ---                                                                       
-#> 329:     329  Abies alba 83.6769 29.9210 16.1720          E 12.9273  2.7850
-#> 330:     330  Abies alba 20.1081 22.6300 13.9037          E 10.4369  4.6049
-#> 331:     331  Abies alba 90.7703 27.8787  9.4128          E  8.1643  2.3558
-#> 332:     332 Picea abies 90.1975 15.2572 17.1754          E 16.0397  6.7220
-#> 333:     333  Abies alba 94.8614 14.0905 15.3389          E  9.3093  2.3800
-#>      crown_openess crown_lad   rn_m   re_m   rs_m   rw_m   hmax_m
-#>   1:           0.2       0.5 3.0204 3.0204 3.0204 3.0204  9.05965
-#>   2:           0.2       0.5 3.0896 3.0896 3.0896 3.0896  8.85205
-#>   3:           0.2       0.5 2.8350 2.8350 2.8350 2.8350 10.36210
-#>   4:           0.2       0.5 2.5196 2.5196 2.5196 2.5196  7.95415
-#>   5:           0.2       0.5 2.8208 2.8208 2.8208 2.8208  9.24715
-#>  ---                                                             
-#> 329:           0.2       0.5 2.7448 2.7448 2.7448 2.7448  7.85615
-#> 330:           0.2       0.5 2.3478 2.3478 2.3478 2.3478  7.52090
-#> 331:           0.2       0.5 1.8538 1.8538 1.8538 1.8538  5.26005
-#> 332:           0.2       0.5 2.3005 2.3005 2.3005 2.3005 11.38085
-#> 333:           0.2       0.5 2.6004 2.6004 2.6004 2.6004  5.84465
+trees <- SamsaRaLight::data_trees_prenovel %>%
+  dplyr::mutate(rn_m = r_m,
+                re_m = r_m,
+                rs_m = r_m,
+                rw_m = r_m,
+                crown_lad = case_match(species,
+                                       c("Picea abies", "Abies alba") ~ 0.767,
+                                       "Fagus sylvatica" ~ 0.96),
+                crown_type = case_match(species,
+                                        c("Picea abies", "Abies alba") ~ "P",
+                                        "Fagus sylvatica" ~ "E"),
+                hmax_m = NA) %>%
+  dplyr::select(-r_m)
+
+head(trees)
+#>   id_tree    species       x       y  dbh_cm crown_type     h_m hbase_m
+#> 1       1 Abies alba 77.7336 71.0808 22.9320          P 14.8120  3.3073
+#> 2       2 Abies alba 62.5783 65.1864 18.2397          P 12.9612  4.7429
+#> 3       3 Abies alba 84.0060 95.2483 22.8472          P 15.8187  4.9055
+#> 4       4 Abies alba 58.9521 97.9011 19.1539          P 11.7033  4.2050
+#> 5       5 Abies alba 33.3423 39.4053 19.8852          P 14.6597  3.8346
+#> 6       6 Abies alba 57.5743  2.0656 20.1293          P 16.6530  7.6860
+#>   crown_openess crown_lad   rn_m   re_m   rs_m   rw_m hmax_m
+#> 1           0.2     0.767 3.0204 3.0204 3.0204 3.0204     NA
+#> 2           0.2     0.767 3.0896 3.0896 3.0896 3.0896     NA
+#> 3           0.2     0.767 2.8350 2.8350 2.8350 2.8350     NA
+#> 4           0.2     0.767 2.5196 2.5196 2.5196 2.5196     NA
+#> 5           0.2     0.767 2.8208 2.8208 2.8208 2.8208     NA
+#> 6           0.2     0.767 3.2436 3.2436 3.2436 3.2436     NA
 ```
 
 ### Get monthly radiation
@@ -194,16 +189,16 @@ out <- SamsaRaLight::sl_run(
     trees, monthly_rad,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, n_cells = n_cells,
-    use_rcpp = T,
+    cell_size = cell_size, 
+    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   )
 ```
 
     #> Unit: milliseconds
-    #>  expr     min       lq     mean   median      uq      max neval
-    #>    sl 84.1001 85.78925 87.48826 86.70195 88.4371 103.3091   100
+    #>  expr     min      lq     mean  median      uq      max neval
+    #>    sl 90.6023 95.7261 97.96416 97.2462 99.7265 107.0044   100
 
 The function returns a list with two dataframes:
 
@@ -215,22 +210,15 @@ The function returns a list with two dataframes:
 - `e`: Energy intercepted by the tree when considering competition with
   neighbours (in MJ/year)
 
-- `lci`: Light competition index, computed as $lci = 1-\frac{e}{epot}$.
-  It ranges from 0 to 1 with 0 being a tree without competition for
-  light (all the energy that the tree can intercept from coming rays are
-  intercepted) and 1 being a tree totally in competition for light (all
-  the energy from the rays coming to the tree crown has been intercepted
-  by the neighbours).
-
 ``` r
 summary(out$trees)
-#>     id_tree         epot               e         
-#>  Min.   :  1   Min.   :  10072   Min.   :   562  
-#>  1st Qu.: 84   1st Qu.: 163738   1st Qu.: 22453  
-#>  Median :167   Median : 299307   Median : 57445  
-#>  Mean   :167   Mean   : 330761   Mean   :119931  
-#>  3rd Qu.:250   3rd Qu.: 470347   3rd Qu.:171867  
-#>  Max.   :333   Max.   :1085693   Max.   :794042
+#>     id_tree         epot               e           
+#>  Min.   :  1   Min.   :  11335   Min.   :   520.5  
+#>  1st Qu.: 84   1st Qu.: 175715   1st Qu.: 24170.8  
+#>  Median :167   Median : 307661   Median : 72298.8  
+#>  Mean   :167   Mean   : 336825   Mean   :120447.8  
+#>  3rd Qu.:250   3rd Qu.: 468373   3rd Qu.:186047.5  
+#>  Max.   :333   Max.   :1060835   Max.   :777815.7
 ```
 
 `cells`: Light coming to each cell of the plot
@@ -244,17 +232,17 @@ summary(out$trees)
 ``` r
 summary(out$cells)
 #>     id_cell          x_center     y_center     z_center            e         
-#>  Min.   :  1.00   Min.   : 5   Min.   : 5   Min.   :0.5255   Min.   : 195.7  
-#>  1st Qu.: 25.75   1st Qu.:25   1st Qu.:25   1st Qu.:2.6276   1st Qu.: 451.9  
-#>  Median : 50.50   Median :50   Median :50   Median :5.2552   Median : 575.0  
-#>  Mean   : 50.50   Mean   :50   Mean   :50   Mean   :5.2552   Mean   : 645.2  
-#>  3rd Qu.: 75.25   3rd Qu.:75   3rd Qu.:75   3rd Qu.:7.8828   3rd Qu.: 772.2  
-#>  Max.   :100.00   Max.   :95   Max.   :95   Max.   :9.9849   Max.   :1329.8  
+#>  Min.   :  2.00   Min.   : 5   Min.   : 5   Min.   :0.5255   Min.   : 109.4  
+#>  1st Qu.: 26.75   1st Qu.:25   1st Qu.:25   1st Qu.:2.6276   1st Qu.: 373.9  
+#>  Median : 51.50   Median :50   Median :50   Median :5.2552   Median : 543.8  
+#>  Mean   : 51.50   Mean   :50   Mean   :50   Mean   :5.2552   Mean   : 628.1  
+#>  3rd Qu.: 76.25   3rd Qu.:75   3rd Qu.:75   3rd Qu.:7.8828   3rd Qu.: 827.6  
+#>  Max.   :101.00   Max.   :95   Max.   :95   Max.   :9.9849   Max.   :1520.4  
 #>       erel        
-#>  Min.   :0.04238  
-#>  1st Qu.:0.09789  
-#>  Median :0.12454  
-#>  Mean   :0.13974  
-#>  3rd Qu.:0.16724  
-#>  Max.   :0.28803
+#>  Min.   :0.02369  
+#>  1st Qu.:0.08099  
+#>  Median :0.11778  
+#>  Mean   :0.13604  
+#>  3rd Qu.:0.17926  
+#>  Max.   :0.32929
 ```
