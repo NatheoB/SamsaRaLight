@@ -35,8 +35,8 @@ struct vertex3D {
 
 struct interception {
 
-	// Id of the intercepted tree
-	int idTree;
+	// Id of the intercepted tree in the trees vector in the Stand object
+	int vectIdTree;
 
 	// Length of the path across the crown
 	double length;
@@ -150,7 +150,7 @@ class TreeVolume {
 
 protected:
 	// Id the tree to which the crown part belong
-	int idTree;
+	int vectIdTree;
 
 	// Position of the center of the crown (in meters)
 	double x;
@@ -186,15 +186,15 @@ protected:
 	}
 
 public:
-	TreeVolume(int id_tree, double x, double y, double z) {
-		this->idTree = id_tree;
+	TreeVolume(int vectid_tree, double x, double y, double z) {
+		this->vectIdTree = vectid_tree;
 
 		this->x = x;
 		this->y = y;
 		this->z = z;
 	}
 
-	int getIdTree() { return(this->idTree); }
+	int getVectIdTree() { return(this->vectIdTree); }
 	double getX() { return(this->x); }
 	double getY() { return(this->y); }
 	double getZ() { return(this->z); }
@@ -207,9 +207,9 @@ public:
 class CrownPart: public TreeVolume {
 
 public:
-	CrownPart(int id_tree,
+	CrownPart(int vectid_tree,
 		double x, double y, double z):
-		TreeVolume(id_tree, x, y, z)
+		TreeVolume(vectid_tree, x, y, z)
 	{}
 
 	virtual ~CrownPart() {}
@@ -244,11 +244,11 @@ private:
 	}
 
 public:
-	CrownPartEllipsoid(int id_tree,
+	CrownPartEllipsoid(int vectid_tree,
 		bool is_semi, bool is_8th,
 		double x, double y, double z,
 		double a, double b, double c) :
-		CrownPart(id_tree, x, y, z) {
+		CrownPart(vectid_tree, x, y, z) {
 
 		this->isSemi = is_8th ? true : is_semi; // If 8th thus semi ellipsoid is mandatory
 		this->is8th = is_8th;
@@ -396,7 +396,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Not 0 or 2 solutions" << std::endl;
+			std::cout << "Ellipsoid - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -410,7 +410,7 @@ public:
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
-		interception* interc = new interception { this->idTree, length, distance, false };
+		interception* interc = new interception { this->vectIdTree, length, distance, false };
 
 		return(interc);
 	}
@@ -442,11 +442,11 @@ private:
 
 
 public:
-	CrownPartParaboloid(int id_tree,
+	CrownPartParaboloid(int vectid_tree,
 		bool is_4th,
 		double x, double y, double z,
 		double a, double b, double h) :
-		CrownPart(id_tree, x, y, z) {
+		CrownPart(vectid_tree, x, y, z) {
 
 		this->is4th = is_4th;
 
@@ -584,7 +584,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << std::endl << "Not 0 or 2 solutions" << std::endl;
+			std::cout << "Paraboloid crown - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -598,7 +598,7 @@ public:
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
-		interception* interc = new interception{ this->idTree, length, distance, false };
+		interception* interc = new interception{ this->vectIdTree, length, distance, false };
 
 		return(interc);
 	}
@@ -610,7 +610,7 @@ class Crown {
 private:
 
 	// Id of the tree to which the crown belong
-	int idTree;
+	int vectIdTree;
 
 	// Crown parts in the crown
 	std::vector<CrownPart*> crownParts;
@@ -618,7 +618,7 @@ private:
 	// Leaves charcteristics
 	double crownOpeness; // between 0 and 1, percentage of ligth energy of a ray that is not absorbed by the crown (for porous envelop method)
 	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
-
+	
 	// Output energy (in MJ)
 	double energy; // Intercepted energy
 	double energyPotential; // Intercepted energy without considering neighbours
@@ -646,7 +646,7 @@ private:
 		double z0 = z + hbase;
 
 		// Create full paraboloid crown
-		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, false,
+		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, false,
 			x0, y0, z0, crown_radius, crown_radius, cdepth));
 	}
 
@@ -665,13 +665,13 @@ private:
 		double z0 = z + hbase;
 
 		// Init fourth parts of the crown
-		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
+		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
 			x0, y0, z0, cr_e, cr_n, cdepth));
-		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
+		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
 			x0, y0, z0, cr_e, -cr_s, cdepth));
-		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
+		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
 			x0, y0, z0, -cr_w, -cr_s, cdepth));
-		this->crownParts.push_back(new CrownPartParaboloid(this->idTree, true,
+		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
 			x0, y0, z0, -cr_w, cr_n, cdepth));
 	}
 
@@ -694,7 +694,7 @@ private:
 		double z0 = z + hmax;
 
 		// Create full ellipsoid crown
-		this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, false, false,
+		this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, false, false,
 			x0, y0, z0, crown_radius, crown_radius, cdepth / 2.0));
 	}
 
@@ -718,12 +718,12 @@ private:
 
 		// Init top semi part of the crown
 		if (depth_up > 0)
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, false,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, false,
 				x0, y0, z0, crown_radius, crown_radius, depth_up));
 
 		// Init bottom semi part of the crown
 		if (depth_down > 0)
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, false,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, false,
 				x0, y0, z0, crown_radius, crown_radius, -depth_down));
 	}
 
@@ -744,39 +744,39 @@ private:
 
 		// Init top eighth parts of the crown
 		if (depth_up > 0) {
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, cr_e, cr_n, depth_up));
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, cr_e, -cr_s, depth_up));
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, -cr_w, -cr_s, depth_up));
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, -cr_w, cr_n, depth_up));
 		}
 
 		// Init bottom eighth parts of the crown
 		if (depth_down > 0) {
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, cr_e, cr_n, -depth_down));
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, cr_e, -cr_s, -depth_down));
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, -cr_w, -cr_s, -depth_down));
-			this->crownParts.push_back(new CrownPartEllipsoid(this->idTree, true, true,
+			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
 				x0, y0, z0, -cr_w, cr_n, -depth_down));
 		}
 	}
 
 
 public:
-	Crown(int id_tree, 
+	Crown(int vectid_tree, 
 		std::string crown_type,
 		double x, double y, double z,
 		double h, double hbase, double hmax,
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad)
 	{
-		this->idTree = id_tree;
+		this->vectIdTree = vectid_tree;
 
 		this->crownOpeness = crown_openess;
 		this->crownLAD = crown_lad;
@@ -817,6 +817,8 @@ public:
 	}
 
 	// Getters
+	int getVectIdTree() { return(this->vectIdTree); }
+	int getNParts() { return(this->crownParts.size()); }
 	double getCrownOpeness() { return(this->crownOpeness); }
 	double getCrownLAD() { return(this->crownLAD); }
 	double getEnergy() { return(this->energy); }
@@ -827,35 +829,9 @@ public:
 	void addEnergyPotential(double epot) { this->energyPotential += epot; }
 
 
-	// Find interceptions of each parts of the crown
-	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
-		
-		int n_parts = this->crownParts.size();
-
-		// Init total crown interceptions 
-		double length_tot = 0.0;
-		double distance_mean = 0.0;
-
-		// Sum length and take average distance of interceptions with all parts of the crowns
-		int n_interc = 0;
-		for (int i = 0; i < n_parts; i++) {
-			interception* interc = this->crownParts[i]->computeInterception(id_target_cell, ray, shift);
-			if (interc != nullptr) {
-				length_tot += interc->length;
-				distance_mean += interc->distance;
-				n_interc++;
-				delete interc;
-			}
-		}
-
-		// Return interception object of there was an interception
-		if (n_interc > 0) {
-			distance_mean /= n_interc;
-			return new interception{ this->idTree, length_tot, distance_mean, false };
-		}
-
-		// Otherwise no interception
-		return(nullptr);
+	// Find interception with a given part of the crown
+	interception* computeCrownpartInterception(int id_crownpart, int id_target_cell, Ray* ray, vertex3D& shift) {
+		return( this->crownParts[id_crownpart]->computeInterception(id_target_cell, ray, shift) );
 	}
 };
 
@@ -881,9 +857,9 @@ private:
 		
 
 public:
-	Trunk(double id_tree, double x, double y, double z,
+	Trunk(double vectid_tree, double x, double y, double z,
 		double height, double radius) :
-		TreeVolume(id_tree, x, y, z)
+		TreeVolume(vectid_tree, x, y, z)
 	{
 		this->height = height;
 		this->radius = radius;
@@ -978,7 +954,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Not 0 or 2 solutions - " << nsols << std::endl;
+			std::cout << "Trunk - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -992,7 +968,7 @@ public:
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
-		interception* interc = new interception{ this->idTree, length, distance, true };
+		interception* interc = new interception{ this->vectIdTree, length, distance, true };
 
 		return(interc);
 	}
@@ -1001,7 +977,9 @@ public:
 class Tree {
 
 private:
-	// Id of the tree
+	// Id of the tree in the trees vector (in Stand object)
+	// And id of the tree in the input dataset
+	int vectId;
 	int id;
 
 	// Tree volumes: trunk and crown
@@ -1010,30 +988,32 @@ private:
 
 
 public:
-	Tree(int id, double x, double y, double z,
+	Tree(int vectid, int id, double x, double y, double z,
 		double dbh, double h,
 		std::string crown_type,
 		double hbase, double hmax,
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad):
 
-		crown(id, crown_type, x, y, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+		crown(vectid, crown_type, x, y, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
 			crown_openess, crown_lad),
-		trunk(id, x, y, z, dbh/200.0, h)
+		trunk(vectid, x, y, z, dbh/200.0, h)
 	{
+		this->vectId = vectid;
 		this->id = id;
 	}
 
 
 	// Getters
 	int getId() { return(this->id); }
+	int getVectId() { return(this->vectId); }
 	Crown& getCrown() { return(this->crown); }
 	double getCrownEnergy() { return(this->crown.getEnergy()); }
 	double getCrownEnergyPotential() { return(this->crown.getEnergyPotential()); }
 
 	// Interception methods
-	interception* computeCrownInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
-		return(this->crown.computeInterception(id_target_cell, ray, shift));
+	interception* computeCrownpartInterception(int id_crownpart, int id_target_cell, Ray* ray, vertex3D& shift) {
+		return(this->crown.computeCrownpartInterception(id_crownpart, id_target_cell, ray, shift));
 	}
 
 	interception* computeTrunkInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
@@ -1099,12 +1079,6 @@ public:
 	bool isEmpty() { return(this->trees.empty()); }
 	int getNTrees() { return(this->trees.size()); }
 	Tree* getTree(int i) { return(this->trees[i]); }
-	void printTreesId() {
-		int n_trees = this->trees.size();
-		for (int i = 0; i < n_trees; i++) {
-			std::cout << (*this->trees[i]).getId() << "\t";
-		}
-	}
 
 	double getEnergy() { return(this->energy); }
 	double getEnergyM2(double cell_area) { return(this->energy / cell_area); }
@@ -1129,9 +1103,9 @@ private:
 	// 2D map of cell pointers (grid stand) stored by <row, column>
 	std::map<std::pair<int, int>, Cell*> grid;
 
-	// Vector of cells and trees stored by unique id
+	// Vector of cells and trees sorted by vectIdCell and vectIdTree stored in the considered object
 	std::map<int, Cell*> cells;
-	std::map<int, Tree*> trees;
+	std::vector<Tree*> trees;
 
 	// Number of trees
 	int nTrees;
@@ -1216,10 +1190,11 @@ public:
 		// Add a Tree object to the associated Cell they belong to
 		for (int i = 0; i < this->nTrees; i++) {
 			Tree* tree = new Tree(
-				trees_id[i], trees_x[i], trees_y[i], trees_z[i],
+				i, trees_id[i], trees_x[i], trees_y[i], trees_z[i],
 				dbh[i], height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
 				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]);
-			this->trees.emplace(tree->getId(), tree);
+
+			this->trees.push_back(tree);
 			this->cells.find(trees_id_cell[i] - 1)->second->addTree(tree);
 		}
 
@@ -1229,7 +1204,7 @@ public:
 	}
 
 	~Stand() {
-		// Delete cells pointers (also destroy tree pointors within th given cell)
+		// Delete cells pointers (also destroy tree pointors within the given cell)
 		int n_cells = this->cells.size();
 		for (int i = 0; i < n_cells; i++) {
 			delete this->cells[i];
@@ -1242,7 +1217,7 @@ public:
 	std::map<int, Cell*> getCells() { return(this->cells); }
 	int getNCells() { return(this->nCells); }
 
-	Tree* getTree(int id) { return(this->trees[id]); }
+	Tree* getTree(int vectid) { return(this->trees[vectid]); }
 	int getNTrees() { return(this->nTrees); }
 
 	double getSlope() { return(this->slope); }
@@ -1374,15 +1349,21 @@ private:
 			int n_pot_trees = pot_cell.cell->getNTrees();
 			for (int t = 0; t < n_pot_trees; t++) {
 
+				// Get intercepted tree
+				Tree* tree = pot_cell.cell->getTree(t);
+				
 				// Compute interception for each crown part of the tree
-				interception* interc_crown = pot_cell.cell->getTree(t)->computeCrownInterception(target_cell->getId(), ray, shift_tree);
-				if (interc_crown != nullptr) {
-					v_interc.push_back(interc_crown);
+				int n_parts = tree->getCrown().getNParts();
+				for (int p = 0; p < n_parts; p++) {
+					interception* interc_crownpart = tree->computeCrownpartInterception(p, target_cell->getId(), ray, shift_tree);
+					if (interc_crownpart != nullptr) {
+						v_interc.push_back(interc_crownpart);
+					}
 				}
 
 				// If specified, compute interception by trunks
 				if (this->trunkInterception) {
-					interception* interc_trunk = pot_cell.cell->getTree(t)->computeTrunkInterception(target_cell->getId(), ray, shift_tree);
+					interception* interc_trunk = tree->computeTrunkInterception(target_cell->getId(), ray, shift_tree);
 					if (interc_trunk != nullptr) {
 						v_interc.push_back(interc_trunk);
 					}
@@ -1403,16 +1384,21 @@ private:
 	void summarizeInterceptionsRayToTarget(Ray* ray, Cell* target_cell, std::vector<interception*>& v_interc) {
 
 		// Compute projection of energy on plane parallel to slope
+		//  in MJ / m2 and convert it into MJ per cell
 		double scalar_slope = cos(stand.getSlope()) * ray->getSinHeightAngle() +
 			sin(stand.getSlope()) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
 
-		//  in MJ / m2 and convert it into MJ per cell
 		double e_incident_slope_m2 = scalar_slope * ray->getIncidentEnergy();
 		double e_incident_slope_cell = e_incident_slope_m2 * stand.getCellArea();
 
 		// Initialize the energy of the ray coming toward the cell above the canopy
 		double current_energy = e_incident_slope_cell;
 		bool trunk_intercepted = false;
+
+		// Initialize tracking maps to check if a crown has already been intercepted (used when porous envelop)
+		// and to track the incident potential energy that arrive to a crown part (used for potential energy in turbid medium when many crown parts)
+		std::vector<bool> is_intercepted(this->stand.getNTrees(), false);
+		std::vector<double> e_pot_incident(this->stand.getNTrees(), e_incident_slope_cell);
 
 		//Compute attenuation of energy across successives crown interceptions for each ray X target cell
 		int n_interceptions = v_interc.size();
@@ -1425,8 +1411,8 @@ private:
 				continue;
 			}
 
-			// Get the interception
-			Crown& crown = stand.getTree(v_interc[j]->idTree)->getCrown();
+			// Get the intercepted crown
+			Crown& crown = stand.getTree(v_interc[j]->vectIdTree)->getCrown();
 
 			// Compute the potential energy to the tree (energy without attenuation by neighbours)
 			// and compute energy with attenuation
@@ -1434,26 +1420,43 @@ private:
 			double potential_energy = 0.0;
 			double intercepted_energy = 0.0;
 
-
 			// Turbid medium ==> apply beer lambert law
 			if (this->turbidMedium) {
 
+				// Apply Beer Lambert law on incdent energy attenuated by previous crown parts of the tree, without considering crowns of other competitors
 				potential_energy = this->applyBeerLambert(
-					e_incident_slope_cell,
+					e_pot_incident[v_interc[j]->vectIdTree],
 					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 					crown.getCrownLAD(),
 					v_interc[j]->length);
 
+				// Remove the intercepted energy from the energy that left and from the potential incident energy of the given tree crown
+				e_pot_incident[v_interc[j]->vectIdTree] = e_pot_incident[v_interc[j]->vectIdTree] - potential_energy;
+
+				// Apply beer lambert law on incident ray attenuated by the competitor crowns intercepted the crown
 				intercepted_energy = trunk_intercepted ? 0.0 : this->applyBeerLambert(
 					current_energy,
 					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 					crown.getCrownLAD(),
 					v_interc[j]->length);
+				
 			}
 			// Porous envelop ==> reduce the energy by a fixed amount
 			else {
-				potential_energy = e_incident_slope_cell * (1 - crown.getCrownOpeness());
-				intercepted_energy = trunk_intercepted ? 0.0 : (current_energy * (1 - crown.getCrownOpeness()));
+				// Be careful, only once per crown (if many crown part, reduce only if crown has not been already intercepted by the ray)
+				if (!is_intercepted[v_interc[j]->vectIdTree]) {
+
+					// Compute potential and intercepted energy if the first criwn part is encountered by reducing the incident enrrgy by a fixed amount
+					potential_energy = e_incident_slope_cell * (1 - crown.getCrownOpeness());
+					intercepted_energy = trunk_intercepted ? 0.0 : (current_energy * (1 - crown.getCrownOpeness()));
+
+					// Set the crown as being intercepted
+					is_intercepted[v_interc[j]->vectIdTree] = true;
+				}
+				else {
+					potential_energy = 0.0;
+					intercepted_energy = 0.0;
+				}
 			}
 
 			// Add to the potential and intercepted energy by the tree
@@ -1467,8 +1470,7 @@ private:
 			}
 			#endif
 
-
-			// And remove the intercepted energy from the energy that left
+			// Remove the intercepted energy from the energy that left
 			current_energy -= intercepted_energy;
 
 			// Remove the intercepted energy by the crown from the total energy above the cell
@@ -1478,6 +1480,7 @@ private:
 			target_cell->interceptEnergy(intercepted_energy);
 		}
 	}
+
 
 	double applyBeerLambert(double incident_energy, double extinction_coef, double clumping_factor, double leaf_area_density, double path_length) {
 
@@ -1732,7 +1735,6 @@ List sl_run_rcpp(
 
 	// TODO:
 	// - Not squared plot (rectangle or shape weird)
-	// - PB when many part in the crown, many dcrease of energy whereas same crown
 
 
 	// Initialize the model

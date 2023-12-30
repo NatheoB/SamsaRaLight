@@ -1,21 +1,39 @@
 #' Compute samsara ligth radiative balance
 #'
-#' @param trees a data.frame with one row for each tree and 9 columns:
+#' @param trees a data.frame with one row for each tree and 14 columns describing tree composing the stand:
 #' \itemize{
-#'  \item{"id": }{Unique id of the tree}
-#'  \item{"x": }{X position of the tree within the stand}
-#'  \item{"y": }{Y position of the tree within the stand}
-#'  \item{"z": }{Z position of the tree within the stand}
-#'  \item{"height": }{Height of the trees (in meters)}
-#'  \item{"cradius": }{Crown radius of the tree (in meters)}
-#'  \item{"cdepth": }{Crown depth (i.e. height of the crown) of the tree (in meters)}
-#'  \item{"crown_lad"}{Leaf Area Density (in m2 of leaves per m3 of crown)}
-#'  \item{"crown_p"}{Crown openness (no unit)}
-#'  \item{"crown_type"}{Between "P" for paraboloid and "E" for ellipsoid}
-#'  \item{"id_cell"}{Unique id of the cell the tree belong to (i.e. `cells` data.frame parameter)}
+#'  \item{id: }{Unique id of the tree}
+#'  \item{x: }{X position of the tree within the stand}
+#'  \item{y: }{Y position of the tree within the stand}
+#'  \item{dbh_cm: }{Diameter at breast height (1.3m) of the tree trunk (in cm)}
+#'  \item{crown_type: }{
+#'    \itemize{
+#'      \item{"E": symetric ellispoidal crown with the maximum crown radius at the middle of the crown depth.
+#'        Crown radius is the mean value of the radius towards the fourth cardinal points}
+#'      \item{"P": symetric paraboloidal crown with the maximum crown radius at the crown base.
+#'        crown radius is the mean value of the radius towards the fourth cardinal points}  
+#'      \item{"2E": ellipsoidal crown composed of two semi-ellipsoid (one above and one below).
+#'        Same as "E" but height of each semi-ellipsoid is given by hmax_m variable}
+#'      \item{"8E": ellispoidal crown composed of eight eighth of ellipsoids (four above and four below). 
+#'        Same as "2E" but radius of each eight of ellipsoid is given by rn_m, rs_m, re_m, rw_m variables.}
+#'      \item{"4P": paraboloidal crown composed of four fourth of paraboloid.
+#'        Maximum crown radius at the crown base and radius of each fourth of paraboloid is given by rn_m, rs_m, re_m, rw_m variables.}  
+#'    }
+#'  }
+#'  \item{h_m: }{Height of the tree (in meters)}
+#'  \item{hbase_m: }{Height of the base of the tree crown (in meters)}
+#'  \item{hmax_m: }{Height of the maximum radius of the tree crown (in meters)}
+#'  \item{rn_m: }{Radius of the tree crown toward Northern direction (in meters)}
+#'  \item{rs_m: }{Radius of the tree crown toward Southern direction (in meters)}
+#'  \item{re_m: }{Radius of the tree crown toward Eastern direction (in meters)}
+#'  \item{rw_m: }{Radius of the tree crown toward Western direction (in meters)}
+#'  \item{crown_openess: }{Crown openess of the crown (no unit) when considering porous envelop 
+#'    (i.e. constant proportion of light energy interception when a ray intercepts a crown)}
+#'  \item{crown_lad: }{Leaf Area Density (in m2 of leaves per m3 of crown) when considering turbid medium 
+#'    (i.e. density parameter of Beer Lambert law when a ray intercepts a crown)}
 #' }
 #' @param monthly_rad data.frame - Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
-#'    Computed with function samsaRa::sl_get_monthlyrad()
+#'    Computed with function `samsaRaLight::sl_get_monthlyrad()`
 #' @param latitude double - Latitude of the plot (in degrees)
 #' @param start_day integer between 1 and 365 - First day of the vegetative period
 #' @param end_day integer between 1 and 365 - Last day of the vegetative period
@@ -26,12 +44,14 @@
 #'    northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
 #' @param cell_size Length of the side of a squared cell composing the stand (in meters)
 #' @param n_cells integer - Number of cells of the side of a squared stand
+#' @param height_anglemin double - Angle minimum between beam and soil (in degrees)
+#' @param direct_startoffset double - Angle at which to start first direct ray (in degrees)
+#' @param direct_anglestep double - Hour angle between two direct beams (in degrees)
+#' @param diffuse_anglestep double - Hour angle between two diffuse beams (in degrees)
 #' @param use_torus if True, compute light competition using borders modelled with a
 #'  torus system, otherwise,borders are open grasslands
 #' @param turbid_medium If TRUE, crown are considered as turbid medium, otherwise,
 #'  considered as porous envelope
-#' @param use_rcpp If TRUE, use Rcpp package and C++ implementation of SamsaraLight for faster
-#'  computation. Otherwise, run SamsaraLight with only R-based scripts
 #' @param trunk_interception Consider interception of rays by trunks
 #'
 #' @import data.table
@@ -49,9 +69,12 @@ sl_run <- function(trees,
                    aspect = 0,
                    cell_size = 10,
                    n_cells = 10,
+                   height_anglemin = 10,
+                   direct_startoffset = 0,
+                   direct_anglestep = 5,
+                   diffuse_anglestep = 15,
                    use_torus = TRUE,
                    turbid_medium = TRUE,
-                   use_rcpp = TRUE,
                    trunk_interception = FALSE) {
 
   
@@ -64,10 +87,10 @@ sl_run <- function(trees,
                                  slope = slope,
                                  north_to_x_cw = north_to_x_cw,
                                  aspect = aspect,
-                                 height_anglemin = 10,
-                                 direct_startoffset = 0,
-                                 direct_anglestep = 5,
-                                 diffuse_anglestep = 15)
+                                 height_anglemin = height_anglemin,
+                                 direct_startoffset = direct_startoffset,
+                                 direct_anglestep = direct_anglestep,
+                                 diffuse_anglestep = diffuse_anglestep)
 
   # Create cells dataframe
   cells <- data.table(
@@ -94,126 +117,414 @@ sl_run <- function(trees,
   trees <- cells[, .(id_cell, x_id, y_id)][trees, on = c(x_id = "xid_cell", y_id = "yid_cell")]
   trees <- trees[, `:=`(x_id = NULL, y_id = NULL)]
   
-
-  # USING RCPP (C++ script in src folder)
-  if (use_rcpp) {
-
-    # Run call to c++ script
-    out <- sl_run_rcpp(
-      trees, cells, rays$rays,
-      sum(rays$e_slope),
-      slope, north_to_x_cw, aspect,
-      cell_size, n_cells,
-      use_torus, turbid_medium, trunk_interception)
-
-    # Convert dataframe into data.table
-    out$trees <- as.data.table(out$trees)
-    out$cells <- as.data.table(out$cells)
-    
-    return(out)
-  }
+  # Run call to c++ script
+  out <- sl_run_rcpp(
+    trees, cells, rays$rays,
+    sum(rays$e_slope),
+    slope, north_to_x_cw, aspect,
+    cell_size, n_cells,
+    use_torus, turbid_medium, trunk_interception)
   
-  # OTHERWISE, USE R
-  
-  slope_rad <- deg2rad(slope)
-  
-  # Compute area of a cell (horizontal area or ground area)
-  cell_horizontal_surface <- cell_size * cell_size
-  cell_surface <- cell_horizontal_surface / cos(slope_rad)
-  
-  # Azimuth of the vector orthogonal to the ground in the x,y system
-  bottom_azimut <- -aspect + north_to_x_cw
-  bottom_azimut_rad <- deg2rad(bottom_azimut)
-  
-  # Prepare rays table
-  rays_dt <- as.data.table(rays$rays)
-  rays_dt[, `:=`(cos_heightangle = cos(height_angle),
-                 sin_heightangle = sin(height_angle),
-                 cos_azimut = cos(azimut),
-                 sin_azimut = sin(azimut))]
-  
-  
-  # For each ray, get relative cells that contains potential trees
-  # (cells relative to any target cell enlighted by rays at its center)
-  potcells_rays_rel <-
-    sl_get_potentialcells_rays_relative(rays$rays,
-                                        cell_size,
-                                        slope_rad, bottom_azimut_rad,
-                                        max_height = max(trees$height_m),
-                                        max_cradius = max(trees$cradius_m))
-  
-  
-  # Create table with all rays that enlight every potential cell center
-  potcells_rays <- data.table(
-    id_target = rep(cells$id_cell, each = nrow(potcells_rays_rel)),
-    x_target = rep(cells$x_center, each = nrow(potcells_rays_rel)),
-    y_target = rep(cells$y_center, each = nrow(potcells_rays_rel)),
-    z_target = rep(cells$z_center, each = nrow(potcells_rays_rel)),
-    
-    id_ray = rep(potcells_rays_rel$id_ray, times = n_cells * n_cells),
-    xid_rel = rep(potcells_rays_rel$xid_rel, times = n_cells * n_cells),
-    yid_rel = rep(potcells_rays_rel$yid_rel, times = n_cells * n_cells)
-  )
-  
-  
-  # For each ray coming to a given target cell, get cells with associated shift
-  # that contains trees that could potentially intercept the given ray
-  potcells_rays[, c("xid_cell", "yid_cell",
-                    "x_shift", "y_shift",
-                    "outside") := cells_rel2abs(x_target, y_target,
-                                                xid_rel, yid_rel,
-                                                cell_size, n_cells)]
-  
-  potcells_rays[, z_shift := get_z(x_shift, y_shift, slope_rad, bottom_azimut_rad)]
-  
-  
-  # Remove potential cells outside the plot if the torus system is disabled (shifted cells)
-  if (!use_torus) {
-    potcells_rays <- potcells_rays[outside == FALSE,]
-  }
-  
-  
-  # Add ray informations
-  potcells_rays <- cells[potcells_rays, on = c(x_id = "xid_cell", y_id = "yid_cell")]
-  potcells_rays <- rays_dt[potcells_rays, on = .(id_ray)]
-  
-  interceptions <- sl_get_interceptions(potcells_rays, trees)
-  
-  
-  # METHOD TO OPIMIZE MEMORY WITH BASE R
-  
-  # Need to clusterize to avoid having very large dataframes (for memory)
-  # cluster_size <- 100
-  # id_targets <- 1:(n_cells*n_cells)
-  # clusters <- split(id_targets, ceiling(seq_along(id_targets)/cluster_size))
-  #
-  # interceptions <- lapply(clusters,
-  #                         function(c) {
-  #                           sl_get_interceptions(potcells_rays[id_target %in% c],
-  #                                                trees, rays_dt, use_torus)
-  #                         })
-  # interceptions <- rbindlist(interceptions)
-  
-  
-  # Compute potential and intercepted energy for each interception
-  if (turbid_medium) {
-    interceptions <- sl_compute_energy_turbid(interceptions,
-                                              slope_rad, bottom_azimut_rad,
-                                              cell_surface)
-  } else {
-    interceptions <- sl_compute_energy_porous(interceptions,
-                                              slope_rad, bottom_azimut_rad,
-                                              cell_surface)
-  }
-  
-  
-  # Sum of diffuse and direct energy coming into slope surface
-  e_slope_tot <- sum(rays$e_slope)
-  
-  # Summarize targets into two trees and cells datasets
-  out <- sl_summarize_interceptions(interceptions, trees$id_tree,
-                                    cells, cell_surface,
-                                    e_slope_tot)
+  # Convert dataframe into data.table
+  out$trees <- as.data.table(out$trees)
+  out$cells <- as.data.table(out$cells)
   
   return(out)
+}
+
+
+#' Compute direct and diffuse rays of a growing season
+#'
+#' @param monthly_rad data.frame - Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
+#'    Computed with function samsaRa::sl_get_monthlyrad()
+#' @param latitude double - Latitude of the plot (in degrees)
+#' @param start_day integer between 1 and 365 - First day of the vegetative period
+#' @param end_day integer between 1 and 365 - Last day of the vegetative period
+#' @param soc boolean - Standard Overcast Sky, if false: Uniform Overcast Sky
+#' @param slope double - Slope of the plot (in degrees)
+#' @param north_to_x_cw double - Angle from North to x axis clockwise. (in degrees)
+#'    Default correspond to a Y axis oriented toward the North.
+#' @param aspect double - Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
+#'    northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
+#' @param height_anglemin double - Angle minimum between beam and soil (in degrees)
+#' @param direct_startoffset double - Angle at which to start first direct ray (in degrees)
+#' @param direct_anglestep double - Hour angle between two direct beams (in degrees)
+#' @param diffuse_anglestep double - Hour angle between two diffuse beams (in degrees)
+#'
+#' @return list of 3 elements : horizontal energy (double), slope energy (double)
+#' and rays (data.frame) with n rows and 5 columns:
+#' \itemize{
+#'  \item{azimut}{Azimut of the ray in radians}
+#'  \item{height_angle}{Angle between beam and soil (in radians)}
+#'  \item{e}{Energy of ray before crossing the canopy (in MJ.m-2)}
+#'  \item{direct}{true if the ray is direct false if it is diffuse}
+#' }
+#'
+#' @importFrom dplyr bind_rows
+#' @importFrom data.table fifelse
+#'
+#' @export
+#' @keywords internal
+#' 
+sl_create_monthly_rays <- function(monthly_rad,
+                                   latitude,
+                                   start_day = 1, end_day = 365,
+                                   soc = TRUE,
+                                   slope = 0,
+                                   north_to_x_cw = 90,
+                                   aspect = 0,
+                                   height_anglemin = 10,
+                                   direct_startoffset = 0,
+                                   direct_anglestep = 5,
+                                   diffuse_anglestep = 15) {
+  
+  ### Set global variables
+  
+  # Declination angle in degrees for each month
+  DECLINATION_DEG <- c(-20.8, -12.7, -1.9, 9.9, 18.9, 23.1, 21.3, 13.7, 3.0, -8.8, -18.4, -23)
+  
+  
+  ### Compute base variables ----
+  latitude_rad            <- deg2rad(latitude)
+  slope_rad               <- deg2rad(slope)
+  north_to_x_cw_rad       <- deg2rad(north_to_x_cw)
+  height_anglemin_rad     <- deg2rad(height_anglemin)
+  direct_startoffset_rad  <- deg2rad(direct_startoffset)
+  direct_anglestep_rad    <- deg2rad(direct_anglestep)
+  diffuse_anglestep_rad   <- deg2rad(diffuse_anglestep)
+  
+  # Azimut of the vector orthogonal to the ground in the (x,y) system
+  bottom_azimut_rad <- deg2rad(-aspect + north_to_x_cw)
+  
+  # Azimuth of south counterclockwise from x axis
+  southazimut_ccw_rad <- pi + north_to_x_cw_rad
+  southazimut_ccw_rad <- data.table::fifelse(southazimut_ccw_rad > 2 * pi,
+                                             southazimut_ccw_rad - 2 * pi, southazimut_ccw_rad)
+  
+  # Declination angle in radians:
+  # angle between the equator and a line drawn from the centre of the Earth to
+  # the centre of the sun
+  declination_rad <- deg2rad(DECLINATION_DEG)
+  
+  
+  ### Get monthly radiations ----
+  # Proportion of days for each month included within the vegetative period
+  prop_months_veget <- prop_months(start_day, end_day)
+  
+  # Compute monthly global, direct and diffuse energies
+  nrj_global_months <- monthly_rad$Hrad * prop_months_veget
+  nrj_diffuse_months <- nrj_global_months * monthly_rad$DGratio
+  nrj_direct_months <- nrj_global_months - nrj_diffuse_months
+  
+  
+  ### Create diffuse and direct rays ----
+  
+  # Diffuse rays
+  total_diffuse <- sum(nrj_diffuse_months)
+  diffuse_rays <- sl_create_rays_diffuse(soc, total_diffuse,
+                                         height_anglemin_rad, diffuse_anglestep_rad,
+                                         slope_rad, bottom_azimut_rad)
+  
+  # Direct rays
+  direct_rays <- sl_create_rays_direct(latitude_rad, declination_rad,
+                                       nrj_direct_months,
+                                       height_anglemin_rad, direct_anglestep_rad,
+                                       slope_rad,
+                                       bottom_azimut_rad, southazimut_ccw_rad,
+                                       direct_startoffset_rad)
+  
+  # Create rays and return only rays with stricly positive energy (within growing season)
+  rays <- dplyr::bind_rows(direct_rays$rays, diffuse_rays$rays)
+  rays <- rays[rays$e_incident > 0,]
+  rays <- dplyr::bind_cols(id_ray = 1:nrow(rays), rays)
+  
+  
+  ### Return all rays and energies ----
+  return(list("e_horizontal" = c("direct" = direct_rays$e_horizontal,
+                                 "diffuse" = diffuse_rays$e_horizontal),
+              "e_slope" = c("direct" = direct_rays$e_slope,
+                            "diffuse" = diffuse_rays$e_slope),
+              "rays" = rays))
+}
+
+
+#' Compute energy of diffuse ray
+#'
+#' @description Calculating SamsaraLight rays diffuse Energy in MJ/m2 of a plane
+#' perpendicular to beam ray direction for a Standard Overcast Sky or
+#' Uniform Overcast Sky are possible
+#'
+#' @param soc boolean - Standard Overcast Sky, if false: Uniform Overcast Sky
+#' @param total_diffuse double - Total diffuse energy on a horizontal plan (in kWh.m-2)
+#' @param height_angle_rad double - Angle between beam and soil (in radians)
+#' @param diffuse_anglestep_rad double - Hour angle between two diffuse beams (in radians)
+#'
+#' @return Energy per square meter of a horizontal plan (in MJ.m-2)
+#'
+#' @export
+#' @keywords internal
+#' 
+sl_compute_nrj_diffuse <- function(soc, total_diffuse,
+                                   height_angle_rad,
+                                   diffuse_anglestep_rad) {
+  
+  # Compute base variables
+  meridian_nb <- 2 * pi / diffuse_anglestep_rad
+  
+  height_a_inf <- height_angle_rad - diffuse_anglestep_rad / 2
+  sin_inf <- sin(height_a_inf)
+  
+  height_a_sup <- height_angle_rad + diffuse_anglestep_rad / 2
+  sin_sup <- sin(height_a_sup)
+  
+  energy <- 0
+  if (!soc) { # Uniform Overcast Sky, per square meter of a horizontal plan
+    energy <- (2 * total_diffuse / meridian_nb) * (sin_sup^2 - sin_inf^2) / 2
+    
+  } else { # Standard Overcast Sky, Energy per square meter of a horizontal plan
+    energy <- (6 * total_diffuse / (7 * meridian_nb)) *
+      ((sin_sup^2 - sin_inf^2) / 2 + 2 * (sin_sup^3 - sin_inf^3) / 3)
+  }
+  energy <- energy / sin(height_angle_rad);
+  
+  return(energy)
+}
+
+
+#' Create diffuse rays
+#'
+#' @description Create SamsaraLight diffuse rays of a plane with a classical sky
+#' hemisphere divided by meridians and parallels
+#' can use Standard Overcast Sky or Uniform Overcast Sky
+#'
+#' @param soc boolean - Standard Overcast Sky, if false: Uniform Overcast Sky
+#' @param total_diffuse double - Total diffuse energy on a horizontal plan (in kWh.m-2)
+#' @param height_anglemin_rad double - Angle minimum between beam and soil (in radians)
+#' @param diffuse_anglestep_rad double - Hour angle between two diffuse beams (in radians)
+#' @param slope_rad double - Slope of the plan (in radians)
+#' @param bottom_azimut_rad double - Azimut of the vector orthogonal to the ground
+#' in the (x,y) system (in radians)
+#'
+#' @return list of 3 elements : horizontal energy (double), slope energy (double)
+#' and diffuse rays (data.frame)
+#'
+#' @export
+#' @keywords internal
+#' 
+sl_create_rays_diffuse <- function(soc, total_diffuse,
+                                   height_anglemin_rad,
+                                   diffuse_anglestep_rad,
+                                   slope_rad,
+                                   bottom_azimut_rad) {
+  
+  # All possible angles for diffuse rays (in radians)
+  possible_angles_rad <- seq(from = diffuse_anglestep_rad / 2,
+                             to = pi / 2,
+                             by = diffuse_anglestep_rad)
+  
+  # All possible azimuts for diffuse rays (in radians)
+  possible_azimuts_rad <- seq(from = diffuse_anglestep_rad / 2,
+                              to = 2 * pi,
+                              by = diffuse_anglestep_rad)
+  
+  # Compute energy of all possible rays (height_angles as a double vector)
+  # BE CAREFUL : there can be round problems with transformation of angleStep
+  # from degrees to radians and the last azimut can be very close to
+  # 360 (one extra azimut)
+  e_rays <- sl_compute_nrj_diffuse(soc, total_diffuse,
+                                   possible_angles_rad, diffuse_anglestep_rad)
+  
+  # Create all combinations of possible angles of rays (in radians) and azimuts (in radians)
+  ha_az <- data.frame(height_angle = possible_angles_rad,
+                      e_incident = e_rays)
+  ha_az <- ha_az[rep(seq_len(nrow(ha_az)), each = length(possible_azimuts_rad)), ]
+  ha_az$azimut <- rep(possible_azimuts_rad, times = length(possible_angles_rad))
+  
+  # The Horizontal Diffuse reference is calculated for heightAngles > angleMin
+  # For each azimut
+  horizontal_angles <- ha_az$height_angle > height_anglemin_rad
+  horizontal_diffuse <- sum( ha_az$e_incident[horizontal_angles] * sin( ha_az$height_angle[horizontal_angles] ) )
+  
+  # A beam is created only if it reaches the soil with an angle > angle_min
+  # the cosinus of the angle between the vector orthogonal to slope and the beam
+  # (given by scalar above) must be higher than sin(angle_min)
+  ha_az$scalar <- cos(slope_rad) * sin(ha_az$height_angle) + sin(slope_rad) *
+    cos(ha_az$height_angle) * cos(ha_az$azimut - bottom_azimut_rad);
+  
+  # Get beams to creates (remove beams with scalar <= sin(angle_min))
+  ha_az <- ha_az[ha_az$scalar > sin(height_anglemin_rad),]
+  
+  # Compute slope diffuse energy
+  slope_diffuse <- sum( ha_az$scalar * ha_az$e_incident )
+  
+  # Create the final diffuse rays dataframe
+  ha_az$direct <- FALSE
+  
+  rays_diffuse <- ha_az[,c("azimut", "height_angle",
+                           "e_incident", "direct")]
+  
+  # Return a list with rays and slope/horizontal energies
+  return(list("e_horizontal" = horizontal_diffuse,
+              "e_slope" = slope_diffuse,
+              "rays" = rays_diffuse))
+}
+
+
+#' Create direct rays
+#'
+#' @description Create SamsaraLight diffuse rays of a plane with a classical sky
+#' hemisphere divided by meridians and parallels
+#' can use Standard Overcast Sky or Uniform Overcast Sky
+#'
+#' @param latitude_rad double - Latitude of the plot (in radians)
+#' @param declination_rad double - Declination angle in radians:
+#   angle between the equator and a line drawn from the centre of the Earth to
+#   the centre of the sun
+#' @param nrj_direct_months 12 double vect - Monthly direct energy on a horizontal plan (in kWh.m-2)
+#' @param height_anglemin_rad double - Angle minimum between beam and soil (in radians)
+#' @param direct_anglestep_rad double - Hour angle between two diffuse beams (in radians)
+#' @param slope_rad double - Slope of the plan (in radians)
+#' @param bottom_azimut_rad double - Azimut of the vector orthogonal to the ground
+#' @param southazimut_ccw_rad double - Azimuth of south counterclockwise from x axis
+#' in the (x,y) system (in radians)
+#' @param direct_startoffset_rad double - Angle at which to start first direct ray (in radians)
+#'
+#' @return list of 3 elements : horizontal energy (double), slope energy (double)
+#' and diffuse rays (data.frame)
+#'
+#' @export
+#' @keywords internal
+#' 
+sl_create_rays_direct <- function(latitude_rad,
+                                  declination_rad,
+                                  nrj_direct_months,
+                                  height_anglemin_rad,
+                                  direct_anglestep_rad,
+                                  slope_rad,
+                                  bottom_azimut_rad,
+                                  southazimut_ccw_rad,
+                                  direct_startoffset_rad) {
+  
+  # Integrating sin(heightAngle) along the day
+  sunrise_hourangle <- -acos(- tan(latitude_rad) * tan(declination_rad))
+  sunset_hourangle <- - sunrise_hourangle
+  
+  day_sinheight_ang <- sin(latitude_rad) * sin(declination_rad) *
+    (sunset_hourangle - sunrise_hourangle) + cos(latitude_rad) * cos(declination_rad) *
+    (sin(sunset_hourangle) - sin(sunrise_hourangle))
+  
+  # Compute for each hour angle between [-pi, pi[
+  hour_angles_rad <- seq(from = -pi + direct_startoffset_rad,
+                         to = pi,
+                         by = direct_anglestep_rad)
+  hour_angles_rad <- hour_angles_rad[hour_angles_rad != pi]
+  
+  # For each combination of month (declination rad) and hour angles
+  ha_dec <- data.frame(declination_rad = declination_rad,
+                       energy_direct = nrj_direct_months,
+                       day_sinheight_ang = day_sinheight_ang)
+  
+  ha_dec <- ha_dec[rep(seq_len(nrow(ha_dec)), each = length(hour_angles_rad)), ]
+  ha_dec$hour_angle_rad <- rep(hour_angles_rad, times = length(declination_rad))
+  
+  # Compute height angle (in radians)
+  ha_dec$height_angle_rad <- asin(sin(latitude_rad) * sin(ha_dec$declination_rad)
+                                  + cos(latitude_rad) * cos(ha_dec$declination_rad) * cos(ha_dec$hour_angle_rad))
+  
+  # Compute sun azimut (in radians)
+  ha_dec$azimut_rad <- sl_compute_sunazimut(latitude_rad,
+                                            ha_dec$declination_rad,
+                                            ha_dec$hour_angle_rad,
+                                            ha_dec$height_angle_rad,
+                                            southazimut_ccw_rad)
+  
+  # Compute hour sinus of height angle (in radians)
+  ha_dec$hour_sin_height_ang <- sin(latitude_rad) * sin(ha_dec$declination_rad) * direct_anglestep_rad +
+    cos(latitude_rad) * cos(ha_dec$declination_rad) *
+    (sin(ha_dec$hour_angle + direct_anglestep_rad / 2) - sin(ha_dec$hour_angle - direct_anglestep_rad / 2))
+  
+  # Compute energy in MJ/m2 on a horizontal plane
+  ha_dec$energy <- ha_dec$energy_direct * ha_dec$hour_sin_height_ang / ha_dec$day_sinheight_ang
+  
+  # The HorizontalDirect reference is calculated for heightAngles > angleMin
+  horizontal_direct <- sum( ha_dec$energy[ha_dec$height_angle_rad > height_anglemin_rad] )
+  
+  # Compute perpendicular energy in MJ/m2 on a plane perpendicular to the ray
+  # hour_sin_height_ang is very close to sin (height_angle)
+  # so all rays have about the same amount of energy on the plane perpendicular to the ray.
+  ha_dec$e_perpendicular <- ha_dec$energy / sin(ha_dec$height_angle_rad)
+  
+  # A ray is created only if it reaches the soil with an angle > angleMin
+  # the cosinus of the angle between the vector orthogonal to slope and the ray
+  # must be higher than sin(angleMin)
+  # this cosinus is given by scalar :
+  ha_dec$scalar <- cos(slope_rad) * sin(ha_dec$height_angle_rad) + sin(slope_rad) *
+    cos(ha_dec$height_angle_rad) * cos(ha_dec$azimut_rad - bottom_azimut_rad)
+  
+  # Get beams to creates (remove beams with scalar <= sin(angle_min))
+  ha_dec <- ha_dec[ha_dec$height_angle_rad > 0 & ha_dec$scalar > sin(height_anglemin_rad),]
+  
+  # Compute slope direct energy
+  slope_direct <- sum( ha_dec$scalar * ha_dec$e_perpendicular )
+  
+  # Create the final diffuse rays dataframe
+  ha_dec$e_incident <- ha_dec$e_perpendicular
+  ha_dec$direct <- TRUE
+  
+  rays_direct <- ha_dec[,c("azimut_rad", "height_angle_rad",
+                           "e_incident", "direct")]
+  names(rays_direct) <- c("azimut", "height_angle", "e_incident", "direct")
+  
+  # Return a list with rays and slope/horizontal energies
+  return(list("e_horizontal" = horizontal_direct,
+              "e_slope" = slope_direct,
+              "rays" = rays_direct))
+}
+
+
+
+#' Compute sun azimut
+#'
+#' @description Computaion of sun azimut for a given height angle reference system with
+#' angle origin on X > 0 axis and trigonometric rotation
+#'
+#' @param latitude_rad double - Latitude of the plot (in radians)
+#' @param declination_rad double - Declination angle in radians:
+#'   angle between the equator and a line drawn from the centre of the Earth to
+#'   the centre of the sun
+#' @param hour_angle_rad double - Angle which the sun moves across the sky (in radians)
+#' @param height_angle_rad double - Angle between beam and soil (in radians)
+#' @param southazimut_ccw_rad double - Azimuth of south counterclockwise from x axis
+#'  in the (x,y) system (in radians)
+#'  
+#' @importFrom data.table fifelse
+#' 
+#' @export
+#' @keywords internal
+#' 
+sl_compute_sunazimut <- function(latitude_rad,
+                                 declination_rad,
+                                 hour_angle_rad,
+                                 height_angle_rad,
+                                 southazimut_ccw_rad) {
+  
+  # Solar position formulas in the reference system with azimut = 0 at
+  # south and clockwise rotation
+  sin_az <- cos(declination_rad) * sin(hour_angle_rad) / cos(height_angle_rad)
+  
+  cos_az <- (sin(latitude_rad) * cos(declination_rad) * cos(hour_angle_rad) -
+               cos(latitude_rad) * sin(declination_rad)) / cos(height_angle_rad)
+  
+  azimut <- data.table::fifelse(cos_az >= 0,
+                                asin(sin_az),
+                                data.table::fifelse(sin_az >= 0,
+                                                    pi - asin(sin_az),
+                                                    -pi - asin(sin_az)))
+  
+  # Reference system with angle origin on X > 0 axis and trigonometric rotation
+  # SouthAzimut_rad gives azimut of south direction in this system
+  azimut <- southazimut_ccw_rad - azimut
+  azimut <- azimut %% (2*pi)
+  
+  return(azimut)
 }

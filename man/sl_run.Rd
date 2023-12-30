@@ -15,29 +15,51 @@ sl_run(
   aspect = 0,
   cell_size = 10,
   n_cells = 10,
+  height_anglemin = 10,
+  direct_startoffset = 0,
+  direct_anglestep = 5,
+  diffuse_anglestep = 15,
   use_torus = TRUE,
   turbid_medium = TRUE,
-  use_rcpp = TRUE
+  trunk_interception = FALSE
 )
 }
 \arguments{
-\item{trees}{a data.frame with one row for each tree and 9 columns:
+\item{trees}{a data.frame with one row for each tree and 14 columns describing tree composing the stand:
 \itemize{
-\item{"id": }{Unique id of the tree}
-\item{"x": }{X position of the tree within the stand}
-\item{"y": }{Y position of the tree within the stand}
-\item{"z": }{Z position of the tree within the stand}
-\item{"height": }{Height of the trees (in meters)}
-\item{"cradius": }{Crown radius of the tree (in meters)}
-\item{"cdepth": }{Crown depth (i.e. height of the crown) of the tree (in meters)}
-\item{"crown_lad"}{Leaf Area Density (in m2 of leaves per m3 of crown)}
-\item{"crown_p"}{Crown openness (no unit)}
-\item{"crown_type"}{Between "P" for paraboloid and "E" for ellipsoid}
-\item{"id_cell"}{Unique id of the cell the tree belong to (i.e. \code{cells} data.frame parameter)}
+\item{id: }{Unique id of the tree}
+\item{x: }{X position of the tree within the stand}
+\item{y: }{Y position of the tree within the stand}
+\item{dbh_cm: }{Diameter at breast height (1.3m) of the tree trunk (in cm)}
+\item{crown_type: }{
+\itemize{
+\item{"E": symetric ellispoidal crown with the maximum crown radius at the middle of the crown depth.
+Crown radius is the mean value of the radius towards the fourth cardinal points}
+\item{"P": symetric paraboloidal crown with the maximum crown radius at the crown base.
+crown radius is the mean value of the radius towards the fourth cardinal points}
+\item{"2E": ellipsoidal crown composed of two semi-ellipsoid (one above and one below).
+Same as "E" but height of each semi-ellipsoid is given by hmax_m variable}
+\item{"8E": ellispoidal crown composed of eight eighth of ellipsoids (four above and four below).
+Same as "2E" but radius of each eight of ellipsoid is given by rn_m, rs_m, re_m, rw_m variables.}
+\item{"4P": paraboloidal crown composed of four fourth of paraboloid.
+Maximum crown radius at the crown base and radius of each fourth of paraboloid is given by rn_m, rs_m, re_m, rw_m variables.}
+}
+}
+\item{h_m: }{Height of the tree (in meters)}
+\item{hbase_m: }{Height of the base of the tree crown (in meters)}
+\item{hmax_m: }{Height of the maximum radius of the tree crown (in meters)}
+\item{rn_m: }{Radius of the tree crown toward Northern direction (in meters)}
+\item{rs_m: }{Radius of the tree crown toward Southern direction (in meters)}
+\item{re_m: }{Radius of the tree crown toward Eastern direction (in meters)}
+\item{rw_m: }{Radius of the tree crown toward Western direction (in meters)}
+\item{crown_openess: }{Crown openess of the crown (no unit) when considering porous envelop
+(i.e. constant proportion of light energy interception when a ray intercepts a crown)}
+\item{crown_lad: }{Leaf Area Density (in m2 of leaves per m3 of crown) when considering turbid medium
+(i.e. density parameter of Beer Lambert law when a ray intercepts a crown)}
 }}
 
 \item{monthly_rad}{data.frame - Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
-Computed with function samsaRa::sl_get_monthlyrad()}
+Computed with function \code{samsaRaLight::sl_get_monthlyrad()}}
 
 \item{latitude}{double - Latitude of the plot (in degrees)}
 
@@ -57,14 +79,21 @@ northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect 
 
 \item{n_cells}{integer - Number of cells of the side of a squared stand}
 
+\item{height_anglemin}{double - Angle minimum between beam and soil (in degrees)}
+
+\item{direct_startoffset}{double - Angle at which to start first direct ray (in degrees)}
+
+\item{direct_anglestep}{double - Hour angle between two direct beams (in degrees)}
+
+\item{diffuse_anglestep}{double - Hour angle between two diffuse beams (in degrees)}
+
 \item{use_torus}{if True, compute light competition using borders modelled with a
 torus system, otherwise,borders are open grasslands}
 
 \item{turbid_medium}{If TRUE, crown are considered as turbid medium, otherwise,
 considered as porous envelope}
 
-\item{use_rcpp}{If TRUE, use Rcpp package and C++ implementation of SamsaraLight for faster
-computation. Otherwise, run SamsaraLight with only R-based scripts}
+\item{trunk_interception}{Consider interception of rays by trunks}
 }
 \description{
 Compute samsara ligth radiative balance

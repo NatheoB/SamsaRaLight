@@ -12,11 +12,23 @@ A data.frame with 12 rows and 3 columns:
 \item{Hrad}{Monthly radiation in a horizontal plane in MJ. (double)}
 \item{DGratio}{Ratio between monthly diffuse and global energies. (double)}
 }
+
+\code{data_rad_bechefa}
+A data.frame with 12 rows and 3 columns:
+\describe{
+\item{month}{Unique id of the tree. (integer)}
+\item{Hrad}{Monthly radiation in a horizontal plane in MJ. (double)}
+\item{DGratio}{Ratio between monthly diffuse and global energies. (double)}
+}
 }
 \source{
 PVGIS : https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
+
+PVGIS : https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
 }
 \usage{
+data_rad_prenovel
+
 data_rad_prenovel
 }
 \description{
@@ -24,5 +36,10 @@ Dataset with monthly radiation of Prenovel forest in Jura.
 It is useful for runnning SamsaRaLight on Prenovel stand using \code{SamsaRaLight::data_trees_prenovel} dataset.
 Data were fecteched from PVGIS using the function \code{SamsaRaLight::get_monthly_rad()} at
 latitude 46.52666 and longitude 5.82765
+
+Dataset with monthly radiation of Bechefa forest in Belgium.
+It is useful for runnning SamsaRaLight on Bechefa stand using \code{SamsaRaLight::data_trees_bechefa} dataset.
+Data were fecteched from PVGIS using the function \code{SamsaRaLight::get_monthly_rad()} at
+latitude 50.04 and longitude 5.2
 }
 \keyword{datasets}
