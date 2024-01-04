@@ -1,0 +1,112 @@
+---
+title: "1-symetric_crowns"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{rays_creation}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This is a basic example which shows you how to solve a common problem:
+
+```{r example, message=FALSE, warning=FALSE}
+library(SamsaRaLight)
+library(data.table)
+library(dplyr)
+```
+
+
+### Set the stand geometry
+
+You first need to precise the geometry of the stand with:
+
+```{r stand_geom}
+# Coordinates of the stand (for monthly radiation and rays geometry)
+latitude <- 46 # The latitude of the stand (Y-coord in WGS85)
+longitude <- 2 # The longitude of the plot (X-coord in WGS85)
+
+# The slope of the stand
+slope <- 6
+
+# Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
+# northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
+aspect <- 144
+
+# Angle from North to x axis clockwise. (in degrees)
+# Default correspond to a Y axis oriented toward the North.
+north_to_x_cw <- 54
+
+# Considering a squared plot, number and size of the cells composing the grid
+n_cells_x <- 10 # Number of cells columns
+n_cells_y <- 10 # Number of cells rows
+cell_size <- 10 # Size of the length of a cell
+```
+
+
+You can find an example tree dataset
+`SamsaRaLight::data_trees_prenovel`. It is an uneven-aged mountain stand
+of fir, spruce, beech located in Prenovel (Jura, France).
+
+```{r data_trees}
+trees <- SamsaRaLight::data_trees_prenovel %>%
+  dplyr::mutate(rn_m = r_m,
+                re_m = r_m,
+                rs_m = r_m,
+                rw_m = r_m,
+                crown_lad = case_match(species,
+                                       c("Picea abies", "Abies alba") ~ 0.767,
+                                       "Fagus sylvatica" ~ 0.96),
+                crown_type = case_match(species,
+                                        c("Picea abies", "Abies alba") ~ "P",
+                                        "Fagus sylvatica" ~ "E"),
+                hmax_m = NA) %>%
+  dplyr::select(-r_m)
+
+head(trees)
+```
+
+Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_prenovel`.
+The dataset is fetched using the above function.
+
+```{r monthly_rad}
+monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
+monthly_rad
+```
+
+### Run SamsaRaLight
+
+Now, given the stand geometry, the trees dataset and the monthly
+radiation, you can run SamsaRaLight using the function `sl_run()`.
+
+```{r out_sl}
+out <- SamsaRaLight::sl_run(
+    trees, monthly_rad,
+    latitude = latitude, slope = slope, 
+    aspect = aspect, north_to_x_cw = north_to_x_cw,
+    cell_size = cell_size, 
+    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    turbid_medium = TRUE,
+    trunk_interception = FALSE
+  )
+```
+
+
+```{r time_sl, echo=FALSE}
+microbenchmark::microbenchmark(
+  "sl" = SamsaRaLight::sl_run(
+    trees, monthly_rad,
+    latitude = latitude, slope = slope, 
+    aspect = aspect, north_to_x_cw = north_to_x_cw,
+    cell_size = cell_size, 
+    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    turbid_medium = TRUE,
+    trunk_interception = FALSE
+  ))
+```
