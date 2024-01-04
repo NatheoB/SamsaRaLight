@@ -1,8 +1,9 @@
 ---
-title: "1-symetric_crowns"
+title: "Tutorial 1"
+subtitle: "Compute tree light interception with simple symmetric crowns"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{rays_creation}
+  %\VignetteIndexEntry{Tuto1 - symetric crowns}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,12 +19,16 @@ This is a basic example which shows you how to solve a common problem:
 
 ```{r example, message=FALSE, warning=FALSE}
 library(SamsaRaLight)
-library(data.table)
 library(dplyr)
+library(ggplot2)
+library(ggforce)
+library(tidyr)
 ```
 
 
-### Set the stand geometry
+# Inputs
+
+## Set the stand geometry
 
 You first need to precise the geometry of the stand with:
 
@@ -50,12 +55,14 @@ cell_size <- 10 # Size of the length of a cell
 ```
 
 
+## Trees description
+
 You can find an example tree dataset
 `SamsaRaLight::data_trees_prenovel`. It is an uneven-aged mountain stand
 of fir, spruce, beech located in Prenovel (Jura, France).
 
 ```{r data_trees}
-trees <- SamsaRaLight::data_trees_prenovel %>%
+data_trees <- SamsaRaLight::data_trees_prenovel %>%
   dplyr::mutate(rn_m = r_m,
                 re_m = r_m,
                 rs_m = r_m,
@@ -66,28 +73,32 @@ trees <- SamsaRaLight::data_trees_prenovel %>%
                 crown_type = case_match(species,
                                         c("Picea abies", "Abies alba") ~ "P",
                                         "Fagus sylvatica" ~ "E"),
-                hmax_m = NA) %>%
-  dplyr::select(-r_m)
+                hmax_m = NA)
 
-head(trees)
+head(data_trees)
 ```
+
+
+## Monthly radiation
 
 Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_prenovel`.
 The dataset is fetched using the above function.
 
 ```{r monthly_rad}
-monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
-monthly_rad
+data_monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
+data_monthly_rad
 ```
 
-### Run SamsaRaLight
+
+
+# Run SamsaRaLight
 
 Now, given the stand geometry, the trees dataset and the monthly
 radiation, you can run SamsaRaLight using the function `sl_run()`.
 
 ```{r out_sl}
 out <- SamsaRaLight::sl_run(
-    trees, monthly_rad,
+    data_trees, data_monthly_rad,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
     cell_size = cell_size, 
@@ -101,7 +112,7 @@ out <- SamsaRaLight::sl_run(
 ```{r time_sl, echo=FALSE}
 microbenchmark::microbenchmark(
   "sl" = SamsaRaLight::sl_run(
-    trees, monthly_rad,
+    data_trees, data_monthly_rad,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
     cell_size = cell_size, 
@@ -110,3 +121,68 @@ microbenchmark::microbenchmark(
     trunk_interception = FALSE
   ))
 ```
+
+
+# Outputs
+
+## Tree light interception
+
+```{r, output_trees}
+out$trees %>% 
+  tidyr::pivot_longer(!id_tree, names_to = "var") %>%
+  dplyr::left_join(data_trees, by = "id_tree") %>% 
+
+  ggplot(aes(y = value, x = dbh_cm, color = species)) +
+  facet_wrap(~var) +
+  geom_point() +
+  theme(legend.position = "top")
+```
+
+
+## Light on the ground
+
+```{r, output_ground}
+out$cells %>% 
+  dplyr::mutate(
+    erel_group = case_when(
+      erel > 0.5 ~ "> 50%",
+      erel > 0.25 ~ "25 - 50%",
+      erel > 0.125 ~ "12.5 - 25%",
+      erel > 0.0625 ~ "6.25 - 12.5%",
+      erel <= 0.0625 ~ "< 6.25%"
+    ),
+    erel_group = factor(erel_group,
+                        levels = c("< 6.25%", "6.25 - 12.5%",
+                                   "12.5 - 25%", "25 - 50%",
+                                   "> 50%"))) %>% 
+
+ggplot() +
+  
+  geom_tile(aes(x = x_center, y = y_center,
+                fill = erel_group), color = "black") +
+  scale_fill_grey(start = 0.2, end = 1,
+                  drop = FALSE) +
+  labs(fill = "Cells enlightment") +
+  ggnewscale::new_scale_fill() +
+  
+  geom_circle(data = data_trees, mapping = aes(x0 = x, y0 = y, r = r_m, fill = species)) +
+  coord_equal() +
+  labs(fill = "Species") +
+  
+  scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
+                                  by = cell_size),
+                     labels = round(seq(0, n_cells_x*cell_size,
+                                        by = cell_size),
+                                    digits = 1)) +
+  scale_y_continuous(breaks = seq(0, n_cells_y*cell_size,
+                                  by = cell_size),
+                     labels = round(seq(0, n_cells_y*cell_size,
+                                        by = cell_size),
+                                    digits = 1)) +
+  
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "right") +
+  xlab("") + ylab("")
+```
+
