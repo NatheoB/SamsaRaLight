@@ -1683,7 +1683,7 @@ public:
 				Cell* cell = this->stand.getCell(r, c);
 
 				// Add cell to vectors
-				id_cell[icell] = cell->getId() + 1;
+				id_cell[icell] = cell->getId();
 				x_cell[icell] = cell->getX();
 				y_cell[icell] = cell->getY();
 				z_cell[icell] = cell->getZ();
