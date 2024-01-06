@@ -1,12 +1,15 @@
 Package: SamsaRaLight
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Forest light computation
+Version: 1.0
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"),
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
-    license
+  c(
+    person("Benoit", "Courbaud", , "benoit.courbaud@inrae.fr", role = c("aut", "cph"), comment = "Algorithm and theory creator"),
+    person("Natheo", "Beauchamp", , "beauchamp.natheo@gmail.com", role = c("cre"), comment = "R package developper"),
+    person("Ligot", "Gauthier", , "gligot@uliege.be", role = c("cre"), comment = "Java Capsis developper"),
+    person("Francois", "de Coligny", , "coligny@cirad.fr", role = c("cre"), comment = "Java Capsis developper")
+    )
+Description: The package computes annuel direct and diffuse rays to estimate tree light interception by 3D crowns and light on the ground within a forest.
+License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.2.3

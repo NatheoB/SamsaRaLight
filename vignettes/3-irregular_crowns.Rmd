@@ -1,9 +1,9 @@
 ---
-title: "Tuto1 - symetric crowns"
-subtitle: "Compute tree light interception with simple symmetric crowns"
+title: "Tuto3 - irregular crowns"
+subtitle: "Compute tree light interception with irregular tree crowns"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tuto1 - symetric crowns}
+  %\VignetteIndexEntry{Tuto3 - irregular crowns}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -34,23 +34,23 @@ You first need to precise the geometry of the stand with:
 
 ```{r stand_geom}
 # Coordinates of the stand (for monthly radiation and rays geometry)
-latitude <- 46 # The latitude of the stand (Y-coord in WGS85)
-longitude <- 2 # The longitude of the plot (X-coord in WGS85)
+latitude <- 50.04 # The latitude of the stand (Y-coord in WGS85)
+longitude <- 5.2 # The longitude of the plot (X-coord in WGS85)
 
 # The slope of the stand
-slope <- 6
+slope <- 0
 
 # Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
 # northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
-aspect <- 144
+aspect <- 0
 
 # Angle from North to x axis clockwise. (in degrees)
-# Default correspond to a Y axis oriented toward the North.
-north_to_x_cw <- 54
+# Default value 90 corresponds to a Y axis oriented toward the North.
+north_to_x_cw <- 90
 
 # Considering a squared plot, number and size of the cells composing the grid
-n_cells_x <- 10 # Number of cells columns
-n_cells_y <- 10 # Number of cells rows
+n_cells_x <- 20 # Number of cells columns
+n_cells_y <- 15 # Number of cells rows
 cell_size <- 10 # Size of the length of a cell
 ```
 
@@ -58,31 +58,19 @@ cell_size <- 10 # Size of the length of a cell
 ## Trees description
 
 You can find an example tree dataset
-`SamsaRaLight::data_trees_prenovel`. It is an uneven-aged mountain stand
-of fir, spruce, beech located in Prenovel (Jura, France).
+`SamsaRaLight::data_trees_bechefa`. It is an uneven-aged mixed stand in Belgium.
+We will use 8 eighth of ellipsoids to represent irregular crowns. 
 
 ```{r data_trees}
-data_trees <- SamsaRaLight::data_trees_prenovel %>%
-  dplyr::mutate(rn_m = r_m,
-                re_m = r_m,
-                rs_m = r_m,
-                rw_m = r_m,
-                crown_lad = case_match(species,
-                                       c("Picea abies", "Abies alba") ~ 0.767,
-                                       "Fagus sylvatica" ~ 0.96),
-                crown_type = case_match(species,
-                                        c("Picea abies", "Abies alba") ~ "P",
-                                        "Fagus sylvatica" ~ "E"),
-                hmax_m = NA)
-
+data_trees <- SamsaRaLight::data_trees_bechefa
 head(data_trees)
 ```
 
 
 ## Monthly radiation
 
-Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_prenovel`.
-The dataset is fetched using the above function.
+Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_bechefa`.
+The dataset is fetched using the above function:
 
 ```{r monthly_rad}
 data_monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
@@ -165,7 +153,11 @@ ggplot() +
   labs(fill = "Cells enlightment") +
   ggnewscale::new_scale_fill() +
   
-  geom_circle(data = data_trees, mapping = aes(x0 = x, y0 = y, r = r_m, fill = species)) +
+  geom_ellipse(data = data_trees, mapping = aes(x0 = x, y0 = y, 
+                                               a = max(re_m, rw_m),
+                                               b = max(rn_m, rs_m),
+                                               angle = 0,
+                                               fill = species)) +
   coord_equal() +
   labs(fill = "Species") +
   
@@ -186,3 +178,42 @@ ggplot() +
   xlab("") + ylab("")
 ```
 
+```{r output_ground_only, fig.dim = c(8, 6)}
+out$cells %>% 
+  dplyr::mutate(
+    erel_group = case_when(
+      erel > 0.5 ~ "> 50%",
+      erel > 0.25 ~ "25 - 50%",
+      erel > 0.125 ~ "12.5 - 25%",
+      erel > 0.0625 ~ "6.25 - 12.5%",
+      erel <= 0.0625 ~ "< 6.25%"
+    ),
+    erel_group = factor(erel_group,
+                        levels = c("< 6.25%", "6.25 - 12.5%",
+                                   "12.5 - 25%", "25 - 50%",
+                                   "> 50%"))) %>% 
+
+ggplot() +
+  
+  geom_tile(aes(x = x_center, y = y_center,
+                fill = erel_group), color = "black") +
+  scale_fill_grey(start = 0.2, end = 1,
+                  drop = FALSE) +
+  labs(fill = "Cells enlightment") +
+  
+  scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
+                                  by = cell_size),
+                     labels = round(seq(0, n_cells_x*cell_size,
+                                        by = cell_size),
+                                    digits = 1)) +
+  scale_y_continuous(breaks = seq(0, n_cells_y*cell_size,
+                                  by = cell_size),
+                     labels = round(seq(0, n_cells_y*cell_size,
+                                        by = cell_size),
+                                    digits = 1)) +
+  
+  theme_minimal() +
+  theme(panel.grid.minor = element_blank(),
+        legend.position = "right") +
+  xlab("") + ylab("")
+```

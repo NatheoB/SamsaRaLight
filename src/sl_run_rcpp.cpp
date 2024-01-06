@@ -1155,7 +1155,7 @@ public:
 				
 				// Find position of cell center
 				double x = this->cellSize * (c + 1.0 / 2.0);
-				double y = this->cellSize * (this->nCellsX - r - 1.0 / 2.0); // Be careful, grid is first rows on the top but Y coordinate is greater for first rows
+				double y = this->cellSize * (this->nCellsY - r - 1.0 / 2.0); // Be careful, grid is first rows on the top but Y coordinate is greater for first rows
 				
 				// Create cell object
 				cells_in_row.push_back(new Cell(

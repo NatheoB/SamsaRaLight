@@ -93,4 +93,4 @@
 #'
 #' @source PVGIS : https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
 #'
-"data_rad_prenovel"
+"data_rad_bechefa"

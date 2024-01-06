@@ -138,7 +138,6 @@ sl_run <- function(trees,
 #' @importFrom data.table fifelse
 #'
 #' @export
-#' @keywords internal
 #' 
 sl_create_monthly_rays <- function(monthly_rad,
                                    latitude,
