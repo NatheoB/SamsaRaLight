@@ -1,13 +1,96 @@
-#' Run SamsaraLight from Capsis
+#' Run SamsaraLight from Capsis samsaralightloader model
+#'
+#' @param capsis_folderpath Folderpath of the capsis source directory
+#' @param inv_fp Filepath of the lilo inventory
+#' @param meteo_fp Filepath of the lilo meteo file
+#' @param export_dir Filepath of the export directory
+#' @param run_cell Boolean, if TRUE, run analysis also for cell light interception
+#' @param java_server_started Boolean, if False, no not start and clode java server 
+#'  (to run multiple simulations one after the other without restarting java server)
+#'
+#' @noRd
+sl_run_lilo <- function(capsis_folderpath,
+                        inv_fp, meteo_fp, export_dir,
+                        run_cell = TRUE,
+                        java_server_started = FALSE) {
+  
+  # Connect to capsis
+  if (!java_server_started) {
+    setCapsisPath(path = capsis_folderpath)
+    connectToCapsis()
+  }
+  
+  # Creates and initializes the script.
+  tree_dir <- createJavaObject("java.io.File", inv_fp)
+  meteo_dir <- createJavaObject("java.io.File", meteo_fp)
+  output_dir <- createJavaObject("java.io.File", export_dir)
+  export_dir <- createJavaObject("java.io.File", export_dir)
+  
+  
+  # Tree light interception
+  export_tree <- createJavaObject("samsaralightloader.myscripts.LiloExportTreeLight", 
+                                  tree_dir, meteo_dir, output_dir, export_dir)
+  
+  ## Make the simulation
+  message("Doing analysis...")
+  export_tree$doAnalysis()
+  
+  ## Export the results
+  results_tree <- export_tree$getResults()
+  indexes_tree <- as.integer(0:(results_tree$size()-1))
+  items_tree <- results_tree$get(indexes_tree)
+  capsis.output_tree <- tibble(id_tree = items_tree$id[indexes_tree+1],
+                               e = items_tree$e[indexes_tree+1],
+                               epot = items_tree$epot[indexes_tree+1]
+  )
+
+  
+  capsis.output_cell <- NULL
+  if (run_cell) { 
+    
+    # Cell interception
+    export_cell <- createJavaObject("samsaralightloader.myscripts.LiloExportCellLight", 
+                                    tree_dir, meteo_dir, output_dir, export_dir)
+    
+    ## Make the simulation
+    export_cell$doAnalysis()
+    
+    ## Export the results
+    results_cell<-export_cell$getResults()
+    indexes_cell <- as.integer(0:(results_cell$size()-1))
+    items_cell<-results_cell$get(indexes_cell)
+    capsis.output_cell<-tibble(id = items_cell$id[indexes_cell+1],
+                               x_center = items_cell$x[indexes_cell+1] + 2.5,
+                               y_center = items_cell$y[indexes_cell+1] + 2.5,
+                               e = items_cell$e[indexes_cell+1],
+                               erel = items_cell$erel[indexes_cell+1] / 100)
+  }
+  
+  # Unconnect from Capsis
+  if (!java_server_started) {
+    shutdownClient()
+  }
+  
+  # Return list of outputs
+  list("trees" = capsis.output_tree, "cells" = capsis.output_cell)
+}
+
+
+
+#' Run SamsaraLight from Capsis Samsara model
 #'
 #' @param capsis_folderpath Folderpath of the capsis source directory
 #' @param inv_fp Filepath of the samsaralight inventory
+#' @param commandfile_fp Filepath of the command file (if not using rcapsis)
+#' @param use_rcapsis If running Samsara with RCapsis package
+#' @param java_server_started Boolean, if False, no not start and clode java server 
+#'  (to run multiple simulations one after the other without restarting java server)
 #'
 #' @noRd
-sl_run_capsis <- function(capsis_folderpath, inv_fp,
-                          use_rcapsis = TRUE,
-                          java_server_started = FALSE,
-                          commandfile_fp = NULL) {
+sl_run_samsara <- function(capsis_folderpath, inv_fp,
+                           use_rcapsis = TRUE,
+                           java_server_started = FALSE,
+                           commandfile_fp = NULL) {
   
   if (!use_rcapsis) {
     
@@ -35,6 +118,8 @@ sl_run_capsis <- function(capsis_folderpath, inv_fp,
     setCapsisPath(path = capsis_folderpath)
     connectToCapsis()
   }
+  
+  message("Doing analysis...")
   
   # Creates and initializes the script.
   script <- createJavaObject("capsis.app.C4Script", "samsara2")
@@ -91,6 +176,7 @@ sl_run_capsis <- function(capsis_folderpath, inv_fp,
   out_cells <- data.table::rbindlist(out_cells)
   out_cells[, erel := erel / 100]
   out_cells[order(-y_center, x_center)]
+  
   
   # Unconnect from Capsis
   if (!java_server_started) {
