@@ -4,9 +4,9 @@ Version: 1.0
 Authors@R: 
   c(
     person("Benoit", "Courbaud", , "benoit.courbaud@inrae.fr", role = c("aut", "cph"), comment = "Algorithm and theory creator"),
-    person("Natheo", "Beauchamp", , "beauchamp.natheo@gmail.com", role = c("cre"), comment = "R package developper"),
-    person("Ligot", "Gauthier", , "gligot@uliege.be", role = c("cre"), comment = "Java Capsis developper"),
-    person("Francois", "de Coligny", , "coligny@cirad.fr", role = c("cre"), comment = "Java Capsis developper")
+    person("Natheo", "Beauchamp", , "beauchamp.natheo@gmail.com", role = c("aut", "cre"), comment = "R package developper"),
+    person("Ligot", "Gauthier", , "gligot@uliege.be", role = c("aut"), comment = "Java Capsis developper"),
+    person("Francois", "de Coligny", , "coligny@cirad.fr", role = c("aut"), comment = "Java Capsis developper")
     )
 Description: The package computes annuel direct and diffuse rays to estimate tree light interception by 3D crowns and light on the ground within a forest.
 License: GPL (>= 3)
