@@ -33,7 +33,7 @@ h_max <- 40
 r_min <- 1
 r_max <- 6
 
-trees <- lapply(n_trees, function(n) {
+trees_sym <- lapply(n_trees, function(n) {
   data.frame(
     tree_density = n,
     id_tree = 1:n,
@@ -51,28 +51,65 @@ trees <- lapply(n_trees, function(n) {
     hbase_m = h_m/2,
     rn_m = r_m, rs_m = r_m, re_m = r_m, rw_m = r_m)
 })
+
+trees_asym <- lapply(n_trees, function(n) {
+  data.frame(
+    tree_density = n,
+    id_tree = 1:n,
+    x = runif(n, 0, plot_size),
+    y = runif(n, 0, plot_size),
+    dbh_cm = NA,
+    crown_type = "8E",
+    h_m = runif(n, h_min, h_max),
+    hmax_m = NA,
+    rn_m = runif(n, r_min, r_max),
+    rs_m = runif(n, r_min, r_max),
+    re_m = runif(n, r_min, r_max),
+    rw_m = runif(n, r_min, r_max),
+    crown_openess = NA,
+    crown_lad = 0.7
+  ) %>% 
+  dplyr::mutate(hbase_m = h_m/2)
+})
 ```
 
 
 # Run SamsaRaLight
 
 ```{r echo=TRUE}
-out_time <- vector("list", length(trees))
-for (t in 1:length(trees)) {
+out_time <- vector("list", n_trees)
+for (t in 1:n_trees) {
   out_time[[t]] <- summary(
     microbenchmark::microbenchmark(
-      "5m" = SamsaRaLight::sl_run(
-        trees[[t]], SamsaRaLight::data_rad_prenovel,
+      
+      "sym_5m" = SamsaRaLight::sl_run(
+        trees_sym[[t]], SamsaRaLight::data_rad_prenovel,
         cell_size = 5, 
         n_cells_x = plot_size/5, n_cells_y = plot_size/5,
         turbid_medium = TRUE,
         trunk_interception = FALSE),
-      "10m" = SamsaRaLight::sl_run(
-        trees[[t]], SamsaRaLight::data_rad_prenovel,
+      
+      "sym_10m" = SamsaRaLight::sl_run(
+        trees_sym[[t]], SamsaRaLight::data_rad_prenovel,
         cell_size = 10, 
         n_cells_x = plot_size/10, n_cells_y = plot_size/10,
         turbid_medium = TRUE,
-        trunk_interception = FALSE), 
+        trunk_interception = FALSE),
+      
+      # "asym_5m" = SamsaRaLight::sl_run(
+      #   trees_asym[[t]], SamsaRaLight::data_rad_prenovel,
+      #   cell_size = 5, 
+      #   n_cells_x = plot_size/5, n_cells_y = plot_size/5,
+      #   turbid_medium = TRUE,
+      #   trunk_interception = FALSE),
+      # 
+      # "asym_10m" = SamsaRaLight::sl_run(
+      #   trees_asym[[t]], SamsaRaLight::data_rad_prenovel,
+      #   cell_size = 10, 
+      #   n_cells_x = plot_size/10, n_cells_y = plot_size/10,
+      #   turbid_medium = TRUE,
+      #   trunk_interception = FALSE),
+
       times = 10)) %>% 
     dplyr::select(cell_size = expr, time_ms = median) %>% 
     dplyr::mutate(tree_density = unique(trees[[t]]$tree_density))

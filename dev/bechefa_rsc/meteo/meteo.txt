@@ -1,0 +1,38 @@
+#exemple de fichier SamsaraLight
+#for QuerGus
+
+#light model options
+turbid_medium = true
+trunk_interception = false 
+direct_angle_step = 15
+height_angle_min = 10
+#use_diffuse = true
+diffuse_angle_step = 15
+#SOC or UOC 
+soc = false
+GMT = -1
+
+#Vegetation period
+#http://disc.gsfc.nasa.gov/julian_calendar.shtml
+#1st April -> 31st October
+# leaf_on_doy, leaf_off_doy : day of year (see the calendar, fc)
+leaf_on_doy =  91
+leaf_off_doy = 304
+
+#Radiation data
+#if Global == 0 then the corresponding month is not selected
+#Month	Global	Diffus/G
+1	71.2776	0.5
+2	127.8588	0.5
+3	312.6255	0.5
+4	415.0542	0.5
+5	533.9946	0.5
+6	421.6902	0.5
+7	425.898	0.5
+8	345.9888	0.5
+9	302.904	0.5
+10	181.0038	0.5
+11	103.2462	0.5
+12	64.9182	0.5
+
+

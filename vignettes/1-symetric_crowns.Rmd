@@ -34,8 +34,8 @@ You first need to precise the geometry of the stand with:
 
 ```{r stand_geom}
 # Coordinates of the stand (for monthly radiation and rays geometry)
-latitude <- 46 # The latitude of the stand (Y-coord in WGS85)
-longitude <- 2 # The longitude of the plot (X-coord in WGS85)
+latitude <- 46.52666 # The latitude of the stand (Y-coord in WGS85)
+longitude <- 5.82765 # The longitude of the plot (X-coord in WGS85)
 
 # The slope of the stand
 slope <- 6
@@ -63,26 +63,38 @@ of fir, spruce, beech located in Prenovel (Jura, France).
 
 ```{r data_trees}
 data_trees <- SamsaRaLight::data_trees_prenovel %>%
-  dplyr::mutate(rn_m = r_m,
-                re_m = r_m,
-                rs_m = r_m,
-                rw_m = r_m,
-                crown_lad = case_match(species,
-                                       c("Picea abies", "Abies alba") ~ 0.767,
-                                       "Fagus sylvatica" ~ 0.96),
-                crown_type = case_match(species,
-                                        c("Picea abies", "Abies alba") ~ "P",
-                                        "Fagus sylvatica" ~ "E"),
-                hmax_m = NA)
+  dplyr::mutate(
+    # Set the same crown radius for all the four cardinals
+    rn_m = r_m,
+    re_m = r_m,
+    rs_m = r_m,
+    rw_m = r_m,
+    
+    # LAD values comes from Beauchamp et al. 2025
+    crown_lad = case_match(species,
+                           c("Picea abies", "Abies alba") ~ 0.767,
+                           "Fagus sylvatica" ~ 0.96),
+    
+    # Default crown openess values
+    crown_openess = 0.2,
+    
+    # Set simple crown forms: paraboloid for conifers and ellipsoid for broadleaves
+    crown_type = case_match(species,
+                            c("Picea abies", "Abies alba") ~ "P",
+                            "Fagus sylvatica" ~ "E"),
+    
+    # Here hmax is automatically computed from tree height and crown base height depending on the crown form
+    hmax_m = NA)
 
 head(data_trees)
+summary(data_trees)
 ```
 
 
 ## Monthly radiation
 
 Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_prenovel`.
-The dataset is fetched using the above function.
+The dataset is fetched using the function `SamsaRaLight::get_monthly_rad()`
 
 ```{r monthly_rad}
 data_monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
@@ -135,7 +147,8 @@ out$trees %>%
   ggplot(aes(y = value, x = dbh_cm, color = species)) +
   facet_wrap(~var) +
   geom_point() +
-  theme(legend.position = "top")
+  theme(legend.position = "top") +
+  scale_color_manual(values = c("skyblue", "salmon", "olivedrab3"))
 ```
 
 
@@ -168,6 +181,7 @@ ggplot() +
   geom_circle(data = data_trees, mapping = aes(x0 = x, y0 = y, r = r_m, fill = species)) +
   coord_equal() +
   labs(fill = "Species") +
+  scale_fill_manual(values = c("skyblue", "salmon", "olivedrab3")) +
   
   scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
                                   by = cell_size),

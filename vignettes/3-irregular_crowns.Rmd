@@ -64,6 +64,7 @@ We will use 8 eighth of ellipsoids to represent irregular crowns.
 ```{r data_trees}
 data_trees <- SamsaRaLight::data_trees_bechefa
 head(data_trees)
+summary(data_trees)
 ```
 
 
@@ -123,11 +124,14 @@ out$trees %>%
   ggplot(aes(y = value, x = dbh_cm, color = species)) +
   facet_wrap(~var) +
   geom_point() +
-  theme(legend.position = "top")
+  theme(legend.position = "top") +
+  scale_color_manual(values = c("skyblue", "salmon", "olivedrab3", "mediumorchid1"))
 ```
 
 
 ## Light on the ground
+
+Crown representation are the maximum radius between the two cardinals of a given axis.
 
 ```{r output_ground, fig.dim = c(8, 6)}
 out$cells %>% 
@@ -160,6 +164,7 @@ ggplot() +
                                                fill = species)) +
   coord_equal() +
   labs(fill = "Species") +
+  scale_fill_manual(values = c("skyblue", "salmon", "olivedrab3", "mediumorchid1")) +
   
   scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
                                   by = cell_size),
