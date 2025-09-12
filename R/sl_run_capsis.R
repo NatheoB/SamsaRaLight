@@ -5,7 +5,7 @@
 #' @param meteo_fp Filepath of the lilo meteo file
 #' @param export_dir Filepath of the export directory
 #' @param run_cell Boolean, if TRUE, run analysis also for cell light interception
-#' @param java_server_started Boolean, if False, no not start and clode java server 
+#' @param java_server_started Boolean, if False, no not start and close java server 
 #'  (to run multiple simulations one after the other without restarting java server)
 #'
 #' @noRd
@@ -125,7 +125,7 @@ sl_run_samsara <- function(capsis_folderpath, inv_fp,
   script <- createJavaObject("capsis.app.C4Script", "samsara2")
   
   ip <- createJavaObject("samsara2.model.Samsa2InitialParameters")
-  ip$fileName <- inv_fp
+  ip$inventoryFileName <- inv_fp
   
   script$init(ip)
   
@@ -146,7 +146,7 @@ sl_run_samsara <- function(capsis_folderpath, inv_fp,
     
     out_trees[[i+1]] <- list(
       id_tree = tree$getId(),
-      epot = tree$getPotCrownEnergy(),
+      epot = tree$getPotentialEnergy(),
       e = tree$getEnergy()
     )
   }

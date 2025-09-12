@@ -12,7 +12,7 @@ library(SamsaRaLight)
 source("R/sl_run_capsis.R")
 
 out_capsis <- sl_run_samsara("c:/capsis4",
-                             "C:/capsis4/data/samsara2/DemoFiles/Prenovel/Prenovel01_26_Inventory_lad.txt",
+                             "C:/capsis4/data/samsara2/DemoFiles/Prenovel/Prenovel01_26_Inventory.txt",
                              use_rcapsis = TRUE)
 
 
@@ -29,8 +29,8 @@ trees <- SamsaRaLight::data_trees_prenovel %>%
                                                                c("Picea abies", "Abies alba") ~ "P",
                                                                "Fagus sylvatica" ~ "E"),
                                        hmax_m = case_match(crown_type,
-                                                           "8E" ~ hbase_m + 1/2*(h_m - hbase_m),
-                                                           "4P" ~ hbase_m)) %>%
+                                                           "E" ~ hbase_m + 1/2*(h_m - hbase_m),
+                                                           "P" ~ hbase_m)) %>%
                          dplyr::select(-r_m)
 
 monthly_rad <- data.frame(

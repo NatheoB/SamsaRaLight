@@ -11,12 +11,14 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // sl_run_rcpp
-List sl_run_rcpp(DataFrame trees, DataFrame rays, double e_above_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus, bool turbid_medium, bool trunk_interception);
-RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP raysSEXP, SEXP e_above_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP trunk_interceptionSEXP) {
+List sl_run_rcpp(DataFrame trees, DataFrame sensors, bool sensors_only, DataFrame rays, double e_above_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus, bool turbid_medium, bool trunk_interception);
+RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP sensorsSEXP, SEXP sensors_onlySEXP, SEXP raysSEXP, SEXP e_above_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP trunk_interceptionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< DataFrame >::type trees(treesSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type sensors(sensorsSEXP);
+    Rcpp::traits::input_parameter< bool >::type sensors_only(sensors_onlySEXP);
     Rcpp::traits::input_parameter< DataFrame >::type rays(raysSEXP);
     Rcpp::traits::input_parameter< double >::type e_above_m2(e_above_m2SEXP);
     Rcpp::traits::input_parameter< double >::type slope(slopeSEXP);
@@ -28,13 +30,13 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< bool >::type use_torus(use_torusSEXP);
     Rcpp::traits::input_parameter< bool >::type turbid_medium(turbid_mediumSEXP);
     Rcpp::traits::input_parameter< bool >::type trunk_interception(trunk_interceptionSEXP);
-    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, rays, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, trunk_interception));
+    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, sensors, sensors_only, rays, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, trunk_interception));
     return rcpp_result_gen;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 12},
+    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 14},
     {NULL, NULL, 0}
 };
 

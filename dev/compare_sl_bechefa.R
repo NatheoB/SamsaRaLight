@@ -15,9 +15,9 @@ library(SamsaRaLight)
 source("R/sl_run_capsis.R")
 
 out_capsis <- sl_run_lilo(capsis_folderpath = "c:/capsis4",
-                          inv_fp = file.path(getwd(), "../dev/bechefa_rsc/inv"), 
-                          meteo_fp = file.path(getwd(), "../dev/bechefa_rsc/meteo"), 
-                          export_dir = file.path(getwd(), "../dev/bechefa_rsc"))
+                          inv_fp = "C:/test_marteloscope/IRRES1_rsc/inv", 
+                          meteo_fp = "C:/test_marteloscope/IRRES1_rsc/meteo", 
+                          export_dir = "C:/test_marteloscope/IRRES1_rsc")
 
 
 # R ----

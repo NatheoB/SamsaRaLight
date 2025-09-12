@@ -200,7 +200,7 @@ public:
 	double getZ() { return(this->z); }
 
 	// interception generic function
-	virtual interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) { return(nullptr); }
+	virtual interception* computeInterception(Ray* ray, vertex3D& shift) { return(nullptr); }
 
 };
 
@@ -215,7 +215,7 @@ public:
 	virtual ~CrownPart() {}
 
 	// interception generic function
-	virtual interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) { return(nullptr); }
+	virtual interception* computeInterception(Ray* ray, vertex3D& shift) { return(nullptr); }
 };
 
 class CrownPartEllipsoid : public CrownPart {
@@ -259,7 +259,7 @@ public:
 	}
 
 	// interception of a 8th, semi or full ellispoid between a shifted tree and a ray coming toward a target cell
-	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
+	interception* computeInterception(Ray* ray, vertex3D& shift) {
 
 		// SHIFT POSITION OF THE ELLIPSOID
 		// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside (*tree) when torus system
@@ -456,7 +456,7 @@ public:
 	}
 
 	// interception of a 4th or full paraboloid between a shifted tree and a ray coming toward a target cell
-	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
+	interception* computeInterception(Ray* ray, vertex3D& shift) {
 
 		// SHIFT POSITION OF THE PARABOLOID
 		// 2 shifts: the first one to set the target cell as origine, and the second to acoount for outside tree when torus system
@@ -830,8 +830,8 @@ public:
 
 
 	// Find interception with a given part of the crown
-	interception* computeCrownpartInterception(int id_crownpart, int id_target_cell, Ray* ray, vertex3D& shift) {
-		return( this->crownParts[id_crownpart]->computeInterception(id_target_cell, ray, shift) );
+	interception* computeCrownpartInterception(int id_crownpart, Ray* ray, vertex3D& shift) {
+		return( this->crownParts[id_crownpart]->computeInterception(ray, shift) );
 	}
 };
 
@@ -866,7 +866,7 @@ public:
 	}
 
 	// Compute interception betwene a cylinder and a ray coming toward a target cell
-	interception* computeInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
+	interception* computeInterception(Ray* ray, vertex3D& shift) {
 
 		// SHIFT POSITION OF THE CYLINDER
 		// 2 shifts: the first one to set the target cell as origin, and the second to acoount for outside tree when torus system
@@ -1012,86 +1012,153 @@ public:
 	double getCrownEnergyPotential() { return(this->crown.getEnergyPotential()); }
 
 	// Interception methods
-	interception* computeCrownpartInterception(int id_crownpart, int id_target_cell, Ray* ray, vertex3D& shift) {
-		return(this->crown.computeCrownpartInterception(id_crownpart, id_target_cell, ray, shift));
+	interception* computeCrownpartInterception(int id_crownpart, Ray* ray, vertex3D& shift) {
+		return(this->crown.computeCrownpartInterception(id_crownpart, ray, shift));
 	}
 
-	interception* computeTrunkInterception(int id_target_cell, Ray* ray, vertex3D& shift) {
-		return( this->trunk.computeInterception(id_target_cell, ray, shift) );
+	interception* computeTrunkInterception(Ray* ray, vertex3D& shift) {
+		return( this->trunk.computeInterception(ray, shift) );
 	}
 
 
 };
 
-class Cell {
+class Target {
 
 private:
-	// Id of the cell
-	int id;
 
-	// Column and row in a grid system (i.e. Stand object)
-	int row;
-	int col;
-
-	// Position of the center of the cell
+	// Point towards which to cast the rays
+	// For sensor, it is its position
+	// For cell, it is its center
 	double x;
 	double y;
 	double z;
 
-	// Id of the tree in the cell (id in the sense of id in the trees vector in Stand object)
-	std::vector<int> vectIdTrees;
+	// Column and row in a grid system (i.e. Stand object)
+	// In the case of the sensor, column and row of the cell the sensor belong to 
+	int row;
+	int col;
 
-	// Energy of the cell (in MJ)
-	double energyAboveCanopy; // Energy coming to the cell above the canopy (energy of the cell without trees above)
-	double energy; // Current energy above the cell (will be decreased by successive interception by the abov trees
+	// Energy of the target (in MJ)
+	double energyAboveCanopy; // Energy coming to the target above the canopy (energy of the cell without trees above)
+	double energy; // Current energy on the target 
+
+	// If it is a sensor
+	// In this case, do not remove energies from intercepted crown
+	bool isSensor;
 
 
 public:
-	Cell(int id, int row, int col, double x, double y, double z, double e_above) {
-		this->id = id;
-		this->row = row;
-		this->col = col;
+	Target(double x, double y, double z, int row, int col, double e_above, bool is_sensor) {
 		this->x = x;
 		this->y = y;
 		this->z = z;
-
-		// Energy of the cell (in MJ)
-		this->energyAboveCanopy = e_above; // Energy coming to the cell above the canopy (energy of the cell without trees above)
-		this->energy = e_above; // Current energy above the cell (will be decreased by successive interception by the abov trees)
+		this->row = row;
+		this->col = col;
+		this->energyAboveCanopy = e_above;
+		this->energy = e_above; // will be decreased by successive interception by the above trees
+		this->isSensor = is_sensor;
 	}
 
+	virtual ~Target() {}
+
+
 	// Getters
-	int getId() { return(this->id); }
-	int getRow() { return(this->row); }
-	int getCol() { return(this->col); }
 	double getX() { return(this->x); }
 	double getY() { return(this->y); }
 	double getZ() { return(this->z); }
+
+	int getRow() { return(this->row); }
+	int getCol() { return(this->col); }
+
+	double getEnergy() { return(this->energy); }
+	double getEnergyM2(double target_area) { return(this->energy / target_area); }
+	double getEnergyRelative() { return(this->energy / this->energyAboveCanopy); }
+
+	bool isThisSensor() { return(this->isSensor); }
+
+
+	// Setters
+	void interceptEnergy(double e) { this->energy -= e; }
+	void resetEnergy() { this->energy = 0.0; }
+
+	virtual void correctNullEnergy(double epsilon) {}
+};
+
+class Sensor : public Target {
+
+private:
+	// Id of the sensor
+	int idSensor;
+
+
+public:
+	Sensor(double x, double y, double z, 
+		int row, int col, double e_above, 
+		int id_sensor) :
+		Target(x, y, z, row, col, e_above, true)
+	{
+		this->idSensor = id_sensor;
+	}
+
+	// Getters
+	int getIdSensor() { return(this->idSensor); }
+
+	// Methods
+	void correctNullEnergy(double epsilon) {
+		if (this->getEnergy() < -epsilon)
+			std::cout << "Problem with energy in target " << this->getIdSensor() << ": energy of " << this->getEnergy() << "MJ";
+		if (abs(this->getEnergy()) < epsilon)
+			this->resetEnergy();
+	}
+};
+
+class Cell : public Target {
+
+private:
+	// Id of the cell
+	int idCell;
+
+	// Id of the tree in the cell (id in the sense of id in the trees vector in Stand object)
+	std::vector<int> vectIdTrees;
+
+
+public:
+	Cell(double x, double y, double z, 
+		int row, int col, double e_above, 
+		int id_cell) :
+		Target(x, y, z, row, col, e_above, false)
+	{
+		this->idCell = id_cell;
+	}
+
+	// Getters
+	int getIdCell() { return(this->idCell); }
 
 	bool isEmpty() { return(this->vectIdTrees.empty()); }
 	int getVectIdTree(int i_tree) { return(this->vectIdTrees[i_tree]); }
 	int getNTrees() { return(this->vectIdTrees.size()); }
 
-	double getEnergy() { return(this->energy); }
-	double getEnergyM2(double cell_area) { return(this->energy / cell_area); }
-	double getEnergyRelative() { return(this->energy / this->energyAboveCanopy); }
-
 
 	// Setters
 	void addTree(int vect_id) { this->vectIdTrees.push_back(vect_id); }
-	void interceptEnergy(double e) { this->energy -= e; }
-	void correctNullEnergy(double epsilon) {
-		if (this->energy < -epsilon)
-			std::cout << "Problem with energy in cell " << this->id << ": energy of " << this->energy << "MJ";
-		if (abs(this->energy) < epsilon)
-			this->energy = 0.0;
-	}
 
+	// Methods
+	void correctNullEnergy(double epsilon) {
+		if (this->getEnergy() < -epsilon)
+			std::cout << "Problem with energy in cell " << this->getIdCell() << ": energy of " << this->getEnergy() << "MJ";
+		if (abs(this->getEnergy()) < epsilon)
+			this->resetEnergy();
+	}
 };
 
 class Stand {
 
 private:
+	// Vector of sensors
+	bool areSensors;
+	std::vector<Sensor*> sensors;
+
 	// 2D grid of cells stored by <row, column>
 	std::vector<std::vector<Cell*>> grid;
 
@@ -1119,7 +1186,8 @@ private:
 
 
 public:
-	Stand(DataFrame trees, double e_above_m2,
+	Stand(DataFrame trees, DataFrame sensors,
+		double e_above_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells_x, double n_cells_y, 
 		bool use_torus
@@ -1148,6 +1216,48 @@ public:
 		double e_above_cell = e_above_m2 * this->cellArea;
 
 
+		// Create vector of sensors from the sensors R DataFrame, if sensors are specified
+		this->areSensors = sensors.nrows() > 0;
+
+		if (this->areSensors) {
+
+			IntegerVector sensors_id = sensors["id"];
+			NumericVector sensors_x = sensors["x"];
+			NumericVector sensors_y = sensors["y"];
+			NumericVector sensors_height = sensors["h_m"];
+
+			int n_sensors = sensors.nrows();
+			for (int i = 0; i < n_sensors; i++) {
+
+				// Check if the sensor is within the stand limits
+				if (sensors_x[i] < 0.0 ||
+					sensors_x[i] > this->cellSize * this->nCellsX ||
+					sensors_y[i] < 0.0 ||
+					sensors_y[i] > this->cellSize * this->nCellsY) {
+
+					// Print an error (NEED TO STOP ?)
+					std::cout << "Sensor " << sensors_id[i] << " is outside the stand limits";
+
+				}
+				else {
+					// Find the row and column the sensor belong to
+					int sensor_col = findColFromPosX(sensors_id[i]);
+					int sensor_row = findRowFromPosY(sensors_id[i]);
+
+					// Create and push the pointor to Sensor new instance
+					this->sensors.push_back(new Sensor(
+						sensors_x[i], sensors_y[i], // Position of the sensor
+						this->computeZ(sensors_x[i], sensors_y[i]) + sensors_height[i], // Z pos of the sensor is the height above the ground
+						sensor_row, sensor_col, // Cell of the sensor
+						e_above_cell, // Energie arriving to the cell considering no trees above (potential energy)
+						sensors_id[i] // Id of the sensor
+					));
+				}
+			}
+
+		}
+
+
 		// Create grid of cells
 		for (int r = 0; r < this->nCellsY; r++) {
 			std::vector<Cell*> cells_in_row;
@@ -1159,21 +1269,22 @@ public:
 				
 				// Create cell object
 				cells_in_row.push_back(new Cell(
-					this->nCellsY*r + c + 1, 
-					r, c, x, y, this->computeZ(x, y),
-					e_above_cell
+					x, y, this->computeZ(x, y), // Position of the cell center
+					r, c, // Row and column of the cell within the stand grid system
+					e_above_cell, // Energie arriving to the cell considering no trees above (potential energy)
+					this->nCellsY * r + c + 1 // Id of the cell
 				));
 			}
 			this->grid.push_back(cells_in_row);
 		}
 
 
-		// Get vectors from the trees R dataframe
+		// Create vector of trees from the trees R dataframe
 		IntegerVector trees_id = trees["id_tree"];
 		NumericVector trees_x = trees["x"];
 		NumericVector trees_y = trees["y"];
 		NumericVector dbh = trees["dbh_cm"];
-		NumericVector height = trees["h_m"];
+		NumericVector tree_height = trees["h_m"];
 		NumericVector hbase = trees["hbase_m"];
 		NumericVector hmax = trees["hmax_m"];
 		NumericVector cr_n = trees["rn_m"];
@@ -1191,21 +1302,27 @@ public:
 			// Create tree object
 			this->trees.push_back(new Tree(
 				i, trees_id[i], trees_x[i], trees_y[i], this->computeZ(trees_x[i], trees_y[i]),
-				dbh[i], height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
+				dbh[i], tree_height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
 				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]));
 
 			// Find row and column of the cell and add tree id to the corresponding cell
-			int cell_col = (int)(trees_x[i] / this->cellSize);
-			int cell_row = this->nCellsY - (int)(trees_y[i] / this->cellSize) - 1;
-			this->grid[cell_row][cell_col]->addTree(i);
+			int tree_col = findColFromPosX(trees_x[i]);
+			int tree_row = findRowFromPosY(trees_y[i]);
+			this->grid[tree_row][tree_col]->addTree(i);
 		}
 
 		// Get maximum height and crown radius of the trees
-		this->maxTreeHeight = max(height);
+		this->maxTreeHeight = max(tree_height);
 		this->maxTreeCrownRadius = std::max({ max(cr_n), max(cr_e), max(cr_s), max(cr_w) });
 	}
 
 	~Stand() {
+		// Delete sensors pointors
+		int n_sensors = this->sensors.size();
+		for (int i = 0; i < n_sensors; i++) {
+			delete this->sensors[i];
+		}
+
 		// Delete cells pointers
 		for (int r = 0; r < this->nCellsY; r++) {
 			for (int c = 0; c < this->nCellsX; c++) {
@@ -1220,6 +1337,10 @@ public:
 	}
 
 	// Getters
+	bool areThereSensors() { return(this->areSensors); }
+	Sensor* getSensor(int vectid) { return(this->sensors[vectid]); }
+	double getNSensors() { return(this->sensors.size()); }
+
 	Cell* getCell(int row, int col) { return(this->grid[row][col]); }
 	int getNCells() { return(this->nCells); }
 	int getNCellsX() { return(this->nCellsX); }
@@ -1254,6 +1375,10 @@ public:
 		return(-d * cos(azimuth_xy - this->bottomAzimuth) * tan(this->slope));
 	}
 
+	int findColFromPosX(double x) { return((int)(x / this->cellSize)); }
+	int findRowFromPosY(double y) { return(this->nCellsY - (int)(y / this->cellSize) - 1); }
+
+
 };
 
 struct shiftedCell {
@@ -1268,7 +1393,7 @@ struct shiftedCell {
 class Model {
 
 private:
-	// Stand object with cells, trees and geometric variables
+	// Stand object with cells, trees, sensors and geometric variables
 	Stand stand;
 
 	// Rays that are coming toward a cell
@@ -1280,6 +1405,10 @@ private:
 	// Consider interception with trunks ?
 	bool trunkInterception;
 
+	// Compute interceptions only of sensors ?
+	// i.e. do not cast rays towards cells and do not predict tree energy interception
+	bool sensorsOnly;
+
 	// Global variable for turbid medium
 	const double EXTINCTION_COEF; // Probability of a leaf to intercept the ray (linked to leaf orientation)
 	const double CLUMPING_FACTOR; // Aggregation of leaves within the crown volume (1 is homogeneous)
@@ -1287,13 +1416,13 @@ private:
 
 private:
 
-	shiftedCell getPotentialCell(Ray* ray, int rel_cell_id, Cell* target_cell) {
+	shiftedCell getPotentialCell(Ray* ray, int rel_cell_id, Target* target) {
 
 		relativeCoords rel_cell = ray->getPotentialRelCell(rel_cell_id);
 
 		// Get row and column of potential cell
-		int row_pot = target_cell->getRow() + rel_cell.row;
-		int col_pot = target_cell->getCol() + rel_cell.col;
+		int row_pot = target->getRow() + rel_cell.row;
+		int col_pot = target->getCol() + rel_cell.col;
 
 		// Search if cells is outside the this->stand
 		bool is_outside = row_pot < 0 || row_pot >= this->stand.getNCellsY() || col_pot < 0 || col_pot >= this->stand.getNCellsX();
@@ -1331,7 +1460,20 @@ private:
 		return(pot_cell);
 	}
 
-	std::vector<interception*> computeInterceptionsRayToTarget(Ray* ray, Cell* target_cell) {
+	void predictEnergiesRayToTarget(Ray* ray, Target* target) {
+
+		// Get interceptions
+		std::vector<interception*> v_interc = this->computeInterceptionsRayToTarget(ray, target);
+
+		// Order interceptions
+		this->orderInterceptionsRayToTarget(v_interc);
+
+		// Summarize interceptions into energy
+		this->summarizeInterceptionsRayToTarget(ray, target, v_interc);
+
+	}
+
+	std::vector<interception*> computeInterceptionsRayToTarget(Ray* ray, Target* target) {
 
 		std::vector<interception*> v_interc;
 
@@ -1340,7 +1482,7 @@ private:
 		for (int rc = 0; rc < n_relcells; rc++) {
 
 			// Get a pointer to the original potential cell and its associated shift
-			shiftedCell pot_cell = this->getPotentialCell(ray, rc, target_cell);
+			shiftedCell pot_cell = this->getPotentialCell(ray, rc, target);
 
 			// Cell is not potential if there is no trees or it is outside the main plot and torus system is disabled
 			if (!pot_cell.cell) { continue; }
@@ -1349,9 +1491,9 @@ private:
 			// 1. Shift when torus system is enable and the tree is outside the main plot
 			// 2. Set the center of the target cell as origin of tree and ray interception
 			vertex3D shift = {
-				pot_cell.shift.x - target_cell->getX(),
-				pot_cell.shift.y - target_cell->getY(),
-				pot_cell.shift.z - target_cell->getZ()
+				pot_cell.shift.x - target->getX(),
+				pot_cell.shift.y - target->getY(),
+				pot_cell.shift.z - target->getZ()
 			};
 
 			// Compute interception for each tree within the potential cell (with a given shift if the potential cell is outside the plot)
@@ -1364,7 +1506,7 @@ private:
 				// Compute interception for each crown part of the tree
 				int n_parts = tree->getCrown().getNParts();
 				for (int p = 0; p < n_parts; p++) {
-					interception* interc_crownpart = tree->computeCrownpartInterception(p, target_cell->getId(), ray, shift);
+					interception* interc_crownpart = tree->computeCrownpartInterception(p, ray, shift);
 					if (interc_crownpart != nullptr) {
 						v_interc.push_back(interc_crownpart);
 					}
@@ -1372,7 +1514,7 @@ private:
 
 				// If specified, compute interception by trunks
 				if (this->trunkInterception) {
-					interception* interc_trunk = tree->computeTrunkInterception(target_cell->getId(), ray, shift);
+					interception* interc_trunk = tree->computeTrunkInterception(ray, shift);
 					if (interc_trunk != nullptr) {
 						v_interc.push_back(interc_trunk);
 					}
@@ -1390,7 +1532,7 @@ private:
 			});
 	}
 
-	void summarizeInterceptionsRayToTarget(Ray* ray, Cell* target_cell, std::vector<interception*>& v_interc) {
+	void summarizeInterceptionsRayToTarget(Ray* ray, Target* target, std::vector<interception*>& v_interc) {
 
 		// Compute projection of energy on plane parallel to slope
 		//  in MJ / m2 and convert it into MJ per cell
@@ -1469,30 +1611,33 @@ private:
 			}
 
 			// Add to the potential and intercepted energy by the tree
-			#ifdef _OPENMP
-			#pragma omp critical
-			{
-			#endif
-			crown.addEnergyPotential(potential_energy);
-			crown.addEnergy(intercepted_energy);
-			#ifdef _OPENMP
+			// CAREFUL: ONLY IF TARGET IS A CELL 
+			// If it is a sensor, do not consider energy of trees
+			if (!target->isThisSensor()) {
+				#ifdef _OPENMP
+				#pragma omp critical
+				{
+				#endif
+				crown.addEnergyPotential(potential_energy);
+				crown.addEnergy(intercepted_energy);
+				#ifdef _OPENMP
+				}
+				#endif
 			}
-			#endif
 
 			// Remove the intercepted energy from the energy that left
 			current_energy -= intercepted_energy;
 
-			// Remove the intercepted energy by the crown from the total energy above the cell
+			// Remove the intercepted energy by the crown from the total energy above the target
 			#ifdef _OPENMP
 			#pragma omp critical
 			#endif
-			target_cell->interceptEnergy(intercepted_energy);
+			target->interceptEnergy(intercepted_energy);
 
 			// Delete interception pointer
 			delete v_interc[j];
 		}
 	}
-
 
 	double applyBeerLambert(double incident_energy, double extinction_coef, double clumping_factor, double leaf_area_density, double path_length) {
 
@@ -1502,16 +1647,18 @@ private:
 
 public:
 
-	Model(DataFrame trees, DataFrame rays,
-		double e_above_m2,
+	Model(DataFrame trees, 
+		DataFrame sensors, bool sensors_only,
+		DataFrame rays, double e_above_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells_x, double n_cells_y,
 		bool use_torus, bool turbid_medium, bool trunk_interception) :
 
-		stand(trees, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus),
+		stand(trees, sensors, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus),
 		rays(rays, e_above_m2),
 		EXTINCTION_COEF(0.5), CLUMPING_FACTOR(1.0)
 	{
+		this->sensorsOnly = sensors_only;
 		this->turbidMedium = turbid_medium;
 		this->trunkInterception = trunk_interception;
 	}
@@ -1624,28 +1771,41 @@ public:
 	void computeInterceptions() {
 
 		int n_rays = this->rays.getNRays();
+		int n_sensors = this->stand.getNSensors();
 		int n_cells_x = this->stand.getNCellsX();
 		int n_cells_y = this->stand.getNCellsY();
 
-		// For each ray toward each target cell
-		#ifdef _OPENMP
-		#pragma omp parallel for collapse(3)
-		#endif
-		for (int r = 0; r < n_cells_y; r++) {
-			for (int c = 0; c < n_cells_x; c++) {
+		// For each ray toward each target sensor
+		if (this->stand.areThereSensors()) {
+			#ifdef _OPENMP
+			#pragma omp parallel for collapse(2)
+			#endif
+			for (int s = 0; s < n_sensors; s++) {
 				for (int i = 0; i < n_rays; i++) {
 
-					Cell* target_cell = this->stand.getCell(r, c);
 					Ray* ray = this->rays.getRay(i);
+					Sensor* sensor = this->stand.getSensor(s);
 
-					// Get interceptions
-					std::vector<interception*> v_interc = this->computeInterceptionsRayToTarget(ray, target_cell);
+					predictEnergiesRayToTarget(ray, sensor);
+				}
+			}
+		}
 
-					// Order interceptions
-					this->orderInterceptionsRayToTarget(v_interc);
+		// For each ray toward each target cell
+		// Run only in conditions
+		if (!this->sensorsOnly) {
+			#ifdef _OPENMP
+			#pragma omp parallel for collapse(3)
+			#endif
+			for (int r = 0; r < n_cells_y; r++) {
+				for (int c = 0; c < n_cells_x; c++) {
+					for (int i = 0; i < n_rays; i++) {
 
-					// Summarize interceptions into energy
-					this->summarizeInterceptionsRayToTarget(ray, target_cell, v_interc);
+						Ray* ray = this->rays.getRay(i);
+						Cell* target_cell = this->stand.getCell(r, c);
+
+						predictEnergiesRayToTarget(ray, target_cell);
+					}
 				}
 			}
 		}
@@ -1653,82 +1813,130 @@ public:
 
 	List exportResults() {
 
-		// Get number of trees and cells
-		int n_cells = this->stand.getNCells();
-		int n_trees = this->stand.getNTrees();
+		// Init RCPP vectors for sensors
+		int n_sensors = this->stand.getNSensors();
 
-		// Init RCPP vectors for trees
-		IntegerVector id_tree(n_trees);
-		NumericVector e_tree(n_trees);
-		NumericVector epot_tree(n_trees);
-		NumericVector lci_tree(n_trees);
+		IntegerVector id_sensor(n_sensors);
+		NumericVector x_sensor(n_sensors);
+		NumericVector y_sensor(n_sensors);
+		NumericVector z_sensor(n_sensors);
+		NumericVector e_sensor(n_sensors);
+		NumericVector erel_sensor(n_sensors);
 
-		// Init RCPP vectors for cells
-		IntegerVector id_cell(n_cells);
-		NumericVector x_cell(n_cells);
-		NumericVector y_cell(n_cells);
-		NumericVector z_cell(n_cells);
-		NumericVector e_cell(n_cells);
-		NumericVector erel_cell(n_cells);
+		// Export the sensor into R
+		for (int s = 0; s < n_sensors; s++) {
 
-		// For each cell
-		int icell = 0;
-		int itree = 0;
-		int n_rows = this->stand.getNCellsY();
-		int n_cols = this->stand.getNCellsX();
-		for (int r = 0; r < n_rows; r++) {
-			for (int c = 0; c < n_cols; c++) {
+			// Get sensor
+			Sensor* sensor = this->stand.getSensor(s);
 
-				// Get cell
-				Cell* cell = this->stand.getCell(r, c);
+			// Add sensor to vectors
+			id_sensor[s] = sensor->getIdSensor();
+			x_sensor[s] = sensor->getX();
+			y_sensor[s] = sensor->getY();
+			z_sensor[s] = sensor->getZ();
 
-				// Add cell to vectors
-				id_cell[icell] = cell->getId();
-				x_cell[icell] = cell->getX();
-				y_cell[icell] = cell->getY();
-				z_cell[icell] = cell->getZ();
+			// Correct for rounding errors
+			sensor->correctNullEnergy(1e-6);
 
-				// Correct for rounding errors
-				cell->correctNullEnergy(1e-6);
-
-				e_cell[icell] = cell->getEnergyM2(this->stand.getCellArea());
-				erel_cell[icell] = cell->getEnergyRelative();
-
-				// For each tree composing the cell
-				int n_trees_cell = cell->getNTrees();
-				for (int t = 0; t < n_trees_cell; t++) {
-
-					Tree* tree = this->stand.getTree(cell->getVectIdTree(t));
-
-					id_tree[itree] = tree->getId();
-					e_tree[itree] = tree->getCrownEnergy();
-					epot_tree[itree] = tree->getCrownEnergyPotential();
-
-					itree++;
-				}
-
-				icell++;
-			}
+			e_sensor[s] = sensor->getEnergyM2(this->stand.getCellArea());
+			erel_sensor[s] = sensor->getEnergyRelative();
 		}
 
-		// Create trees and cells RCPP DataFrames
-		DataFrame output_trees = DataFrame::create(
-			Named("id_tree") = id_tree,
-			Named("epot") = epot_tree,
-			Named("e") = e_tree
+		// Create sensors RCPP DataFrames
+		DataFrame output_sensors = DataFrame::create(
+			Named("id_sensor") = id_sensor,
+			Named("x") = x_sensor,
+			Named("y") = y_sensor,
+			Named("z") = z_sensor,
+			Named("e") = e_sensor,
+			Named("erel") = erel_sensor
 		);
 
-		DataFrame output_cells = DataFrame::create(
-			Named("id_cell") = id_cell,
-			Named("x_center") = x_cell,
-			Named("y_center") = y_cell,
-			Named("z_center") = z_cell,
-			Named("e") = e_cell,
-			Named("erel") = erel_cell
-		);
+
+		// If we have computed tree and cell light interception
+		DataFrame output_trees;
+		DataFrame output_cells;
+
+		if (!this->sensorsOnly) {
+
+			// Get number of trees and cells
+			int n_cells = this->stand.getNCells();
+			int n_trees = this->stand.getNTrees();
+
+			// Init RCPP vectors for trees
+			IntegerVector id_tree(n_trees);
+			NumericVector e_tree(n_trees);
+			NumericVector epot_tree(n_trees);
+			NumericVector lci_tree(n_trees);
+
+			// Init RCPP vectors for cells
+			IntegerVector id_cell(n_cells);
+			NumericVector x_cell(n_cells);
+			NumericVector y_cell(n_cells);
+			NumericVector z_cell(n_cells);
+			NumericVector e_cell(n_cells);
+			NumericVector erel_cell(n_cells);
+
+			// For each cell
+			int icell = 0;
+			int itree = 0;
+			int n_rows = this->stand.getNCellsY();
+			int n_cols = this->stand.getNCellsX();
+			for (int r = 0; r < n_rows; r++) {
+				for (int c = 0; c < n_cols; c++) {
+
+					// Get cell
+					Cell* cell = this->stand.getCell(r, c);
+
+					// Add cell to vectors
+					id_cell[icell] = cell->getIdCell();
+					x_cell[icell] = cell->getX();
+					y_cell[icell] = cell->getY();
+					z_cell[icell] = cell->getZ();
+
+					// Correct for rounding errors
+					cell->correctNullEnergy(1e-6);
+
+					e_cell[icell] = cell->getEnergyM2(this->stand.getCellArea());
+					erel_cell[icell] = cell->getEnergyRelative();
+
+					// For each tree composing the cell
+					int n_trees_cell = cell->getNTrees();
+					for (int t = 0; t < n_trees_cell; t++) {
+
+						Tree* tree = this->stand.getTree(cell->getVectIdTree(t));
+
+						id_tree[itree] = tree->getId();
+						e_tree[itree] = tree->getCrownEnergy();
+						epot_tree[itree] = tree->getCrownEnergyPotential();
+
+						itree++;
+					}
+
+					icell++;
+				}
+			}
+
+			// Create trees and cells RCPP DataFrames
+			output_trees = DataFrame::create(
+				Named("id_tree") = id_tree,
+				Named("epot") = epot_tree,
+				Named("e") = e_tree
+			);
+
+			output_cells = DataFrame::create(
+				Named("id_cell") = id_cell,
+				Named("x_center") = x_cell,
+				Named("y_center") = y_cell,
+				Named("z_center") = z_cell,
+				Named("e") = e_cell,
+				Named("erel") = erel_cell
+			);
+		}
 
 		// Return output as a List of two DataFrames
 		return(List::create(
+			Named("sensors") = output_sensors,
 			Named("trees") = output_trees,
 			Named("cells") = output_cells
 		));
@@ -1741,7 +1949,9 @@ public:
 
 // [[Rcpp::export]]
 List sl_run_rcpp(
-	DataFrame trees, DataFrame rays, double e_above_m2,
+	DataFrame trees, 
+	DataFrame sensors, bool sensors_only,
+	DataFrame rays, double e_above_m2,
 	double slope, double north_to_x_cw, double aspect,
 	double cell_size, double n_cells_x, double n_cells_y,
 	bool use_torus, bool turbid_medium, bool trunk_interception
@@ -1753,10 +1963,12 @@ List sl_run_rcpp(
 
 	// TODO:
 	// - core plot
+	// - sensor light
 
 
 	// Initialize the model
-	Model sl_model = Model(trees,
+	Model sl_model = Model(trees, 
+		sensors, sensors_only,
 		rays, e_above_m2,
 		slope, north_to_x_cw, aspect,
 		cell_size, n_cells_x, n_cells_y, 

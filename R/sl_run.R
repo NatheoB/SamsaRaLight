@@ -34,6 +34,14 @@
 #' }
 #' @param monthly_rad data.frame - Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
 #'    Computed with function `samsaRaLight::sl_get_monthlyrad()`
+#' @param sensors data.frame - Position of the sensor within the stand. Can be set to NULL if no sensor.
+#' \itemize{
+#'  \item{id: }{Unique id of the sensor}
+#'  \item{x: }{X position of the sensor within the stand}
+#'  \item{y: }{Y position of the sensor within the stand}
+#'  \item{h_m: }{Height above ground of the sensor (in meters)}
+#' }
+#' @param sensors_only boolean - To compute interception only for the sensors ?
 #' @param latitude double - Latitude of the plot (in degrees)
 #' @param start_day integer between 1 and 365 - First day of the vegetative period
 #' @param end_day integer between 1 and 365 - Last day of the vegetative period
@@ -63,6 +71,7 @@
 #'
 sl_run <- function(trees,
                    monthly_rad,
+                   sensors = NULL, sensors_only = FALSE,
                    latitude = 46,
                    start_day = 1, end_day = 365,
                    slope = 0,
@@ -97,8 +106,9 @@ sl_run <- function(trees,
 
   # Run call to c++ script
   out <- sl_run_rcpp(
-    trees, rays$rays,
-    sum(rays$e_slope),
+    trees, 
+    sensors, sensors_only,
+    rays$rays, sum(rays$e_slope),
     slope, north_to_x_cw, aspect,
     cell_size, n_cells_x, n_cells_y,
     use_torus, turbid_medium, trunk_interception)
