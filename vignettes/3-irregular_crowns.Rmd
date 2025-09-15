@@ -158,8 +158,8 @@ ggplot() +
   ggnewscale::new_scale_fill() +
   
   geom_ellipse(data = data_trees, mapping = aes(x0 = x, y0 = y, 
-                                               a = max(re_m, rw_m),
-                                               b = max(rn_m, rs_m),
+                                               a = pmax(re_m, rw_m),
+                                               b = pmax(rn_m, rs_m),
                                                angle = 0,
                                                fill = species)) +
   coord_equal() +

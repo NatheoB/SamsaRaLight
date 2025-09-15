@@ -7,6 +7,8 @@
 sl_run(
   trees,
   monthly_rad,
+  sensors = NULL,
+  sensors_only = FALSE,
   latitude = 46,
   start_day = 1,
   end_day = 365,
@@ -62,6 +64,16 @@ Maximum crown radius at the crown base and radius of each fourth of paraboloid i
 
 \item{monthly_rad}{data.frame - Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
 Computed with function \code{samsaRaLight::sl_get_monthlyrad()}}
+
+\item{sensors}{data.frame - Position of the sensor within the stand. Can be set to NULL if no sensor.
+\itemize{
+\item{id: }{Unique id of the sensor}
+\item{x: }{X position of the sensor within the stand}
+\item{y: }{Y position of the sensor within the stand}
+\item{h_m: }{Height above ground of the sensor (in meters)}
+}}
+
+\item{sensors_only}{boolean - To compute interception only for the sensors ?}
 
 \item{latitude}{double - Latitude of the plot (in degrees)}
 

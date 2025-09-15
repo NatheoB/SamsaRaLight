@@ -69,12 +69,15 @@ private:
 	double cosAzimuth;
 	double sinAzimuth;
 
+	// Is the ray a direct of diffuse one ?
+	bool direct;
+
 	// Output interceptions vector
 	std::vector<interception*> interceptions;
 
 
 public:
-	Ray(int id, double energy, double height_angle, double azimuth) {
+	Ray(int id, double energy, double height_angle, double azimuth, bool direct) {
 		this->id = id;
 		this->incidentEnergy = energy;
 		this->heightAngle = height_angle;
@@ -83,6 +86,7 @@ public:
 		this->azimuth = azimuth;
 		this->cosAzimuth = cos(azimuth);
 		this->sinAzimuth = sin(azimuth);
+		this->direct = direct;
 	}
 
 	// Getters
@@ -94,6 +98,7 @@ public:
 	double getAzimuth() { return(this->azimuth); }
 	double getCosAzimuth() { return(this->cosAzimuth); }
 	double getSinAzimuth() { return(this->sinAzimuth); }
+	bool isDirect() { return(this->direct); }
 
 	void addPotentialRelCell(int row, int col) { this->potentialRelCells.push_back(relativeCoords{ row, col }); }
 	relativeCoords getPotentialRelCell(int id) { return(this->potentialRelCells[id]); }
@@ -108,13 +113,25 @@ private:
 	std::vector<Ray*> rays;
 
 	// Energy coming from diffuse and direct rays above canopy (in MJ/m2)
-	double energyAboveM2; 
+	// In either a horizontal plane or the slope
+	double energyDirectAboveSlopeM2;
+	double energyDiffuseAboveSlopeM2;
+
+	double energyDirectAboveHorizontalM2;
+	double energyDiffuseAboveHorizontalM2;
+
 
 public:
-	RayManager(DataFrame rays, double e_above_m2) {
+	RayManager(DataFrame rays, 
+		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2) {
 
-		// Energy per m2 above canopy
-		this->energyAboveM2 = e_above_m2;
+		// Energy in MJ per m2 above canopy, direct/diffuse and on a slope or on a horizontal plane
+		this->energyDirectAboveSlopeM2 = e_direct_above_slope_m2;
+		this->energyDiffuseAboveSlopeM2 = e_diffuse_above_slope_m2;
+
+		this->energyDirectAboveHorizontalM2 = e_direct_above_horizontal_m2;
+		this->energyDiffuseAboveHorizontalM2 = e_diffuse_above_horizontal_m2;
 
 		// Number of rays
 		int n_rays = rays.nrows();
@@ -124,10 +141,11 @@ public:
 		NumericVector energy = rays["e_incident"];
 		NumericVector height_angle = rays["height_angle"];
 		NumericVector azimuth = rays["azimut"];
+		LogicalVector direct = rays["direct"];
 
 		// Create a Tree object and store it in a vector of trees
 		for (int i = 0; i < n_rays; i++) {
-			Ray* ray = new Ray(id[i]-1, energy[i], height_angle[i], azimuth[i]);
+			Ray* ray = new Ray(id[i]-1, energy[i], height_angle[i], azimuth[i], direct[i]);
 			this->rays.push_back(ray);
 		}
 	}
@@ -143,7 +161,14 @@ public:
 	// Getters
 	Ray* getRay(int id) { return(this->rays[id]); }
 	int getNRays() { return(this->rays.size()); }
-	double getEnergyAboveM2() { return(this->energyAboveM2); }
+
+	double getEnergyAboveSlopeM2() { return(this->energyDirectAboveSlopeM2 + this->energyDiffuseAboveSlopeM2); }
+	double getEnergyDirectAboveSlopeM2() { return(this->energyDirectAboveSlopeM2); }
+	double getEnergyDiffuseAboveSlopeM2() { return(this->energyDiffuseAboveSlopeM2); }
+
+	double getEnergyAboveHorizontalM2() { return(this->energyDirectAboveHorizontalM2 + this->energyDiffuseAboveHorizontalM2); }
+	double getEnergyDirectAboveHorizontalM2() { return(this->energyDirectAboveHorizontalM2); }
+	double getEnergyDiffuseAboveHorizontalM2() { return(this->energyDiffuseAboveHorizontalM2); }
 };
 
 class TreeVolume {
@@ -620,8 +645,12 @@ private:
 	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
 	
 	// Output energy (in MJ)
-	double energy; // Intercepted energy
-	double energyPotential; // Intercepted energy without considering neighbours
+	double energyDiffuse; // Same for diffuse energy
+	double energyPotentialDiffuse;
+
+	double energyDirect; // Same for direct energy
+	double energyPotentialDirect;
+
 
 
 private:
@@ -781,8 +810,12 @@ public:
 		this->crownOpeness = crown_openess;
 		this->crownLAD = crown_lad;
 
-		this->energy = 0.0;
-		this->energyPotential = 0.0;
+		this->energyDiffuse = 0.0;
+		this->energyPotentialDiffuse = 0.0;
+
+		this->energyDirect = 0.0;
+		this->energyPotentialDirect = 0.0;
+
 
 		// Init the crown parts depending on the type
 		if (crown_type == "8E")
@@ -821,12 +854,23 @@ public:
 	int getNParts() { return(this->crownParts.size()); }
 	double getCrownOpeness() { return(this->crownOpeness); }
 	double getCrownLAD() { return(this->crownLAD); }
-	double getEnergy() { return(this->energy); }
-	double getEnergyPotential() { return(this->energyPotential); }
+
+	double getEnergy() { return(this->energyDiffuse + this->energyDirect); }
+	double getEnergyPotential() { return(this->energyPotentialDiffuse + this->energyPotentialDirect); }
+
+	double getEnergyDiffuse() { return(this->energyDiffuse); }
+	double getEnergyPotentialDiffuse() { return(this->energyPotentialDiffuse); }
+
+	double getEnergyDirect() { return(this->energyDirect); }
+	double getEnergyPotentialDirect() { return(this->energyPotentialDirect); }
+
 
 	// Setter
-	void addEnergy(double e) { this->energy += e; }
-	void addEnergyPotential(double epot) { this->energyPotential += epot; }
+	void addEnergyDiffuse(double e) { this->energyDiffuse += e; }
+	void addEnergyPotentialDiffuse(double epot) { this->energyPotentialDiffuse += epot; }
+
+	void addEnergyDirect(double e) { this->energyDirect += e; }
+	void addEnergyPotentialDirect(double epot) { this->energyPotentialDirect += epot; }
 
 
 	// Find interception with a given part of the crown
@@ -1007,11 +1051,20 @@ public:
 	// Getters
 	int getId() { return(this->id); }
 	int getVectId() { return(this->vectId); }
+
 	Crown& getCrown() { return(this->crown); }
+
 	double getCrownEnergy() { return(this->crown.getEnergy()); }
 	double getCrownEnergyPotential() { return(this->crown.getEnergyPotential()); }
 
-	// Interception methods
+	double getCrownEnergyDirect() { return(this->crown.getEnergyDirect()); }
+	double getCrownEnergyPotentialDirect() { return(this->crown.getEnergyPotentialDirect()); }
+
+	double getCrownEnergyDiffuse() { return(this->crown.getEnergyDiffuse()); }
+	double getCrownEnergyPotentialDiffuse() { return(this->crown.getEnergyPotentialDiffuse()); }
+
+
+	// Methods
 	interception* computeCrownpartInterception(int id_crownpart, Ray* ray, vertex3D& shift) {
 		return(this->crown.computeCrownpartInterception(id_crownpart, ray, shift));
 	}
@@ -1040,23 +1093,35 @@ private:
 	int col;
 
 	// Energy of the target (in MJ)
-	double energyAboveCanopy; // Energy coming to the target above the canopy (energy of the cell without trees above)
-	double energy; // Current energy on the target 
+	double energyDirectSlope; // Current direct energy on the target on the slope
+	double energyDiffuseSlope; // Current diffuse energy on the target on the slope
+	double energyDirectHorizontal; // Current direct energy on the target on a horizontal plane
+	double energyDiffuseHorizontal; // Current diffuse energy on the target on a horizontal plane
 
-	// If it is a sensor
+	// If the target is a sensor (other case is a cell)
 	// In this case, do not remove energies from intercepted crown
 	bool isSensor;
 
 
 public:
-	Target(double x, double y, double z, int row, int col, double e_above, bool is_sensor) {
+	Target(double x, double y, double z, 
+		int row, int col, 
+		double e_direct_above_slope, double e_diffuse_above_slope,
+		double e_direct_above_horizontal, double e_diffuse_above_horizontal,
+		bool is_sensor)
+	{
 		this->x = x;
 		this->y = y;
 		this->z = z;
 		this->row = row;
 		this->col = col;
-		this->energyAboveCanopy = e_above;
-		this->energy = e_above; // will be decreased by successive interception by the above trees
+
+		// will be decreased by successive interception by the above trees
+		this->energyDirectSlope = e_direct_above_slope;
+		this->energyDiffuseSlope = e_diffuse_above_slope;
+		this->energyDirectHorizontal = e_direct_above_horizontal;
+		this->energyDiffuseHorizontal = e_diffuse_above_horizontal;
+
 		this->isSensor = is_sensor;
 	}
 
@@ -1071,18 +1136,26 @@ public:
 	int getRow() { return(this->row); }
 	int getCol() { return(this->col); }
 
-	double getEnergy() { return(this->energy); }
-	double getEnergyM2(double target_area) { return(this->energy / target_area); }
-	double getEnergyRelative() { return(this->energy / this->energyAboveCanopy); }
+	double getEnergySlope() { return(this->energyDirectSlope + this->energyDiffuseSlope); }
+	double getEnergyDirectSlope() { return(this->energyDirectSlope); }
+	double getEnergyDiffuseSlope() { return(this->energyDiffuseSlope); }
+
+	double getEnergyHorizontal() { return(this->energyDirectHorizontal + this->energyDiffuseHorizontal); }
+	double getEnergyDirectHorizontal() { return(this->energyDirectHorizontal); }
+	double getEnergyDiffuseHorizontal() { return(this->energyDiffuseHorizontal); }
 
 	bool isThisSensor() { return(this->isSensor); }
 
 
 	// Setters
-	void interceptEnergy(double e) { this->energy -= e; }
-	void resetEnergy() { this->energy = 0.0; }
+	void interceptEnergyDirectSlope(double e) { this->energyDirectSlope -= e; }
+	void interceptEnergyDiffuseSlope(double e) { this->energyDiffuseSlope -= e; }
+	void interceptEnergyDirectHorizontal(double e) { this->energyDirectHorizontal -= e; }
+	void interceptEnergyDiffuseHorizontal(double e) { this->energyDiffuseHorizontal -= e; }
 
-	virtual void correctNullEnergy(double epsilon) {}
+	//void resetEnergy() { this->energy = 0.0; }
+
+	//virtual void correctNullEnergy(double epsilon) {}
 };
 
 class Sensor : public Target {
@@ -1094,9 +1167,14 @@ private:
 
 public:
 	Sensor(double x, double y, double z, 
-		int row, int col, double e_above, 
+		int row, int col,
+		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
 		int id_sensor) :
-		Target(x, y, z, row, col, e_above, true)
+		Target(x, y, z, row, col,
+			e_direct_above_slope_m2, e_diffuse_above_slope_m2, 
+			e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
+			true)
 	{
 		this->idSensor = id_sensor;
 	}
@@ -1105,12 +1183,12 @@ public:
 	int getIdSensor() { return(this->idSensor); }
 
 	// Methods
-	void correctNullEnergy(double epsilon) {
+	/*void correctNullEnergy(double epsilon) {
 		if (this->getEnergy() < -epsilon)
 			std::cout << "Problem with energy in target " << this->getIdSensor() << ": energy of " << this->getEnergy() << "MJ";
 		if (abs(this->getEnergy()) < epsilon)
 			this->resetEnergy();
-	}
+	}*/
 };
 
 class Cell : public Target {
@@ -1125,9 +1203,14 @@ private:
 
 public:
 	Cell(double x, double y, double z, 
-		int row, int col, double e_above, 
+		int row, int col, 
+		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
 		int id_cell) :
-		Target(x, y, z, row, col, e_above, false)
+		Target(x, y, z, row, col, 
+			e_direct_above_slope_m2, e_diffuse_above_slope_m2, 
+			e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, 
+			false)
 	{
 		this->idCell = id_cell;
 	}
@@ -1144,12 +1227,12 @@ public:
 	void addTree(int vect_id) { this->vectIdTrees.push_back(vect_id); }
 
 	// Methods
-	void correctNullEnergy(double epsilon) {
-		if (this->getEnergy() < -epsilon)
-			std::cout << "Problem with energy in cell " << this->getIdCell() << ": energy of " << this->getEnergy() << "MJ";
-		if (abs(this->getEnergy()) < epsilon)
-			this->resetEnergy();
-	}
+	//void correctNullEnergy(double epsilon) {
+	//	if (this->getEnergy() < -epsilon)
+	//		std::cout << "Problem with energy in cell " << this->getIdCell() << ": energy of " << this->getEnergy() << "MJ";
+	//	if (abs(this->getEnergy()) < epsilon)
+	//		this->resetEnergy();
+	//}
 };
 
 class Stand {
@@ -1180,14 +1263,15 @@ private:
 	int nCellsX; // Number of cells in a row
 	int nCellsY; // Number of cells in a column
 	int nCells; // Total number of cells
-	double cellAreaPlane; // Area of the cell at horizontal (in m2)
-	double cellArea; // Area of the cell considering slope (in m2)
+	double cellAreaHorizontal; // Area of the cell at horizontal (in m2)
+	double cellAreaSlope; // Area of the cell considering slope (in m2)
 	bool useTorus; // Whether we want to use a torus system for light ray tracing
 
 
 public:
 	Stand(DataFrame trees, DataFrame sensors,
-		double e_above_m2,
+		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells_x, double n_cells_y, 
 		bool use_torus
@@ -1207,13 +1291,16 @@ public:
 		this->nCellsY = n_cells_y;
 		this->nCells = n_cells_x * n_cells_y;
 
-		this->cellAreaPlane = cell_size * cell_size;
-		this->cellArea = this->cellAreaPlane / cos(this->slope);
+		this->cellAreaHorizontal = cell_size * cell_size;
+		this->cellAreaSlope = this->cellAreaHorizontal / cos(this->slope);
 		this->useTorus = use_torus;
 
 
 		// Get energy above canopy that is coming toward a cell
-		double e_above_cell = e_above_m2 * this->cellArea;
+		double e_direct_above_slope_cell = e_direct_above_slope_m2 * this->cellAreaSlope;
+		double e_diffuse_above_slope_cell = e_diffuse_above_slope_m2 * this->cellAreaSlope;
+		double e_direct_above_horizontal_cell = e_direct_above_horizontal_m2 * this->cellAreaHorizontal;
+		double e_diffuse_above_horizontal_cell = e_diffuse_above_horizontal_m2 * this->cellAreaHorizontal;
 
 
 		// Create vector of sensors from the sensors R DataFrame, if sensors are specified
@@ -1249,7 +1336,8 @@ public:
 						sensors_x[i], sensors_y[i], // Position of the sensor
 						this->computeZ(sensors_x[i], sensors_y[i]) + sensors_height[i], // Z pos of the sensor is the height above the ground
 						sensor_row, sensor_col, // Cell of the sensor
-						e_above_cell, // Energie arriving to the cell considering no trees above (potential energy)
+						e_direct_above_slope_cell, e_diffuse_above_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
+						e_direct_above_horizontal_cell, e_diffuse_above_horizontal_cell, // Same but on a horizontal plane
 						sensors_id[i] // Id of the sensor
 					));
 				}
@@ -1271,7 +1359,8 @@ public:
 				cells_in_row.push_back(new Cell(
 					x, y, this->computeZ(x, y), // Position of the cell center
 					r, c, // Row and column of the cell within the stand grid system
-					e_above_cell, // Energie arriving to the cell considering no trees above (potential energy)
+					e_direct_above_slope_cell, e_diffuse_above_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
+					e_direct_above_horizontal_cell, e_diffuse_above_horizontal_cell, // Same but on a horizontal plane
 					this->nCellsY * r + c + 1 // Id of the cell
 				));
 			}
@@ -1336,6 +1425,7 @@ public:
 		}
 	}
 
+
 	// Getters
 	bool areThereSensors() { return(this->areSensors); }
 	Sensor* getSensor(int vectid) { return(this->sensors[vectid]); }
@@ -1354,8 +1444,8 @@ public:
 	double getAspect() { return(this->aspect); }
 	double getBottomAzimuth() { return(this->bottomAzimuth); }
 	double getCellSize() { return(this->cellSize); }
-	double getCellAreaPlane() { return(this->cellAreaPlane); }
-	double getCellArea() { return(this->cellArea); }
+	double getCellAreaHorizontal() { return(this->cellAreaHorizontal); }
+	double getCellAreaSlope() { return(this->cellAreaSlope); }
 	double isUseTorus() { return(this->useTorus); }
 	double getMaximumTreeCrownRadius() { return(this->maxTreeCrownRadius); }
 	double getMaximumTreeHeight() { return(this->maxTreeHeight); }
@@ -1535,19 +1625,37 @@ private:
 	void summarizeInterceptionsRayToTarget(Ray* ray, Target* target, std::vector<interception*>& v_interc) {
 
 		// Compute projection of energy on plane parallel to slope
-		//  in MJ / m2 and convert it into MJ per cell
 		double scalar_slope = cos(stand.getSlope()) * ray->getSinHeightAngle() +
 			sin(stand.getSlope()) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
 
 		double e_incident_slope_m2 = scalar_slope * ray->getIncidentEnergy();
-		double e_incident_slope_cell = e_incident_slope_m2 * stand.getCellArea();
+
+
+		// Compute projection of energy on a horizontal plane
+		double scalar_horizontal = cos(0.0) * ray->getSinHeightAngle() +
+			sin(0.0) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
+
+		double e_incident_horizontal_m2 = scalar_horizontal * ray->getIncidentEnergy();
+
+
+		// And convert incident ray energy from MJ / m2 into MJ within the whole target
+		double e_incident_slope_cell = e_incident_slope_m2 * stand.getCellAreaSlope();
+		double e_incident_horizontal_cell = e_incident_horizontal_m2 * stand.getCellAreaHorizontal();
+
 
 		// Initialize the energy of the ray coming toward the cell above the canopy
-		double current_energy = e_incident_slope_cell;
+		// Intercepted energy by the trees is from the rays with initial energy considering the slope
+		// But track the attenuation of energy toward a horizontal plane
+		// For tracking the enrgy arriving at at the target both at horizontal and on a slope (cell or sensor)
+		double current_energy_slope = e_incident_slope_cell;
+		double current_energy_horizontal = e_incident_horizontal_cell;
+
+		// Track if the ray has been intercepted by a trunk
 		bool trunk_intercepted = false;
 
-		// Initialize tracking maps to check if a crown has already been intercepted (used when porous envelop)
-		// and to track the incident potential energy that arrive to a crown part (used for potential energy in turbid medium when many crown parts)
+		// Initialize tracking maps necessary when many crown parts, i.e. 4P/4E/8E
+		// Check if a crown has already been intercepted (in porous envelop: as it does not consider path across the crown, attenuate the ray only at the first crown part intercepted)
+		// Track the incident potential energy that arrive to a crown part (for potential energy in turbid medium)
 		std::vector<bool> is_intercepted(this->stand.getNTrees(), false);
 		std::vector<double> e_pot_incident(this->stand.getNTrees(), e_incident_slope_cell);
 
@@ -1558,7 +1666,7 @@ private:
 			// Intrception with a trunk
 			if (v_interc[j]->withTrunk) {
 				// Set the current energy to 0
-				current_energy = 0.0;
+				current_energy_slope = 0.0;
 				continue;
 			}
 
@@ -1568,25 +1676,34 @@ private:
 			// Compute the potential energy to the tree (energy without attenuation by neighbours)
 			// and compute energy with attenuation
 			// Different considering crown as turbid medium or porous envelop
-			double potential_energy = 0.0;
-			double intercepted_energy = 0.0;
+			// Consider intercepted energy both on a slope or on a horizontal plane
+			// But the intercepted energy by trees is always energy on a slope
+			double potential_energy_slope = 0.0;
+			double intercepted_energy_slope = 0.0;
+			double intercepted_energy_horizontal = 0.0;
 
 			// Turbid medium ==> apply beer lambert law
 			if (this->turbidMedium) {
 
 				// Apply Beer Lambert law on incdent energy attenuated by previous crown parts of the tree, without considering crowns of other competitors
-				potential_energy = this->applyBeerLambert(
+				potential_energy_slope = this->applyBeerLambert(
 					e_pot_incident[v_interc[j]->vectIdTree],
 					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 					crown.getCrownLAD(),
 					v_interc[j]->length);
 
 				// Remove the intercepted energy from the energy that left and from the potential incident energy of the given tree crown
-				e_pot_incident[v_interc[j]->vectIdTree] = e_pot_incident[v_interc[j]->vectIdTree] - potential_energy;
+				e_pot_incident[v_interc[j]->vectIdTree] = e_pot_incident[v_interc[j]->vectIdTree] - potential_energy_slope;
 
 				// Apply beer lambert law on incident ray attenuated by the competitor crowns intercepted the crown
-				intercepted_energy = trunk_intercepted ? 0.0 : this->applyBeerLambert(
-					current_energy,
+				intercepted_energy_slope = trunk_intercepted ? 0.0 : this->applyBeerLambert(
+					current_energy_slope,
+					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
+					crown.getCrownLAD(),
+					v_interc[j]->length);
+
+				intercepted_energy_horizontal = trunk_intercepted ? 0.0 : this->applyBeerLambert(
+					current_energy_horizontal,
 					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
 					crown.getCrownLAD(),
 					v_interc[j]->length);
@@ -1597,16 +1714,18 @@ private:
 				// Be careful, only once per crown (if many crown part, reduce only if crown has not been already intercepted by the ray)
 				if (!is_intercepted[v_interc[j]->vectIdTree]) {
 
-					// Compute potential and intercepted energy if the first criwn part is encountered by reducing the incident enrrgy by a fixed amount
-					potential_energy = e_incident_slope_cell * (1 - crown.getCrownOpeness());
-					intercepted_energy = trunk_intercepted ? 0.0 : (current_energy * (1 - crown.getCrownOpeness()));
+					// Compute potential and intercepted energy if the first crown part is encountered by reducing the incident enrrgy by a fixed amount
+					potential_energy_slope = e_incident_slope_cell * (1 - crown.getCrownOpeness());
+					intercepted_energy_slope = trunk_intercepted ? 0.0 : (current_energy_slope * (1 - crown.getCrownOpeness()));
 
 					// Set the crown as being intercepted
 					is_intercepted[v_interc[j]->vectIdTree] = true;
 				}
 				else {
-					potential_energy = 0.0;
-					intercepted_energy = 0.0;
+					// In this case, another crown part has been already intercepted
+					// So avoid adding multiple attenuation of the same crown because multiple crown part have been intercepted
+					potential_energy_slope = 0.0;
+					intercepted_energy_slope = 0.0;
 				}
 			}
 
@@ -1618,21 +1737,45 @@ private:
 				#pragma omp critical
 				{
 				#endif
-				crown.addEnergyPotential(potential_energy);
-				crown.addEnergy(intercepted_energy);
+
+				// Add energy to wether the ray is a diffuse or direct one
+				if (ray->isDirect()) {
+					crown.addEnergyPotentialDirect(potential_energy_slope);
+					crown.addEnergyDirect(intercepted_energy_slope);
+				}
+				else {
+					crown.addEnergyPotentialDiffuse(potential_energy_slope);
+					crown.addEnergyDiffuse(intercepted_energy_slope);
+				}
+
 				#ifdef _OPENMP
 				}
 				#endif
 			}
 
 			// Remove the intercepted energy from the energy that left
-			current_energy -= intercepted_energy;
+			current_energy_slope -= intercepted_energy_slope;
+			current_energy_horizontal -= intercepted_energy_horizontal;
 
 			// Remove the intercepted energy by the crown from the total energy above the target
 			#ifdef _OPENMP
 			#pragma omp critical
+			{
 			#endif
-			target->interceptEnergy(intercepted_energy);
+
+			// Diffuse or direct energy
+			if (ray->isDirect()) {
+				target->interceptEnergyDirectSlope(intercepted_energy_slope);
+				target->interceptEnergyDirectHorizontal(intercepted_energy_horizontal);
+			}
+			else {
+				target->interceptEnergyDiffuseSlope(intercepted_energy_slope);
+				target->interceptEnergyDiffuseHorizontal(intercepted_energy_horizontal);
+			}
+
+			#ifdef _OPENMP
+			}
+			#endif
 
 			// Delete interception pointer
 			delete v_interc[j];
@@ -1649,13 +1792,17 @@ public:
 
 	Model(DataFrame trees, 
 		DataFrame sensors, bool sensors_only,
-		DataFrame rays, double e_above_m2,
+		DataFrame rays, 
+		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells_x, double n_cells_y,
 		bool use_torus, bool turbid_medium, bool trunk_interception) :
 
-		stand(trees, sensors, e_above_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus),
-		rays(rays, e_above_m2),
+		stand(trees, sensors, 
+			e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
+			slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus),
+		rays(rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2),
 		EXTINCTION_COEF(0.5), CLUMPING_FACTOR(1.0)
 	{
 		this->sensorsOnly = sensors_only;
@@ -1820,8 +1967,21 @@ public:
 		NumericVector x_sensor(n_sensors);
 		NumericVector y_sensor(n_sensors);
 		NumericVector z_sensor(n_sensors);
-		NumericVector e_sensor(n_sensors);
-		NumericVector erel_sensor(n_sensors);
+
+		NumericVector e_slope_sensor(n_sensors);
+		NumericVector pacl_slope_sensor(n_sensors);
+		NumericVector e_slope_direct_sensor(n_sensors);
+		NumericVector pacl_slope_direct_sensor(n_sensors);
+		NumericVector e_slope_diffuse_sensor(n_sensors);
+		NumericVector pacl_slope_diffuse_sensor(n_sensors);
+
+		NumericVector e_horizontal_sensor(n_sensors);
+		NumericVector pacl_horizontal_sensor(n_sensors);
+		NumericVector e_horizontal_direct_sensor(n_sensors);
+		NumericVector pacl_horizontal_direct_sensor(n_sensors);
+		NumericVector e_horizontal_diffuse_sensor(n_sensors);
+		NumericVector pacl_horizontal_diffuse_sensor(n_sensors);
+
 
 		// Export the sensor into R
 		for (int s = 0; s < n_sensors; s++) {
@@ -1836,10 +1996,23 @@ public:
 			z_sensor[s] = sensor->getZ();
 
 			// Correct for rounding errors
-			sensor->correctNullEnergy(1e-6);
+			/*sensor->correctNullEnergy(1e-6);*/
 
-			e_sensor[s] = sensor->getEnergyM2(this->stand.getCellArea());
-			erel_sensor[s] = sensor->getEnergyRelative();
+			e_slope_sensor[s] = sensor->getEnergySlope();
+			e_slope_direct_sensor[s] = sensor->getEnergyDirectSlope();
+			e_slope_diffuse_sensor[s] = sensor->getEnergyDiffuseSlope();
+
+			pacl_slope_sensor[s] = sensor->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
+			pacl_slope_direct_sensor[s] = sensor->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
+			pacl_slope_diffuse_sensor[s] = sensor->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
+		
+			e_horizontal_sensor[s] = sensor->getEnergyHorizontal();
+			e_horizontal_direct_sensor[s] = sensor->getEnergyDirectHorizontal();
+			e_horizontal_diffuse_sensor[s] = sensor->getEnergyDiffuseHorizontal();
+
+			pacl_horizontal_sensor[s] = sensor->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+			pacl_horizontal_direct_sensor[s] = sensor->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+			pacl_horizontal_diffuse_sensor[s] = sensor->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
 		}
 
 		// Create sensors RCPP DataFrames
@@ -1848,8 +2021,20 @@ public:
 			Named("x") = x_sensor,
 			Named("y") = y_sensor,
 			Named("z") = z_sensor,
-			Named("e") = e_sensor,
-			Named("erel") = erel_sensor
+
+			Named("e_slope") = e_slope_sensor,
+			Named("pacl_slope") = pacl_slope_sensor,
+			Named("e_slope_direct") = e_slope_direct_sensor,
+			Named("pacl_slope_direct") = pacl_slope_direct_sensor,
+			Named("e_slope_diffuse") = e_slope_diffuse_sensor,
+			Named("pacl_slope_diffuse") = pacl_slope_diffuse_sensor,
+
+			Named("e_horizontal") = e_horizontal_sensor,
+			Named("pacl_horizontal") = pacl_horizontal_sensor,
+			Named("e_horizontal_direct") = e_horizontal_direct_sensor,
+			Named("pacl_horizontal_direct") = pacl_horizontal_direct_sensor,
+			Named("e_horizontal_diffuse") = e_horizontal_diffuse_sensor,
+			Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_sensor
 		);
 
 
@@ -1867,15 +2052,31 @@ public:
 			IntegerVector id_tree(n_trees);
 			NumericVector e_tree(n_trees);
 			NumericVector epot_tree(n_trees);
-			NumericVector lci_tree(n_trees);
+			NumericVector e_direct_tree(n_trees);
+			NumericVector epot_direct_tree(n_trees);
+			NumericVector e_diffuse_tree(n_trees);
+			NumericVector epot_diffuse_tree(n_trees);
 
 			// Init RCPP vectors for cells
 			IntegerVector id_cell(n_cells);
 			NumericVector x_cell(n_cells);
 			NumericVector y_cell(n_cells);
 			NumericVector z_cell(n_cells);
-			NumericVector e_cell(n_cells);
-			NumericVector erel_cell(n_cells);
+
+			NumericVector e_slope_cell(n_cells);
+			NumericVector pacl_slope_cell(n_cells);
+			NumericVector e_slope_direct_cell(n_cells);
+			NumericVector pacl_slope_direct_cell(n_cells);
+			NumericVector e_slope_diffuse_cell(n_cells);
+			NumericVector pacl_slope_diffuse_cell(n_cells);
+
+			NumericVector e_horizontal_cell(n_cells);
+			NumericVector pacl_horizontal_cell(n_cells);
+			NumericVector e_horizontal_direct_cell(n_cells);
+			NumericVector pacl_horizontal_direct_cell(n_cells);
+			NumericVector e_horizontal_diffuse_cell(n_cells);
+			NumericVector pacl_horizontal_diffuse_cell(n_cells);
+
 
 			// For each cell
 			int icell = 0;
@@ -1895,10 +2096,25 @@ public:
 					z_cell[icell] = cell->getZ();
 
 					// Correct for rounding errors
-					cell->correctNullEnergy(1e-6);
+					//cell->correctNullEnergy(1e-6);
 
-					e_cell[icell] = cell->getEnergyM2(this->stand.getCellArea());
-					erel_cell[icell] = cell->getEnergyRelative();
+					e_slope_cell[icell] = cell->getEnergySlope();
+					e_slope_direct_cell[icell] = cell->getEnergyDirectSlope();
+					e_slope_diffuse_cell[icell] = cell->getEnergyDiffuseSlope();
+
+					pacl_slope_cell[icell] = cell->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
+					pacl_slope_direct_cell[icell] = cell->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
+					pacl_slope_diffuse_cell[icell] = cell->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
+
+					e_horizontal_cell[icell] = cell->getEnergyHorizontal();
+					e_horizontal_direct_cell[icell] = cell->getEnergyDirectHorizontal();
+					e_horizontal_diffuse_cell[icell] = cell->getEnergyDiffuseHorizontal();
+
+					pacl_horizontal_cell[icell] = cell->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+					pacl_horizontal_direct_cell[icell] = cell->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+					pacl_horizontal_diffuse_cell[icell] = cell->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+
+
 
 					// For each tree composing the cell
 					int n_trees_cell = cell->getNTrees();
@@ -1907,8 +2123,15 @@ public:
 						Tree* tree = this->stand.getTree(cell->getVectIdTree(t));
 
 						id_tree[itree] = tree->getId();
+
 						e_tree[itree] = tree->getCrownEnergy();
 						epot_tree[itree] = tree->getCrownEnergyPotential();
+
+						e_direct_tree[itree] = tree->getCrownEnergyDirect();
+						epot_direct_tree[itree] = tree->getCrownEnergyPotentialDirect();
+
+						e_diffuse_tree[itree] = tree->getCrownEnergyDiffuse();
+						epot_diffuse_tree[itree] = tree->getCrownEnergyPotentialDiffuse();
 
 						itree++;
 					}
@@ -1921,7 +2144,11 @@ public:
 			output_trees = DataFrame::create(
 				Named("id_tree") = id_tree,
 				Named("epot") = epot_tree,
-				Named("e") = e_tree
+				Named("e") = e_tree,
+				Named("epot_direct") = epot_direct_tree,
+				Named("e_direct") = e_direct_tree,
+				Named("epot_diffuse") = epot_diffuse_tree,
+				Named("e_diffuse") = e_diffuse_tree
 			);
 
 			output_cells = DataFrame::create(
@@ -1929,8 +2156,20 @@ public:
 				Named("x_center") = x_cell,
 				Named("y_center") = y_cell,
 				Named("z_center") = z_cell,
-				Named("e") = e_cell,
-				Named("erel") = erel_cell
+
+				Named("e_slope") = e_slope_cell,
+				Named("pacl_slope") = pacl_slope_cell,
+				Named("e_slope_direct") = e_slope_direct_cell,
+				Named("pacl_slope_direct") = pacl_slope_direct_cell,
+				Named("e_slope_diffuse") = e_slope_diffuse_cell,
+				Named("pacl_slope_diffuse") = pacl_slope_diffuse_cell,
+
+				Named("e_horizontal") = e_horizontal_cell,
+				Named("pacl_horizontal") = pacl_horizontal_cell,
+				Named("e_horizontal_direct") = e_horizontal_direct_cell,
+				Named("pacl_horizontal_direct") = pacl_horizontal_direct_cell,
+				Named("e_horizontal_diffuse") = e_horizontal_diffuse_cell,
+				Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_cell
 			);
 		}
 
@@ -1951,7 +2190,9 @@ public:
 List sl_run_rcpp(
 	DataFrame trees, 
 	DataFrame sensors, bool sensors_only,
-	DataFrame rays, double e_above_m2,
+	DataFrame rays, 
+	double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+	double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
 	double slope, double north_to_x_cw, double aspect,
 	double cell_size, double n_cells_x, double n_cells_y,
 	bool use_torus, bool turbid_medium, bool trunk_interception
@@ -1963,13 +2204,14 @@ List sl_run_rcpp(
 
 	// TODO:
 	// - core plot
-	// - sensor light
 
 
 	// Initialize the model
 	Model sl_model = Model(trees, 
 		sensors, sensors_only,
-		rays, e_above_m2,
+		rays, 
+		e_direct_above_slope_m2, e_diffuse_above_slope_m2,
+		e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
 		slope, north_to_x_cw, aspect,
 		cell_size, n_cells_x, n_cells_y, 
 		use_torus, turbid_medium, trunk_interception);

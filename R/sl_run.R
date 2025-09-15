@@ -89,7 +89,6 @@ sl_run <- function(trees,
                    turbid_medium = TRUE,
                    trunk_interception = FALSE) {
 
-  
   # Create monthly rays
   rays <- sl_create_monthly_rays(monthly_rad = monthly_rad,
                                  latitude = latitude,
@@ -108,7 +107,9 @@ sl_run <- function(trees,
   out <- sl_run_rcpp(
     trees, 
     sensors, sensors_only,
-    rays$rays, sum(rays$e_slope),
+    rays$rays, 
+    rays$e_slope[["direct"]], rays$e_slope[["diffuse"]],
+    rays$e_horizontal[["direct"]], rays$e_horizontal[["diffuse"]],
     slope, north_to_x_cw, aspect,
     cell_size, n_cells_x, n_cells_y,
     use_torus, turbid_medium, trunk_interception)
