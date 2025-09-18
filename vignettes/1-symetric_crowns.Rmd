@@ -1,5 +1,5 @@
 ---
-title: "Tuto1 - symetric crowns"
+title: "Tutorial 1 - Symetric crowns"
 subtitle: "Compute tree light interception with simple symmetric crowns"
 output: rmarkdown::html_vignette
 vignette: >
@@ -141,7 +141,7 @@ microbenchmark::microbenchmark(
 
 ```{r output_trees, fig.dim = c(8, 6)}
 out$trees %>% 
-  tidyr::pivot_longer(!id_tree, names_to = "var") %>%
+  tidyr::pivot_longer(!c(id_tree, x, y, z), names_to = "var") %>%
   dplyr::left_join(data_trees, by = "id_tree") %>% 
 
   ggplot(aes(y = value, x = dbh_cm, color = species)) +
@@ -157,14 +157,14 @@ out$trees %>%
 ```{r output_ground, fig.dim = c(8, 6)}
 out$cells %>% 
   dplyr::mutate(
-    erel_group = case_when(
-      erel > 0.5 ~ "> 50%",
-      erel > 0.25 ~ "25 - 50%",
-      erel > 0.125 ~ "12.5 - 25%",
-      erel > 0.0625 ~ "6.25 - 12.5%",
-      erel <= 0.0625 ~ "< 6.25%"
+    pacl_group = case_when(
+      pacl_slope > 0.5 ~ "> 50%",
+      pacl_slope > 0.25 ~ "25 - 50%",
+      pacl_slope > 0.125 ~ "12.5 - 25%",
+      pacl_slope > 0.0625 ~ "6.25 - 12.5%",
+      pacl_slope <= 0.0625 ~ "< 6.25%"
     ),
-    erel_group = factor(erel_group,
+    pacl_group = factor(pacl_group,
                         levels = c("< 6.25%", "6.25 - 12.5%",
                                    "12.5 - 25%", "25 - 50%",
                                    "> 50%"))) %>% 
@@ -172,7 +172,7 @@ out$cells %>%
 ggplot() +
   
   geom_tile(aes(x = x_center, y = y_center,
-                fill = erel_group), color = "black") +
+                fill = pacl_group), color = "black") +
   scale_fill_grey(start = 0.2, end = 1,
                   drop = FALSE) +
   labs(fill = "Cells enlightment") +

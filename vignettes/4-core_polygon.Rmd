@@ -1,9 +1,9 @@
 ---
-title: "Tutorial 3 - Irregular crowns"
-subtitle: "Compute tree light interception with irregular tree crowns"
+title: "Tutorial 4 - Core polygon"
+subtitle: "Create a rectangle plot from a polygonial inventory of trees"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tuto3 - irregular crowns}
+  %\VignetteIndexEntry{Tuto4 - core polygon}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -15,7 +15,6 @@ knitr::opts_chunk$set(
 )
 ```
 
-This is a basic example which shows you how to solve a common problem:
 
 ```{r example, message=FALSE, warning=FALSE}
 library(SamsaRaLight)
@@ -23,16 +22,22 @@ library(dplyr)
 library(ggplot2)
 library(ggforce)
 library(tidyr)
+library(sf)
 ```
 
 
-# Inputs
+```{r}
+# Set seed for randomization reproducibility
+set.seed(5030)
+```
 
-## Set the stand geometry
 
-You first need to precise the geometry of the stand with:
+# Inventory info
 
 ```{r stand_geom}
+# It is an uneven-aged mixed stand in Belgium with irregular crowns
+data_trees <- SamsaRaLight::data_trees_bechefa
+
 # Coordinates of the stand (for monthly radiation and rays geometry)
 latitude <- 50.04 # The latitude of the stand (Y-coord in WGS85)
 longitude <- 5.2 # The longitude of the plot (X-coord in WGS85)
@@ -47,45 +52,24 @@ aspect <- 0
 # Angle from North to x axis clockwise. (in degrees)
 # Default value 90 corresponds to a Y axis oriented toward the North.
 north_to_x_cw <- 90
-
-# Considering a squared plot, number and size of the cells composing the grid
-n_cells_x <- 20 # Number of cells columns
-n_cells_y <- 15 # Number of cells rows
-cell_size <- 10 # Size of the length of a cell
 ```
 
 
-## Trees description
+# Define the rectangal square
 
-You can find an example tree dataset
-`SamsaRaLight::data_trees_bechefa`. It is an uneven-aged mixed stand in Belgium.
-We will use 8 eighth of ellipsoids to represent irregular crowns. 
+```{r}
+cell_size <- 10
+n_cells_x <- 20
+n_cells_y <- 15
+```
+
+
+# Run SamsaraLight on the unfilled plot
+
 
 ```{r data_trees}
-data_trees <- SamsaRaLight::data_trees_bechefa
-head(data_trees)
-summary(data_trees)
-```
-
-
-## Monthly radiation
-
-Monthly radiation for Prenovel example is stored within the package using `SamsaRaLight::data_rad_bechefa`.
-The dataset is fetched using the above function:
-
-```{r monthly_rad}
 data_monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
-data_monthly_rad
-```
 
-
-
-# Run SamsaRaLight
-
-Now, given the stand geometry, the trees dataset and the monthly
-radiation, you can run SamsaRaLight using the function `sl_run()`.
-
-```{r out_sl}
 out <- SamsaRaLight::sl_run(
     data_trees, data_monthly_rad,
     latitude = latitude, slope = slope, 
@@ -97,44 +81,10 @@ out <- SamsaRaLight::sl_run(
   )
 ```
 
-
-```{r time_sl, echo=FALSE}
-microbenchmark::microbenchmark(
-  "sl" = SamsaRaLight::sl_run(
-    data_trees, data_monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
-    turbid_medium = TRUE,
-    trunk_interception = FALSE
-  ))
-```
-
-
-# Outputs
-
-## Tree light interception
-
-```{r output_trees, fig.dim = c(8, 6)}
-out$trees %>% 
-  tidyr::pivot_longer(!c(id_tree, x, y, z), names_to = "var") %>%
-  dplyr::left_join(data_trees, by = "id_tree") %>% 
-
-  ggplot(aes(y = value, x = dbh_cm, color = species)) +
-  facet_wrap(~var) +
-  geom_point() +
-  theme(legend.position = "top") +
-  scale_color_manual(values = c("skyblue", "salmon", "olivedrab3", "mediumorchid1"))
-```
-
-
-## Light on the ground
-
 Crown representation are the maximum radius between the two cardinals of a given axis.
 
-```{r output_ground, fig.dim = c(8, 6)}
-out$cells %>% 
+```{r output_sl, fig.dim = c(8, 6)}
+plot_inv <- out$cells %>% 
   dplyr::mutate(
     pacl_group = case_when(
       pacl_slope > 0.5 ~ "> 50%",
@@ -158,8 +108,8 @@ ggplot() +
   ggnewscale::new_scale_fill() +
   
   geom_ellipse(data = data_trees, mapping = aes(x0 = x, y0 = y, 
-                                               a = pmax(re_m, rw_m),
-                                               b = pmax(rn_m, rs_m),
+                                               a = (re_m + rw_m) / 2,
+                                               b = (rn_m + rs_m) / 2,
                                                angle = 0,
                                                fill = species)) +
   coord_equal() +
@@ -181,10 +131,79 @@ ggplot() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "right") +
   xlab("") + ylab("")
+
+plot_inv
 ```
 
-```{r output_ground_only, fig.dim = c(8, 6)}
-out$cells %>% 
+# Simple polygon in a given data.frame
+
+```{r, fig.dim = c(8, 6)}
+df_core_polygon <- data.frame(x = c(0, 171.5, 200, 28.5), y = c(70.5, 139.8, 69.3, 0))
+
+inv_filled_simplePolygon <- SamsaRaLight::fill_inventory(data_trees, 
+                                                         cell_size, n_cells_x, n_cells_y,
+                                                         df_core_polygon)
+
+plot_inv_simplePolygon  <- plot_inv +
+  geom_sf(data = inv_filled_simplePolygon$core_polygon, 
+          inherit.aes = FALSE,
+          fill = "yellow", color = "black", alpha = 0.7)
+
+plot_inv_simplePolygon
+```
+
+
+# Find a polygon that encompasses all the trees and fill outside with equivalent trees
+
+```{r}
+inv_filled <- SamsaRaLight::fill_inventory(data_trees, 
+                                           cell_size, n_cells_x, n_cells_y)
+```
+
+```{r output_polygon, fig.dim = c(8, 6)}
+plot_inv_polygon <- plot_inv +
+  geom_sf(data = inv_filled$core_polygon, inherit.aes = FALSE,
+          fill = "yellow", color = "black", alpha = 0.7)
+
+plot_inv_polygon
+```
+
+```{r output_polygon_filled, fig.dim = c(8, 6)}
+plot_inv_polygon_fill <- plot_inv_polygon + 
+  geom_ellipse(data = inv_filled$new_inventory %>% dplyr::filter(added_to_fill), 
+               mapping = aes(x0 = x, y0 = y, 
+                             a = (re_m + rw_m) / 2,
+                             b = (rn_m + rs_m) / 2,
+                             angle = 0,
+                             fill = species)) 
+
+plot_inv_polygon_fill
+```
+
+```{r}
+sprintf("Bechefa area is %f ha with a total basal area of %f m2/ha",
+        inv_filled$info_invs$core_area_ha, inv_filled$info_invs$core_batot_m2ha)
+
+sprintf("%i trees added to the initial inventory, for a total basal area of %f m2/ha",
+        inv_filled$info_invs$n_added_tree, inv_filled$info_invs$new_batot_m2ha)
+```
+
+
+
+# Run SamsaraLight on the filled plot
+
+```{r  output_sl_filled, fig.dim = c(8, 6)}
+out_filled <- SamsaRaLight::sl_run(
+    inv_filled$new_inventory, data_monthly_rad,
+    latitude = latitude, slope = slope, 
+    aspect = aspect, north_to_x_cw = north_to_x_cw,
+    cell_size = cell_size, 
+    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    turbid_medium = TRUE,
+    trunk_interception = FALSE
+  )
+
+plot_inv_filled <- out_filled$cells %>% 
   dplyr::mutate(
     pacl_group = case_when(
       pacl_slope > 0.5 ~ "> 50%",
@@ -205,6 +224,17 @@ ggplot() +
   scale_fill_grey(start = 0.2, end = 1,
                   drop = FALSE) +
   labs(fill = "Cells enlightment") +
+  ggnewscale::new_scale_fill() +
+  
+  geom_ellipse(data = inv_filled$new_inventory, 
+               mapping = aes(x0 = x, y0 = y, 
+                             a = (re_m + rw_m) / 2,
+                             b = (rn_m + rs_m) / 2,
+                             angle = 0,
+                             fill = species)) +
+  coord_equal() +
+  labs(fill = "Species") +
+  scale_fill_manual(values = c("skyblue", "salmon", "olivedrab3", "mediumorchid1")) +
   
   scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
                                   by = cell_size),
@@ -221,4 +251,6 @@ ggplot() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "right") +
   xlab("") + ylab("")
+
+plot_inv_filled
 ```
