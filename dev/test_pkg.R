@@ -1,5 +1,6 @@
 library(devtools)
 library(usethis)
+library(pkgdown)
 
 # Run all tests
 remove.packages("SamsaRaLight")
@@ -12,3 +13,5 @@ devtools::load_all('.')
 devtools::document('.')
 devtools::test()
 devtools::check()
+
+pkgdown::build_site()

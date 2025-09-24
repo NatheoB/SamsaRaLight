@@ -15,14 +15,16 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 LinkingTo: Rcpp
 Depends: 
-    R (>= 2.10)
+    R (>= 3.5)
 LazyData: true
 Imports:
     dplyr,
     httr,
     readr,
     data.table,
-    Rcpp
+    Rcpp,
+    sf,
+    concaveman
 Suggests: 
     knitr,
     rmarkdown,

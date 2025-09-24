@@ -146,12 +146,24 @@ sl_run_samsara <- function(capsis_folderpath, inv_fp,
     
     out_trees[[i+1]] <- list(
       id_tree = tree$getId(),
+      x = tree$getX(),
+      y = tree$getY(),
+      z = tree$getZ(),
       epot = tree$getPotentialEnergy(),
       e = tree$getEnergy()
     )
   }
   out_trees <- data.table::rbindlist(out_trees)
   
+  
+  # Get height map
+  # mod <- script$getModel()
+  # hMap <- mod$getHeightMap()
+  # hMap_str <- hMap$toString()
+  # 
+  # hMap_str_split <- strsplit(hMap_str, split = "\n")[[1]][-c(1, 2, 3)]
+  # hMap_str_split <- matrix(as.double(unlist(strsplit(hMap_str_split, split = " "))), ncol = 10)
+  # hMap_str_split
   
   # Get cells energy
   plot <- scene$getPlot()

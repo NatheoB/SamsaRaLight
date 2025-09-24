@@ -50,13 +50,18 @@
 #'    Default correspond to a Y axis oriented toward the North.
 #' @param aspect double - Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
 #'    northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
-#' @param cell_size Length of the side of a squared cell composing the stand (in meters)
-#' @param n_cells integer - Number of cells of the side of a squared stand
+#' @param cell_size double - Length of the side of a squared cell composing the stand (in meters)
+#' @param n_cells_x integer - Number of cells of the X-axis side of the rectangle stand
+#' @param n_cells_y integer - Number of cells of the Y-axis side of the rectangle stand
 #' @param soc boolean - Standard Overcast Sky, if false: Uniform Overcast Sky
 #' @param height_anglemin double - Angle minimum between beam and soil (in degrees)
 #' @param direct_startoffset double - Angle at which to start first direct ray (in degrees)
 #' @param direct_anglestep double - Hour angle between two direct beams (in degrees)
 #' @param diffuse_anglestep double - Hour angle between two diffuse beams (in degrees)
+#' @param detailed_output boolean - If TRUE, sensors/cells/trees outputs also contain diffuse/direct energies, 
+#'  and sensors/cells outputs contain energies both on the slope and on a horizontal plane.
+#'  If FALSE, energy given is only the total energy (sum of diffuse and direct) on the slope for trees and cells
+#'  and on a horizontal plane for sensors.
 #' @param use_torus if True, compute light competition using borders modelled with a
 #'  torus system, otherwise,borders are open grasslands
 #' @param turbid_medium If TRUE, crown are considered as turbid medium, otherwise,
@@ -85,6 +90,7 @@ sl_run <- function(trees,
                    direct_startoffset = 0,
                    direct_anglestep = 5,
                    diffuse_anglestep = 15,
+                   detailed_output = FALSE,
                    use_torus = TRUE,
                    turbid_medium = TRUE,
                    trunk_interception = FALSE) {
@@ -114,6 +120,27 @@ sl_run <- function(trees,
     cell_size, n_cells_x, n_cells_y,
     use_torus, turbid_medium, trunk_interception)
 
+  
+  # Filter the output datasets if asked
+  if (!detailed_output) {
+    
+    # Sensors dataset
+    vars_sensors_short <- c("id_sensor", "x", "y", "z", 
+                            "e_slope", "pacl_slope")
+    out$sensors <- out$sensors[,vars_sensors_short]
+    
+    # Cells dataset
+    vars_cells_short <- c("id_cell", "x_center", "y_center", "z_center", 
+                            "e_slope", "pacl_slope")
+    out$cells <- out$cells[,vars_cells_short]
+    
+    # Trees dataset
+    vars_trees_short <- c("id_tree", "x", "y", "z",
+                          "epot", "e")
+    out$trees <- out$trees[,vars_trees_short]
+    
+  }
+  
   return(out)
 }
 

@@ -13,6 +13,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 
@@ -41,6 +42,11 @@ Test on IRRES1 inventory with all trees having a LAD of 0.5
 data_trees <- SamsaRaLight::data_trees_irres1
 data_rad <- SamsaRaLight::data_rad_irres1
 
+core_polygon <- data.frame(
+  x = c(263193.1, 263168.5, 263045.3, 263070),
+  y = c(114310.3, 114237.4, 114279, 114351.9)
+)
+
 # Coordinates of the stand (for monthly radiation and rays geometry)
 latitude <- 50.04 # The latitude of the stand (Y-coord in WGS85)
 longitude <- 5.2 # The longitude of the plot (X-coord in WGS85)
@@ -57,58 +63,35 @@ aspect <- 43.54
 north_to_x_cw <- 90
 ```
 
+```{r}
+# Size of a cell (i.e. accuracy of SamsaraLight model)
+cell_size <- 10
+```
+
 
 # Shift coordinates and define the rectangal square
 
 ```{r}
-# Observe the plot coordinates
-print("Range of the X- and Y-axis")
-range(data_trees$x)
-range(data_trees$y)
-
-print("Width of the X- and Y-axis")
-inv_size_x <- max(data_trees$x) - min(data_trees$x)
-inv_size_x
-
-inv_size_y <- max(data_trees$y) - min(data_trees$y)
-inv_size_y
-
-# Define the rectangle size
-cell_size <- 10
-n_cells_x <- 15
-n_cells_y <- 11
-
-plot_size_x <- cell_size * n_cells_x
-plot_size_y <- cell_size * n_cells_y
-
-# Shift coordinates by centering the plot
-diff_x <- plot_size_x - inv_size_x
-diff_y <- plot_size_y - inv_size_y
-
-shift_x <- min(data_trees$x) - diff_x / 2 
-shift_y <- min(data_trees$y) - diff_y / 2
-
-data_trees$x <- data_trees$x - shift_x
-data_trees$y <- data_trees$y - shift_y
-
-print("New range of the X- and Y-axis")
-range(data_trees$x)
-range(data_trees$y)
+inv_shifted <- SamsaRaLight::create_square_inventory(data_trees, cell_size, core_polygon = core_polygon)
 ```
 
 
 # Fill around core polygon and run SamsaraLight
 
 ```{r out_samsa}
-inv_filled <- SamsaRaLight::fill_inventory(data_trees, 
-                                           cell_size, n_cells_x, n_cells_y)
+inv_filled <- SamsaRaLight::fill_square_inventory(inv_shifted$new_inventory, 
+                                                  inv_shifted$info$cell_size, 
+                                                  inv_shifted$info$n_cells_x, 
+                                                  inv_shifted$info$n_cells_y,
+                                                  core_polygon = inv_shifted$core_polygon)
 
 out_filled <- SamsaRaLight::sl_run(
     inv_filled$new_inventory, data_rad,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    cell_size = inv_filled$info$cell_size, 
+    n_cells_x = inv_filled$info$n_cells_x, 
+    n_cells_y = inv_filled$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   )
@@ -148,15 +131,15 @@ ggplot() +
   labs(fill = "Species") +
   scale_fill_manual(values = c("skyblue", "salmon", "yellow2", "olivedrab3", "mediumorchid1")) +
   
-  scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
-                                  by = cell_size),
-                     labels = round(seq(0, n_cells_x*cell_size,
-                                        by = cell_size),
+  scale_x_continuous(breaks = seq(0, inv_filled$info$n_cells_x * inv_filled$info$cell_size,
+                                  by = inv_filled$info$cell_size),
+                     labels = round(seq(0, inv_filled$info$n_cells_x * inv_filled$info$cell_size,
+                                        by = inv_filled$info$cell_size),
                                     digits = 1)) +
-  scale_y_continuous(breaks = seq(0, n_cells_y*cell_size,
-                                  by = cell_size),
-                     labels = round(seq(0, n_cells_y*cell_size,
-                                        by = cell_size),
+  scale_y_continuous(breaks = seq(0, inv_filled$info$n_cells_y * inv_filled$info$cell_size,
+                                  by = inv_filled$info$cell_size),
+                     labels = round(seq(0, inv_filled$info$n_cells_y * inv_filled$info$cell_size,
+                                        by = inv_filled$info$cell_size),
                                     digits = 1)) +
   
   geom_sf(data = inv_filled$core_polygon, inherit.aes = FALSE,
@@ -172,10 +155,12 @@ plot_inv_filled
 
 # Look for sensors and run SamsaraLight on them
 
+BE CAREFUL, DO NOT FORGET TO APPLY THE SHIFT TO THE SENSORS COORDINATES
+
 ```{r, fig.dim = c(8, 6)}
 data_sensors <- data_sensors_irres1 %>% 
-  dplyr::mutate(x = x - shift_x,
-                y = y - shift_y)
+  dplyr::mutate(x = x + inv_shifted$info$shift_x,
+                y = y + inv_shifted$info$shift_y)
 
 plot_inv_filled_sensors <- plot_inv_filled +
   geom_rect(data = data_sensors,
@@ -201,8 +186,9 @@ out_sensors <- SamsaRaLight::sl_run(
     sensors = data_sensors, sensors_only = TRUE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    cell_size = inv_filled$info$cell_size, 
+    n_cells_x = inv_filled$info$n_cells_x, 
+    n_cells_y = inv_filled$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE,
     detailed_output = TRUE
@@ -217,8 +203,9 @@ microbenchmark::microbenchmark(
     sensors = data_sensors, sensors_only = FALSE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    cell_size = inv_filled$info$cell_size, 
+    n_cells_x = inv_filled$info$n_cells_x, 
+    n_cells_y = inv_filled$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   ))
@@ -231,8 +218,9 @@ microbenchmark::microbenchmark(
     sensors = data_sensors, sensors_only = TRUE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    cell_size = inv_filled$info$cell_size, 
+    n_cells_x = inv_filled$info$n_cells_x, 
+    n_cells_y = inv_filled$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   ))
@@ -280,12 +268,14 @@ Above, the LAD parameter has been set to 0.5. Field sensors can be used to calib
 To do so, a first approach could be to found a mean species' LAD value that minimize the mean residuals between observed and predicted total PACL.
 
 ```{r}
-LADs <- seq(0.01, 2, by = 0.01)
+LADs <- seq(0.001, 2, by = 0.001)
 ```
 
 ```{r echo = T, results = 'hide'}
 out_residuals <- vector("list", length(LADs))
 i <- 0
+
+time_start <- Sys.time()
 
 for (lad in LADs) {
   
@@ -302,8 +292,9 @@ for (lad in LADs) {
     sensors = data_sensors, sensors_only = TRUE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+    cell_size = inv_filled$info$cell_size, 
+    n_cells_x = inv_filled$info$n_cells_x, 
+    n_cells_y = inv_filled$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE,
     detailed_output = TRUE
@@ -339,6 +330,12 @@ for (lad in LADs) {
     dplyr::select(lad, res_pacl, res_pacl_direct, res_pacl_diffuse)
 }
 
+time_end <- Sys.time()
+time_elapsed <- time_end - time_start
+
+print(paste("Testing", length(LADs), "LAD values")) 
+print(time_elapsed)
+
 out_residuals <- dplyr::bind_rows(out_residuals)
 ```
 
@@ -354,7 +351,7 @@ ggplot(out_residuals, aes(y = res_pacl, x = lad)) +
   geom_vline(xintercept = best_lad, color = "salmon") +
   annotation_custom(text_best_lad, 
                     xmin=best_lad, xmax=best_lad, 
-                    ymin=-0.88, ymax=-0.88) + 
+                    ymin=-0.97, ymax=-0.97) + 
   coord_cartesian(clip = "off") +
   theme_bw() +
   ylab("Residuals between observed and predicted PACL") +

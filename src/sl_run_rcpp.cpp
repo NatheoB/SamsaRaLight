@@ -1,3 +1,4 @@
+
 #define _USE_MATH_DEFINES
 
 constexpr double EPSILON = 10e-10; // For rounding errors
@@ -888,7 +889,7 @@ private:
 	double y;
 	double z;
 
-	// Dimensions of the tree
+	// Dimensions of the tree (in meters)
 	double height;
 	double radius;
 
@@ -902,11 +903,11 @@ private:
 
 public:
 	Trunk(double vectid_tree, double x, double y, double z,
-		double height, double radius) :
+		double height_m, double dbh_cm) :
 		TreeVolume(vectid_tree, x, y, z)
 	{
-		this->height = height;
-		this->radius = radius;
+		this->height = height_m;
+		this->radius = dbh_cm/200.0; // because radius is in meters
 	}
 
 	// Compute interception betwene a cylinder and a ray coming toward a target cell
@@ -1041,7 +1042,7 @@ public:
 
 		crown(vectid, crown_type, x, y, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
 			crown_openess, crown_lad),
-		trunk(vectid, x, y, z, dbh/200.0, h)
+		trunk(vectid, x, y, z, dbh, h)
 	{
 		this->vectId = vectid;
 		this->id = id;
@@ -1052,6 +1053,7 @@ public:
 	int getId() { return(this->id); }
 	int getVectId() { return(this->vectId); }
 
+	Trunk& getTrunk() { return(this->trunk); }
 	Crown& getCrown() { return(this->crown); }
 
 	double getCrownEnergy() { return(this->crown.getEnergy()); }
@@ -1152,6 +1154,7 @@ public:
 	void interceptEnergyDiffuseSlope(double e) { this->energyDiffuseSlope -= e; }
 	void interceptEnergyDirectHorizontal(double e) { this->energyDirectHorizontal -= e; }
 	void interceptEnergyDiffuseHorizontal(double e) { this->energyDiffuseHorizontal -= e; }
+
 
 	//void resetEnergy() { this->energy = 0.0; }
 
@@ -1308,7 +1311,7 @@ public:
 
 		if (this->areSensors) {
 
-			IntegerVector sensors_id = sensors["id"];
+			IntegerVector sensors_id = sensors["id_sensor"];
 			NumericVector sensors_x = sensors["x"];
 			NumericVector sensors_y = sensors["y"];
 			NumericVector sensors_height = sensors["h_m"];
@@ -1323,13 +1326,15 @@ public:
 					sensors_y[i] > this->cellSize * this->nCellsY) {
 
 					// Print an error (NEED TO STOP ?)
-					std::cout << "Sensor " << sensors_id[i] << " is outside the stand limits";
+					std::cout << "Sensor " << sensors_id[i] << " is outside the stand limits" << std::endl;
 
 				}
 				else {
 					// Find the row and column the sensor belong to
-					int sensor_col = findColFromPosX(sensors_id[i]);
-					int sensor_row = findRowFromPosY(sensors_id[i]);
+					int sensor_col = findColFromPosX(sensors_x[i]);
+					int sensor_row = findRowFromPosY(sensors_y[i]);
+
+					// std::cout << "Sensor " << sensors_id[i] << " in (row, col): (" << sensor_row << "," << sensor_col << ")" << std::endl;
 
 					// Create and push the pointor to Sensor new instance
 					this->sensors.push_back(new Sensor(
@@ -1398,6 +1403,9 @@ public:
 			int tree_col = findColFromPosX(trees_x[i]);
 			int tree_row = findRowFromPosY(trees_y[i]);
 			this->grid[tree_row][tree_col]->addTree(i);
+
+			// std::cout << "Tree " << trees_id[i] << " in (row, col): (" << tree_row << "," << tree_col << ")" << std::endl;
+
 		}
 
 		// Get maximum height and crown radius of the trees
@@ -1455,9 +1463,9 @@ public:
 	double computeZ(double x, double y) {
 
 		double d = sqrt(x*x + y*y);
-		double azimuth_xy = 0;
-		if (d != 0) {
-			if (y >= 0) 
+		double azimuth_xy = 0.0;
+		if (d != 0.0) {
+			if (y >= 0.0) 
 				azimuth_xy = acos(x / d);
 			else
 				azimuth_xy = 2.0 * M_PI - acos(x / d);
@@ -1663,11 +1671,18 @@ private:
 		int n_interceptions = v_interc.size();
 		for (int j = 0; j < n_interceptions; j++) {
 
-			// Intrception with a trunk
-			if (v_interc[j]->withTrunk) {
-				// Set the current energy to 0
-				current_energy_slope = 0.0;
+			// If the ray has already intercepted a trunk
+			// Do not run other interception
+			// But still loop on interceptions to delete the pointors
+			if (trunk_intercepted) {
+				delete v_interc[j];
 				continue;
+			}
+
+			// First interception with a trunk
+			// Next step, set current energy to 0 by setting intercepted energy to the incident energy
+			if (v_interc[j]->withTrunk) {
+				trunk_intercepted = true;
 			}
 
 			// Get the intercepted crown
@@ -1696,27 +1711,39 @@ private:
 				e_pot_incident[v_interc[j]->vectIdTree] = e_pot_incident[v_interc[j]->vectIdTree] - potential_energy_slope;
 
 				// Apply beer lambert law on incident ray attenuated by the competitor crowns intercepted the crown
-				intercepted_energy_slope = trunk_intercepted ? 0.0 : this->applyBeerLambert(
-					current_energy_slope,
-					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
-					crown.getCrownLAD(),
-					v_interc[j]->length);
+				intercepted_energy_slope = trunk_intercepted ? 
+					current_energy_slope : 
+					this->applyBeerLambert(
+						current_energy_slope,
+						this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
+						crown.getCrownLAD(),
+						v_interc[j]->length);
 
-				intercepted_energy_horizontal = trunk_intercepted ? 0.0 : this->applyBeerLambert(
-					current_energy_horizontal,
-					this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
-					crown.getCrownLAD(),
-					v_interc[j]->length);
+				intercepted_energy_horizontal = trunk_intercepted ? 
+					current_energy_horizontal : 
+					this->applyBeerLambert(
+						current_energy_horizontal,
+						this->EXTINCTION_COEF, this->CLUMPING_FACTOR,
+						crown.getCrownLAD(),
+						v_interc[j]->length);
 				
 			}
 			// Porous envelop ==> reduce the energy by a fixed amount
 			else {
 				// Be careful, only once per crown (if many crown part, reduce only if crown has not been already intercepted by the ray)
-				if (!is_intercepted[v_interc[j]->vectIdTree]) {
+				// Except the intercepted part is the trunk (to avoid missing trunk interception after a previous interception by another volume of the same tree)
+				if (!is_intercepted[v_interc[j]->vectIdTree] || v_interc[j]->withTrunk) {
 
 					// Compute potential and intercepted energy if the first crown part is encountered by reducing the incident enrrgy by a fixed amount
 					potential_energy_slope = e_incident_slope_cell * (1 - crown.getCrownOpeness());
-					intercepted_energy_slope = trunk_intercepted ? 0.0 : (current_energy_slope * (1 - crown.getCrownOpeness()));
+
+					intercepted_energy_slope = trunk_intercepted ? 
+						current_energy_slope : 
+						(current_energy_slope * (1 - crown.getCrownOpeness()));
+
+					intercepted_energy_horizontal = trunk_intercepted ? 
+						current_energy_horizontal : 
+						(current_energy_slope * (1 - crown.getCrownOpeness()));
 
 					// Set the crown as being intercepted
 					is_intercepted[v_interc[j]->vectIdTree] = true;
@@ -1726,6 +1753,7 @@ private:
 					// So avoid adding multiple attenuation of the same crown because multiple crown part have been intercepted
 					potential_energy_slope = 0.0;
 					intercepted_energy_slope = 0.0;
+					intercepted_energy_horizontal = 0.0;
 				}
 			}
 
@@ -1753,11 +1781,15 @@ private:
 				#endif
 			}
 
-			// Remove the intercepted energy from the energy that left
+			// Remove the intercepted energy from the energy of the ray
+			// i.e. output energy is the transmitted energy
 			current_energy_slope -= intercepted_energy_slope;
 			current_energy_horizontal -= intercepted_energy_horizontal;
 
 			// Remove the intercepted energy by the crown from the total energy above the target
+			// (When considering energy  direct/diffuse,) 
+			// (it is easier to decrease the energy coming from above along interceptions)
+			// (than to add current energy of the ray coming to the target at the end of the interceptions)
 			#ifdef _OPENMP
 			#pragma omp critical
 			{
@@ -1780,6 +1812,7 @@ private:
 			// Delete interception pointer
 			delete v_interc[j];
 		}
+
 	}
 
 	double applyBeerLambert(double incident_energy, double extinction_coef, double clumping_factor, double leaf_area_density, double path_length) {
@@ -1960,6 +1993,8 @@ public:
 
 	List exportResults() {
 
+		// ------------- FOR SENSORS ----------------
+
 		// Init RCPP vectors for sensors
 		int n_sensors = this->stand.getNSensors();
 
@@ -2038,45 +2073,52 @@ public:
 		);
 
 
-		// If we have computed tree and cell light interception
-		DataFrame output_trees;
-		DataFrame output_cells;
+		// -------------- FOR TREES AND CELLS ------------------
+
+		// Get number of trees and cells
+		// Set to 0 if we did not compute trees and cells interception (sensor_only argument)
+		int n_cells = this->stand.getNCells();
+		int n_trees = this->stand.getNTrees();
+
+		if (this->sensorsOnly) {
+			n_cells = 0;
+			n_trees = 0;
+		}
+
+		// Init RCPP vectors for trees
+		IntegerVector id_tree(n_trees);
+		NumericVector x_tree(n_trees);
+		NumericVector y_tree(n_trees);
+		NumericVector z_tree(n_trees);
+
+		NumericVector e_tree(n_trees);
+		NumericVector epot_tree(n_trees);
+		NumericVector e_direct_tree(n_trees);
+		NumericVector epot_direct_tree(n_trees);
+		NumericVector e_diffuse_tree(n_trees);
+		NumericVector epot_diffuse_tree(n_trees);
+
+		// Init RCPP vectors for cells
+		IntegerVector id_cell(n_cells);
+		NumericVector x_cell(n_cells);
+		NumericVector y_cell(n_cells);
+		NumericVector z_cell(n_cells);
+
+		NumericVector e_slope_cell(n_cells);
+		NumericVector pacl_slope_cell(n_cells);
+		NumericVector e_slope_direct_cell(n_cells);
+		NumericVector pacl_slope_direct_cell(n_cells);
+		NumericVector e_slope_diffuse_cell(n_cells);
+		NumericVector pacl_slope_diffuse_cell(n_cells);
+
+		NumericVector e_horizontal_cell(n_cells);
+		NumericVector pacl_horizontal_cell(n_cells);
+		NumericVector e_horizontal_direct_cell(n_cells);
+		NumericVector pacl_horizontal_direct_cell(n_cells);
+		NumericVector e_horizontal_diffuse_cell(n_cells);
+		NumericVector pacl_horizontal_diffuse_cell(n_cells);
 
 		if (!this->sensorsOnly) {
-
-			// Get number of trees and cells
-			int n_cells = this->stand.getNCells();
-			int n_trees = this->stand.getNTrees();
-
-			// Init RCPP vectors for trees
-			IntegerVector id_tree(n_trees);
-			NumericVector e_tree(n_trees);
-			NumericVector epot_tree(n_trees);
-			NumericVector e_direct_tree(n_trees);
-			NumericVector epot_direct_tree(n_trees);
-			NumericVector e_diffuse_tree(n_trees);
-			NumericVector epot_diffuse_tree(n_trees);
-
-			// Init RCPP vectors for cells
-			IntegerVector id_cell(n_cells);
-			NumericVector x_cell(n_cells);
-			NumericVector y_cell(n_cells);
-			NumericVector z_cell(n_cells);
-
-			NumericVector e_slope_cell(n_cells);
-			NumericVector pacl_slope_cell(n_cells);
-			NumericVector e_slope_direct_cell(n_cells);
-			NumericVector pacl_slope_direct_cell(n_cells);
-			NumericVector e_slope_diffuse_cell(n_cells);
-			NumericVector pacl_slope_diffuse_cell(n_cells);
-
-			NumericVector e_horizontal_cell(n_cells);
-			NumericVector pacl_horizontal_cell(n_cells);
-			NumericVector e_horizontal_direct_cell(n_cells);
-			NumericVector pacl_horizontal_direct_cell(n_cells);
-			NumericVector e_horizontal_diffuse_cell(n_cells);
-			NumericVector pacl_horizontal_diffuse_cell(n_cells);
-
 
 			// For each cell
 			int icell = 0;
@@ -2123,6 +2165,9 @@ public:
 						Tree* tree = this->stand.getTree(cell->getVectIdTree(t));
 
 						id_tree[itree] = tree->getId();
+						x_tree[itree] = tree->getTrunk().getX();
+						y_tree[itree] = tree->getTrunk().getY();
+						z_tree[itree] = tree->getTrunk().getZ();
 
 						e_tree[itree] = tree->getCrownEnergy();
 						epot_tree[itree] = tree->getCrownEnergyPotential();
@@ -2140,38 +2185,43 @@ public:
 				}
 			}
 
-			// Create trees and cells RCPP DataFrames
-			output_trees = DataFrame::create(
-				Named("id_tree") = id_tree,
-				Named("epot") = epot_tree,
-				Named("e") = e_tree,
-				Named("epot_direct") = epot_direct_tree,
-				Named("e_direct") = e_direct_tree,
-				Named("epot_diffuse") = epot_diffuse_tree,
-				Named("e_diffuse") = e_diffuse_tree
-			);
-
-			output_cells = DataFrame::create(
-				Named("id_cell") = id_cell,
-				Named("x_center") = x_cell,
-				Named("y_center") = y_cell,
-				Named("z_center") = z_cell,
-
-				Named("e_slope") = e_slope_cell,
-				Named("pacl_slope") = pacl_slope_cell,
-				Named("e_slope_direct") = e_slope_direct_cell,
-				Named("pacl_slope_direct") = pacl_slope_direct_cell,
-				Named("e_slope_diffuse") = e_slope_diffuse_cell,
-				Named("pacl_slope_diffuse") = pacl_slope_diffuse_cell,
-
-				Named("e_horizontal") = e_horizontal_cell,
-				Named("pacl_horizontal") = pacl_horizontal_cell,
-				Named("e_horizontal_direct") = e_horizontal_direct_cell,
-				Named("pacl_horizontal_direct") = pacl_horizontal_direct_cell,
-				Named("e_horizontal_diffuse") = e_horizontal_diffuse_cell,
-				Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_cell
-			);
 		}
+
+		// Create trees and cells RCPP DataFrames
+		DataFrame output_trees = DataFrame::create(
+			Named("id_tree") = id_tree,
+			Named("x") = x_tree,
+			Named("y") = y_tree,
+			Named("z") = z_tree,
+
+			Named("epot") = epot_tree,
+			Named("e") = e_tree,
+			Named("epot_direct") = epot_direct_tree,
+			Named("e_direct") = e_direct_tree,
+			Named("epot_diffuse") = epot_diffuse_tree,
+			Named("e_diffuse") = e_diffuse_tree
+		);
+
+		DataFrame output_cells = DataFrame::create(
+			Named("id_cell") = id_cell,
+			Named("x_center") = x_cell,
+			Named("y_center") = y_cell,
+			Named("z_center") = z_cell,
+
+			Named("e_slope") = e_slope_cell,
+			Named("pacl_slope") = pacl_slope_cell,
+			Named("e_slope_direct") = e_slope_direct_cell,
+			Named("pacl_slope_direct") = pacl_slope_direct_cell,
+			Named("e_slope_diffuse") = e_slope_diffuse_cell,
+			Named("pacl_slope_diffuse") = pacl_slope_diffuse_cell,
+
+			Named("e_horizontal") = e_horizontal_cell,
+			Named("pacl_horizontal") = pacl_horizontal_cell,
+			Named("e_horizontal_direct") = e_horizontal_direct_cell,
+			Named("pacl_horizontal_direct") = pacl_horizontal_direct_cell,
+			Named("e_horizontal_diffuse") = e_horizontal_diffuse_cell,
+			Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_cell
+		);
 
 		// Return output as a List of two DataFrames
 		return(List::create(
@@ -2207,14 +2257,16 @@ List sl_run_rcpp(
 
 
 	// Initialize the model
-	Model sl_model = Model(trees, 
+	Model sl_model = Model(
+		trees, 
 		sensors, sensors_only,
 		rays, 
 		e_direct_above_slope_m2, e_diffuse_above_slope_m2,
 		e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
 		slope, north_to_x_cw, aspect,
 		cell_size, n_cells_x, n_cells_y, 
-		use_torus, turbid_medium, trunk_interception);
+		use_torus, turbid_medium, trunk_interception
+	);
 
 	// [OPTIMIZATION]: find the extend of possible interception of each ray
 	// i.e. for each ray coming to an unknown target cell, find relative cells around the target containing tree that could possibly intercept the ray

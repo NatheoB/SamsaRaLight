@@ -6,13 +6,15 @@ vignette: >
   %\VignetteIndexEntry{Tuto4 - core polygon}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
----
+  ---
+  
 
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+options(rmarkdown.html_vignette.check_title = FALSE)
 ```
 
 
@@ -71,14 +73,14 @@ n_cells_y <- 15
 data_monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
 
 out <- SamsaRaLight::sl_run(
-    data_trees, data_monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
-    turbid_medium = TRUE,
-    trunk_interception = FALSE
-  )
+  data_trees, data_monthly_rad,
+  latitude = latitude, slope = slope, 
+  aspect = aspect, north_to_x_cw = north_to_x_cw,
+  cell_size = cell_size, 
+  n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+  turbid_medium = TRUE,
+  trunk_interception = FALSE
+)
 ```
 
 Crown representation are the maximum radius between the two cardinals of a given axis.
@@ -97,8 +99,8 @@ plot_inv <- out$cells %>%
                         levels = c("< 6.25%", "6.25 - 12.5%",
                                    "12.5 - 25%", "25 - 50%",
                                    "> 50%"))) %>% 
-
-ggplot() +
+  
+  ggplot() +
   
   geom_tile(aes(x = x_center, y = y_center,
                 fill = pacl_group), color = "black") +
@@ -108,10 +110,10 @@ ggplot() +
   ggnewscale::new_scale_fill() +
   
   geom_ellipse(data = data_trees, mapping = aes(x0 = x, y0 = y, 
-                                               a = (re_m + rw_m) / 2,
-                                               b = (rn_m + rs_m) / 2,
-                                               angle = 0,
-                                               fill = species)) +
+                                                a = (re_m + rw_m) / 2,
+                                                b = (rn_m + rs_m) / 2,
+                                                angle = 0,
+                                                fill = species)) +
   coord_equal() +
   labs(fill = "Species") +
   scale_fill_manual(values = c("skyblue", "salmon", "olivedrab3", "mediumorchid1")) +
@@ -138,11 +140,11 @@ plot_inv
 # Simple polygon in a given data.frame
 
 ```{r, fig.dim = c(8, 6)}
-df_core_polygon <- data.frame(x = c(0, 171.5, 200, 28.5), y = c(70.5, 139.8, 69.3, 0))
+core_polygon <- data.frame(x = c(0, 171.5, 200, 28.5), y = c(70.5, 139.8, 69.3, 0))
 
-inv_filled_simplePolygon <- SamsaRaLight::fill_inventory(data_trees, 
-                                                         cell_size, n_cells_x, n_cells_y,
-                                                         df_core_polygon)
+inv_filled_simplePolygon <- SamsaRaLight::fill_square_inventory(data_trees, 
+                                                                cell_size, n_cells_x, n_cells_y,
+                                                                core_polygon)
 
 plot_inv_simplePolygon  <- plot_inv +
   geom_sf(data = inv_filled_simplePolygon$core_polygon, 
@@ -156,8 +158,8 @@ plot_inv_simplePolygon
 # Find a polygon that encompasses all the trees and fill outside with equivalent trees
 
 ```{r}
-inv_filled <- SamsaRaLight::fill_inventory(data_trees, 
-                                           cell_size, n_cells_x, n_cells_y)
+inv_filled <- SamsaRaLight::fill_square_inventory(data_trees, 
+                                                  cell_size, n_cells_x, n_cells_y)
 ```
 
 ```{r output_polygon, fig.dim = c(8, 6)}
@@ -182,10 +184,10 @@ plot_inv_polygon_fill
 
 ```{r}
 sprintf("Bechefa area is %f ha with a total basal area of %f m2/ha",
-        inv_filled$info_invs$core_area_ha, inv_filled$info_invs$core_batot_m2ha)
+        inv_filled$info$core_area_ha, inv_filled$info$core_batot_m2ha)
 
 sprintf("%i trees added to the initial inventory, for a total basal area of %f m2/ha",
-        inv_filled$info_invs$n_added_tree, inv_filled$info_invs$new_batot_m2ha)
+        inv_filled$info$n_added_tree, inv_filled$info$new_batot_m2ha)
 ```
 
 
@@ -194,14 +196,14 @@ sprintf("%i trees added to the initial inventory, for a total basal area of %f m
 
 ```{r  output_sl_filled, fig.dim = c(8, 6)}
 out_filled <- SamsaRaLight::sl_run(
-    inv_filled$new_inventory, data_monthly_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = cell_size, 
-    n_cells_x = n_cells_x, n_cells_y = n_cells_y,
-    turbid_medium = TRUE,
-    trunk_interception = FALSE
-  )
+  inv_filled$new_inventory, data_monthly_rad,
+  latitude = latitude, slope = slope, 
+  aspect = aspect, north_to_x_cw = north_to_x_cw,
+  cell_size = cell_size, 
+  n_cells_x = n_cells_x, n_cells_y = n_cells_y,
+  turbid_medium = TRUE,
+  trunk_interception = FALSE
+)
 
 plot_inv_filled <- out_filled$cells %>% 
   dplyr::mutate(
@@ -216,8 +218,8 @@ plot_inv_filled <- out_filled$cells %>%
                         levels = c("< 6.25%", "6.25 - 12.5%",
                                    "12.5 - 25%", "25 - 50%",
                                    "> 50%"))) %>% 
-
-ggplot() +
+  
+  ggplot() +
   
   geom_tile(aes(x = x_center, y = y_center,
                 fill = pacl_group), color = "black") +
