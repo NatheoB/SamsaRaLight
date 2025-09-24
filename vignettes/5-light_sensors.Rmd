@@ -3,22 +3,22 @@ title: "Tutorial 5 - Light sensors"
 subtitle: "Calibrate species' leaf area density from light sensors"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Tuto5 - light sensors}
+%\VignetteIndexEntry{Tuto5 - light sensors}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
----
-
-```{r, include = FALSE}
-knitr::opts_chunk$set(
+  ---
+  
+  ```{r, include = FALSE}
+  knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
-)
-options(rmarkdown.html_vignette.check_title = FALSE)
-```
-
-
-```{r example, message=FALSE, warning=FALSE}
-library(SamsaRaLight)
+  )
+  options(rmarkdown.html_vignette.check_title = FALSE)
+  ```
+  
+  
+  ```{r example, message=FALSE, warning=FALSE}
+  library(SamsaRaLight)
 library(dplyr)
 library(ggplot2)
 library(ggforce)
@@ -72,29 +72,29 @@ cell_size <- 10
 # Shift coordinates and define the rectangal square
 
 ```{r}
-inv_shifted <- SamsaRaLight::create_square_inventory(data_trees, cell_size, core_polygon = core_polygon)
+inv_shifted <- SamsaRaLight::create_rect_stand(data_trees, cell_size, core_polygon = core_polygon)
 ```
 
 
 # Fill around core polygon and run SamsaraLight
 
 ```{r out_samsa}
-inv_filled <- SamsaRaLight::fill_square_inventory(inv_shifted$new_inventory, 
-                                                  inv_shifted$info$cell_size, 
-                                                  inv_shifted$info$n_cells_x, 
-                                                  inv_shifted$info$n_cells_y,
-                                                  core_polygon = inv_shifted$core_polygon)
+inv_filled <- SamsaRaLight::fill_rect_stand(inv_shifted$new_inventory, 
+                                            inv_shifted$info$cell_size, 
+                                            inv_shifted$info$n_cells_x, 
+                                            inv_shifted$info$n_cells_y,
+                                            core_polygon = inv_shifted$core_polygon)
 
 out_filled <- SamsaRaLight::sl_run(
-    inv_filled$new_inventory, data_rad,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = inv_filled$info$cell_size, 
-    n_cells_x = inv_filled$info$n_cells_x, 
-    n_cells_y = inv_filled$info$n_cells_y,
-    turbid_medium = TRUE,
-    trunk_interception = FALSE
-  )
+  inv_filled$new_inventory, data_rad,
+  latitude = latitude, slope = slope, 
+  aspect = aspect, north_to_x_cw = north_to_x_cw,
+  cell_size = inv_filled$info$cell_size, 
+  n_cells_x = inv_filled$info$n_cells_x, 
+  n_cells_y = inv_filled$info$n_cells_y,
+  turbid_medium = TRUE,
+  trunk_interception = FALSE
+)
 ```
 
 ```{r, fig.dim = c(8, 6)}
@@ -111,8 +111,8 @@ plot_inv_filled <- out_filled$cells %>%
                         levels = c("< 6.25%", "6.25 - 12.5%",
                                    "12.5 - 25%", "25 - 50%",
                                    "> 50%"))) %>% 
-
-ggplot() +
+  
+  ggplot() +
   
   geom_tile(aes(x = x_center, y = y_center,
                 fill = pacl_group), color = "black") +
@@ -182,17 +182,17 @@ Indeed, the sensor is not parallel to the slope, but horizontal.
 
 ```{r out_sensors}
 out_sensors <- SamsaRaLight::sl_run(
-    inv_filled$new_inventory, data_rad,
-    sensors = data_sensors, sensors_only = TRUE,
-    latitude = latitude, slope = slope, 
-    aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = inv_filled$info$cell_size, 
-    n_cells_x = inv_filled$info$n_cells_x, 
-    n_cells_y = inv_filled$info$n_cells_y,
-    turbid_medium = TRUE,
-    trunk_interception = FALSE,
-    detailed_output = TRUE
-  )
+  inv_filled$new_inventory, data_rad,
+  sensors = data_sensors, sensors_only = TRUE,
+  latitude = latitude, slope = slope, 
+  aspect = aspect, north_to_x_cw = north_to_x_cw,
+  cell_size = inv_filled$info$cell_size, 
+  n_cells_x = inv_filled$info$n_cells_x, 
+  n_cells_y = inv_filled$info$n_cells_y,
+  turbid_medium = TRUE,
+  trunk_interception = FALSE,
+  detailed_output = TRUE
+)
 ```
 
 

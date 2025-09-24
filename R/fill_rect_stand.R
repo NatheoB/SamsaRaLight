@@ -43,13 +43,20 @@
 #'
 #' @export
 #'
-fill_square_inventory <- function(trees, 
-                                  cell_size,
-                                  n_cells_x, 
-                                  n_cells_y,
-                                  core_polygon = NULL)
+fill_rect_stand <- function(trees, 
+                            cell_size,
+                            n_cells_x, 
+                            n_cells_y,
+                            core_polygon = NULL)
   
 {
+
+  # Check if the core polygone is a polygone (at least 3 tops)
+  if (!is.null(core_polygon) && nrow(core_polygon) < 3) {
+    message("The core polygone has less than 3 tops: we did not considered it")
+    core_polygon <- NULL
+  }
+  
   # Find a polygon that encompasses all the trees
   if (is.null(core_polygon)) {
     coords_sf <- st_as_sf(trees, coords = c("x", "y")) 

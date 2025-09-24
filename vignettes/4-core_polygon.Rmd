@@ -142,9 +142,9 @@ plot_inv
 ```{r, fig.dim = c(8, 6)}
 core_polygon <- data.frame(x = c(0, 171.5, 200, 28.5), y = c(70.5, 139.8, 69.3, 0))
 
-inv_filled_simplePolygon <- SamsaRaLight::fill_square_inventory(data_trees, 
-                                                                cell_size, n_cells_x, n_cells_y,
-                                                                core_polygon)
+inv_filled_simplePolygon <- SamsaRaLight::fill_rect_stand(data_trees, 
+                                                          cell_size, n_cells_x, n_cells_y,
+                                                          core_polygon)
 
 plot_inv_simplePolygon  <- plot_inv +
   geom_sf(data = inv_filled_simplePolygon$core_polygon, 
@@ -158,7 +158,7 @@ plot_inv_simplePolygon
 # Find a polygon that encompasses all the trees and fill outside with equivalent trees
 
 ```{r}
-inv_filled <- SamsaRaLight::fill_square_inventory(data_trees, 
+inv_filled <- SamsaRaLight::fill_rect_stand(data_trees, 
                                                   cell_size, n_cells_x, n_cells_y)
 ```
 

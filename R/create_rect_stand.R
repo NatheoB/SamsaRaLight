@@ -1,4 +1,4 @@
-#' Center the surveyed trees of the core polygon in a square plot
+#' Center the surveyed trees of the core polygon in a rectangle plot
 #'  
 #' @param trees a data.frame with one row for each tree and 14 columns describing tree composing the stand:
 #' \itemize{
@@ -40,10 +40,15 @@
 #'
 #' @export
 #'
-create_square_inventory <- function(trees, cell_size, core_polygon = NULL) {
+create_rect_stand <- function(trees, cell_size, core_polygon = NULL) {
+  
+  # Check if the core polygone is a polygone (at least 3 tops)
+  if (!is.null(core_polygon) && nrow(core_polygon) < 3) {
+    message("The core polygone has less than 3 tops: we did not considered it")
+    core_polygon <- NULL
+  }
   
   # Get the square size ----
-  
   if (is.null(core_polygon)) {
     
     # Take the range of surveyed trees
