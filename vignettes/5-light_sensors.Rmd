@@ -3,22 +3,22 @@ title: "Tutorial 5 - Light sensors"
 subtitle: "Calibrate species' leaf area density from light sensors"
 output: rmarkdown::html_vignette
 vignette: >
-%\VignetteIndexEntry{Tuto5 - light sensors}
+  %\VignetteIndexEntry{Tuto5 - light sensors}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
-  ---
+---
   
-  ```{r, include = FALSE}
-  knitr::opts_chunk$set(
+```{r, include = FALSE}
+knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
-  )
-  options(rmarkdown.html_vignette.check_title = FALSE)
-  ```
+)
+options(rmarkdown.html_vignette.check_title = FALSE)
+```
   
   
-  ```{r example, message=FALSE, warning=FALSE}
-  library(SamsaRaLight)
+```{r example, message=FALSE, warning=FALSE}
+library(SamsaRaLight)
 library(dplyr)
 library(ggplot2)
 library(ggforce)
@@ -42,7 +42,7 @@ Test on IRRES1 inventory with all trees having a LAD of 0.5
 data_trees <- SamsaRaLight::data_trees_irres1
 data_rad <- SamsaRaLight::data_rad_irres1
 
-core_polygon <- data.frame(
+core_polygon_df <- data.frame(
   x = c(263193.1, 263168.5, 263045.3, 263070),
   y = c(114310.3, 114237.4, 114279, 114351.9)
 )
@@ -72,33 +72,31 @@ cell_size <- 10
 # Shift coordinates and define the rectangal square
 
 ```{r}
-inv_shifted <- SamsaRaLight::create_rect_stand(data_trees, cell_size, core_polygon = core_polygon)
+stand <- SamsaRaLight::create_rect_stand(data_trees, cell_size, 
+                                         core_polygon_df = NULL,
+                                         use_rect_zone = TRUE,
+                                         fill_around = FALSE)
 ```
 
 
 # Fill around core polygon and run SamsaraLight
 
 ```{r out_samsa}
-inv_filled <- SamsaRaLight::fill_rect_stand(inv_shifted$new_inventory, 
-                                            inv_shifted$info$cell_size, 
-                                            inv_shifted$info$n_cells_x, 
-                                            inv_shifted$info$n_cells_y,
-                                            core_polygon = inv_shifted$core_polygon)
-
-out_filled <- SamsaRaLight::sl_run(
-  inv_filled$new_inventory, data_rad,
+out_sl <- SamsaRaLight::sl_run(
+  stand$trees, data_rad,
   latitude = latitude, slope = slope, 
   aspect = aspect, north_to_x_cw = north_to_x_cw,
-  cell_size = inv_filled$info$cell_size, 
-  n_cells_x = inv_filled$info$n_cells_x, 
-  n_cells_y = inv_filled$info$n_cells_y,
+  cell_size = stand$info$cell_size, 
+  n_cells_x = stand$info$n_cells_x, 
+  n_cells_y = stand$info$n_cells_y,
   turbid_medium = TRUE,
   trunk_interception = FALSE
 )
 ```
 
+
 ```{r, fig.dim = c(8, 6)}
-plot_inv_filled <- out_filled$cells %>% 
+plot_stand <- out_sl$cells %>% 
   dplyr::mutate(
     pacl_group = case_when(
       pacl_slope > 0.5 ~ "> 50%",
@@ -121,7 +119,7 @@ plot_inv_filled <- out_filled$cells %>%
   labs(fill = "Cells enlightment") +
   ggnewscale::new_scale_fill() +
   
-  geom_ellipse(data = inv_filled$new_inventory, 
+  geom_ellipse(data = stand$trees, 
                mapping = aes(x0 = x, y0 = y, 
                              a = (re_m + rw_m) / 2,
                              b = (rn_m + rs_m) / 2,
@@ -131,18 +129,18 @@ plot_inv_filled <- out_filled$cells %>%
   labs(fill = "Species") +
   scale_fill_manual(values = c("skyblue", "salmon", "yellow2", "olivedrab3", "mediumorchid1")) +
   
-  scale_x_continuous(breaks = seq(0, inv_filled$info$n_cells_x * inv_filled$info$cell_size,
-                                  by = inv_filled$info$cell_size),
-                     labels = round(seq(0, inv_filled$info$n_cells_x * inv_filled$info$cell_size,
-                                        by = inv_filled$info$cell_size),
+  scale_x_continuous(breaks = seq(0, stand$info$n_cells_x * stand$info$cell_size,
+                                  by = stand$info$cell_size),
+                     labels = round(seq(0, stand$info$n_cells_x * stand$info$cell_size,
+                                        by = stand$info$cell_size),
                                     digits = 1)) +
-  scale_y_continuous(breaks = seq(0, inv_filled$info$n_cells_y * inv_filled$info$cell_size,
-                                  by = inv_filled$info$cell_size),
-                     labels = round(seq(0, inv_filled$info$n_cells_y * inv_filled$info$cell_size,
-                                        by = inv_filled$info$cell_size),
+  scale_y_continuous(breaks = seq(0, stand$info$n_cells_y * stand$info$cell_size,
+                                  by = stand$info$cell_size),
+                     labels = round(seq(0, stand$info$n_cells_y * stand$info$cell_size,
+                                        by = stand$info$cell_size),
                                     digits = 1)) +
   
-  geom_sf(data = inv_filled$core_polygon, inherit.aes = FALSE,
+  geom_sf(data = stand$inv_zone_sf, inherit.aes = FALSE,
           fill = "yellow", color = "black", alpha = 0.7) +
   
   theme_minimal() +
@@ -150,7 +148,7 @@ plot_inv_filled <- out_filled$cells %>%
         legend.position = "right") +
   xlab("") + ylab("")
 
-plot_inv_filled
+plot_stand
 ```
 
 # Look for sensors and run SamsaraLight on them
@@ -159,10 +157,10 @@ BE CAREFUL, DO NOT FORGET TO APPLY THE SHIFT TO THE SENSORS COORDINATES
 
 ```{r, fig.dim = c(8, 6)}
 data_sensors <- data_sensors_irres1 %>% 
-  dplyr::mutate(x = x + inv_shifted$info$shift_x,
-                y = y + inv_shifted$info$shift_y)
+  dplyr::mutate(x = x + stand$info$shift_x,
+                y = y + stand$info$shift_y)
 
-plot_inv_filled_sensors <- plot_inv_filled +
+plot_stand_sensors <- plot_stand +
   geom_rect(data = data_sensors,
             mapping = aes(xmin = x - cell_size/2,
                           ymin = y - cell_size/2,
@@ -173,7 +171,7 @@ plot_inv_filled_sensors <- plot_inv_filled +
             mapping = aes(x = x, y = y, label = id_sensor),
             size = 3)
 
-plot_inv_filled_sensors
+plot_stand_sensors
 ```
 
 Set detailed output to TRUE because we need PACL in a horizontal plane, whereas the default PACL is in the slope.
@@ -182,13 +180,13 @@ Indeed, the sensor is not parallel to the slope, but horizontal.
 
 ```{r out_sensors}
 out_sensors <- SamsaRaLight::sl_run(
-  inv_filled$new_inventory, data_rad,
+  stand$trees, data_rad,
   sensors = data_sensors, sensors_only = TRUE,
   latitude = latitude, slope = slope, 
   aspect = aspect, north_to_x_cw = north_to_x_cw,
-  cell_size = inv_filled$info$cell_size, 
-  n_cells_x = inv_filled$info$n_cells_x, 
-  n_cells_y = inv_filled$info$n_cells_y,
+  cell_size = stand$info$cell_size, 
+  n_cells_x = stand$info$n_cells_x, 
+  n_cells_y = stand$info$n_cells_y,
   turbid_medium = TRUE,
   trunk_interception = FALSE,
   detailed_output = TRUE
@@ -199,13 +197,13 @@ out_sensors <- SamsaRaLight::sl_run(
 ```{r time_sl}
 microbenchmark::microbenchmark(
   "sl" = SamsaRaLight::sl_run(
-    inv_filled$new_inventory, data_rad,
+    stand$trees, data_rad,
     sensors = data_sensors, sensors_only = FALSE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = inv_filled$info$cell_size, 
-    n_cells_x = inv_filled$info$n_cells_x, 
-    n_cells_y = inv_filled$info$n_cells_y,
+    cell_size = stand$info$cell_size, 
+    n_cells_x = stand$info$n_cells_x, 
+    n_cells_y = stand$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   ))
@@ -214,13 +212,13 @@ microbenchmark::microbenchmark(
 ```{r time_sl_onlysensors}
 microbenchmark::microbenchmark(
   "sl" = SamsaRaLight::sl_run(
-    inv_filled$new_inventory, data_rad,
+    stand$trees, data_rad,
     sensors = data_sensors, sensors_only = TRUE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = inv_filled$info$cell_size, 
-    n_cells_x = inv_filled$info$n_cells_x, 
-    n_cells_y = inv_filled$info$n_cells_y,
+    cell_size = stand$info$cell_size, 
+    n_cells_x = stand$info$n_cells_x, 
+    n_cells_y = stand$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE
   ))
@@ -283,7 +281,7 @@ for (lad in LADs) {
   i <- i+1
   
   # Set the tested LAD value
-  inv_test <- inv_filled$new_inventory %>% 
+  inv_test <- stand$trees %>% 
     dplyr::mutate(crown_lad = lad)
   
   # Run SamsaraLight
@@ -292,9 +290,9 @@ for (lad in LADs) {
     sensors = data_sensors, sensors_only = TRUE,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
-    cell_size = inv_filled$info$cell_size, 
-    n_cells_x = inv_filled$info$n_cells_x, 
-    n_cells_y = inv_filled$info$n_cells_y,
+    cell_size = stand$info$cell_size, 
+    n_cells_x = stand$info$n_cells_x, 
+    n_cells_y = stand$info$n_cells_y,
     turbid_medium = TRUE,
     trunk_interception = FALSE,
     detailed_output = TRUE

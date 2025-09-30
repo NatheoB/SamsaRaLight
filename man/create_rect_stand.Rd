@@ -4,46 +4,30 @@
 \alias{create_rect_stand}
 \title{Center the surveyed trees of the core polygon in a rectangle plot}
 \usage{
-create_rect_stand(trees, cell_size, core_polygon = NULL)
+create_rect_stand(
+  trees,
+  cell_size,
+  core_polygon_df = NULL,
+  use_rect_zone = FALSE,
+  fill_around = FALSE
+)
 }
 \arguments{
-\item{trees}{a data.frame with one row for each tree and 14 columns describing tree composing the stand:
-\itemize{
-\item{id: }{Unique id of the tree}
-\item{x: }{X position of the tree within the stand}
-\item{y: }{Y position of the tree within the stand}
-\item{dbh_cm: }{Diameter at breast height (1.3m) of the tree trunk (in cm)}
-\item{crown_type: }{
-\itemize{
-\item{"E": symetric ellispoidal crown with the maximum crown radius at the middle of the crown depth.
-Crown radius is the mean value of the radius towards the fourth cardinal points}
-\item{"P": symetric paraboloidal crown with the maximum crown radius at the crown base.
-crown radius is the mean value of the radius towards the fourth cardinal points}
-\item{"2E": ellipsoidal crown composed of two semi-ellipsoid (one above and one below).
-Same as "E" but height of each semi-ellipsoid is given by hmax_m variable}
-\item{"8E": ellispoidal crown composed of eight eighth of ellipsoids (four above and four below).
-Same as "2E" but radius of each eight of ellipsoid is given by rn_m, rs_m, re_m, rw_m variables.}
-\item{"4P": paraboloidal crown composed of four fourth of paraboloid.
-Maximum crown radius at the crown base and radius of each fourth of paraboloid is given by rn_m, rs_m, re_m, rw_m variables.}
-}
-}
-\item{h_m: }{Height of the tree (in meters)}
-\item{hbase_m: }{Height of the base of the tree crown (in meters)}
-\item{hmax_m: }{Height of the maximum radius of the tree crown (in meters)}
-\item{rn_m: }{Radius of the tree crown toward Northern direction (in meters)}
-\item{rs_m: }{Radius of the tree crown toward Southern direction (in meters)}
-\item{re_m: }{Radius of the tree crown toward Eastern direction (in meters)}
-\item{rw_m: }{Radius of the tree crown toward Western direction (in meters)}
-\item{crown_openess: }{Crown openess of the crown (no unit) when considering porous envelop
-(i.e. constant proportion of light energy interception when a ray intercepts a crown)}
-\item{crown_lad: }{Leaf Area Density (in m2 of leaves per m3 of crown) when considering turbid medium
-(i.e. density parameter of Beer Lambert law when a ray intercepts a crown)}
-}}
+\item{trees}{a data.frame with one row for each tree and their position in a (x,y) grid.
+It must be composed of two columns "x" and "y"}
 
 \item{cell_size}{double - Length of the side of a squared cell composing the stand (in meters)}
 
-\item{core_polygon}{data.frame - Coordinates of the ertices composing the core polygon.
+\item{core_polygon_df}{data.frame - Coordinates of the vertices composing the core polygon.
 It must be composed of two columns "x" and "y"}
+
+\item{use_rect_zone}{boolean - How to consider the delimitation of the inventory zone,
+used to define the square plot and when fill_around is TRUE, for filling the trees aorund.
+Either to use the given or computed core polygon (FALSE),
+or the minimum-area enclosing rectangle from the polygon (TRUE).}
+
+\item{fill_around}{boolean - If TRUE, add trees around the core polygon within the stand
+until the stand reach the same total basal area per hectare than the core polygon}
 }
 \description{
 Center the surveyed trees of the core polygon in a rectangle plot

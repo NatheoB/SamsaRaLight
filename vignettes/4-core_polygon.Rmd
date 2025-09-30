@@ -140,14 +140,14 @@ plot_inv
 # Simple polygon in a given data.frame
 
 ```{r, fig.dim = c(8, 6)}
-core_polygon <- data.frame(x = c(0, 171.5, 200, 28.5), y = c(70.5, 139.8, 69.3, 0))
+core_polygon_df <- data.frame(x = c(0, 171.5, 200, 28.5), y = c(70.5, 139.8, 69.3, 0))
 
 inv_filled_simplePolygon <- SamsaRaLight::fill_rect_stand(data_trees, 
                                                           cell_size, n_cells_x, n_cells_y,
-                                                          core_polygon)
+                                                          core_polygon_df)
 
 plot_inv_simplePolygon  <- plot_inv +
-  geom_sf(data = inv_filled_simplePolygon$core_polygon, 
+  geom_sf(data = inv_filled_simplePolygon$core_polygon_df, 
           inherit.aes = FALSE,
           fill = "yellow", color = "black", alpha = 0.7)
 
@@ -158,13 +158,12 @@ plot_inv_simplePolygon
 # Find a polygon that encompasses all the trees and fill outside with equivalent trees
 
 ```{r}
-inv_filled <- SamsaRaLight::fill_rect_stand(data_trees, 
-                                                  cell_size, n_cells_x, n_cells_y)
+inv_filled <- SamsaRaLight::fill_rect_stand(data_trees, cell_size, n_cells_x, n_cells_y)
 ```
 
 ```{r output_polygon, fig.dim = c(8, 6)}
 plot_inv_polygon <- plot_inv +
-  geom_sf(data = inv_filled$core_polygon, inherit.aes = FALSE,
+  geom_sf(data = inv_filled$core_polygon_df, inherit.aes = FALSE,
           fill = "yellow", color = "black", alpha = 0.7)
 
 plot_inv_polygon
