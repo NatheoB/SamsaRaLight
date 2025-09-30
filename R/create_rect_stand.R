@@ -12,11 +12,12 @@
 #' @param fill_around boolean - If TRUE, add trees around the core polygon within the stand 
 #'  until the stand reach the same total basal area per hectare than the core polygon
 #'  
-#'
-#' @import sf sfheaders concaveman lwgeom
-#'
+#' @import sf 
+#' @importFrom concaveman concaveman
+#' @importFrom sfheaders sf_polygon
+#' 
 #' @export
-#'
+#' 
 create_rect_stand <- function(trees, 
                               cell_size,
                               core_polygon_df = NULL,
@@ -28,7 +29,7 @@ create_rect_stand <- function(trees,
   
   ## Check if the core polygone is a polygone (at least 3 tops) ----
   if (!is.null(core_polygon_df) && nrow(core_polygon_df) < 3) {
-    message("WARNING: the core polygone has less than 3 tops: we did not considered it")
+    warning("The core polygone has less than 3 tops: we did not considered it")
     core_polygon_df <- NULL
   }
   
@@ -38,20 +39,96 @@ create_rect_stand <- function(trees,
   coords_sf <- st_as_sf(trees, coords = c("x", "y")) 
   
   if (is.null(core_polygon_df)) {
-    core_polygon_sf <- concaveman::concaveman(coords_sf)[[1]]
-    core_polygon_df <- st_coordinates(core_polygon_sf) %>% 
-      as.data.frame() %>% 
-      dplyr::select(x = X, y = Y)
+    # Create concave hull from tree points
+    core_polygon_sf <- concaveman::concaveman(coords_sf, concavity = 10)[[1]]
+    
   } else {
+    # Create polygon from user-supplied data.frame
     core_polygon_sf <- sfheaders::sf_polygon(core_polygon_df)
+  }
+  
+  
+  ## Ensure the polygon is valid ----
+  if (!st_is_valid(core_polygon_sf)) {
+    
+    # Try to fix invalid geometry
+    core_polygon_sf <- st_make_valid(core_polygon_sf)
+    
+    # If the result is a GEOMETRYCOLLECTION, extract POLYGONs only
+    if (any(grepl("GEOMETRYCOLLECTION", class(core_polygon_sf)))) {
+      
+      # Try to extract a POLYGON
+      extracted <- tryCatch({
+        st_collection_extract(core_polygon_sf, "POLYGON")
+      }, error = function(e) {
+        NULL
+      })
+      
+      # If extraction failed or result is empty, throw error
+      if (is.null(extracted) || length(extracted) == 0) {
+        reason <- st_is_valid_reason(core_polygon_sf)
+        stop(paste("Could not extract a valid POLYGON from GEOMETRYCOLLECTION. Reason:", reason))
+      }
+      
+      core_polygon_sf <- extracted
+    }
+    
+    # Recheck that the result is valid
+    if (!st_is_valid(core_polygon_sf)) {
+      reason <- st_is_valid_reason(core_polygon_sf)
+      stop(paste("Polygon is still invalid after attempting to fix. Reason:", reason))
+    }
+    
+    if (is.null(core_polygon_df)) {
+      warning("We modify the core polygon to make it valid: check anyway you core polygon")
+    }
   }
   
   
   ## Ensure that all trees are in the core polygon ----
     # use st_intersect and not st_within to also consider trees in the edges of the polygon
   if (!all(st_intersects(coords_sf, core_polygon_sf, sparse = FALSE))) {
-    stop("ERROR: some trees are outside the core polygon")
+    
+    ## Buffer to include edge cases ----
+    # i.e. points not included because of rounding errors 
+    # or maybe concaveman algorithm that missed some points
+    
+    # Increase progressively the buffer zone with a maximum of 1m
+    buffer_dist <- 10^(-8:0)
+    buffered_worked <- FALSE
+    
+    for (dist in buffer_dist) {
+      
+      # Buffer the polygon
+      core_polygon_buffered_sf <- st_buffer(core_polygon_sf, dist = dist)
+      
+      # Check if the buffer worked
+      if (all(st_intersects(coords_sf, core_polygon_buffered_sf, sparse = FALSE))) {
+        buffered_worked <- TRUE
+        
+        # Precise with a warning the buffer
+        warning(paste0("We added a ", dist, "m buffer around the core polygon because of difficulties of including some points..."))
+        
+        # Keep the buffered polygon
+        core_polygon_sf <- core_polygon_buffered_sf
+        
+        # Stop the loop
+        break
+      }
+    }
+    
+    # If it does not work even after a 1m buffer
+    if (!buffered_worked) {
+      stop("Some trees are outside the core polygon (even after buffering of about 1 meter). Check your core polygon data.frame or create one yourself to ensure including all the points (automatic algorithm failed)...")
+    }
+    
   }
+  
+  
+  ## Get the final core polygon df ----
+  core_polygon_df <- st_coordinates(core_polygon_sf) %>% 
+    as.data.frame() %>% 
+    dplyr::select(x = X, y = Y)
   
   
   ## Get the minimum-area enclosing rectangle from the polygon ----

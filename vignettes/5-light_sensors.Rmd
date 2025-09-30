@@ -94,7 +94,6 @@ out_sl <- SamsaRaLight::sl_run(
 )
 ```
 
-
 ```{r, fig.dim = c(8, 6)}
 plot_stand <- out_sl$cells %>% 
   dplyr::mutate(
