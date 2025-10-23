@@ -23,10 +23,10 @@ sl_run(
   direct_startoffset = 0,
   direct_anglestep = 5,
   diffuse_anglestep = 15,
-  detailed_output = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
-  trunk_interception = FALSE
+  trunk_interception = FALSE,
+  detailed_output = FALSE
 )
 }
 \arguments{
@@ -106,11 +106,6 @@ northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect 
 
 \item{diffuse_anglestep}{double - Hour angle between two diffuse beams (in degrees)}
 
-\item{detailed_output}{boolean - If TRUE, sensors/cells/trees outputs also contain diffuse/direct energies,
-and sensors/cells outputs contain energies both on the slope and on a horizontal plane.
-If FALSE, energy given is only the total energy (sum of diffuse and direct) on the slope for trees and cells
-and on a horizontal plane for sensors.}
-
 \item{use_torus}{if True, compute light competition using borders modelled with a
 torus system, otherwise,borders are open grasslands}
 
@@ -118,6 +113,11 @@ torus system, otherwise,borders are open grasslands}
 considered as porous envelope}
 
 \item{trunk_interception}{Consider interception of rays by trunks}
+
+\item{detailed_output}{boolean - If TRUE, sensors/cells/trees outputs also contain diffuse/direct energies,
+and sensors/cells outputs contain energies both on the slope and on a horizontal plane.
+If FALSE, energy given is only the total energy (sum of diffuse and direct) on the slope for trees and cells
+and on a horizontal plane for sensors.}
 }
 \description{
 Compute samsara ligth radiative balance

@@ -22,29 +22,6 @@ bracket <- function(x, lower, upper) {
   x[x >= lower & x <= upper]
 }
 
-#' Compute proportion of days for each month included between start and end days
-#' @return 12-sized vector of double between 0 and 1 -
-#'    Monthly proportion of growing days
-#'    IL FAUT VECTORUSER LA FONCTION
-#' @noRd
-prop_months <- function(start_day, end_day) {
-
-  # Number of days in each month (February always 28 days)
-  NBMONTHDAYS <- c(31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-
-  # Cumulative sum of the days across each month of the year
-  cumsum_months <- cumsum(NBMONTHDAYS)
-
-  # Number of days between start_day and last day of the month
-  d1 <- cumsum_months - start_day + 1
-
-  # Number of days between end_day and first day of the month
-  d2 <- end_day - (cumsum_months - NBMONTHDAYS)
-
-  # Compute proportion of days of each month included between start and end days
-  abs(pmax(0, pmin(1,  1 - d1 / NBMONTHDAYS)) - pmax(0, pmin(1, d2 / NBMONTHDAYS)))
-}
-
 
 #' Check if 3d points are equals at epsilon
 #' @noRd

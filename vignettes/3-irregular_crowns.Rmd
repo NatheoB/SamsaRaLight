@@ -137,7 +137,7 @@ Crown representation are the maximum radius between the two cardinals of a given
 ```{r output_ground, fig.dim = c(8, 6)}
 out$cells %>% 
   dplyr::mutate(
-    pacl_group = case_when(
+    pacl_group = dplyr::case_when(
       pacl_slope > 0.5 ~ "> 50%",
       pacl_slope > 0.25 ~ "25 - 50%",
       pacl_slope > 0.125 ~ "12.5 - 25%",

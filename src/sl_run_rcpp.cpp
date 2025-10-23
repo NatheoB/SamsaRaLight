@@ -645,12 +645,14 @@ private:
 	double crownOpeness; // between 0 and 1, percentage of ligth energy of a ray that is not absorbed by the crown (for porous envelop method)
 	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
 	
-	// Output energy (in MJ)
-	double energyDiffuse; // Same for diffuse energy
-	double energyPotentialDiffuse;
+	// Output energies (in MJ)
+	double energyDirect; // Energy intercepted by the tree from direct rays
+	double energyPotentialDirect; // Potential energy intercepted by the tree (i.e. without neighbours) from direct rays
+	double energyUnobstructedDirect; // Energy intercepted by the tree only from unobstructed direct rays (i.e. rays that have not been attenuated by other trees before)
 
-	double energyDirect; // Same for direct energy
-	double energyPotentialDirect;
+	double energyDiffuse; // Energy intercepted by the tree from diffuse rays
+	double energyPotentialDiffuse; // Potential energy intercepted by the tree (i.e. without neighbours) from diffuse rays
+	double energyUnobstructedDiffuse; // Energy intercepted by the tree only from unobstructed diffuse rays (i.e. rays that have not been attenuated by other trees before)
 
 
 
@@ -811,11 +813,13 @@ public:
 		this->crownOpeness = crown_openess;
 		this->crownLAD = crown_lad;
 
-		this->energyDiffuse = 0.0;
-		this->energyPotentialDiffuse = 0.0;
-
 		this->energyDirect = 0.0;
 		this->energyPotentialDirect = 0.0;
+		this->energyUnobstructedDirect = 0.0;
+
+		this->energyDiffuse = 0.0;
+		this->energyPotentialDiffuse = 0.0;
+		this->energyUnobstructedDiffuse = 0.0;
 
 
 		// Init the crown parts depending on the type
@@ -858,20 +862,26 @@ public:
 
 	double getEnergy() { return(this->energyDiffuse + this->energyDirect); }
 	double getEnergyPotential() { return(this->energyPotentialDiffuse + this->energyPotentialDirect); }
-
-	double getEnergyDiffuse() { return(this->energyDiffuse); }
-	double getEnergyPotentialDiffuse() { return(this->energyPotentialDiffuse); }
+	double getEnergyUnobstructed() { return(this->energyUnobstructedDiffuse + this->energyUnobstructedDirect); }
 
 	double getEnergyDirect() { return(this->energyDirect); }
 	double getEnergyPotentialDirect() { return(this->energyPotentialDirect); }
+	double getEnergyUnobstructedDirect() { return(this->energyUnobstructedDirect); }
+
+	double getEnergyDiffuse() { return(this->energyDiffuse); }
+	double getEnergyPotentialDiffuse() { return(this->energyPotentialDiffuse); }
+	double getEnergyUnobstructedDiffuse() { return(this->energyUnobstructedDiffuse); }
+
 
 
 	// Setter
-	void addEnergyDiffuse(double e) { this->energyDiffuse += e; }
-	void addEnergyPotentialDiffuse(double epot) { this->energyPotentialDiffuse += epot; }
-
 	void addEnergyDirect(double e) { this->energyDirect += e; }
-	void addEnergyPotentialDirect(double epot) { this->energyPotentialDirect += epot; }
+	void addEnergyPotentialDirect(double e) { this->energyPotentialDirect += e; }
+	void addEnergyUnobstructedDirect(double e) { this->energyUnobstructedDirect += e; }
+
+	void addEnergyDiffuse(double e) { this->energyDiffuse += e; }
+	void addEnergyPotentialDiffuse(double e) { this->energyPotentialDiffuse += e; }
+	void addEnergyUnobstructedDiffuse(double e) { this->energyUnobstructedDiffuse += e; }
 
 
 	// Find interception with a given part of the crown
@@ -1058,12 +1068,15 @@ public:
 
 	double getCrownEnergy() { return(this->crown.getEnergy()); }
 	double getCrownEnergyPotential() { return(this->crown.getEnergyPotential()); }
+	double getCrownEnergyUnobstructed() { return(this->crown.getEnergyUnobstructed()); }
 
 	double getCrownEnergyDirect() { return(this->crown.getEnergyDirect()); }
 	double getCrownEnergyPotentialDirect() { return(this->crown.getEnergyPotentialDirect()); }
+	double getCrownEnergyUnobstructedDirect() { return(this->crown.getEnergyUnobstructedDirect()); }
 
 	double getCrownEnergyDiffuse() { return(this->crown.getEnergyDiffuse()); }
 	double getCrownEnergyPotentialDiffuse() { return(this->crown.getEnergyPotentialDiffuse()); }
+	double getCrownEnergyUnobstructedDiffuse() { return(this->crown.getEnergyUnobstructedDiffuse()); }
 
 
 	// Methods
@@ -1094,11 +1107,36 @@ private:
 	int row;
 	int col;
 
-	// Energy of the target (in MJ)
+	// Energy incident on the target (in MJ)
+	// will be decreased by successive interceptions by above trees
 	double energyDirectSlope; // Current direct energy on the target on the slope
 	double energyDiffuseSlope; // Current diffuse energy on the target on the slope
 	double energyDirectHorizontal; // Current direct energy on the target on a horizontal plane
 	double energyDiffuseHorizontal; // Current diffuse energy on the target on a horizontal plane
+
+	// Energy incident on the target coming from unobstructed rays (in MJ)
+	// will be increased by the total energy of rays that thave been not been intercepted at least once by a tree
+	double energyUnobstructedDirectSlope; // Unobstructed direct energy on the target on the slope
+	double energyUnobstructedDiffuseSlope; // Unobstructed diffuse energy on the target on the slope
+	double energyUnobstructedDirectHorizontal; // Unobstructed direct energy on the target on a horizontal plane
+	double energyUnobstructedDiffuseHorizontal; // Unobstructed diffuse energy on the target on a horizontal plane
+
+	// Vectors of interceptions between the tree and the target
+	// Here, also store the total energies, whereas above, we compute it only in exportResults
+	// Indeed, it is more efficient when manipulation large matrices to increment the total energy during the light interception computation
+	// Rather to sum the two matrices of direct and diffuse energies at the end
+	std::vector<int> interceptionsTreesNumber;
+	std::vector<int> interceptionsTreesNumberDirect;
+	std::vector<int> interceptionsTreesNumberDiffuse;
+
+	std::vector<double> interceptionsTreesEnergySlope;
+	std::vector<double> interceptionsTreesEnergyDirectSlope;
+	std::vector<double> interceptionsTreesEnergyDiffuseSlope;
+
+	std::vector<double> interceptionsTreesEnergyHorizontal;
+	std::vector<double> interceptionsTreesEnergyDirectHorizontal;
+	std::vector<double> interceptionsTreesEnergyDiffuseHorizontal;
+
 
 	// If the target is a sensor (other case is a cell)
 	// In this case, do not remove energies from intercepted crown
@@ -1108,22 +1146,44 @@ private:
 public:
 	Target(double x, double y, double z, 
 		int row, int col, 
-		double e_direct_above_slope, double e_diffuse_above_slope,
-		double e_direct_above_horizontal, double e_diffuse_above_horizontal,
-		bool is_sensor)
+		double e_above_direct_slope, double e_above_diffuse_slope,
+		double e_above_direct_horizontal, double e_above_diffuse_horizontal,
+		int n_total_trees,
+		bool is_sensor) :
+
+		// Initialize the vectors of interceptions with each tree (using the vector constructor)
+		interceptionsTreesNumber(n_total_trees, 0),
+		interceptionsTreesNumberDirect(n_total_trees, 0),
+		interceptionsTreesNumberDiffuse(n_total_trees, 0),
+
+		interceptionsTreesEnergySlope(n_total_trees, 0.0),
+		interceptionsTreesEnergyDirectSlope(n_total_trees, 0.0),
+		interceptionsTreesEnergyDiffuseSlope(n_total_trees, 0.0),
+
+		interceptionsTreesEnergyHorizontal(n_total_trees, 0.0),
+		interceptionsTreesEnergyDirectHorizontal(n_total_trees, 0.0),
+		interceptionsTreesEnergyDiffuseHorizontal(n_total_trees, 0.0)
 	{
+		// Geometry of the target
 		this->x = x;
 		this->y = y;
 		this->z = z;
 		this->row = row;
 		this->col = col;
 
-		// will be decreased by successive interception by the above trees
-		this->energyDirectSlope = e_direct_above_slope;
-		this->energyDiffuseSlope = e_diffuse_above_slope;
-		this->energyDirectHorizontal = e_direct_above_horizontal;
-		this->energyDiffuseHorizontal = e_diffuse_above_horizontal;
+		// The energy will be decreased by successive interception by the above trees
+		this->energyDirectSlope = e_above_direct_slope;
+		this->energyDiffuseSlope = e_above_diffuse_slope;
+		this->energyDirectHorizontal = e_above_direct_horizontal;
+		this->energyDiffuseHorizontal = e_above_diffuse_horizontal;
 
+		// The energy will be increased by the total energy of rays that thave been not been intercepted at least once by a tree
+		this->energyUnobstructedDirectSlope = 0.0;
+		this->energyUnobstructedDiffuseSlope = 0.0;
+		this->energyUnobstructedDirectHorizontal = 0.0;
+		this->energyUnobstructedDiffuseHorizontal = 0.0;
+
+		// Is it a sensor ?
 		this->isSensor = is_sensor;
 	}
 
@@ -1146,19 +1206,93 @@ public:
 	double getEnergyDirectHorizontal() { return(this->energyDirectHorizontal); }
 	double getEnergyDiffuseHorizontal() { return(this->energyDiffuseHorizontal); }
 
+	double getEnergyUnobstructedSlope() { return(this->energyUnobstructedDirectSlope + this->energyUnobstructedDiffuseSlope); }
+	double getEnergyUnobstructedDirectSlope() { return(this->energyUnobstructedDirectSlope); }
+	double getEnergyUnobstructedDiffuseSlope() { return(this->energyUnobstructedDiffuseSlope); }
+
+	double getEnergyUnobstructedHorizontal() { return(this->energyUnobstructedDirectHorizontal + this->energyUnobstructedDiffuseHorizontal); }
+	double getEnergyUnobstructedDirectHorizontal() { return(this->energyUnobstructedDirectHorizontal); }
+	double getEnergyUnobstructedDiffuseHorizontal() { return(this->energyUnobstructedDiffuseHorizontal); }
+
+	std::vector<int>& getInterceptionsTreesNumber() { return(this->interceptionsTreesNumber); }
+	std::vector<int>& getInterceptionsTreesNumberDirect() { return(this->interceptionsTreesNumberDirect); }
+	std::vector<int>& getInterceptionsTreesNumberDiffuse() { return(this->interceptionsTreesNumberDiffuse); }
+
+	std::vector<double>& getInterceptionsTreesEnergySlope() { return(this->interceptionsTreesEnergySlope); }
+	std::vector<double>& getInterceptionsTreesEnergyDirectSlope() { return(this->interceptionsTreesEnergyDirectSlope); }
+	std::vector<double>& getInterceptionsTreesEnergyDiffuseSlope() { return(this->interceptionsTreesEnergyDiffuseSlope); }
+
+	std::vector<double>& getInterceptionsTreesEnergyHorizontal() { return(this->interceptionsTreesEnergyHorizontal); }
+	std::vector<double>& getInterceptionsTreesEnergyDirectHorizontal() { return(this->interceptionsTreesEnergyDirectHorizontal); }
+	std::vector<double>& getInterceptionsTreesEnergyDiffuseHorizontal() { return(this->interceptionsTreesEnergyDiffuseHorizontal); }
+
+
 	bool isThisSensor() { return(this->isSensor); }
 
 
 	// Setters
-	void interceptEnergyDirectSlope(double e) { this->energyDirectSlope -= e; }
-	void interceptEnergyDiffuseSlope(double e) { this->energyDiffuseSlope -= e; }
-	void interceptEnergyDirectHorizontal(double e) { this->energyDirectHorizontal -= e; }
-	void interceptEnergyDiffuseHorizontal(double e) { this->energyDiffuseHorizontal -= e; }
+	void interceptRayDirect(double e_slope, double e_horizontal, int vect_id_tree) {
+		this->interceptionsTreesNumber[vect_id_tree] += 1;
+		this->interceptionsTreesNumberDirect[vect_id_tree] += 1;
+
+		this->interceptEnergySlope(e_slope, vect_id_tree);
+		this->interceptEnergyDirectSlope(e_slope, vect_id_tree);
+
+		this->interceptEnergyHorizontal(e_horizontal, vect_id_tree);
+		this->interceptEnergyDirectHorizontal(e_horizontal, vect_id_tree);
+	}
+
+	void interceptRayDiffuse(double e_slope, double e_horizontal, int vect_id_tree) {
+		this->interceptionsTreesNumber[vect_id_tree] += 1;
+		this->interceptionsTreesNumberDiffuse[vect_id_tree] += 1;
+
+		this->interceptEnergySlope(e_slope, vect_id_tree);
+		this->interceptEnergyDiffuseSlope(e_slope, vect_id_tree);
+
+		this->interceptEnergyHorizontal(e_horizontal, vect_id_tree);
+		this->interceptEnergyDiffuseHorizontal(e_horizontal, vect_id_tree);
+	}
+
+	void addUnobstructedEnergiesDirect(double e_above_slope, double e_above_horizontal) {
+		this->energyUnobstructedDirectSlope += e_above_slope;
+		this->energyUnobstructedDirectHorizontal += e_above_horizontal;
+	}
+
+	void addUnobstructedEnergiesDiffuse(double e_above_slope, double e_above_horizontal) {
+		this->energyUnobstructedDiffuseSlope += e_above_slope;
+		this->energyUnobstructedDiffuseHorizontal += e_above_horizontal;
+	}
 
 
 	//void resetEnergy() { this->energy = 0.0; }
 
 	//virtual void correctNullEnergy(double epsilon) {}
+
+	private:
+		void interceptEnergySlope(double e, int vect_id_tree) {
+			this->interceptionsTreesEnergySlope[vect_id_tree] += e;
+		}
+		void interceptEnergyHorizontal(double e, int vect_id_tree) {
+			this->interceptionsTreesEnergyHorizontal[vect_id_tree] += e;
+		}
+
+		void interceptEnergyDirectSlope(double e, int vect_id_tree) {
+			this->energyDirectSlope -= e;
+			this->interceptionsTreesEnergyDirectSlope[vect_id_tree] += e;
+		}
+		void interceptEnergyDirectHorizontal(double e, int vect_id_tree) {
+			this->energyDirectHorizontal -= e;
+			this->interceptionsTreesEnergyDirectHorizontal[vect_id_tree] += e;
+		}
+
+		void interceptEnergyDiffuseSlope(double e, int vect_id_tree) {
+			this->energyDiffuseSlope -= e;
+			this->interceptionsTreesEnergyDiffuseSlope[vect_id_tree] += e;
+		}
+		void interceptEnergyDiffuseHorizontal(double e, int vect_id_tree) {
+			this->energyDiffuseHorizontal -= e;
+			this->interceptionsTreesEnergyDiffuseHorizontal[vect_id_tree] += e;
+		}
 };
 
 class Sensor : public Target {
@@ -1171,12 +1305,14 @@ private:
 public:
 	Sensor(double x, double y, double z, 
 		int row, int col,
-		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
-		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
+		double e_above_direct_slope, double e_above_diffuse_slope,
+		double e_above_direct_horizontal, double e_above_diffuse_horizontal,
+		int n_total_trees,
 		int id_sensor) :
 		Target(x, y, z, row, col,
-			e_direct_above_slope_m2, e_diffuse_above_slope_m2, 
-			e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
+			e_above_direct_slope, e_above_diffuse_slope,
+			e_above_direct_horizontal, e_above_diffuse_horizontal,
+			n_total_trees,
 			true)
 	{
 		this->idSensor = id_sensor;
@@ -1207,12 +1343,14 @@ private:
 public:
 	Cell(double x, double y, double z, 
 		int row, int col, 
-		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
-		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
+		double e_above_direct_slope, double e_above_diffuse_slope,
+		double e_above_direct_horizontal, double e_above_diffuse_horizontal,
+		int n_total_trees,
 		int id_cell) :
 		Target(x, y, z, row, col, 
-			e_direct_above_slope_m2, e_diffuse_above_slope_m2, 
-			e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, 
+			e_above_direct_slope, e_above_diffuse_slope,
+			e_above_direct_horizontal, e_above_diffuse_horizontal,
+			n_total_trees,
 			false)
 	{
 		this->idCell = id_cell;
@@ -1242,6 +1380,7 @@ class Stand {
 
 private:
 	// Vector of sensors
+	int nSensors;
 	bool areSensors;
 	std::vector<Sensor*> sensors;
 
@@ -1249,7 +1388,9 @@ private:
 	std::vector<std::vector<Cell*>> grid;
 
 	// Vector of trees
+	int nTrees;
 	std::vector<Tree*> trees;
+	CharacterVector rcppTreeIdChar; // used for naming the matrices of interceptions
 
 	// Tree maximum sizes
 	double maxTreeHeight;
@@ -1273,8 +1414,8 @@ private:
 
 public:
 	Stand(DataFrame trees, DataFrame sensors,
-		double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
-		double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
+		double e_above_direct_slope_m2, double e_above_diffuse_slope_m2,
+		double e_above_direct_horizontal_m2, double e_above_diffuse_horizontal_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells_x, double n_cells_y, 
 		bool use_torus
@@ -1299,16 +1440,22 @@ public:
 		this->useTorus = use_torus;
 
 
+		// Number of trees
+		this->nTrees = trees.nrows();
+
+		// Number of sensors
+		this->nSensors = sensors.nrows();
+		this->areSensors = this->nSensors > 0;
+
+
 		// Get energy above canopy that is coming toward a cell
-		double e_direct_above_slope_cell = e_direct_above_slope_m2 * this->cellAreaSlope;
-		double e_diffuse_above_slope_cell = e_diffuse_above_slope_m2 * this->cellAreaSlope;
-		double e_direct_above_horizontal_cell = e_direct_above_horizontal_m2 * this->cellAreaHorizontal;
-		double e_diffuse_above_horizontal_cell = e_diffuse_above_horizontal_m2 * this->cellAreaHorizontal;
+		double e_above_direct_slope_cell = e_above_direct_slope_m2 * this->cellAreaSlope;
+		double e_above_diffuse_slope_cell = e_above_diffuse_slope_m2 * this->cellAreaSlope;
+		double e_above_direct_horizontal_cell = e_above_direct_horizontal_m2 * this->cellAreaHorizontal;
+		double e_above_diffuse_horizontal_cell = e_above_diffuse_horizontal_m2 * this->cellAreaHorizontal;
 
 
 		// Create vector of sensors from the sensors R DataFrame, if sensors are specified
-		this->areSensors = sensors.nrows() > 0;
-
 		if (this->areSensors) {
 
 			IntegerVector sensors_id = sensors["id_sensor"];
@@ -1316,8 +1463,7 @@ public:
 			NumericVector sensors_y = sensors["y"];
 			NumericVector sensors_height = sensors["h_m"];
 
-			int n_sensors = sensors.nrows();
-			for (int i = 0; i < n_sensors; i++) {
+			for (int i = 0; i < this->nSensors; i++) {
 
 				// Check if the sensor is within the stand limits
 				if (sensors_x[i] < 0.0 ||
@@ -1337,12 +1483,15 @@ public:
 					// std::cout << "Sensor " << sensors_id[i] << " in (row, col): (" << sensor_row << "," << sensor_col << ")" << std::endl;
 
 					// Create and push the pointor to Sensor new instance
+					// The sensor area is the same as the cell size
+					// Area is not a problem when trating with PACL, but may be considered when analysing absolute values of energy
 					this->sensors.push_back(new Sensor(
 						sensors_x[i], sensors_y[i], // Position of the sensor
 						this->computeZ(sensors_x[i], sensors_y[i]) + sensors_height[i], // Z pos of the sensor is the height above the ground
 						sensor_row, sensor_col, // Cell of the sensor
-						e_direct_above_slope_cell, e_diffuse_above_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
-						e_direct_above_horizontal_cell, e_diffuse_above_horizontal_cell, // Same but on a horizontal plane
+						e_above_direct_slope_cell, e_above_diffuse_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
+						e_above_direct_horizontal_cell, e_above_diffuse_horizontal_cell, // Same but on a horizontal plane
+						this->nTrees, // Number of trees to initialise the vector of interceptions with trees
 						sensors_id[i] // Id of the sensor
 					));
 				}
@@ -1364,8 +1513,9 @@ public:
 				cells_in_row.push_back(new Cell(
 					x, y, this->computeZ(x, y), // Position of the cell center
 					r, c, // Row and column of the cell within the stand grid system
-					e_direct_above_slope_cell, e_diffuse_above_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
-					e_direct_above_horizontal_cell, e_diffuse_above_horizontal_cell, // Same but on a horizontal plane
+					e_above_direct_slope_cell, e_above_diffuse_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
+					e_above_direct_horizontal_cell, e_above_diffuse_horizontal_cell, // Same but on a horizontal plane
+					this->nTrees, // Number of trees to initialise the vector of interceptions with trees
 					this->nCellsY * r + c + 1 // Id of the cell
 				));
 			}
@@ -1390,14 +1540,16 @@ public:
 		NumericVector clad = trees["crown_lad"];
 
 		// Add a Tree object to the associated Cell they belong to
-		int n_trees = trees.nrows();
-		for (int i = 0; i < n_trees; i++) {
+		for (int i = 0; i < this->nTrees; i++) {
 
 			// Create tree object
 			this->trees.push_back(new Tree(
 				i, trees_id[i], trees_x[i], trees_y[i], this->computeZ(trees_x[i], trees_y[i]),
 				dbh[i], tree_height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
 				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]));
+
+			// Add to trees id vectors (i.e. corrrespondance vector between trees id in vect and trees id)
+			this->rcppTreeIdChar.push_back(std::to_string(trees_id[i]));
 
 			// Find row and column of the cell and add tree id to the corresponding cell
 			int tree_col = findColFromPosX(trees_x[i]);
@@ -1415,8 +1567,7 @@ public:
 
 	~Stand() {
 		// Delete sensors pointors
-		int n_sensors = this->sensors.size();
-		for (int i = 0; i < n_sensors; i++) {
+		for (int i = 0; i < this->nSensors; i++) {
 			delete this->sensors[i];
 		}
 
@@ -1427,8 +1578,7 @@ public:
 			}
 		}
 		// Delete tree pointers
-		int n_trees = this->trees.size();
-		for (int i = 0; i < n_trees; i++) {
+		for (int i = 0; i < this->nTrees; i++) {
 			delete this->trees[i];
 		}
 	}
@@ -1437,7 +1587,7 @@ public:
 	// Getters
 	bool areThereSensors() { return(this->areSensors); }
 	Sensor* getSensor(int vectid) { return(this->sensors[vectid]); }
-	double getNSensors() { return(this->sensors.size()); }
+	int getNSensors() { return(this->nSensors); }
 
 	Cell* getCell(int row, int col) { return(this->grid[row][col]); }
 	int getNCells() { return(this->nCells); }
@@ -1445,7 +1595,8 @@ public:
 	int getNCellsY() { return(this->nCellsY); }
 
 	Tree* getTree(int vectid) { return(this->trees[vectid]); }
-	int getNTrees() { return(this->trees.size()); }
+	int getNTrees() { return(this->nTrees); }
+	CharacterVector& getRcppTreeIdChar() { return(this->rcppTreeIdChar); }
 
 	double getSlope() { return(this->slope); }
 	double getNorthToXcw() { return(this->northToXcw); }
@@ -1560,18 +1711,18 @@ private:
 
 	void predictEnergiesRayToTarget(Ray* ray, Target* target) {
 
-		// Get interceptions
-		std::vector<interception*> v_interc = this->computeInterceptionsRayToTarget(ray, target);
+		// Find interceptions
+		std::vector<interception*> v_interc = this->findInterceptionsRayToTarget(ray, target);
 
 		// Order interceptions
 		this->orderInterceptionsRayToTarget(v_interc);
 
-		// Summarize interceptions into energy
+		// Summarize interceptions into energy on the target and in the tree crown
 		this->summarizeInterceptionsRayToTarget(ray, target, v_interc);
 
 	}
 
-	std::vector<interception*> computeInterceptionsRayToTarget(Ray* ray, Target* target) {
+	std::vector<interception*> findInterceptionsRayToTarget(Ray* ray, Target* target) {
 
 		std::vector<interception*> v_interc;
 
@@ -1659,12 +1810,21 @@ private:
 		double current_energy_horizontal = e_incident_horizontal_cell;
 
 		// Track if the ray has been intercepted by a trunk
-		bool trunk_intercepted = false;
+		// to stop ray path if it is so
+		bool ray_intercepted_by_trunk = false;
 
-		// Initialize tracking maps necessary when many crown parts, i.e. 4P/4E/8E
-		// Check if a crown has already been intercepted (in porous envelop: as it does not consider path across the crown, attenuate the ray only at the first crown part intercepted)
-		// Track the incident potential energy that arrive to a crown part (for potential energy in turbid medium)
+		// Track if the ray has been intercepted, to compute unobstructed energy by the tree
+		// i.e. add energy unobstructed to the crown only if it is the first interception of the ray with a crown
+		bool ray_intercepted = false;
+
+		// Necessary when many crown parts, i.e. 4P/4E/8E
+		// Check if a crown has already been intercepted
+		// in porous envelop: as it does not consider path across the crown, attenuate the ray only at the first crown part intercepted)
 		std::vector<bool> is_intercepted(this->stand.getNTrees(), false);
+
+		// Necessary when many crown parts, i.e. 4P/4E/8E
+		// Track the incident potential energy that arrive to a crown part (for potential energy in turbid medium)
+		// Indeed, potential energy of the crown consider attenuation of energy between crown parts
 		std::vector<double> e_pot_incident(this->stand.getNTrees(), e_incident_slope_cell);
 
 		//Compute attenuation of energy across successives crown interceptions for each ray X target cell
@@ -1674,7 +1834,7 @@ private:
 			// If the ray has already intercepted a trunk
 			// Do not run other interception
 			// But still loop on interceptions to delete the pointors
-			if (trunk_intercepted) {
+			if (ray_intercepted_by_trunk) {
 				delete v_interc[j];
 				continue;
 			}
@@ -1682,7 +1842,7 @@ private:
 			// First interception with a trunk
 			// Next step, set current energy to 0 by setting intercepted energy to the incident energy
 			if (v_interc[j]->withTrunk) {
-				trunk_intercepted = true;
+				ray_intercepted_by_trunk = true;
 			}
 
 			// Get the intercepted crown
@@ -1707,11 +1867,13 @@ private:
 					crown.getCrownLAD(),
 					v_interc[j]->length);
 
-				// Remove the intercepted energy from the energy that left and from the potential incident energy of the given tree crown
-				e_pot_incident[v_interc[j]->vectIdTree] = e_pot_incident[v_interc[j]->vectIdTree] - potential_energy_slope;
+				// When the beam penetrates a tree not yet traversed,
+				// we reset the beam potential energy for this tree with the value of the initial beam energy
+				// To consider energy attenuation only between crown parts for potential energy 
+				e_pot_incident[v_interc[j]->vectIdTree] -= potential_energy_slope;
 
 				// Apply beer lambert law on incident ray attenuated by the competitor crowns intercepted the crown
-				intercepted_energy_slope = trunk_intercepted ? 
+				intercepted_energy_slope = ray_intercepted_by_trunk ? 
 					current_energy_slope : 
 					this->applyBeerLambert(
 						current_energy_slope,
@@ -1719,7 +1881,7 @@ private:
 						crown.getCrownLAD(),
 						v_interc[j]->length);
 
-				intercepted_energy_horizontal = trunk_intercepted ? 
+				intercepted_energy_horizontal = ray_intercepted_by_trunk ? 
 					current_energy_horizontal : 
 					this->applyBeerLambert(
 						current_energy_horizontal,
@@ -1732,20 +1894,20 @@ private:
 			else {
 				// Be careful, only once per crown (if many crown part, reduce only if crown has not been already intercepted by the ray)
 				// Except the intercepted part is the trunk (to avoid missing trunk interception after a previous interception by another volume of the same tree)
-				if (!is_intercepted[v_interc[j]->vectIdTree] || v_interc[j]->withTrunk) {
+				if (!is_intercepted[v_interc[j]->vectIdTree]) {
 
 					// Compute potential and intercepted energy if the first crown part is encountered by reducing the incident enrrgy by a fixed amount
 					potential_energy_slope = e_incident_slope_cell * (1 - crown.getCrownOpeness());
 
-					intercepted_energy_slope = trunk_intercepted ? 
+					intercepted_energy_slope = ray_intercepted_by_trunk ? 
 						current_energy_slope : 
 						(current_energy_slope * (1 - crown.getCrownOpeness()));
 
-					intercepted_energy_horizontal = trunk_intercepted ? 
+					intercepted_energy_horizontal = ray_intercepted_by_trunk ? 
 						current_energy_horizontal : 
 						(current_energy_slope * (1 - crown.getCrownOpeness()));
 
-					// Set the crown as being intercepted
+					// Set the tree as being intercepted
 					is_intercepted[v_interc[j]->vectIdTree] = true;
 				}
 				else {
@@ -1760,20 +1922,32 @@ private:
 			// Add to the potential and intercepted energy by the tree
 			// CAREFUL: ONLY IF TARGET IS A CELL 
 			// If it is a sensor, do not consider energy of trees
-			if (!target->isThisSensor()) {
+			// AND DO NOT ADD IF IT IS AN INTERCEPTION WITH A TRUNK
+			if (!target->isThisSensor() && !ray_intercepted_by_trunk) {
 				#ifdef _OPENMP
 				#pragma omp critical
 				{
 				#endif
 
-				// Add energy to wether the ray is a diffuse or direct one
+				// Add energy intercepted real, potential and unobstructed considering the ray is a diffuse or direct one
+				// We add the energy on a slope as we consider the tree
 				if (ray->isDirect()) {
 					crown.addEnergyPotentialDirect(potential_energy_slope);
 					crown.addEnergyDirect(intercepted_energy_slope);
+
+					if (!ray_intercepted) {
+						crown.addEnergyUnobstructedDirect(potential_energy_slope);
+						ray_intercepted = true;
+					}
 				}
 				else {
 					crown.addEnergyPotentialDiffuse(potential_energy_slope);
 					crown.addEnergyDiffuse(intercepted_energy_slope);
+
+					if (!ray_intercepted) {
+						crown.addEnergyUnobstructedDiffuse(potential_energy_slope);
+						ray_intercepted = true;
+					}
 				}
 
 				#ifdef _OPENMP
@@ -1787,9 +1961,9 @@ private:
 			current_energy_horizontal -= intercepted_energy_horizontal;
 
 			// Remove the intercepted energy by the crown from the total energy above the target
-			// (When considering energy  direct/diffuse,) 
 			// (it is easier to decrease the energy coming from above along interceptions)
 			// (than to add current energy of the ray coming to the target at the end of the interceptions)
+			// Precise the id in the tree vector that have intercepted the ray, to modify the vectors of interceptions with trees
 			#ifdef _OPENMP
 			#pragma omp critical
 			{
@@ -1797,12 +1971,10 @@ private:
 
 			// Diffuse or direct energy
 			if (ray->isDirect()) {
-				target->interceptEnergyDirectSlope(intercepted_energy_slope);
-				target->interceptEnergyDirectHorizontal(intercepted_energy_horizontal);
+				target->interceptRayDirect(intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
 			}
 			else {
-				target->interceptEnergyDiffuseSlope(intercepted_energy_slope);
-				target->interceptEnergyDiffuseHorizontal(intercepted_energy_horizontal);
+				target->interceptRayDiffuse(intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
 			}
 
 			#ifdef _OPENMP
@@ -1811,6 +1983,17 @@ private:
 
 			// Delete interception pointer
 			delete v_interc[j];
+		}
+
+		// Increase the unobstructed energy if the ray has not been intercepted
+		if (n_interceptions == 0) {
+
+			if (ray->isDirect()) {
+				target->addUnobstructedEnergiesDirect(e_incident_slope_cell, e_incident_horizontal_cell);
+			}
+			else {
+				target->addUnobstructedEnergiesDiffuse(e_incident_slope_cell, e_incident_horizontal_cell);
+			}
 		}
 
 	}
@@ -1993,83 +2176,174 @@ public:
 
 	List exportResults() {
 
+		int n_trees = this->stand.getNTrees();
+		int n_sensors = this->stand.getNSensors();
+		int n_cells = this->stand.getNCells();
+
 		// ------------- FOR SENSORS ----------------
 
-		// Init RCPP vectors for sensors
-		int n_sensors = this->stand.getNSensors();
+		// Init RCPP vectors/matrices for sensors
 
-		IntegerVector id_sensor(n_sensors);
-		NumericVector x_sensor(n_sensors);
-		NumericVector y_sensor(n_sensors);
-		NumericVector z_sensor(n_sensors);
+		IntegerVector id_sensors(n_sensors);
+		NumericVector x_sensors(n_sensors);
+		NumericVector y_sensors(n_sensors);
+		NumericVector z_sensors(n_sensors);
 
-		NumericVector e_slope_sensor(n_sensors);
-		NumericVector pacl_slope_sensor(n_sensors);
-		NumericVector e_slope_direct_sensor(n_sensors);
-		NumericVector pacl_slope_direct_sensor(n_sensors);
-		NumericVector e_slope_diffuse_sensor(n_sensors);
-		NumericVector pacl_slope_diffuse_sensor(n_sensors);
+		NumericVector e_slope_sensors(n_sensors);
+		NumericVector pacl_slope_sensors(n_sensors);
+		NumericVector punobs_slope_sensors(n_sensors);
+		NumericVector e_slope_direct_sensors(n_sensors);
+		NumericVector pacl_slope_direct_sensors(n_sensors);
+		NumericVector punobs_slope_direct_sensors(n_sensors);
+		NumericVector e_slope_diffuse_sensors(n_sensors);
+		NumericVector pacl_slope_diffuse_sensors(n_sensors);
+		NumericVector punobs_slope_diffuse_sensors(n_sensors);
 
-		NumericVector e_horizontal_sensor(n_sensors);
-		NumericVector pacl_horizontal_sensor(n_sensors);
-		NumericVector e_horizontal_direct_sensor(n_sensors);
-		NumericVector pacl_horizontal_direct_sensor(n_sensors);
-		NumericVector e_horizontal_diffuse_sensor(n_sensors);
-		NumericVector pacl_horizontal_diffuse_sensor(n_sensors);
+		NumericVector e_horizontal_sensors(n_sensors);
+		NumericVector pacl_horizontal_sensors(n_sensors);
+		NumericVector punobs_horizontal_sensors(n_sensors);
+		NumericVector e_horizontal_direct_sensors(n_sensors);
+		NumericVector pacl_horizontal_direct_sensors(n_sensors);
+		NumericVector punobs_horizontal_direct_sensors(n_sensors);
+		NumericVector e_horizontal_diffuse_sensors(n_sensors);
+		NumericVector pacl_horizontal_diffuse_sensors(n_sensors);
+		NumericVector punobs_horizontal_diffuse_sensors(n_sensors);
+
+		IntegerMatrix interceptions_number_sensors(n_trees, n_sensors);
+		IntegerMatrix interceptions_number_direct_sensors(n_trees, n_sensors);
+		IntegerMatrix interceptions_number_diffuse_sensors(n_trees, n_sensors);
+
+		NumericMatrix interceptions_energy_slope_sensors(n_trees, n_sensors);
+		NumericMatrix interceptions_energy_slope_direct_sensors(n_trees, n_sensors);
+		NumericMatrix interceptions_energy_slope_diffuse_sensors(n_trees, n_sensors);
+
+		NumericMatrix interceptions_energy_horizontal_sensors(n_trees, n_sensors);
+		NumericMatrix interceptions_energy_horizontal_direct_sensors(n_trees, n_sensors);
+		NumericMatrix interceptions_energy_horizontal_diffuse_sensors(n_trees, n_sensors);
 
 
 		// Export the sensor into R
+		CharacterVector rcpp_sensor_id_char(n_sensors);
 		for (int s = 0; s < n_sensors; s++) {
 
 			// Get sensor
 			Sensor* sensor = this->stand.getSensor(s);
 
-			// Add sensor to vectors
-			id_sensor[s] = sensor->getIdSensor();
-			x_sensor[s] = sensor->getX();
-			y_sensor[s] = sensor->getY();
-			z_sensor[s] = sensor->getZ();
+			// Update sensor character id vector
+			rcpp_sensor_id_char[s] = std::to_string(sensor->getIdSensor());
+
+			// Export sensor info to vectors
+			id_sensors[s] = sensor->getIdSensor();
+			x_sensors[s] = sensor->getX();
+			y_sensors[s] = sensor->getY();
+			z_sensors[s] = sensor->getZ();
 
 			// Correct for rounding errors
 			/*sensor->correctNullEnergy(1e-6);*/
 
-			e_slope_sensor[s] = sensor->getEnergySlope();
-			e_slope_direct_sensor[s] = sensor->getEnergyDirectSlope();
-			e_slope_diffuse_sensor[s] = sensor->getEnergyDiffuseSlope();
+			// Export energies toward the sensor
+			e_slope_sensors[s] = sensor->getEnergySlope();
+			e_slope_direct_sensors[s] = sensor->getEnergyDirectSlope();
+			e_slope_diffuse_sensors[s] = sensor->getEnergyDiffuseSlope();
 
-			pacl_slope_sensor[s] = sensor->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
-			pacl_slope_direct_sensor[s] = sensor->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
-			pacl_slope_diffuse_sensor[s] = sensor->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
+			pacl_slope_sensors[s] = sensor->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
+			pacl_slope_direct_sensors[s] = sensor->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
+			pacl_slope_diffuse_sensors[s] = sensor->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
 		
-			e_horizontal_sensor[s] = sensor->getEnergyHorizontal();
-			e_horizontal_direct_sensor[s] = sensor->getEnergyDirectHorizontal();
-			e_horizontal_diffuse_sensor[s] = sensor->getEnergyDiffuseHorizontal();
+			punobs_slope_sensors[s] = sensor->getEnergyUnobstructedSlope() / sensor->getEnergySlope();
+			punobs_slope_direct_sensors[s] = sensor->getEnergyUnobstructedDirectSlope() / sensor->getEnergyDirectSlope();
+			punobs_slope_diffuse_sensors[s] = sensor->getEnergyUnobstructedDiffuseSlope() / sensor->getEnergyDiffuseSlope();
 
-			pacl_horizontal_sensor[s] = sensor->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
-			pacl_horizontal_direct_sensor[s] = sensor->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
-			pacl_horizontal_diffuse_sensor[s] = sensor->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+			e_horizontal_sensors[s] = sensor->getEnergyHorizontal();
+			e_horizontal_direct_sensors[s] = sensor->getEnergyDirectHorizontal();
+			e_horizontal_diffuse_sensors[s] = sensor->getEnergyDiffuseHorizontal();
+
+			pacl_horizontal_sensors[s] = sensor->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+			pacl_horizontal_direct_sensors[s] = sensor->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+			pacl_horizontal_diffuse_sensors[s] = sensor->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+
+			punobs_horizontal_sensors[s] = sensor->getEnergyUnobstructedHorizontal() / sensor->getEnergyHorizontal();
+			punobs_horizontal_direct_sensors[s] = sensor->getEnergyUnobstructedDirectHorizontal() / sensor->getEnergyDirectHorizontal();
+			punobs_horizontal_diffuse_sensors[s] = sensor->getEnergyUnobstructedDiffuseHorizontal() / sensor->getEnergyDiffuseHorizontal();
+
+
+			// Export matrices of interceptions with trees
+			std::vector<int>& interceptions_number_sensor = sensor->getInterceptionsTreesNumber();
+			interceptions_number_sensors(_, s) = NumericVector(interceptions_number_sensor.begin(), interceptions_number_sensor.end());
+			
+			std::vector<int>& interceptions_number_direct_sensor = sensor->getInterceptionsTreesNumberDirect();
+			interceptions_number_direct_sensors(_, s) = NumericVector(interceptions_number_direct_sensor.begin(), interceptions_number_direct_sensor.end());
+			
+			std::vector<int>& interceptions_number_diffuse_sensor = sensor->getInterceptionsTreesNumberDiffuse();
+			interceptions_number_diffuse_sensors(_, s) = NumericVector(interceptions_number_diffuse_sensor.begin(), interceptions_number_diffuse_sensor.end());
+
+			std::vector<double>& interceptions_energy_slope_sensor = sensor->getInterceptionsTreesEnergySlope();
+			interceptions_energy_slope_sensors(_, s) = NumericVector(interceptions_energy_slope_sensor.begin(), interceptions_energy_slope_sensor.end());
+
+			std::vector<double>& interceptions_energy_slope_direct_sensor = sensor->getInterceptionsTreesEnergyDirectSlope();
+			interceptions_energy_slope_direct_sensors(_, s) = NumericVector(interceptions_energy_slope_direct_sensor.begin(), interceptions_energy_slope_direct_sensor.end());
+
+			std::vector<double>& interceptions_energy_slope_diffuse_sensor = sensor->getInterceptionsTreesEnergyDiffuseSlope();
+			interceptions_energy_slope_diffuse_sensors(_, s) = NumericVector(interceptions_energy_slope_diffuse_sensor.begin(), interceptions_energy_slope_diffuse_sensor.end());
+
+			std::vector<double>& interceptions_energy_horizontal_sensor = sensor->getInterceptionsTreesEnergyHorizontal();
+			interceptions_energy_horizontal_sensors(_, s) = NumericVector(interceptions_energy_horizontal_sensor.begin(), interceptions_energy_horizontal_sensor.end());
+
+			std::vector<double>& interceptions_energy_horizontal_direct_sensor = sensor->getInterceptionsTreesEnergyDirectHorizontal();
+			interceptions_energy_horizontal_direct_sensors(_, s) = NumericVector(interceptions_energy_horizontal_direct_sensor.begin(), interceptions_energy_horizontal_direct_sensor.end());
+
+			std::vector<double>& interceptions_energy_horizontal_diffuse_sensor = sensor->getInterceptionsTreesEnergyDiffuseHorizontal();
+			interceptions_energy_horizontal_diffuse_sensors(_, s) = NumericVector(interceptions_energy_horizontal_diffuse_sensor.begin(), interceptions_energy_horizontal_diffuse_sensor.end());
 		}
+
+		// Set the col and row names of the matrices
+		rownames(interceptions_number_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_number_direct_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_number_diffuse_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_energy_slope_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_energy_slope_direct_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_energy_slope_diffuse_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_energy_horizontal_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_energy_horizontal_direct_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_energy_horizontal_diffuse_sensors) = this->stand.getRcppTreeIdChar();
+
+		colnames(interceptions_number_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_number_direct_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_number_diffuse_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_energy_slope_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_energy_slope_direct_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_energy_slope_diffuse_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_energy_horizontal_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_energy_horizontal_direct_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_energy_horizontal_diffuse_sensors) = rcpp_sensor_id_char;
+		
 
 		// Create sensors RCPP DataFrames
 		DataFrame output_sensors = DataFrame::create(
-			Named("id_sensor") = id_sensor,
-			Named("x") = x_sensor,
-			Named("y") = y_sensor,
-			Named("z") = z_sensor,
+			Named("id_sensor") = id_sensors,
+			Named("x") = x_sensors,
+			Named("y") = y_sensors,
+			Named("z") = z_sensors,
 
-			Named("e_slope") = e_slope_sensor,
-			Named("pacl_slope") = pacl_slope_sensor,
-			Named("e_slope_direct") = e_slope_direct_sensor,
-			Named("pacl_slope_direct") = pacl_slope_direct_sensor,
-			Named("e_slope_diffuse") = e_slope_diffuse_sensor,
-			Named("pacl_slope_diffuse") = pacl_slope_diffuse_sensor,
+			Named("e_slope") = e_slope_sensors,
+			Named("pacl_slope") = pacl_slope_sensors,
+			Named("punobs_slope") = punobs_slope_sensors,
+			Named("e_slope_direct") = e_slope_direct_sensors,
+			Named("pacl_slope_direct") = pacl_slope_direct_sensors,
+			Named("punobs_slope_direct") = punobs_slope_direct_sensors,
+			Named("e_slope_diffuse") = e_slope_diffuse_sensors,
+			Named("pacl_slope_diffuse") = pacl_slope_diffuse_sensors,
+			Named("punobs_slope_diffuse") = punobs_slope_diffuse_sensors,
 
-			Named("e_horizontal") = e_horizontal_sensor,
-			Named("pacl_horizontal") = pacl_horizontal_sensor,
-			Named("e_horizontal_direct") = e_horizontal_direct_sensor,
-			Named("pacl_horizontal_direct") = pacl_horizontal_direct_sensor,
-			Named("e_horizontal_diffuse") = e_horizontal_diffuse_sensor,
-			Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_sensor
+			Named("e_horizontal") = e_horizontal_sensors,
+			Named("pacl_horizontal") = pacl_horizontal_sensors,
+			Named("punobs_horizontal") = punobs_horizontal_sensors,
+			Named("e_horizontal_direct") = e_horizontal_direct_sensors,
+			Named("pacl_horizontal_direct") = pacl_horizontal_direct_sensors,
+			Named("punobs_horizontal_direct") = punobs_horizontal_direct_sensors,
+			Named("e_horizontal_diffuse") = e_horizontal_diffuse_sensors,
+			Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_sensors,
+			Named("punobs_horizontal_diffuse") = punobs_horizontal_diffuse_sensors
 		);
 
 
@@ -2077,85 +2351,146 @@ public:
 
 		// Get number of trees and cells
 		// Set to 0 if we did not compute trees and cells interception (sensor_only argument)
-		int n_cells = this->stand.getNCells();
-		int n_trees = this->stand.getNTrees();
-
 		if (this->sensorsOnly) {
 			n_cells = 0;
 			n_trees = 0;
 		}
 
 		// Init RCPP vectors for trees
-		IntegerVector id_tree(n_trees);
-		NumericVector x_tree(n_trees);
-		NumericVector y_tree(n_trees);
-		NumericVector z_tree(n_trees);
+		IntegerVector id_trees(n_trees);
+		NumericVector x_trees(n_trees);
+		NumericVector y_trees(n_trees);
+		NumericVector z_trees(n_trees);
 
-		NumericVector e_tree(n_trees);
-		NumericVector epot_tree(n_trees);
-		NumericVector e_direct_tree(n_trees);
-		NumericVector epot_direct_tree(n_trees);
-		NumericVector e_diffuse_tree(n_trees);
-		NumericVector epot_diffuse_tree(n_trees);
+		NumericVector e_trees(n_trees);
+		NumericVector epot_trees(n_trees);
+		NumericVector eunobs_trees(n_trees);
+		NumericVector e_direct_trees(n_trees);
+		NumericVector epot_direct_trees(n_trees);
+		NumericVector eunobs_direct_trees(n_trees);
+		NumericVector e_diffuse_trees(n_trees);
+		NumericVector epot_diffuse_trees(n_trees);
+		NumericVector eunobs_diffuse_trees(n_trees);
 
-		// Init RCPP vectors for cells
-		IntegerVector id_cell(n_cells);
-		NumericVector x_cell(n_cells);
-		NumericVector y_cell(n_cells);
-		NumericVector z_cell(n_cells);
+		// Init RCPP vectors/matrices for cells
+		IntegerVector id_cells(n_cells);
+		NumericVector x_cells(n_cells);
+		NumericVector y_cells(n_cells);
+		NumericVector z_cells(n_cells);
 
-		NumericVector e_slope_cell(n_cells);
-		NumericVector pacl_slope_cell(n_cells);
-		NumericVector e_slope_direct_cell(n_cells);
-		NumericVector pacl_slope_direct_cell(n_cells);
-		NumericVector e_slope_diffuse_cell(n_cells);
-		NumericVector pacl_slope_diffuse_cell(n_cells);
+		NumericVector e_slope_cells(n_cells);
+		NumericVector pacl_slope_cells(n_cells);
+		NumericVector punobs_slope_cells(n_cells);
+		NumericVector e_slope_direct_cells(n_cells);
+		NumericVector pacl_slope_direct_cells(n_cells);
+		NumericVector punobs_slope_direct_cells(n_cells);
+		NumericVector e_slope_diffuse_cells(n_cells);
+		NumericVector pacl_slope_diffuse_cells(n_cells);
+		NumericVector punobs_slope_diffuse_cells(n_cells);
 
-		NumericVector e_horizontal_cell(n_cells);
-		NumericVector pacl_horizontal_cell(n_cells);
-		NumericVector e_horizontal_direct_cell(n_cells);
-		NumericVector pacl_horizontal_direct_cell(n_cells);
-		NumericVector e_horizontal_diffuse_cell(n_cells);
-		NumericVector pacl_horizontal_diffuse_cell(n_cells);
+		NumericVector e_horizontal_cells(n_cells);
+		NumericVector pacl_horizontal_cells(n_cells);
+		NumericVector punobs_horizontal_cells(n_cells);
+		NumericVector e_horizontal_direct_cells(n_cells);
+		NumericVector pacl_horizontal_direct_cells(n_cells);
+		NumericVector punobs_horizontal_direct_cells(n_cells);
+		NumericVector e_horizontal_diffuse_cells(n_cells);
+		NumericVector pacl_horizontal_diffuse_cells(n_cells);
+		NumericVector punobs_horizontal_diffuse_cells(n_cells);
+
+		IntegerMatrix interceptions_number_cells(n_trees, n_cells);
+		IntegerMatrix interceptions_number_direct_cells(n_trees, n_cells);
+		IntegerMatrix interceptions_number_diffuse_cells(n_trees, n_cells);
+
+		NumericMatrix interceptions_energy_slope_cells(n_trees, n_cells);
+		NumericMatrix interceptions_energy_slope_direct_cells(n_trees, n_cells);
+		NumericMatrix interceptions_energy_slope_diffuse_cells(n_trees, n_cells);
+
+		NumericMatrix interceptions_energy_horizontal_cells(n_trees, n_cells);
+		NumericMatrix interceptions_energy_horizontal_direct_cells(n_trees, n_cells);
+		NumericMatrix interceptions_energy_horizontal_diffuse_cells(n_trees, n_cells);
+
 
 		if (!this->sensorsOnly) {
 
 			// For each cell
+			CharacterVector rcpp_cell_id_char(n_cells);
+			
 			int icell = 0;
 			int itree = 0;
 			int n_rows = this->stand.getNCellsY();
 			int n_cols = this->stand.getNCellsX();
+
 			for (int r = 0; r < n_rows; r++) {
 				for (int c = 0; c < n_cols; c++) {
 
 					// Get cell
 					Cell* cell = this->stand.getCell(r, c);
 
+					// Update sensor character id vector
+					rcpp_cell_id_char[icell] = std::to_string(cell->getIdCell());
+
 					// Add cell to vectors
-					id_cell[icell] = cell->getIdCell();
-					x_cell[icell] = cell->getX();
-					y_cell[icell] = cell->getY();
-					z_cell[icell] = cell->getZ();
+					id_cells[icell] = cell->getIdCell();
+					x_cells[icell] = cell->getX();
+					y_cells[icell] = cell->getY();
+					z_cells[icell] = cell->getZ();
 
 					// Correct for rounding errors
 					//cell->correctNullEnergy(1e-6);
 
-					e_slope_cell[icell] = cell->getEnergySlope();
-					e_slope_direct_cell[icell] = cell->getEnergyDirectSlope();
-					e_slope_diffuse_cell[icell] = cell->getEnergyDiffuseSlope();
+					e_slope_cells[icell] = cell->getEnergySlope();
+					e_slope_direct_cells[icell] = cell->getEnergyDirectSlope();
+					e_slope_diffuse_cells[icell] = cell->getEnergyDiffuseSlope();
 
-					pacl_slope_cell[icell] = cell->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
-					pacl_slope_direct_cell[icell] = cell->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
-					pacl_slope_diffuse_cell[icell] = cell->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
+					pacl_slope_cells[icell] = cell->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
+					pacl_slope_direct_cells[icell] = cell->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
+					pacl_slope_diffuse_cells[icell] = cell->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
 
-					e_horizontal_cell[icell] = cell->getEnergyHorizontal();
-					e_horizontal_direct_cell[icell] = cell->getEnergyDirectHorizontal();
-					e_horizontal_diffuse_cell[icell] = cell->getEnergyDiffuseHorizontal();
+					punobs_slope_cells[icell] = cell->getEnergyUnobstructedSlope() / cell->getEnergySlope();
+					punobs_slope_direct_cells[icell] = cell->getEnergyUnobstructedDirectSlope() / cell->getEnergyDirectSlope();
+					punobs_slope_diffuse_cells[icell] = cell->getEnergyUnobstructedDiffuseSlope() / cell->getEnergyDiffuseSlope();
 
-					pacl_horizontal_cell[icell] = cell->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
-					pacl_horizontal_direct_cell[icell] = cell->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
-					pacl_horizontal_diffuse_cell[icell] = cell->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+					e_horizontal_cells[icell] = cell->getEnergyHorizontal();
+					e_horizontal_direct_cells[icell] = cell->getEnergyDirectHorizontal();
+					e_horizontal_diffuse_cells[icell] = cell->getEnergyDiffuseHorizontal();
 
+					pacl_horizontal_cells[icell] = cell->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+					pacl_horizontal_direct_cells[icell] = cell->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+					pacl_horizontal_diffuse_cells[icell] = cell->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+
+					punobs_horizontal_cells[icell] = cell->getEnergyUnobstructedHorizontal() / cell->getEnergyHorizontal();
+					punobs_horizontal_direct_cells[icell] = cell->getEnergyUnobstructedDirectHorizontal() / cell->getEnergyDirectHorizontal();
+					punobs_horizontal_diffuse_cells[icell] = cell->getEnergyUnobstructedDiffuseHorizontal() / cell->getEnergyDiffuseHorizontal();
+
+
+					// Export matrices of interceptions with trees
+					std::vector<int>& interceptions_number_cell = cell->getInterceptionsTreesNumber();
+					interceptions_number_cells(_, icell) = NumericVector(interceptions_number_cell.begin(), interceptions_number_cell.end());
+
+					std::vector<int>& interceptions_number_direct_cell = cell->getInterceptionsTreesNumberDirect();
+					interceptions_number_direct_cells(_, icell) = NumericVector(interceptions_number_direct_cell.begin(), interceptions_number_direct_cell.end());
+
+					std::vector<int>& interceptions_number_diffuse_cell = cell->getInterceptionsTreesNumberDiffuse();
+					interceptions_number_diffuse_cells(_, icell) = NumericVector(interceptions_number_diffuse_cell.begin(), interceptions_number_diffuse_cell.end());
+
+					std::vector<double>& interceptions_energy_slope_cell = cell->getInterceptionsTreesEnergySlope();
+					interceptions_energy_slope_cells(_, icell) = NumericVector(interceptions_energy_slope_cell.begin(), interceptions_energy_slope_cell.end());
+
+					std::vector<double>& interceptions_energy_slope_direct_cell = cell->getInterceptionsTreesEnergyDirectSlope();
+					interceptions_energy_slope_direct_cells(_, icell) = NumericVector(interceptions_energy_slope_direct_cell.begin(), interceptions_energy_slope_direct_cell.end());
+
+					std::vector<double>& interceptions_energy_slope_diffuse_cell = cell->getInterceptionsTreesEnergyDiffuseSlope();
+					interceptions_energy_slope_diffuse_cells(_, icell) = NumericVector(interceptions_energy_slope_diffuse_cell.begin(), interceptions_energy_slope_diffuse_cell.end());
+
+					std::vector<double>& interceptions_energy_horizontal_cell = cell->getInterceptionsTreesEnergyHorizontal();
+					interceptions_energy_horizontal_cells(_, icell) = NumericVector(interceptions_energy_horizontal_cell.begin(), interceptions_energy_horizontal_cell.end());
+
+					std::vector<double>& interceptions_energy_horizontal_direct_cell = cell->getInterceptionsTreesEnergyDirectHorizontal();
+					interceptions_energy_horizontal_direct_cells(_, icell) = NumericVector(interceptions_energy_horizontal_direct_cell.begin(), interceptions_energy_horizontal_direct_cell.end());
+
+					std::vector<double>& interceptions_energy_horizontal_diffuse_cell = cell->getInterceptionsTreesEnergyDiffuseHorizontal();
+					interceptions_energy_horizontal_diffuse_cells(_, icell) = NumericVector(interceptions_energy_horizontal_diffuse_cell.begin(), interceptions_energy_horizontal_diffuse_cell.end());
 
 
 					// For each tree composing the cell
@@ -2164,19 +2499,22 @@ public:
 
 						Tree* tree = this->stand.getTree(cell->getVectIdTree(t));
 
-						id_tree[itree] = tree->getId();
-						x_tree[itree] = tree->getTrunk().getX();
-						y_tree[itree] = tree->getTrunk().getY();
-						z_tree[itree] = tree->getTrunk().getZ();
+						id_trees[itree] = tree->getId();
+						x_trees[itree] = tree->getTrunk().getX();
+						y_trees[itree] = tree->getTrunk().getY();
+						z_trees[itree] = tree->getTrunk().getZ();
 
-						e_tree[itree] = tree->getCrownEnergy();
-						epot_tree[itree] = tree->getCrownEnergyPotential();
+						e_trees[itree] = tree->getCrownEnergy();
+						epot_trees[itree] = tree->getCrownEnergyPotential();
+						eunobs_trees[itree] = tree->getCrownEnergyUnobstructed();
 
-						e_direct_tree[itree] = tree->getCrownEnergyDirect();
-						epot_direct_tree[itree] = tree->getCrownEnergyPotentialDirect();
+						e_direct_trees[itree] = tree->getCrownEnergyDirect();
+						epot_direct_trees[itree] = tree->getCrownEnergyPotentialDirect();
+						eunobs_direct_trees[itree] = tree->getCrownEnergyUnobstructedDirect();
 
-						e_diffuse_tree[itree] = tree->getCrownEnergyDiffuse();
-						epot_diffuse_tree[itree] = tree->getCrownEnergyPotentialDiffuse();
+						e_diffuse_trees[itree] = tree->getCrownEnergyDiffuse();
+						epot_diffuse_trees[itree] = tree->getCrownEnergyPotentialDiffuse();
+						eunobs_diffuse_trees[itree] = tree->getCrownEnergyUnobstructedDiffuse();
 
 						itree++;
 					}
@@ -2185,55 +2523,127 @@ public:
 				}
 			}
 
+			// Set the col and row names of the matrices
+			rownames(interceptions_number_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_number_direct_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_number_diffuse_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_energy_slope_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_energy_slope_direct_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_energy_slope_diffuse_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_energy_horizontal_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_energy_horizontal_direct_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_energy_horizontal_diffuse_cells) = this->stand.getRcppTreeIdChar();
+
+			colnames(interceptions_number_cells) = rcpp_cell_id_char;
+			colnames(interceptions_number_direct_cells) = rcpp_cell_id_char;
+			colnames(interceptions_number_diffuse_cells) = rcpp_cell_id_char;
+			colnames(interceptions_energy_slope_cells) = rcpp_cell_id_char;
+			colnames(interceptions_energy_slope_direct_cells) = rcpp_cell_id_char;
+			colnames(interceptions_energy_slope_diffuse_cells) = rcpp_cell_id_char;
+			colnames(interceptions_energy_horizontal_cells) = rcpp_cell_id_char;
+			colnames(interceptions_energy_horizontal_direct_cells) = rcpp_cell_id_char;
+			colnames(interceptions_energy_horizontal_diffuse_cells) = rcpp_cell_id_char;
+
 		}
 
 		// Create trees and cells RCPP DataFrames
 		DataFrame output_trees = DataFrame::create(
-			Named("id_tree") = id_tree,
-			Named("x") = x_tree,
-			Named("y") = y_tree,
-			Named("z") = z_tree,
+			Named("id_tree") = id_trees,
+			Named("x") = x_trees,
+			Named("y") = y_trees,
+			Named("z") = z_trees,
 
-			Named("epot") = epot_tree,
-			Named("e") = e_tree,
-			Named("epot_direct") = epot_direct_tree,
-			Named("e_direct") = e_direct_tree,
-			Named("epot_diffuse") = epot_diffuse_tree,
-			Named("e_diffuse") = e_diffuse_tree
+			Named("epot") = epot_trees,
+			Named("e") = e_trees,
+			Named("eunobs") = eunobs_trees,
+			Named("epot_direct") = epot_direct_trees,
+			Named("e_direct") = e_direct_trees,
+			Named("eunobs_direct") = eunobs_direct_trees,
+			Named("epot_diffuse") = epot_diffuse_trees,
+			Named("e_diffuse") = e_diffuse_trees,
+			Named("eunobs_diffuse") = eunobs_diffuse_trees
 		);
 
 		DataFrame output_cells = DataFrame::create(
-			Named("id_cell") = id_cell,
-			Named("x_center") = x_cell,
-			Named("y_center") = y_cell,
-			Named("z_center") = z_cell,
+			Named("id_cell") = id_cells,
+			Named("x_center") = x_cells,
+			Named("y_center") = y_cells,
+			Named("z_center") = z_cells,
 
-			Named("e_slope") = e_slope_cell,
-			Named("pacl_slope") = pacl_slope_cell,
-			Named("e_slope_direct") = e_slope_direct_cell,
-			Named("pacl_slope_direct") = pacl_slope_direct_cell,
-			Named("e_slope_diffuse") = e_slope_diffuse_cell,
-			Named("pacl_slope_diffuse") = pacl_slope_diffuse_cell,
+			Named("e_slope") = e_slope_cells,
+			Named("pacl_slope") = pacl_slope_cells,
+			Named("punobs_slope") = punobs_slope_cells,
+			Named("e_slope_direct") = e_slope_direct_cells,
+			Named("pacl_slope_direct") = pacl_slope_direct_cells,
+			Named("punobs_slope_direct") = punobs_slope_direct_cells,
+			Named("e_slope_diffuse") = e_slope_diffuse_cells,
+			Named("pacl_slope_diffuse") = pacl_slope_diffuse_cells,
+			Named("punobs_slope_diffuse") = punobs_slope_diffuse_cells,
 
-			Named("e_horizontal") = e_horizontal_cell,
-			Named("pacl_horizontal") = pacl_horizontal_cell,
-			Named("e_horizontal_direct") = e_horizontal_direct_cell,
-			Named("pacl_horizontal_direct") = pacl_horizontal_direct_cell,
-			Named("e_horizontal_diffuse") = e_horizontal_diffuse_cell,
-			Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_cell
+			Named("e_horizontal") = e_horizontal_cells,
+			Named("pacl_horizontal") = pacl_horizontal_cells,
+			Named("punobs_horizontal") = punobs_horizontal_cells,
+			Named("e_horizontal_direct") = e_horizontal_direct_cells,
+			Named("pacl_horizontal_direct") = pacl_horizontal_direct_cells,
+			Named("punobs_horizontal_direct") = punobs_horizontal_direct_cells,
+			Named("e_horizontal_diffuse") = e_horizontal_diffuse_cells,
+			Named("pacl_horizontal_diffuse") = pacl_horizontal_diffuse_cells,
+			Named("punobs_horizontal_diffuse") = punobs_horizontal_diffuse_cells
 		);
 
 		// Return output as a List of two DataFrames
 		return(List::create(
 			Named("sensors") = output_sensors,
 			Named("trees") = output_trees,
-			Named("cells") = output_cells
+			Named("cells") = output_cells,
+			Named("interceptions") = List::create(
+				Named("sensors") = List::create(
+					Named("number") = List::create(
+						Named("total") = interceptions_number_sensors,
+						Named("direct") = interceptions_number_direct_sensors,
+						Named("diffuse") = interceptions_number_diffuse_sensors
+					),
+					Named("energy") = List::create(
+						Named("total") = List::create(
+							Named("slope") = interceptions_energy_slope_sensors,
+							Named("horizontal") = interceptions_energy_horizontal_sensors
+						),
+						Named("direct") = List::create(
+							Named("slope") = interceptions_energy_slope_direct_sensors,
+							Named("horizontal") = interceptions_energy_horizontal_direct_sensors
+						),
+						Named("diffuse") = List::create(
+							Named("slope") = interceptions_energy_slope_diffuse_sensors,
+							Named("horizontal") = interceptions_energy_horizontal_diffuse_sensors
+						)
+					)
+				),
+				Named("cells") = List::create(
+					Named("number") = List::create(
+						Named("total") = interceptions_number_cells,
+						Named("direct") = interceptions_number_direct_cells,
+						Named("diffuse") = interceptions_number_diffuse_cells
+					),
+					Named("energy") = List::create(
+						Named("total") = List::create(
+							Named("slope") = interceptions_energy_slope_cells,
+							Named("horizontal") = interceptions_energy_horizontal_cells
+						),
+						Named("direct") = List::create(
+							Named("slope") = interceptions_energy_slope_direct_cells,
+							Named("horizontal") = interceptions_energy_horizontal_direct_cells
+						),
+						Named("diffuse") = List::create(
+							Named("slope") = interceptions_energy_slope_diffuse_cells,
+							Named("horizontal") = interceptions_energy_horizontal_diffuse_cells
+						)
+					)
+				)
+			)
 		));
 	}
 
 };
-
-
 
 
 // [[Rcpp::export]]
@@ -2251,9 +2661,6 @@ List sl_run_rcpp(
 	// TESTS:
 	// - If plots is big enough for tree coordinates
 	// - If hmax is needed
-
-	// TODO:
-	// - core plot
 
 
 	// Initialize the model
@@ -2276,7 +2683,7 @@ List sl_run_rcpp(
 	// For each target cell and each ray (target cells can be parallelized)
 	sl_model.computeInterceptions();
 
-	// Convert teh output into R format
+	// Convert the output into R format
 	List output = sl_model.exportResults();
 
 	return(output);

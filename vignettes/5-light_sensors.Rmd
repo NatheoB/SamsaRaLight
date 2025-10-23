@@ -95,14 +95,14 @@ out_sl <- SamsaRaLight::sl_run(
 ```
 
 ```{r, fig.dim = c(8, 6)}
-plot_stand <- out_sl$cells %>% 
+plot_stand <- out_sl$output$cells %>% 
   dplyr::mutate(
     pacl_group = case_when(
-      pacl_slope > 0.5 ~ "> 50%",
-      pacl_slope > 0.25 ~ "25 - 50%",
-      pacl_slope > 0.125 ~ "12.5 - 25%",
-      pacl_slope > 0.0625 ~ "6.25 - 12.5%",
-      pacl_slope <= 0.0625 ~ "< 6.25%"
+      pacl > 0.5 ~ "> 50%",
+      pacl > 0.25 ~ "25 - 50%",
+      pacl > 0.125 ~ "12.5 - 25%",
+      pacl > 0.0625 ~ "6.25 - 12.5%",
+      pacl <= 0.0625 ~ "< 6.25%"
     ),
     pacl_group = factor(pacl_group,
                         levels = c("< 6.25%", "6.25 - 12.5%",

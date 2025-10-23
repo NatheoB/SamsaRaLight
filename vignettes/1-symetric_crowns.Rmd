@@ -29,9 +29,9 @@ library(tidyr)
 
 # Inputs
 
-## Set the stand geometry
+## Set the virtual stand geometry
 
-You first need to precise the geometry of the stand with:
+SamsaRaLight runs on a rectangle stand You first need to precise the geometry of the stand with:
 
 ```{r stand_geom}
 # Coordinates of the stand (for monthly radiation and rays geometry)
@@ -110,7 +110,7 @@ Now, given the stand geometry, the trees dataset and the monthly
 radiation, you can run SamsaRaLight using the function `sl_run()`.
 
 ```{r out_sl}
-out <- SamsaRaLight::sl_run(
+data_sl <- SamsaRaLight::sl_run(
     data_trees, data_monthly_rad,
     latitude = latitude, slope = slope, 
     aspect = aspect, north_to_x_cw = north_to_x_cw,
@@ -141,7 +141,7 @@ microbenchmark::microbenchmark(
 ## Tree light interception
 
 ```{r output_trees, fig.dim = c(8, 6)}
-out$trees %>% 
+data_sl$output$trees %>% 
   tidyr::pivot_longer(!c(id_tree, x, y, z), names_to = "var") %>%
   dplyr::left_join(data_trees, by = "id_tree") %>% 
 
@@ -152,52 +152,31 @@ out$trees %>%
   scale_color_manual(values = c("skyblue", "salmon", "olivedrab3"))
 ```
 
+```{r}
+data_sl$output$trees %>% 
+  dplyr::mutate(punobs = eunobs / e) %>% 
+  dplyr::left_join(data_trees, by = "id_tree") %>% 
+  
+  ggplot(aes(y = eunobs, x = e, color = species)) +
+  geom_point() +
+  theme(legend.position = "top") +
+  scale_color_manual(values = c("skyblue", "salmon", "olivedrab3"))
+
+data_sl$output$trees %>% 
+  dplyr::mutate(punobs = eunobs / e) %>% 
+  dplyr::left_join(data_trees, by = "id_tree") %>% 
+  
+  ggplot(aes(y = punobs, x = dbh_cm, color = species)) +
+  geom_point() +
+  theme(legend.position = "top") +
+  scale_color_manual(values = c("skyblue", "salmon", "olivedrab3"))
+```
+
+
 
 ## Light on the ground
 
 ```{r output_ground, fig.dim = c(8, 6)}
-out$cells %>% 
-  dplyr::mutate(
-    pacl_group = case_when(
-      pacl_slope > 0.5 ~ "> 50%",
-      pacl_slope > 0.25 ~ "25 - 50%",
-      pacl_slope > 0.125 ~ "12.5 - 25%",
-      pacl_slope > 0.0625 ~ "6.25 - 12.5%",
-      pacl_slope <= 0.0625 ~ "< 6.25%"
-    ),
-    pacl_group = factor(pacl_group,
-                        levels = c("< 6.25%", "6.25 - 12.5%",
-                                   "12.5 - 25%", "25 - 50%",
-                                   "> 50%"))) %>% 
-
-ggplot() +
-  
-  geom_tile(aes(x = x_center, y = y_center,
-                fill = pacl_group), color = "black") +
-  scale_fill_grey(start = 0.2, end = 1,
-                  drop = FALSE) +
-  labs(fill = "Cells enlightment") +
-  ggnewscale::new_scale_fill() +
-  
-  geom_circle(data = data_trees, mapping = aes(x0 = x, y0 = y, r = r_m, fill = species)) +
-  coord_equal() +
-  labs(fill = "Species") +
-  scale_fill_manual(values = c("skyblue", "salmon", "olivedrab3")) +
-  
-  scale_x_continuous(breaks = seq(0, n_cells_x*cell_size,
-                                  by = cell_size),
-                     labels = round(seq(0, n_cells_x*cell_size,
-                                        by = cell_size),
-                                    digits = 1)) +
-  scale_y_continuous(breaks = seq(0, n_cells_y*cell_size,
-                                  by = cell_size),
-                     labels = round(seq(0, n_cells_y*cell_size,
-                                        by = cell_size),
-                                    digits = 1)) +
-  
-  theme_minimal() +
-  theme(panel.grid.minor = element_blank(),
-        legend.position = "right") +
-  xlab("") + ylab("")
+plot_sl_output(data_sl, plot.trees = FALSE)
 ```
 
