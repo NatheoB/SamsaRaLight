@@ -25,7 +25,14 @@ Imports:
     data.table,
     Rcpp,
     sf,
-    concaveman
+    concaveman,
+    ggforce,
+    purrr,
+    ggplot2,
+    cowplot,
+    tidyr,
+    grid,
+    sfheaders
 Suggests: 
     knitr,
     rmarkdown,
