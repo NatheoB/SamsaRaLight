@@ -17,9 +17,6 @@ knitr::opts_chunk$set(
 
 This is a first tutorial which shows you how to solve a basic problem with the SamsaRaLight package. We will exemplify this simple case with the Prenovel dataset stored in the package as `SamsaRaLight::data_prenovel`. It is an uneven-aged stand of fir-spruce-beech located in the Jura mountains (France). Get more information in the data documentation.
 
-
-# Libraries
-
 ```{r example, message=FALSE, warning=FALSE}
 library(SamsaRaLight)
 library(dplyr)
@@ -66,7 +63,7 @@ The user needs to define the trees composing the stand with their crown dimensio
 
 The dataframe must contain mandatory information about the trees: a unique integer id (id_tree), the species name (species), coordinates (x, y) and diameter at breast height in cm (dbh_cm). The x and y coordinates must be given relatively to the rectangle plot as defined above (thus $0 \le x \le cellsize * ncells_x$ and $0 \le y \le cellsize * ncells_y$) and are given on a flat plane, not considering slope. The z coordinate is computed automatically during the process.
 
-In this tutorial, we represent the tree crowns with simple shapes, defined in the crown_type column by a specific code: "E" (for an ellipsoid) or "P" (for a paraboloid). The ellipsoidal shape "E" is commonly used for broadleaved species, whereas a paraboloidal shape "P" is commonly used for conifers. When using simple crown shapes, the user must provide only 3 values to define the crown dimensions: the height of the tree (h_m in meters), the height of the crown base (hbase_m in meters) and the crown maximum radius that is the same is the four cardinal directions as we wonsider simple symetric crowns (rn_m, re_m, rs_m and rw_m, all in meters). When considering those type of simple crown shapes ("E" or "P"), the user must not provide the hmax_m variable, which is the height at which the crown radius is maximum. Indeed, it is automatically computed during the process, being set to the crown base height (hbase_m) when considering a paraboloidal shape "P", and set at the middle of the crown for an ellipsoidal shape "E" (hmax_m - 0.5*(h_m - hbase_m)).  
+In this tutorial, we represent the tree crowns with simple shapes, defined in the crown_type column by a specific code: "E" (for an ellipsoid) or "P" (for a paraboloid). The ellipsoidal shape "E" is commonly used for broadleaved species, whereas a paraboloidal shape "P" is commonly used for conifers. When using simple crown shapes, the user must provide only 3 values to define the crown dimensions: the height of the tree (h_m in meters), the height of the crown base (hbase_m in meters) and the crown maximum radius that is the same is the four cardinal directions as we wonsider simple symetric crowns (rn_m, re_m, rs_m and rw_m, all in meters). When considering those type of simple crown shapes ("E" or "P"), the user must not provide the hmax_m variable, which is the height at which the crown radius is maximum. Indeed, it is automatically computed during the process, being set to the crown base height ($hmax = hbase$) when considering a paraboloidal shape "P", and set at the middle of the crown for an ellipsoidal shape "E" ($hmax = h - 0.5*(h - hbase)$).  
 
 In the next tutorials, we will explain more in details the columns crown_openess/crown_lad (3 - Consider crowns as either a porous envelop or a turbid medium) and consider more complex asymetric crown shapes (5 - Represent the crowns with more complex shapes).
 

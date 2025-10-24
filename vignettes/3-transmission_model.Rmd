@@ -15,10 +15,7 @@ comment = "#>"
 )
 ```
 
-This is a first tutorial which shows you how to solve a basic problem with the SamsaRaLight package. We will exemplify this simple case with the Prenovel dataset stored in the package as `SamsaRaLight::data_prenovel`. It is an uneven-aged stand of fir-spruce-beech located in the Jura mountains (France). Get more information in the data documentation.
-
-
-# Libraries
+This is a tutorial which shows you how to choose the transmission model, which allows to represent how a energy of a ray is attenuated throughout its path within a crown.
 
 ```{r lib, message=FALSE, warning=FALSE}
 library(SamsaRaLight)
@@ -112,7 +109,7 @@ data_comparison <- dplyr::bind_rows(
 ```
 
 
-```{r}
+```{r graph_comp, fig.dim = c(8, 6)}
 data_comparison %>% 
 
   ggplot(aes(y = turbid, x = porous, color = species)) +
@@ -124,7 +121,7 @@ data_comparison %>%
 ```
 
 
-```{r}
+```{r graph_diff, fig.dim = c(8, 6)}
 data_comparison %>% 
 
   ggplot(aes(y = diff, x = dbh_cm, color = species)) +

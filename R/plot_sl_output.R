@@ -9,11 +9,13 @@ plot_sl_output <- function(sl_output,
                            trees.border.species = FALSE,
                            trees.fill = "species",
                            trees.fill.inverse = FALSE,
+                           trees.only_inv = FALSE,
                            cells.border = FALSE,
                            cells.fill = NULL,
                            cells.fill.palette = c("base", "base01",
                                                   "viridis", "viridis01",
-                                                  "light", "light01")) {
+                                                  "light", "light01"),
+                           sensors.plot = FALSE) {
   
   # Check arguments
   if (!cells.fill %in% names(sl_output$output$cells) && !is.null(cells.fill)) {
@@ -83,7 +85,7 @@ plot_sl_output <- function(sl_output,
     } else if (cells.fill.palette == "viridis") {
       plt <- plt +
         scale_fill_viridis_c(guide = guide_colorbar(direction = "horizontal"))
-    } else if (cells.fill.palette == "viridis") {
+    } else if (cells.fill.palette == "viridis01") {
       plt <- plt +
         scale_fill_viridis_c(guide = guide_colorbar(direction = "horizontal"),
                              limits = c(0, 1))
@@ -128,13 +130,19 @@ plot_sl_output <- function(sl_output,
       by = c("id_tree", "x", "y")
     )
     
+    ## Remove trees added to fill around the inventory zone if precsied
+    ## Only if the column exists, i.e. only if the virtual stand has been created with the create_rect_stand() function
+    if ("added_to_fill" %in% colnames(data_trees) & trees.only_inv) {
+      data_trees <- data_trees %>% 
+        dplyr::filter(!added_to_fill)
+    }
     
     ## Base mapping (always used)
     aes_base_trees <- aes(
       x0 = x,
       y0 = y,
-      a = pmax(re_m, rw_m),
-      b = pmax(rn_m, rs_m),
+      a = (re_m + rw_m) / 2,
+      b = (rn_m + rs_m) / 2,
       angle = 0,
       fill = !!sym(trees.fill)
     )
@@ -161,8 +169,22 @@ plot_sl_output <- function(sl_output,
         scale_fill_viridis_c(guide = guide_colorbar(direction = "horizontal"),
                              direction = direction_viridis)
     }
-       
+  
   }
   
+  # Plot sensors if specified
+  if (sensors.plot & nrow(sl_output$output$sensors) > 0) {
+
+    plt <- plt +
+      geom_rect(data = sl_output$output$sensors,
+                mapping = aes(xmin = x - 1,
+                              ymin = y - 1,
+                              xmax = x + 1,
+                              ymax = y + 1),
+                color = "red", fill = "black")
+    
+  }
+  
+  # Return the plot
   plt
 }

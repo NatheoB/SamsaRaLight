@@ -3,7 +3,7 @@ title: "2 - Understand stand information"
 subtitle: "Understand the effect of the stand latitude, slope and aspect"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{2 - Understand stand geometry}
+  %\VignetteIndexEntry{2 - Understand stand information}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -18,8 +18,6 @@ knitr::opts_chunk$set(
 
 This is a tutorial which shows the effect of stand geometry on light distribution by showing the shading effect of a single large tree depending on the latitude and the slope/aspect of the stand. This tutorial also allows to address how the SamsaraLight model discretizes the direct and diffuse rays.
 
-
-# Libraries
 
 ```{r example, message=FALSE, warning=FALSE}
 library(SamsaRaLight)
@@ -145,7 +143,7 @@ head(out_sl[[4]]$monthly_rays$rays)
 
 ## Change in incident energy with stand latitude and geometry
 
-```{r  graph_energies, fig.dim = c(8, 6)}
+```{r graph_energies, fig.dim = c(8, 6)}
 # Create a dataframe for comparing incident energies
 out_sl %>% 
   purrr::map(~as.data.frame(as.list(.x$monthly_rays$energies))) %>% 
