@@ -2364,12 +2364,15 @@ public:
 
 		NumericVector e_trees(n_trees);
 		NumericVector epot_trees(n_trees);
+		NumericVector lci_trees(n_trees);
 		NumericVector eunobs_trees(n_trees);
 		NumericVector e_direct_trees(n_trees);
 		NumericVector epot_direct_trees(n_trees);
+		NumericVector lci_direct_trees(n_trees);
 		NumericVector eunobs_direct_trees(n_trees);
 		NumericVector e_diffuse_trees(n_trees);
 		NumericVector epot_diffuse_trees(n_trees);
+		NumericVector lci_diffuse_trees(n_trees);
 		NumericVector eunobs_diffuse_trees(n_trees);
 
 		// Init RCPP vectors/matrices for cells
@@ -2506,14 +2509,17 @@ public:
 
 						e_trees[itree] = tree->getCrownEnergy();
 						epot_trees[itree] = tree->getCrownEnergyPotential();
+						lci_trees[itree] = 1.0f - e_trees[itree] / epot_trees[itree];
 						eunobs_trees[itree] = tree->getCrownEnergyUnobstructed();
 
 						e_direct_trees[itree] = tree->getCrownEnergyDirect();
 						epot_direct_trees[itree] = tree->getCrownEnergyPotentialDirect();
+						lci_trees[itree] = 1.0f - e_direct_trees[itree] / epot_direct_trees[itree];
 						eunobs_direct_trees[itree] = tree->getCrownEnergyUnobstructedDirect();
 
 						e_diffuse_trees[itree] = tree->getCrownEnergyDiffuse();
 						epot_diffuse_trees[itree] = tree->getCrownEnergyPotentialDiffuse();
+						lci_trees[itree] = 1.0f - e_diffuse_trees[itree] / epot_diffuse_trees[itree];
 						eunobs_diffuse_trees[itree] = tree->getCrownEnergyUnobstructedDiffuse();
 
 						itree++;
@@ -2555,12 +2561,15 @@ public:
 
 			Named("epot") = epot_trees,
 			Named("e") = e_trees,
+			Named("lci") = lci_trees,
 			Named("eunobs") = eunobs_trees,
 			Named("epot_direct") = epot_direct_trees,
 			Named("e_direct") = e_direct_trees,
+			Named("lci_direct") = lci_direct_trees,
 			Named("eunobs_direct") = eunobs_direct_trees,
 			Named("epot_diffuse") = epot_diffuse_trees,
 			Named("e_diffuse") = e_diffuse_trees,
+			Named("lci_diffuse") = lci_diffuse_trees,
 			Named("eunobs_diffuse") = eunobs_diffuse_trees
 		);
 

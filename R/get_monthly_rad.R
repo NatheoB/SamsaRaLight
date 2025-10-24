@@ -84,6 +84,9 @@ get_monthly_rad <- function(latitude, longitude,
       dplyr::summarize_all(mean)
   }
 
+  # Convert to data.frame
+  out_df <- as.data.frame(out_df)
+  
   return(out_df)
 }
 

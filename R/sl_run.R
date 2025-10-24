@@ -92,7 +92,7 @@ sl_run <- function(trees,
                    diffuse_anglestep = 15,
                    use_torus = TRUE,
                    turbid_medium = TRUE,
-                   trunk_interception = FALSE,
+                   trunk_interception = TRUE,
                    detailed_output = FALSE) {
 
   # Create monthly rays
@@ -141,7 +141,7 @@ sl_run <- function(trees,
     # Trees dataset
     out$trees <- out$trees %>% 
       dplyr::select(id_tree, x, y, z,
-                    epot, e, eunobs) %>% 
+                    epot, e, lci, eunobs) %>% 
       as.data.frame()
     
     # Remove the interception matrices

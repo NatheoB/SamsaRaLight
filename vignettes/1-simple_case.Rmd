@@ -1,0 +1,215 @@
+---
+title: "1 - A first simple case"
+subtitle: "Compute tree light interception by symmetric crowns in an axis-aligned rectangle plot"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{1 - A first simple case}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+This is a first tutorial which shows you how to solve a basic problem with the SamsaRaLight package. We will exemplify this simple case with the Prenovel dataset stored in the package as `SamsaRaLight::data_prenovel`. It is an uneven-aged stand of fir-spruce-beech located in the Jura mountains (France). Get more information in the data documentation.
+
+
+# Libraries
+
+```{r example, message=FALSE, warning=FALSE}
+library(SamsaRaLight)
+library(dplyr)
+```
+
+
+
+# Inputs
+
+## Virtual stand geometry
+
+SamsaRaLight needs to be run on a axis-aligned rectangle stand that is split into square identical cells. This rectangle stand can have a given homogeneous slope with a given orientation and aspect. Finally, as the radiation depends on the plot location, the user needs to precise the latitude/longitude coordinates of the stand. If the virtual stand is not represented as a axis-aligned rectangle, the user can also refer to the Tutorial 4 (4 - Create a virtual stand from tree inventory).
+
+```{r stand_geom}
+# Information of the plot are given here
+infos <- SamsaRaLight::data_prenovel$info
+infos
+
+# Coordinates of the stand (for monthly radiation and rays geometry)
+latitude <- infos[["latitude"]] # The latitude of the stand (Y-coord in WGS85)
+longitude <- infos[["longitude"]] # The longitude of the plot (X-coord in WGS85)
+
+# The slope of the stand
+slope <- infos[["slope"]]
+
+# Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
+# northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
+aspect <- infos[["aspect"]]
+
+# Angle from North to x axis clockwise. (in degrees)
+# Default correspond to a Y axis oriented toward the North.
+north_to_x_cw <- infos[["north_to_x_cw"]]
+
+# Considering a squared plot, number and size of the cells composing the grid
+cell_size <- 1 # Size of the length of a cell
+n_cells_x <- infos[["size_x"]] / cell_size # Number of cells columns
+n_cells_y <- infos[["size_y"]] / cell_size # Number of cells rows
+```
+
+
+## Trees description
+
+The user needs to define the trees composing the stand with their crown dimensions. The data frame must be created with a specific format and variables: see documentation using ?SamsaRaLight::sl_run to understand the composition of the trees dataset.
+
+The dataframe must contain mandatory information about the trees: a unique integer id (id_tree), the species name (species), coordinates (x, y) and diameter at breast height in cm (dbh_cm). The x and y coordinates must be given relatively to the rectangle plot as defined above (thus $0 \le x \le cellsize * ncells_x$ and $0 \le y \le cellsize * ncells_y$) and are given on a flat plane, not considering slope. The z coordinate is computed automatically during the process.
+
+In this tutorial, we represent the tree crowns with simple shapes, defined in the crown_type column by a specific code: "E" (for an ellipsoid) or "P" (for a paraboloid). The ellipsoidal shape "E" is commonly used for broadleaved species, whereas a paraboloidal shape "P" is commonly used for conifers. When using simple crown shapes, the user must provide only 3 values to define the crown dimensions: the height of the tree (h_m in meters), the height of the crown base (hbase_m in meters) and the crown maximum radius that is the same is the four cardinal directions as we wonsider simple symetric crowns (rn_m, re_m, rs_m and rw_m, all in meters). When considering those type of simple crown shapes ("E" or "P"), the user must not provide the hmax_m variable, which is the height at which the crown radius is maximum. Indeed, it is automatically computed during the process, being set to the crown base height (hbase_m) when considering a paraboloidal shape "P", and set at the middle of the crown for an ellipsoidal shape "E" (hmax_m - 0.5*(h_m - hbase_m)).  
+
+In the next tutorials, we will explain more in details the columns crown_openess/crown_lad (3 - Consider crowns as either a porous envelop or a turbid medium) and consider more complex asymetric crown shapes (5 - Represent the crowns with more complex shapes).
+
+
+```{r data_trees}
+data_trees <- SamsaRaLight::data_prenovel$trees
+
+head(data_trees)
+```
+
+
+## Monthly radiations
+
+The user needs to define in a data frame the monthly energy specific to its plot location. For each month (represented by an integer number between 1 and 12), one needs to inform $Hrad$ as the global monthly energies (in $MJ.m^{-2}$), and $DGratio$ as the ratio of diffuse energy relative to global energy (needed to represent the proportion of diffuse and direct energy).
+
+This data frame can be automatically constructed using the SamsaRaLight function `SamsaRaLight::get_monthly_rad()`, given the latitude and longitude of the plot. 
+It gets radiation data from the PVGIS European database (needs an Internet connection).
+
+Otherwise, the monthly radiation data frame used in this tutorial (Prenovel stand) is stored within the package and can be retrieved using `SamsaRaLight::data_prenovel$radiations`.
+
+```{r monthly_rad}
+# Create the monthly radiation data frame
+data_monthly_rad <- SamsaRaLight::get_monthly_rad(latitude, longitude)
+data_monthly_rad
+```
+
+
+
+# Run SamsaRaLight
+
+Now, given the stand geometry, the trees dataset and the monthly
+radiation, you can easily run the SamsaraLight ray-tracing model using the function `sl_run()`. Note that the computation time increase exponentially with the cell size decreasing.
+
+The other function arguments are addressed throughout the next tutorials, and especially at the last one (8 - Deeper understanding of the SamsaraLight parameters).
+
+
+```{r out_sl}
+sl_output <- SamsaRaLight::sl_run(
+    # Trees
+    trees = data_trees, 
+    
+    # Radiations
+    monthly_rad = data_monthly_rad,
+    latitude = latitude, 
+    
+    # Stand geometry
+    slope = slope, 
+    aspect = aspect, 
+    north_to_x_cw = north_to_x_cw,
+    cell_size = cell_size, 
+    n_cells_x = n_cells_x, 
+    n_cells_y = n_cells_y
+  )
+```
+
+
+# Outputs
+
+## Plot the virtual stand
+
+The user can first observe its virtual stand using the function `plot_sl_output()` directly on the output object.
+
+```{r plot_stand, fig.dim = c(8, 6)}
+plot_sl_output(sl_output)
+```
+
+
+## Output format
+
+The output is a complex R object, with first a list of three elements: `$input` (that gathers inputs of the model defined above), `$monthly_rays` containing the rays that are cast toward each cell and `$output` (containing the output of the SamsaraLight ray-tracing model).
+
+Here, we will focus on the outputs of the model for the cells `$output$cells` and the trees `$output$trees`. The output for the sensors `$output$sensors` are explained in the Tutorial 7 (7 - Estimate light on virtual sensors) and the `$monthly_rays` are addressed in the next tutorial (2 - Importance of stand latitude, slope and orientation).
+
+```{r}
+str(sl_output)
+```
+
+## Understand the output cells and trees SamsaraLight variables
+
+### Output cell
+
+The object `$output$cells` contains output light variables for each cell, identified by its unique id (id_cell) and the coordinates of the cell center (x_center, y_center, z_center). There are 3 output variables, which are `e` (for the energy arriving on the cell in MJ), `pacl` (for proportion of above light canopy, which is the ratio between the energy arriving on the cell and the energy before interception by the trees) and `punobs` (for the proportion of energy on the cell that comes from unobstructed rays, i.e. rays that have not been intercepted by any trees).
+
+```{r}
+head(sl_output$output$cells)
+```
+
+The user can plot a given output variable (e.g. cells.fill = "e" or cells.fill = "pacl) without the trees above (trees.fill = NULL) to observe the light distribution within the stand (absolute or relative to the above light). Aesthetic arguments can be tweaked, such as the cell borders (cell.borders = FALSE) or the palette used for filling the cells (e.g. cells.fill.palette = "light" or cells.fill.palette = "light01" for forcing the limits of the palette between 0 and 1).
+
+```{r plot_ecell, fig.dim = c(8, 6)}
+plot_sl_output(sl_output,
+               trees.fill = NULL,
+               cells.fill = "e",
+               cells.fill.palette = "light",
+               cells.border = FALSE)
+```
+
+```{r plot_pacl, fig.dim = c(8, 6)}
+plot_sl_output(sl_output,
+               trees.fill = NULL,
+               cells.fill = "pacl",
+               cells.fill.palette = "light01",
+               cells.border = FALSE)
+```
+
+
+### Output tree
+
+The object `$output$trees` contains output light variables for each trees, identified by its unique id (id_trees) and their coordinates (x, y, z). There are 4 output variables, which are `e` (for the total energy intercepted by the tree in MJ), `epot` (for the potential energy intercepted by the tree without considering its neighbors in MJ, i.e. the total energy intercepted if the tree was alone with the same crown dimensions), $lci = 1 - e/epot$ (which is a light competition index, representing the real intercepted energy compared to the potential energy it could intercept without competition, see Beauchamp et al. 2025) and `punobs` (for the proportion of energy intercepted by the tree that comes from unobstructed rays, i.e. rays that have not been intercepted by any other trees).
+
+```{r}
+head(sl_output$output$trees)
+```
+
+The user can plot a given output variable (e.g. trees.fill = "e" or trees.fill = "lci") without the cells filled (cells.fill = NULL) to observe the light interception by trees (absolute or scaled to represent competition). Aesthetic arguments can be tweaked, such as inversing the palette colors (trees.fill.inverse = TRUE, better to represent the competition with viridis, where a lci = 1 indicates a trees with a very strong light competition).
+
+
+```{r plot_etree, fig.dim = c(8, 6)}
+plot_sl_output(sl_output,
+               trees.fill = "e",
+               cells.fill = NULL)
+```
+
+```{r plot_lci, fig.dim = c(8, 6)}
+plot_sl_output(sl_output,
+               trees.fill = "lci",
+               trees.fill.inverse = TRUE,
+               cells.fill = NULL)
+```
+
+
+
+## Gather all the SamsaraLight outputs
+
+Here, the user can decide to plot the light output for both trees and cells, and even adding the species the tree is associated to (trees.border.species = TRUE).
+
+```{r plot_light, fig.dim = c(8, 6)}
+plot_sl_output(sl_output,
+               trees.border.species = TRUE,
+               trees.fill = "lci",
+               trees.fill.inverse = TRUE,
+               cells.fill = "pacl",
+               cells.fill.palette = "light01",
+               cells.border = FALSE)
+```
+

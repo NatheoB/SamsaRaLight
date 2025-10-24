@@ -25,7 +25,7 @@ sl_run(
   diffuse_anglestep = 15,
   use_torus = TRUE,
   turbid_medium = TRUE,
-  trunk_interception = FALSE,
+  trunk_interception = TRUE,
   detailed_output = FALSE
 )
 }

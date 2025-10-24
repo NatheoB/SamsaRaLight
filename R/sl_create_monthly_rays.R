@@ -102,6 +102,8 @@ sl_create_monthly_rays <- function(monthly_rad,
   rays <- rays[rays$e_incident > 0,]
   rays <- dplyr::bind_cols(id_ray = 1:nrow(rays), rays)
   
+  row.names(rays) <- NULL
+  
   
   ### Return all rays and energies ----
   return(list("energies" = c("slope_direct" = direct_rays$e_slope,

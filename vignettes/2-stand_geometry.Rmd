@@ -1,0 +1,225 @@
+---
+title: "2 - Understand stand information"
+subtitle: "Understand the effect of the stand latitude, slope and aspect"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{2 - Understand stand geometry}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+This is a tutorial which shows the effect of stand geometry on light distribution by showing the shading effect of a single large tree depending on the latitude and the slope/aspect of the stand. This tutorial also allows to address how the SamsaraLight model discretizes the direct and diffuse rays.
+
+
+# Libraries
+
+```{r example, message=FALSE, warning=FALSE}
+library(SamsaRaLight)
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(cowplot)
+```
+
+
+# Run the experiment
+
+## Create virtual stands
+
+In this tutorial, we will create from scratch a virtual stand with a single large tree at the center.
+
+```{r}
+# Stand dimensions
+cell_size <- 1
+stand_size_x <- 100
+stand_size_y <- 100
+
+# Variable needed for creating the trees table
+names(SamsaRaLight::data_prenovel$trees)
+
+# Creating the table for this experiment (i.e. one big tree on the middle of the stand)
+data_tree <- data.frame(
+  id_tree = 1,
+  species = "Fagus sylvatica",
+  x = stand_size_x / 2,
+  y = stand_size_y / 2,
+  dbh_cm = 100,
+  crown_type = "E",
+  h_m = 40,
+  hbase_m = 20,
+  hmax_m = NA,
+  rn_m = 6,
+  re_m = 6,
+  rs_m = 6,
+  rw_m = 6,
+  crown_openess = 0.2,
+  crown_lad = 1
+)
+
+data_tree
+```
+
+## Define the experimental design 
+
+Here, we define the experimental design, that is the latitude/slope/aspect combinations we want to test.
+
+```{r}
+exp_design <- expand.grid(
+  city = c("Madrid", "Brussels", "Oslo"), # Define three towns with different latitudes in Europe
+  slope = c(0, 20),
+  aspect = c(0, 180)
+) %>% 
+  
+  # Set the longitude/latitude of our three towns
+  dplyr::mutate(
+    latitude = case_match(city,
+                          "Madrid" ~ 40.4167,
+                          "Brussels" ~ 50.8477,
+                          "Oslo" ~ 59.9122),
+    longitude = case_match(city,
+                          "Madrid" ~ -3.7033,
+                          "Brussels" ~ 4.3572,
+                          "Oslo" ~ 10.7313)
+  ) %>% 
+  dplyr::filter(!(slope == 0 & aspect != 0)) %>% # Because aspect do not change anything in a flat plane
+  dplyr::mutate(stand_geom = case_when(
+                  slope == 0 ~ "flat",
+                  slope > 0 & aspect == 0 ~ "slope north",
+                  slope > 0 & aspect == 180 ~ "slope south"),
+                mod_id = row_number()) %>% 
+  dplyr::relocate(mod_id)
+
+exp_design
+```
+
+
+## Run SamsaraLight for each virtual stand
+
+```{r}
+# Store SamsaraLight outputs in a list
+out_sl <- vector("list", nrow(exp_design))
+for (i in 1:nrow(exp_design)) {
+  
+  mod_design <- exp_design[i,]
+  
+  # Get the radiation from PVGIS database
+  tmp_rad <- SamsaRaLight::get_monthly_rad(mod_design$latitude, mod_design$longitude)
+  
+  # Run SamsaraLight
+  out_sl[[i]] <- SamsaRaLight::sl_run(
+    trees = data_tree,
+    monthly_rad = tmp_rad,
+    cell_size = cell_size,
+    n_cells_x = stand_size_x / cell_size, 
+    n_cells_y = stand_size_y / cell_size, 
+    latitude = mod_design$latitude, 
+    slope = mod_design$slope, 
+    aspect = mod_design$aspect
+  ) 
+}
+```
+
+
+# Observe the outputs
+
+## Understand the discretisation of direct and diffuse rays
+
+The discretisation of the rays are given in the `$monthly_rays$rays` of the `sl_run()` function output, with the total energy (in $MJ.^{m-2}$) given in `$monthly_rays$energies` for both direct and diffuse radiations, either on a horizontal flat plane or in the slope. The basic output variables use the direct and diffuse energies on the slope, but the horizontal energies are needed in the case of using virtual sensors (see Tutorial 7 - Estimate light on virtual sensors).
+
+The direct rays (direct = TRUE) are created following the trajectory of the sun across the year, that depends on the stand latitude and the diffuse rays (direct = FALSE) are discretized by creating rays that are coming from all the directions across the sky. The direction of a ray is defined by its azimut, and the orientation by the height_angle column, both in radians. The incident energies of direct and diffuse rays (in $MJ.^{m-2}$) are estimated from the monthly global energy and diffuse to global ratio, created above from the function `SamsaRaLight::get_monthly_rad()`.
+
+```{r}
+out_sl[[4]]$monthly_rays$energies
+
+head(out_sl[[4]]$monthly_rays$rays)
+```
+
+
+## Change in incident energy with stand latitude and geometry
+
+```{r  graph_energies, fig.dim = c(8, 6)}
+# Create a dataframe for comparing incident energies
+out_sl %>% 
+  purrr::map(~as.data.frame(as.list(.x$monthly_rays$energies))) %>% 
+  dplyr::bind_rows(.id = "mod_id") %>% 
+  dplyr::mutate(mod_id = as.integer(mod_id),
+                horizontal_total = horizontal_direct + horizontal_diffuse,
+                slope_total = slope_direct + slope_diffuse) %>% 
+  tidyr::pivot_longer(!mod_id, 
+                      names_pattern = "(.*)_(.*)",
+                      names_to = c("surface", "type"),
+                      values_to = "energy") %>% 
+  dplyr::left_join(exp_design, by = "mod_id") %>% 
+  dplyr::filter(surface == "slope") %>% 
+  
+# Plot the graphic
+  ggplot(aes(y = energy, x = type)) +
+  geom_col() +
+  facet_grid(cols = vars(city), rows = vars(stand_geom)) +
+  theme_bw() +
+  ylab("Incident energy in MJ/m2") +
+  xlab("Type of the rays")
+  
+```
+
+
+
+## Plot the SamsaraLight outputs
+
+```{r  plot_pacl, fig.dim = c(8, 8)}
+# Store plots in a list
+plot_list <- vector("list", nrow(exp_design))
+legend <- NULL
+for (i in 1:nrow(exp_design)) {
+  
+  mod_design <- exp_design[i,]
+  
+  # Plot the stand with light outputs
+  tmp_sl_plot <- SamsaRaLight::plot_sl_output(out_sl[[i]],
+                                              trees.fill = "species",
+                                              cells.fill = "pacl",
+                                              cells.fill.palette = "viridis")
+  
+  # Change some ggplot2 features
+  tmp_sl_plot <- tmp_sl_plot +
+    labs(subtitle = paste(mod_design$city, 
+                          "|", mod_design$stand_geom)) +
+    theme(legend.position = "top",
+          axis.text = element_blank(),
+          plot.subtitle = element_text(size = 8, hjust = 0.5)) +
+    scale_color_continuous(limits = c(0.9, 1))
+    
+    
+  # Fetch the legend if it is not already done
+  # And remove the plot legend after that
+  if (is.null(legend)) {
+    legend <- cowplot::get_legend(tmp_sl_plot)
+  }
+  
+  tmp_sl_plot <- tmp_sl_plot + theme(legend.position = "none")
+    
+  
+  # Add the plot to the list
+  plot_list[[i]] <- tmp_sl_plot
+}
+
+# Gather all the plots using the cowplot package
+cowplot::plot_grid(
+  legend,
+  cowplot::plot_grid(plotlist = plot_list,
+                     nrow = 3, ncol = 3),
+  rel_heights = c(1, 10),
+  ncol = 1
+)
+```
+
+
+

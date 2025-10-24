@@ -23,11 +23,11 @@ addVirtualBufferStand = TRUE
 
 # Species record 
  # speciesId 	 speciesName 	 rgb
-3	Hêtre	255,165,0
-41	Epicéa commun	46,139,87
+3	Hetre	255,165,0
+41	Epicea commun	46,139,87
 43	Sapin de Douglas	124,252,0
-44	Mélèze	0,255,0
-49	Sapin pectiné	127,255,212
+44	Meleze	0,255,0
+49	Sapin pectine	127,255,212
 
 
 # Inventory zone records 
