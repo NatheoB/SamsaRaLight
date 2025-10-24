@@ -321,14 +321,17 @@ print(time_elapsed)
 
 ## Find the optimised LAD
 
-The optimized mean LAD appeared to be 0.502, which indicates that the default value of 0.5 may be consistent. 
-
-```{r, fig.dim = c(8, 6)}
+```{r}
 best_lad <- out_residuals$lad[which.min(abs(out_residuals$res))]
 text_best_lad <- textGrob(as.character(best_lad),
                           gp=gpar(fontsize=13, fontface="bold",
                                   col = "salmon"))  
+```
 
+The optimized mean LAD appeared to be `r best_lad`, which indicates that the default value of 0.5 was relevant. 
+
+
+```{r, fig.dim = c(8, 6)}
 ggplot(out_residuals, aes(y = res, x = lad)) +
   geom_point() +
   geom_hline(yintercept = 0, color = "darkgray") +

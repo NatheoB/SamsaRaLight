@@ -108,7 +108,7 @@ sl_run <- function(trees,
                                          direct_startoffset = direct_startoffset,
                                          direct_anglestep = direct_anglestep,
                                          diffuse_anglestep = diffuse_anglestep)
-
+  
   # Run call to c++ script
   out <- sl_run_rcpp(
     trees, 

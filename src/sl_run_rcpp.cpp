@@ -1046,11 +1046,12 @@ public:
 	Tree(int vectid, int id, double x, double y, double z,
 		double dbh, double h,
 		std::string crown_type,
+		double x_crown, double y_crown,
 		double hbase, double hmax,
 		double cr_n, double cr_e, double cr_s, double cr_w,
 		double crown_openess, double crown_lad):
 
-		crown(vectid, crown_type, x, y, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+		crown(vectid, crown_type, x_crown, y_crown, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
 			crown_openess, crown_lad),
 		trunk(vectid, x, y, z, dbh, h)
 	{
@@ -1539,13 +1540,32 @@ public:
 		NumericVector cp = trees["crown_openess"];
 		NumericVector clad = trees["crown_lad"];
 
+
+		// Observe if column x_crown and y_crown exists, otherwise set them to x and y
+		// i.e. decentered trunk
+		NumericVector trees_xcrown = clone(trees_x); // Initialize crown coords as x by default
+		NumericVector trees_ycrown = clone(trees_y); // Initialize crown coords as y by default
+
+		CharacterVector cnames = trees.names(); // Get column names
+		if (std::find(cnames.begin(), cnames.end(), "x_crown") != cnames.end()) { // Check if "x_crown" and "y_crown" exist
+			trees_xcrown = trees["x_crown"];
+		}
+
+		if (std::find(cnames.begin(), cnames.end(), "y_crown") != cnames.end()) {
+			trees_ycrown = trees["y_crown"];
+		}
+
+
 		// Add a Tree object to the associated Cell they belong to
 		for (int i = 0; i < this->nTrees; i++) {
 
 			// Create tree object
 			this->trees.push_back(new Tree(
 				i, trees_id[i], trees_x[i], trees_y[i], this->computeZ(trees_x[i], trees_y[i]),
-				dbh[i], tree_height[i], Rcpp::as< std::string >(ctype[i]), hbase[i], hmax[i],
+				dbh[i], tree_height[i], 
+				Rcpp::as< std::string >(ctype[i]), 
+				trees_xcrown[i], trees_ycrown[i],
+				hbase[i], hmax[i],
 				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]));
 
 			// Add to trees id vectors (i.e. corrrespondance vector between trees id in vect and trees id)
