@@ -15,3 +15,4 @@ devtools::test()
 devtools::check()
 
 pkgdown::build_site()
+usethis::use_pkgdown_github_pages()
