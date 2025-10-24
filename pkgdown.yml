@@ -1,0 +1,14 @@
+pandoc: 3.1.11
+pkgdown: 2.1.3
+pkgdown_sha: ~
+articles:
+  1-simple_case: 1-simple_case.html
+  2-stand_geometry: 2-stand_geometry.html
+  3-transmission_model: 3-transmission_model.html
+  4-core_polygon: 4-core_polygon.html
+  5-irregular_crowns: 5-irregular_crowns.html
+  7-light_sensors: 7-light_sensors.html
+last_built: 2025-10-24T15:48Z
+urls:
+  reference: https://natheob.github.io/SamsaRaLight/reference
+  article: https://natheob.github.io/SamsaRaLight/articles
