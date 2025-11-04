@@ -403,7 +403,7 @@ total PACL.</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste</a></span><span class="op">(</span><span class="st">"Testing"</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html" class="external-link">length</a></span><span class="op">(</span><span class="va">LADs</span><span class="op">)</span>, <span class="st">"LAD values"</span><span class="op">)</span><span class="op">)</span> </span>
 <span><span class="co">#&gt; [1] "Testing 2000 LAD values"</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="va">time_elapsed</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Time difference of 4.12793 mins</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 4.14146 mins</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="find-the-optimised-lad">Find the optimised LAD<a class="anchor" aria-label="anchor" href="#find-the-optimised-lad"></a>
@@ -413,7 +413,7 @@ total PACL.</p>
 <span><span class="va">text_best_lad</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/grid/grid.text.html" class="external-link">textGrob</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="va">best_lad</span><span class="op">)</span>,</span>
 <span>                          gp<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/grid/gpar.html" class="external-link">gpar</a></span><span class="op">(</span>fontsize<span class="op">=</span><span class="fl">13</span>, fontface<span class="op">=</span><span class="st">"bold"</span>,</span>
 <span>                                  col <span class="op">=</span> <span class="st">"salmon"</span><span class="op">)</span><span class="op">)</span>  </span></code></pre></div>
-<p>The optimized mean LAD appeared to be 0.775, which indicates that the
+<p>The optimized mean LAD appeared to be 0.776, which indicates that the
 default value of 0.5 was relevant.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">out_residuals</span>, <span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y <span class="op">=</span> <span class="va">res</span>, x <span class="op">=</span> <span class="va">lad</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
