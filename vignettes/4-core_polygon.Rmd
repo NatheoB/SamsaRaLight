@@ -134,8 +134,8 @@ We can use the information from the output of the `create_rect_stand()` to run t
 ```{r}
 out_sl <- SamsaRaLight::sl_run(
   # Trees
-  trees = sl_stand$trees, 
-  
+  trees = sl_stand$trees,
+
   # Radiations
   monthly_rad = SamsaRaLight::data_IRRES1$radiations,
   latitude = SamsaRaLight::data_IRRES1$info[["latitude"]], 

@@ -95,6 +95,10 @@ sl_run <- function(trees,
                    trunk_interception = TRUE,
                    detailed_output = FALSE) {
 
+  # Checks the input arguments
+  check_coordinates(trees, sensors, cell_size, n_cells_x, n_cells_y)
+  
+  
   # Create monthly rays
   monthly_rays <- sl_create_monthly_rays(monthly_rad = monthly_rad,
                                          latitude = latitude,
@@ -176,4 +180,33 @@ sl_run <- function(trees,
     "monthly_rays" = monthly_rays,
     "output" = out
   )
+}
+
+
+
+#' Check if all the trees and sensors are within the plot limits
+#' @noRd
+check_coordinates <- function(trees, sensors, cell_size, n_cells_x, n_cells_y) {
+  
+  # Check trees coordinates
+  outside_trees <- trees %>% 
+    dplyr::mutate(
+      is_outside = x < 0 | y < 0 | x > cell_size * n_cells_x | y > cell_size * n_cells_y
+    ) %>% 
+    dplyr::pull(is_outside)
+  
+  if (sum(outside_trees) > 0) stop("Some trees are outside the plot limits...")
+  
+  
+  # Check sensors coordinates
+  if (!is.null(sensors)) {
+    outside_sensors <- sensors %>% 
+      dplyr::mutate(
+        is_outside = x < 0 | y < 0 | x > cell_size * n_cells_x | y > cell_size * n_cells_y
+      ) %>% 
+      dplyr::pull(is_outside)
+    
+    if (sum(outside_sensors) > 0) stop("Some sensors are outside the plot limits...")
+  }
+  
 }

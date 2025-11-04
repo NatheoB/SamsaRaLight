@@ -10,9 +10,11 @@ plot_sl_output(
   trees.border.species = FALSE,
   trees.fill = "species",
   trees.fill.inverse = FALSE,
+  trees.only_inv = FALSE,
   cells.border = FALSE,
   cells.fill = NULL,
-  cells.fill.palette = c("base", "base01", "viridis", "viridis01", "light", "light01")
+  cells.fill.palette = c("base", "base01", "viridis", "viridis01", "light", "light01"),
+  sensors.plot = FALSE
 )
 }
 \description{
