@@ -39,15 +39,18 @@ infos
 latitude <- infos[["latitude"]] # The latitude of the stand (Y-coord in WGS85)
 longitude <- infos[["longitude"]] # The longitude of the plot (X-coord in WGS85)
 
-# The slope of the stand
+# The slope of the stand (in degrees)
 slope <- infos[["slope"]]
 
 # Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
 # northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
+# i.e. direction of slope in real-world coordinates
 aspect <- infos[["aspect"]]
 
 # Angle from North to x axis clockwise. (in degrees)
-# Default correspond to a Y axis oriented toward the North.
+# x-axis points North : 0, x-axis points East : 90, x-axis points South : 180, x-axis points West : 270
+# Default 90 correspond to a Y axis oriented toward the North.
+# i.e. rotation of real North relative to plot x-axis
 north_to_x_cw <- infos[["north_to_x_cw"]]
 
 # Considering a squared plot, number and size of the cells composing the grid
@@ -73,6 +76,24 @@ data_trees <- SamsaRaLight::data_prenovel$trees
 
 head(data_trees)
 ```
+
+
+```{r}
+plot_trees(trees = data_trees,
+           aspect = aspect,
+           slope = slope)
+```
+
+
+```{r}
+plot_trees(trees = data_trees, 
+           top_down = TRUE,
+           slope = slope,
+           aspect = aspect,
+           north_to_x_cw = north_to_x_cw)
+```
+
+
 
 
 ## Monthly radiations
@@ -165,7 +186,8 @@ plot_sl_output(sl_output,
 plot_sl_output(sl_output,
                trees.fill = NULL,
                cells.fill = "pacl",
-               cells.fill.palette = "light01",
+               cells.fill.palette = "light",
+               cells.fill.limits = c(0, 1),
                cells.border = FALSE)
 ```
 
@@ -184,12 +206,14 @@ The user can plot a given output variable (e.g. trees.fill = "e" or trees.fill =
 ```{r plot_etree, fig.dim = c(8, 6)}
 plot_sl_output(sl_output,
                trees.fill = "e",
+               trees.fill.palette = "viridis",
                cells.fill = NULL)
 ```
 
 ```{r plot_lci, fig.dim = c(8, 6)}
 plot_sl_output(sl_output,
                trees.fill = "lci",
+               trees.fill.palette = "viridis",
                trees.fill.inverse = TRUE,
                cells.fill = NULL)
 ```
@@ -204,9 +228,11 @@ Here, the user can decide to plot the light output for both trees and cells, and
 plot_sl_output(sl_output,
                trees.border.species = TRUE,
                trees.fill = "lci",
+               trees.fill.palette = "viridis",
                trees.fill.inverse = TRUE,
                cells.fill = "pacl",
-               cells.fill.palette = "light01",
+               cells.fill.palette = "light",
+               cells.fill.limits = c(0, 1),
                cells.border = FALSE)
 ```
 

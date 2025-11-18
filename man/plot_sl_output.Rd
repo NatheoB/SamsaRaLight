@@ -2,18 +2,21 @@
 % Please edit documentation in R/plot_sl_output.R
 \name{plot_sl_output}
 \alias{plot_sl_output}
-\title{@param plot.trees Character string indicating the filling variables of the trees.
-Set it to NULL if you do not want to plot the trees}
+\title{Function to plot SamsaRaLight object output}
 \usage{
 plot_sl_output(
   sl_output,
+  trees.only_inventoried = FALSE,
   trees.border.species = FALSE,
-  trees.fill = "species",
+  trees.fill = "e",
+  trees.fill.palette = c("viridis", "light", "base"),
   trees.fill.inverse = FALSE,
-  trees.only_inv = FALSE,
+  trees.fill.limits = NULL,
   cells.border = FALSE,
-  cells.fill = NULL,
-  cells.fill.palette = c("base", "base01", "viridis", "viridis01", "light", "light01"),
+  cells.fill = "e",
+  cells.fill.palette = c("light", "viridis", "base"),
+  cells.fill.inverse = FALSE,
+  cells.fill.limits = NULL,
   sensors.plot = FALSE
 )
 }

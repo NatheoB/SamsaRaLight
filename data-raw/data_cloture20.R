@@ -123,10 +123,15 @@ data_rad_cloture20 <- get_monthly_rad(latitude = latitude,
                                       end_year = 2020)
 
 
+# Create colors set for species ----
+species_colors_cloture20 <- c("Quercus sp." = "#CBD600",
+                              "Fagus sylvatica" = "#F76045")
+
 
 # FORMAT THE DATASETS AS A LIST ----
 data_cloture20 <- list(
   "trees" = data_trees_cloture20,
+  "species_colors" = species_colors_cloture20,
   "sensors" = data_sensors_cloture20,
   "core_polygon" = core_polygon_cloture20,
   "radiations" = data_rad_cloture20,

@@ -26,6 +26,7 @@ Used when computing interception with a crown considered as a porous envelop. (d
 Used when computing interception with a crown considered as a turbid medium. (double)}
 }
 }
+\item{species_color}{named vector that contains color HEX code for each species}
 \item{sensors}{data.frame that contains information about the stand sensors}
 \describe{
 \item{id_sensor}{Unique id of the sensor (integer)}

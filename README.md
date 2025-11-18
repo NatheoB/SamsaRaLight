@@ -1,55 +1,14 @@
 
 # SamsaRaLight
 
-SamsaraLight is a ray tracing model (Courbaud et al. 2003) that
-estimates light interception by each tree within a stand and light that
-arrives to the ground. SamsaraLight is a spatially explicit,
-individual-based model that estimate the amount of light intercepted by
-a tree throughout a growing season. It is based on light beam
-interception and attenuation by the 3D crowns of each tree in the stand.
+The R package SamsaraLight provides a simpler and faster way to use the
+SamsaraLight ray-tracing model within the R environment. SamsaraLight is
+a forest radiative transfer model based on ray tracing (Courbaud et al.,
+2003) that enables users to estimate the light intercepted by each tree
+and the light that reaches the ground or virtual light sensors, in a
+given forest stand inventory.
 
-The SamsaraLight model was initially implemented within the Java
-platform Capsis (<https://capsis.cirad.fr/capsis/help_en/samsaralight>).
-However, for the sake of fast computing and easier use within R
-paradigm, we needed to reformulate the model as an R package and we used
-Rcpp with C++ script for fast computing.
-
-## Global description
-
-Firstly, the stand is divided into square cells of the same size. The
-trees are explicitly located within the stand and their crowns are
-represented in space.
-
-Secondly, it projects monthly diffuse and direct rays towards the center
-of each cell composing the stand, with an energy given by to the global
-energy of the month per $m^2$. It involves estimating the geometry,
-quantity and energy of monthly direct and diffuse radiation at a given
-latitude. It calculates for each plot the angles and intensity of
-diffuse and direct light beams depending on plot latitude. Then, one
-have to give both the global energy in an horizontal plane (in
-$MJ.ha^{-1}$) and the ratio between diffuse and global energy for a
-given month (see chapter ).
-
-Thus, when a ray intercepts the crown of a tree, the intercepted light
-energy is calculated by considering the crown as a turbid medium and
-applying Beer-Lambert’s law, taking into account the incident energy of
-the ray and the leaf area density of the tree. It assumes that the
-leaves are arranged homogeneously and not aggregated within the canopy.
-
-In this way, it estimates the attenuation of the energy of each light
-ray following successive interceptions by the tree crowns, and
-calculates the sum of the intercepted energy from each ray, for all the
-trees in the stand.
-
-To consider the fact that we don’t know the environment around the
-stand, it represents plot boundaries with a torus system (Courbaud et
-al. 2003). Indeed, trees around the border of the stand are not
-described but they also participates to the attenuation of the coming
-rays. Thus, if we do not consider environment after boundaries, we
-overestimate interception of light, especially for trees closer to the
-plot boundaries
-
-## Installation
+## Installation of the SamsaRaLight R package
 
 You can install the development version of SamsaRaLight from
 [GitHub](https://github.com/) with:
@@ -59,7 +18,84 @@ install.packages("devtools")
 devtools::install_github("NatheoB/SamsaRaLight")
 ```
 
-## Applied tutorials
+## Global description of the SamsaraLight model
+
+### 1 - Construct the virtual stand from an input tree inventory
+
+The user’s inventory plot is represented by an axis-aligned rectangle
+with a specified slope and aspect. The constructed virtual stand is then
+divided into square cells of the same size for use in the ray-tracing
+model.
+
+The user’s inventoried trees are located within this virtual stand, with
+each tree’s crown represented by a simple 3D geometric volume whose
+dimensions and shape are defined by the user. The crown can be given a
+symmetrical shape, such as an ellipsoid (typically used for broadleaves)
+or a paraboloid (typically used for conifers). Users can increase the
+complexity of the crown representation by using asymmetric shapes and
+defining the crown radii at the four cardinal points, as well as the
+height at which the crown radius is at its maximum. This can be
+constructed easily and automatically in the model using parts of
+ellipsoids and paraboloids (*i.e.* two halves or eight eighths of an
+ellipsoid, or four quarters of a paraboloid).
+
+### 2 - Discretize the annual light
+
+Based on the user definition of the monthly radiations (*i.e.* global
+energy in an horizontal plane (in $MJ.ha^{-1}$) and the ratio between
+diffuse and global energy for a given month), the SamsaraLight
+ray-tracing model discretizes annual light into a finite number of
+direct and diffuse rays. Considering whether direct or diffuse light,
+the model calculates the angles (height angle), orientation (azimuth)
+and energy of diffuse and direct light rays depending on plot latitude
+(more direct radiations with greater height angle toward lower latitudes
+in Spain, compared to more diffuse and horizontal rays towards higher
+latitudes in Scandinavia).
+
+### 3 - Cast the light rays toward the stand
+
+The model then cast
+
+### 4 - Estimate light interception by trees
+
+Thus, when a ray intercepts the crown of a tree, the intercepted light
+energy is calculated by considering the crown as a turbid medium and
+applying Beer-Lambert’s law, taking into account the incident energy of
+the ray and the leaf area density of the tree. It assumes that the
+leaves are arranged homogeneously and not aggregated within the canopy.
+
+To consider the fact that we don’t know the environment around the
+stand, it represents plot boundaries with a torus system (Courbaud et
+al. 2003). Indeed, trees around the border of the stand are not
+described but they also participates to the attenuation of the coming
+rays. Thus, if we do not consider environment after boundaries, we
+overestimate interception of light, especially for trees closer to the
+plot boundaries.
+
+### 5 - Compute the output energy and light competition variables
+
+In this way, it estimates the attenuation of the energy of each light
+ray following successive interceptions by the tree crowns, and
+calculates the sum of the intercepted energy from each ray, for all the
+trees in the stand, and the consequent energy reaching each cell. By
+doing so, light variables can be derived from total energies and some
+example of usual indicators are provided in the outputs, such as LCI for
+trees or PACL for ground light.
+
+## Package functionnalities
+
+## Main R functions and pipeline
+
+### Prepare the inputs
+
+In case of the user’s complex inventory protocol (i.e. non-axis-aligned
+rectangle or non-rectangular shape), the R package allows
+
+### Run the model
+
+### Analyse the outputs
+
+## Learn with applied tutorials
 
 You can find simple examples as tutorial for different stand situations
 and with different tree crown dimensions accuracy:
@@ -183,12 +219,7 @@ The function returns a list with two data.frames:
   canopy. It ranges from 0 (no light on the ground) to 1 (no energy has
   been intercepted by above trees).
 
-## Speed analysis
-
-You can find here a comparison of speed between R-based and Capsis-based
-SamsaraLight for different degree of stand complexity and sizes.
-
-## Scientific papers
+## Bibliography
 
 \[1\] Courbaud, B. et al. (2015). “Applying ecological model
 evaludation: Lessons learned with the forest dynamics model Samsara2”.

@@ -24,6 +24,7 @@
 #'          Used when computing interception with a crown considered as a turbid medium. (double)}
 #'    }
 #'   }
+#'   \item{species_color}{named vector that contains color HEX code for each species}
 #'   \item{radiation}{data.frame that contains monthly radiations.
 #'    \describe{
 #'      \item{month}{Unique id of the tree. (integer)}
@@ -78,6 +79,7 @@
 #'          Used when computing interception with a crown considered as a turbid medium. (double)}
 #'    }
 #'   }
+#'   \item{species_color}{named vector that contains color HEX code for each species}
 #'   \item{sensors}{data.frame that contains information about the stand sensors}
 #'   \describe{
 #'    \item{id_sensor}{Unique id of the sensor (integer)}
@@ -141,6 +143,7 @@
 #'          Used when computing interception with a crown considered as a turbid medium. (double)}
 #'    }
 #'   }
+#'   \item{species_color}{named vector that contains color HEX code for each species}
 #'   \item{core_polygon}{data.frame containing vertices of the tree inventory zone, described by the coordinates (x, y) of each vertex edge.}
 #'   \item{radiation}{data.frame that contains monthly radiations.
 #'    \describe{
@@ -196,6 +199,7 @@
 #'          Used when computing interception with a crown considered as a turbid medium. (double)}
 #'    }
 #'   }
+#'   \item{species_color}{named vector that contains color HEX code for each species}
 #'   \item{sensors}{data.frame that contains information about the stand sensors}
 #'   \describe{
 #'    \item{id_sensor}{Unique id of the sensor (integer)}

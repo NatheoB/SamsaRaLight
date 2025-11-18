@@ -33,7 +33,8 @@ Imports:
     tidyr,
     grid,
     sfheaders,
-    ggnewscale
+    ggnewscale,
+    plotly
 Suggests: 
     knitr,
     rmarkdown,

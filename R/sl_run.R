@@ -95,6 +95,7 @@ sl_run <- function(trees,
                    trunk_interception = TRUE,
                    detailed_output = FALSE) {
 
+  
   # Checks the input arguments
   check_coordinates(trees, sensors, cell_size, n_cells_x, n_cells_y)
   

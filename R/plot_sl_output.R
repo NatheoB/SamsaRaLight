@@ -1,3 +1,5 @@
+#' Function to plot SamsaRaLight object output
+#' 
 #'  @param plot.trees Character string indicating the filling variables of the trees. 
 #'  Set it to NULL if you do not want to plot the trees
 #'
@@ -6,15 +8,17 @@
 #' @export
 #'
 plot_sl_output <- function(sl_output, 
+                           trees.only_inventoried = FALSE,
                            trees.border.species = FALSE,
-                           trees.fill = "species",
+                           trees.fill = "e",
+                           trees.fill.palette = c("viridis", "light", "base"),
                            trees.fill.inverse = FALSE,
-                           trees.only_inv = FALSE,
+                           trees.fill.limits = NULL,
                            cells.border = FALSE,
-                           cells.fill = NULL,
-                           cells.fill.palette = c("base", "base01",
-                                                  "viridis", "viridis01",
-                                                  "light", "light01"),
+                           cells.fill = "e",
+                           cells.fill.palette = c("light", "viridis", "base"),
+                           cells.fill.inverse = FALSE,
+                           cells.fill.limits = NULL,
                            sensors.plot = FALSE) {
   
   # Check arguments
@@ -23,14 +27,16 @@ plot_sl_output <- function(sl_output,
   }
   
   cells.fill.palette <- match.arg(cells.fill.palette, 
-                                  choices = c("base", "base01",
-                                              "viridis", "viridis01",
-                                              "light", "light01"), 
+                                  choices = c("light", "viridis", "base"), 
                                   several.ok = FALSE)
   
   if (!trees.fill %in% names(sl_output$output$trees) && !trees.fill %in% names(sl_output$input$trees) && !is.null(trees.fill)) {
     stop("trees.fill argument must be a variable within the SamsaRaLight trees input/output, or be set to NULL...")
   }
+  
+  trees.fill.palette <- match.arg(trees.fill.palette, 
+                                  choices = c("viridis", "light", "base"), 
+                                  several.ok = FALSE)
   
   # Prepare the plot grid
   cell_size <- sl_output$input$info$cell_size
@@ -73,30 +79,41 @@ plot_sl_output <- function(sl_output,
     
     
     ## Set palette for cells
+    guide_cells <- guide_colorbar(direction = "horizontal",
+                                  title.position = "top",
+                                  title.hjust = 0.5)
+    
     if (cells.fill.palette == "light") {
+      
+      col_low_cells <- if_else(cells.fill.inverse, grey(1), grey(0.2))
+      col_high_cells <- if_else(cells.fill.inverse, grey(0.2), grey(1))
+      
+      
       plt <- plt +
-        scale_fill_gradient(low = grey(0.2), high = grey(1),
-                            guide = guide_colorbar(direction = "horizontal"))
-    } else if (cells.fill.palette == "light01") {
-      plt <- plt +
-        scale_fill_gradient(low = grey(0.2), high = grey(1), 
-                            limits = c(0, 1),
-                            guide = guide_colorbar(direction = "horizontal"))
+        scale_fill_gradient(low = col_low_cells, high = col_high_cells,
+                            guide = guide_cells,
+                            limits = cells.fill.limits)
+      
     } else if (cells.fill.palette == "viridis") {
+      
+      direction_color_cells <- if_else(cells.fill.inverse, -1, 1)
+      
       plt <- plt +
-        scale_fill_viridis_c(guide = guide_colorbar(direction = "horizontal"))
-    } else if (cells.fill.palette == "viridis01") {
-      plt <- plt +
-        scale_fill_viridis_c(guide = guide_colorbar(direction = "horizontal"),
-                             limits = c(0, 1))
+        scale_fill_viridis_c(guide = guide_cells,
+                             direction = direction_color_cells,
+                             limits = cells.fill.limits)
+      
     } else if (cells.fill.palette == "base") {
+      
+      col_low_cells <- if_else(cells.fill.inverse, "#56B1F7", "#132B43")
+      col_high_cells <- if_else(cells.fill.inverse, "#132B43", "#56B1F7")
+      
       plt <- plt +
-        scale_fill_continuous(guide = guide_colorbar(direction = "horizontal"))
-    } else if (cells.fill.palette == "base01") {
-      plt <- plt +
-        scale_fill_continuous(guide = guide_colorbar(direction = "horizontal"),
-                              limits = c(0, 1))
-    }
+        scale_fill_continuous(low = col_low_cells, high = col_high_cells,
+                              guide = guide_cells,
+                              limits = cells.fill.limits)
+      
+    } 
     
 
   } else if (cells.border) {
@@ -132,7 +149,7 @@ plot_sl_output <- function(sl_output,
     
     ## Remove trees added to fill around the inventory zone if precsied
     ## Only if the column exists, i.e. only if the virtual stand has been created with the create_rect_stand() function
-    if ("added_to_fill" %in% colnames(data_trees) & trees.only_inv) {
+    if ("added_to_fill" %in% colnames(data_trees) & trees.only_inventoried) {
       data_trees <- data_trees %>% 
         dplyr::filter(!added_to_fill)
     }
@@ -150,24 +167,57 @@ plot_sl_output <- function(sl_output,
     ## Add color mapping conditionally
     if (trees.border.species) {
       aes_map_trees <- modifyList(aes_base_trees, aes(color = species))
+      trees_linewidth <- 0.8
     } else {
       aes_map_trees <- aes_base_trees
+      trees_linewidth <- 0.1
     }
     
     ## Plot trees
     plt <- plt + 
       ggnewscale::new_scale_fill() +
       geom_ellipse(data = data_trees, mapping = aes_map_trees,
-                   linewidth = 0.8)
+                   linewidth = trees_linewidth)
     
-    ## Set viridis palette for continuous variables
-    if (typeof(data_trees[[trees.fill]]) == "double") {
+    ## Set colors for continuous variables
+    if (typeof(data_trees[[trees.fill]]) %in% c("integer", "numeric", "double")) {
       
-      direction_viridis <- if_else(trees.fill.inverse, -1, 1)
+      guide_trees <- guide_colorbar(direction = "horizontal",
+                                    title.position = "top",
+                                    title.hjust = 0.5)
       
-      plt <- plt + 
-        scale_fill_viridis_c(guide = guide_colorbar(direction = "horizontal"),
-                             direction = direction_viridis)
+      if (trees.fill.palette == "light") {
+        
+        col_low_trees <- if_else(trees.fill.inverse, grey(1), grey(0.2))
+        col_high_trees <- if_else(trees.fill.inverse, grey(0.2), grey(1))
+        
+        
+        plt <- plt +
+          scale_fill_gradient(low = col_low_trees, high = col_high_trees,
+                              guide = guide_trees,
+                              limits = trees.fill.limits)
+        
+      } else if (trees.fill.palette == "viridis") {
+        
+        direction_color_trees <- if_else(trees.fill.inverse, -1, 1)
+        
+        plt <- plt +
+          scale_fill_viridis_c(guide = guide_trees,
+                               direction = direction_color_trees,
+                               limits = trees.fill.limits)
+        
+      } else if (trees.fill.palette == "base") {
+        
+        col_low_trees <- if_else(trees.fill.inverse, "#56B1F7", "#132B43")
+        col_high_trees <- if_else(trees.fill.inverse, "#132B43", "#56B1F7")
+        
+        plt <- plt +
+          scale_fill_continuous(low = col_low_trees, high = col_high_trees,
+                                guide = guide_trees,
+                                limits = trees.fill.limits)
+        
+      } 
+      
     }
   
   }

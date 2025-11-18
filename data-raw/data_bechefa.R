@@ -93,12 +93,18 @@ data_rad_bechefa <- get_monthly_rad(latitude = latitude,
                                     start_year = 2005,
                                     end_year = 2020)
 
+# Create colors set for species ----
+species_colors_bechefa <- c("picea" = "#00D65C",
+                            "abies" = "#45AAF7",
+                            "fagus" = "#F76045",
+                            "pseudotsuga" = "#BF21AB")
 
 
 # FORMAT THE DATASETS AS A LIST ----
 data_bechefa <- list(
   "trees" = data_trees_bechefa,
-  "sensors" = NA,
+  "species_colors" = species_colors_bechefa,
+  "sensors" = NULL,
   "core_polygon" = core_polygon_bechefa,
   "radiations" = data_rad_bechefa,
   "info" = c("latitude" = latitude,

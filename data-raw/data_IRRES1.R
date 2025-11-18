@@ -128,10 +128,18 @@ data_rad_IRRES1 <- get_monthly_rad(latitude = latitude,
                                       end_year = 2020)
 
 
+# Create colors set for species ----
+species_colors_IRRES1 <- c("Picea abies" = "#00D65C",
+                           "Abies alba" = "#45AAF7",
+                           "Fagus sylvatica" = "#F76045",
+                           "Pseudtsuga menziesii" = "#BF21AB",
+                           "Larix sp." = "#21BF9F")
+
 
 # FORMAT THE DATASETS AS A LIST ----
 data_IRRES1 <- list(
   "trees" = data_trees_IRRES1,
+  "species_colors" = species_colors_IRRES1,
   "sensors" = data_sensors_IRRES1,
   "core_polygon" = core_polygon_IRRES1,
   "radiations" = data_rad_IRRES1,

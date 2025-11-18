@@ -26,6 +26,7 @@ Used when computing interception with a crown considered as a porous envelop. (d
 Used when computing interception with a crown considered as a turbid medium. (double)}
 }
 }
+\item{species_color}{named vector that contains color HEX code for each species}
 \item{core_polygon}{data.frame containing vertices of the tree inventory zone, described by the coordinates (x, y) of each vertex edge.}
 \item{radiation}{data.frame that contains monthly radiations.
 \describe{

@@ -14,5 +14,7 @@ devtools::document('.')
 devtools::test()
 devtools::check()
 
+# usethis::use_testthat()
+
 pkgdown::build_site()
 usethis::use_pkgdown_github_pages()
