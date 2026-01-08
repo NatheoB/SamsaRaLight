@@ -34,7 +34,8 @@ Imports:
     grid,
     sfheaders,
     ggnewscale,
-    plotly
+    plotly,
+    scales
 Suggests: 
     knitr,
     rmarkdown,

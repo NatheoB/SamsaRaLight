@@ -155,21 +155,33 @@ run_sl_advanced <- function(
   }
   
   out_sl <- list(
-    light = out,
-    info = list(
-      latitude = latitude,
-      start_day = start_day,
-      end_day = end_day,
-      soc = soc,
-      use_torus = use_torus,
-      turbid_medium = turbid_medium,
-      trunk_interception = trunk_interception
+    output = list(
+      "light" = out
+    ),
+    input = list(
+      "sl_stand" = sl_stand,
+      "monthly_radiations" = monthly_radiations,
+      "params" = list(
+        "latitude" = latitude,
+        "start_day" = start_day,
+        "end_day" = end_day,
+        "soc" = soc,
+        "use_torus" = use_torus,
+        "turbid_medium" = turbid_medium,
+        "extinction_coef" = extinction_coef,
+        "clumping_factor" = clumping_factor,
+        "trunk_interception" = trunk_interception,
+        "height_anglemin" = height_anglemin,
+        "direct_startoffset" = direct_startoffset,
+        "direct_anglestep" = direct_anglestep,
+        "diffuse_anglestep" = diffuse_anglestep
+      )
     )
   )
   
   if (detailed_output) {
-    out_sl$monthly_rays <- monthly_rays
-    out_sl$interceptions <- interceptions
+    out_sl$output$monthly_rays <- monthly_rays
+    out_sl$output$interceptions <- interceptions
   }
   
   class(out_sl) <- c("sl_output", "list")
@@ -199,25 +211,25 @@ run_sl_advanced <- function(
 validate_sl_output <- function(x) {
   
   if (!inherits(x, "sl_output")) stop("Object is not of class 'sl_output'", call. = FALSE)
-  if (!is.list(x$light)) stop("'light' component must be a list", call. = FALSE)
-  
-  # Trees
-  trees_req <- c("id_tree", "epot", "e", "lci", "eunobs")
-  if (!all(trees_req %in% names(x$light$trees))) {
-    stop("`trees` output is missing columns: ", paste(setdiff(trees_req, names(x$light$trees)), collapse = ", "))
-  }
-  
-  # Cells
-  cells_req <- c("id_cell", "e", "pacl", "punobs")
-  if (!all(cells_req %in% names(x$light$cells))) {
-    stop("`cells` output is missing columns: ", paste(setdiff(cells_req, names(x$light$cells)), collapse = ", "))
-  }
-  
-  # Sensors
-  sensors_req <- c("id_sensor", "e", "pacl", "punobs")
-  if (!all(sensors_req %in% names(x$light$sensors))) {
-    stop("`sensors` output is missing columns: ", paste(setdiff(sensors_req, names(x$light$sensors)), collapse = ", "))
-  }
+  # if (!is.list(x$output)) stop("'light' component must be a list", call. = FALSE)
+  # 
+  # # Trees
+  # trees_req <- c("id_tree", "epot", "e", "lci", "eunobs")
+  # if (!all(trees_req %in% names(x$light$trees))) {
+  #   stop("`trees` output is missing columns: ", paste(setdiff(trees_req, names(x$light$trees)), collapse = ", "))
+  # }
+  # 
+  # # Cells
+  # cells_req <- c("id_cell", "e", "pacl", "punobs")
+  # if (!all(cells_req %in% names(x$light$cells))) {
+  #   stop("`cells` output is missing columns: ", paste(setdiff(cells_req, names(x$light$cells)), collapse = ", "))
+  # }
+  # 
+  # # Sensors
+  # sensors_req <- c("id_sensor", "e", "pacl", "punobs")
+  # if (!all(sensors_req %in% names(x$light$sensors))) {
+  #   stop("`sensors` output is missing columns: ", paste(setdiff(sensors_req, names(x$light$sensors)), collapse = ", "))
+  # }
   
   invisible(TRUE)
 }

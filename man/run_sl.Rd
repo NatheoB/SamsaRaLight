@@ -11,7 +11,9 @@ run_sl(
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
-  detailed_output = FALSE
+  detailed_output = FALSE,
+  parallel_mode = FALSE,
+  n_threads = NULL
 )
 }
 \arguments{
@@ -43,6 +45,17 @@ If \code{FALSE}, crowns are treated as porous envelopes (using \code{crown_openn
 If \code{TRUE}, the output contains detailed diffuse/direct energies in the \code{light} datasets, full
 interception matrices \code{interceptions} and output of ray discretization \code{monthy_rays}.
 If \code{FALSE}, only total energies are returned (recommended for most uses).}
+
+\item{parallel_mode}{logical. If TRUE, ray–target computations are parallelised
+using OpenMP. If FALSE, the model runs in single-thread mode. SamsaRaLight uses OpenMP for ray–target parallelisation. To avoid competition
+between OpenMP and BLAS (matrix algebra libraries), BLAS is automatically forced
+to single-thread mode during the simulation. Using \code{parallel_mode = TRUE} is strongly recommended for large stands
+or fine ray discretisation, as computation time scales almost linearly with
+the number of available CPU cores.}
+
+\item{n_threads}{integer or NULL. Number of CPU threads to use when
+\code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
+the number of available cores. If provided, must be a positive integer.}
 }
 \value{
 An object of class \code{"sl_output"}, containing:
@@ -74,7 +87,7 @@ robust defaults and do not need to be provided.
 Internally, \code{run_sl()} calls the advanced engine
 \code{run_sl_advanced()} with fixed ray-tracing and sky discretization.
 
-You should normally \strong{not} use \code{run_sl_advanced()} directly unless you
+You should normally \strong{not} use \code{SamsaRaLight:::run_sl_advanced()} directly unless you
 are developing new ray-tracing configurations or doing methodological work.
 }
 \examples{

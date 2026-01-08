@@ -11,6 +11,8 @@ run_sl_advanced(
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
+  extinction_coef = 0.5,
+  clumping_factor = 1,
   trunk_interception = TRUE,
   height_anglemin = 10,
   direct_startoffset = 0,
@@ -19,7 +21,9 @@ run_sl_advanced(
   soc = TRUE,
   start_day = 1,
   end_day = 365,
-  detailed_output = FALSE
+  detailed_output = FALSE,
+  parallel_mode = FALSE,
+  n_threads = NULL
 )
 }
 \arguments{
@@ -55,6 +59,13 @@ diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.}
 \item{end_day}{integer, last day of the vegetative period (1–365)}
 
 \item{detailed_output}{logical, if TRUE, include detailed rays, energies, and interception matrices}
+
+\item{parallel_mode}{logical. If TRUE, ray–target computations are parallelised
+using OpenMP. If FALSE, the model runs in single-thread mode.}
+
+\item{n_threads}{integer or NULL. Number of CPU threads to use when
+\code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
+the number of available cores. If provided, must be a positive integer.}
 }
 \value{
 An object of class \code{"sl_output"} (list) containing:

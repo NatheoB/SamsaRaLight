@@ -1,16 +1,24 @@
-#' Function to plot SamsaRaLight trees with top/down view
-#' 
-#' @param trees a tree table
+#' Plot a SamsaRaLight virtual stand
 #'
-#' @import ggplot2 ggforce cowplot
+#' This function plots a virtual forest stand (`sl_stand`) produced by SamsaRaLight.
+#' It can display a top-down view with tree crowns or a side/top view with cells and trees.
 #'
+#' @param x An object of class `sl_stand`.
+#' @param top_down Logical, if TRUE, creates a top-down view with multiple directions (south, north, west, east).
+#' @param transparency Logical, if TRUE, trees are semi-transparent.
+#'
+#' @return A `ggplot` object representing the stand.
+#'
+#' @import ggplot2 ggforce dplyr
 #' @export
-#'
-plot_stand_2D <- function(sl_stand, 
-                          top_down = FALSE, 
-                          transparency = TRUE) {
+#' @method plot sl_stand
+plot.sl_stand <- function(x, top_down = FALSE, transparency = TRUE) {
   
+  stopifnot(inherits(x, "sl_stand"))
+  stopifnot(is.logical(top_down), length(top_down) == 1)
+  stopifnot(is.logical(transparency), length(transparency) == 1)
   
+  sl_stand <- x  # Rename for internal use
   plt <- NULL
   
   ## Top-down view
@@ -193,6 +201,7 @@ plot_stand_2D <- function(sl_stand,
     #                           ymax = y + 0.5),
     #             color = "red", fill = "black")
       
+    
       # GRAPHIC
     plt <- plt +
       scale_x_continuous(breaks = seq(0, sl_stand$geometry$n_cells_x * sl_stand$geometry$cell_size,
@@ -207,7 +216,7 @@ plot_stand_2D <- function(sl_stand,
                                         digits = 1)) +
       xlab("") + ylab("") +
       
-      labs(title = "SamsaRaLight virtual stand",
+      labs(title = "SamsaRaLight input stand",
            subtitle = paste0(round(sl_stand$transform$new_area_ha, 2), "ha - ",
                              round(sl_stand$transform$new_batot_m2ha, 2), "m2/ha - ",
                              nrow(sl_stand$trees), " trees")) +
@@ -219,7 +228,6 @@ plot_stand_2D <- function(sl_stand,
             plot.subtitle = element_text(hjust = 0.5)) 
     
     
-    # Add terrain info
   }
   
   plt
