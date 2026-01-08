@@ -38,7 +38,7 @@ is_equal_3d <- function(x1, y1, z1,
 
 #' Compute bottom azimut
 #' 
-#' @param north_to_x_cw double - Angle from North to x axis clockwise. (in degrees)
+#' @param north2x double - Angle from North to x axis clockwise. (in degrees)
 #'    Default correspond to a Y axis oriented toward the North.
 #' @param aspect double - Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
 #'    northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
@@ -47,9 +47,9 @@ is_equal_3d <- function(x1, y1, z1,
 #' @keywords internals
 #' 
 get_bottom_azimut <- function(aspect, 
-                              north_to_x_cw) {
+                              north2x) {
   
-  -aspect + north_to_x_cw
+  -aspect + north2x
   
 }
 

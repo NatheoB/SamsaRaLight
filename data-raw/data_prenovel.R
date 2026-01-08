@@ -67,23 +67,23 @@ data_trees_prenovel <- trees %>%
                 crown_type,
                 h_m = H, hbase_m = CBH, hmax_m, 
                 rn_m = CR, re_m = CR, rs_m = CR, rw_m = CR,
-                crown_openess, crown_lad)
+                crown_openness = crown_openess, crown_lad)
 
 
 
 # CREATE RADIATION DATASET ----
 
-source("R/get_monthly_rad.R")
+source("R/get_monthly_radiations.R")
 
 # Coordinates of Prenovel stand
 longitude <- 5.82765
 latitude <- 46.52666
 
 # Fetch radiation data from PVGIS
-data_rad_prenovel <- get_monthly_rad(latitude = latitude,
-                                     longitude = longitude,
-                                     start_year = 2005,
-                                     end_year = 2020)
+data_rad_prenovel <- get_monthly_radiations(latitude = latitude,
+                                            longitude = longitude,
+                                            start_year = 2005,
+                                            end_year = 2020)
 
 # Create colors set for species ----
 species_colors_prenovel <- c("Picea abies" = "#00D65C",
@@ -91,20 +91,25 @@ species_colors_prenovel <- c("Picea abies" = "#00D65C",
                              "Fagus sylvatica" = "#F76045")
 
 
+# CREATE CORE POLYGON TABLE ----
+core_polygon_prenovel <- data.frame(
+  x = c(0, 100, 100, 0), 
+  y = c(0, 0, 100, 100)
+)
+
+
 # FORMAT THE DATASETS AS A LIST ----
 data_prenovel <- list(
   "trees" = data_trees_prenovel,
   "species_colors" = species_colors_prenovel,
   "sensors" = NULL,
-  "core_polygon" = NULL,
+  "core_polygon" = core_polygon_prenovel,
   "radiations" = data_rad_prenovel,
-  "info" = c("latitude" = latitude,
-             "longitude" = longitude,
-             "size_x" = 100,
-             "size_y" = 100,
-             "slope" = 6,
-             "aspect" = 144,
-             "north_to_x_cw" = 54)
+  "info" = list("latitude" = latitude,
+                "longitude" = longitude,
+                "slope" = 6,
+                "aspect" = 144,
+                "north2x" = 54)
 )
 
 

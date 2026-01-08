@@ -49,9 +49,13 @@ data_trees_bechefa <- trees %>%
                 hbase_m = hbase, hmax_m = hmax,
                 rn_m = rn, rs_m = rs,
                 re_m = re, rw_m = rw,
-                crown_openess = crownOpeness, crown_lad = lad)
+                crown_openness = crownOpeness, crown_lad = lad)
 
-  
+
+# Change hmax of id_tree == 605 bacause it is lower than hbase
+data_trees_bechefa$hmax_m[data_trees_bechefa$id_tree == 605] <- 
+  data_trees_bechefa$hbase_m[data_trees_bechefa$id_tree == 605]
+
   
 # CREATE CORE POLYGON TABLE ----
 
@@ -81,17 +85,17 @@ core_polygon_bechefa <- core_polygon
   
 # CREATE RADIATION DATASET ----
 
-source("R/get_monthly_rad.R")
+source("R/get_monthly_radiations.R")
 
 # Coordinates of bechefa stand
 longitude <- 5.2
 latitude <- 50.04
 
 # Fetch radiation data from PVGIS
-data_rad_bechefa <- get_monthly_rad(latitude = latitude,
-                                    longitude = longitude,
-                                    start_year = 2005,
-                                    end_year = 2020)
+data_rad_bechefa <- get_monthly_radiations(latitude = latitude,
+                                           longitude = longitude,
+                                           start_year = 2005,
+                                           end_year = 2020)
 
 # Create colors set for species ----
 species_colors_bechefa <- c("picea" = "#00D65C",
@@ -107,13 +111,11 @@ data_bechefa <- list(
   "sensors" = NULL,
   "core_polygon" = core_polygon_bechefa,
   "radiations" = data_rad_bechefa,
-  "info" = c("latitude" = latitude,
-             "longitude" = longitude,
-             "size_x" = NA,
-             "size_y" = NA,
-             "slope" = 0,
-             "aspect" = 0,
-             "north_to_x_cw" = 90)
+  "info" = list("latitude" = latitude,
+                "longitude" = longitude,
+                "slope" = 0,
+                "aspect" = 0,
+                "north2x" = 90)
 )
 
 

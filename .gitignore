@@ -8,3 +8,4 @@ src/*.dll
 docs
 *.html
 dev
+vignettes_old/

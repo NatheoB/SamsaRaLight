@@ -80,7 +80,7 @@ accuracy: smaller cells lead to a more precise and continuous estimation
 of light on the ground, but this comes at the expense of quadratic
 increases in computation time and memory usage.
 
-### 3 -  Determine interceptions between light rays and tree crowns
+### 3 - Determine interceptions between light rays and tree crowns
 
 For each light ray directed towards a cell centre, the model estimates
 all the interceptions with the tree crowns. To do this, it estimates the
@@ -156,10 +156,13 @@ of energy absorbed by the tree during the year (in $MJ$). The model also
 estimates the total amount of energy reaching a cell centre after
 attenuation by the above-mentioned crowns of each ray directed towards
 this cell. This is standardised by cell area to give the amount of
-energy reaching the ground per unit area (in $MJ.m^{-2}$). ICI RAJOUTER
-DIRECT/DIFFUSE
+energy reaching the ground per unit area (in $MJ.m^{-2}$). The
+SamsaRaLight package also return more detailed output if the user
+specified it: the direct/diffuse energies, the matrices of interceptions
+(i.e. the number of intercepted rays and energies for each tree per
+target cell).
 
-For each cell, the model also derives a common relative indicator to
+For each cell, the package also derives a common relative indicator to
 represent light on the ground, $PACL$ (percentage of above canopy
 light), which is the ratio of the energy reaching the cell to the energy
 above the canopy before interception. This allows shade to be considered
@@ -172,19 +175,19 @@ effect of light on tree regeneration (see model calibration in Unkule et
 al., manuscript in preparation) and for representing the impact of
 silviculture on ground-level light (see Ligot et al., 2014b).
 
-For each tree, the model also derives a light competition index ($LCI$),
-representing the level of light competition around a focal tree. This
-index is based on the ratio between the actual energy intercepted by the
-tree and the potential energy that would have been intercepted if the
-tree were alone in the stand (*i.e.* not considering interception by
-surrounding competitors). When considering light as a resource, $LCI$
-can be interpreted as the amount of light absorbed by the tree (the
-supply) compared to what it would have needed based on its crown
-characteristics (the demand). In practice, the indicator ranges from 0
-(full light) to 1 (full shade). This indicator is considered a reliable
-proxy for estimating the effect of light competition on the growth and
-survival of individual trees (see model calibration in Beauchamp et al.,
-2025).
+For each tree, the package also derives a light competition index
+($LCI$), representing the level of light competition around a focal
+tree. This index is based on the ratio between the actual energy
+intercepted by the tree and the potential energy that would have been
+intercepted if the tree were alone in the stand (*i.e.* not considering
+interception by surrounding competitors). When considering light as a
+resource, $LCI$ can be interpreted as the amount of light absorbed by
+the tree (the supply) compared to what it would have needed based on its
+crown characteristics (the demand). In practice, the indicator ranges
+from 0 (full light) to 1 (full shade). This indicator is considered a
+reliable proxy for estimating the effect of light competition on the
+growth and survival of individual trees (see model calibration in
+Beauchamp et al., 2025).
 
 ## Learn SamsaRaLight with applied tutorials
 
@@ -253,6 +256,16 @@ statistical weight corresponding to the number of equivalent trees per
 hectare. The **Tutorial 6** shows how to compute light competition
 variables for each sampled trees.
 
+To visualize the initial virtual stand, a ggplot2 function is
+implemented in the package `plot_stand_2D()` allowing to observe the
+trees from either a view from above or a top/down view. It is very
+useful for visualizing the initial stand before running the ray-tracing
+model to ensure for no mistakes in the crown geometries. A function for
+visualizing the initial stand in 3D using the plotly package is also
+implemented `plot_stand_3D` but is to use with specific care because it
+is time and memory consuming, and may imply some lags during the run of
+the function (especially for denser stands).
+
 ### 2 - Inform the monthly radiations
 
 You will also need to provide a data.frame to that inform the monthly
@@ -268,27 +281,28 @@ between 2005 and 2020 or to choose values of a given year.
 ### 3 - Run the SamsaraLight model
 
 After having defined the trees table, the stand geometry and the monthly
-radiations, the user can run the SamsaraLight model
+radiations, the user can run the SamsaraLight model using the function
+`sl_run()`. The default arguments of this function can be tweaked to
+manage the SamsaraLight ray-tracing model, such as for setting the stand
+geometry (see Tutorial 1 and 2), choosing the transmission model (see
+Tutorial 3), considering interception by trunks...
+
+The SamsaRaLight R package also allows to estimate the light arriving
+towards virtual sensors on the ground, defined by a position and a
+height within the stand (see Tutorial 7).
 
 ### 4 - Understand the output variables
 
-The function returns a list with two data.frames:
+The function returns a list with the inputs, the model inputs, the
+monthly rays that are discretized by the model and the output energies
+for each tree, each cell and each sensor. Each Tutorial explain
+progressively how to manage with the output objects.
 
-`trees`: Light interception for each tree
-
--   `epot`: Potential energy intercepted by the tree without its
-    neighbours (in MJ/year)
-
--   `e`: Energy intercepted by the tree when considering competition
-    with neighbours (in MJ/year)
-
-`cells`: Light coming to each cell of the plot
-
--   `e`: Total energy arriving to the cell (in MJ/year)
-
--   `erel`: Relative energy coming to the cell compared to the one above
-    canopy. It ranges from 0 (no light on the ground) to 1 (no energy
-    has been intercepted by above trees).
+The package implements a graphical function `plot_sl_output` that allows
+plotting the stands with the output light variables by cells and trees,
+using the package ggplot2. It is a useful and nice way to present the
+output light results, such as a ground light map or a map of trees with
+energy of competition output variables.
 
 ## Bibliography
 

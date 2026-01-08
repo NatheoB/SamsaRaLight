@@ -4,13 +4,7 @@
 \alias{plot_stand_2D}
 \title{Function to plot SamsaRaLight trees with top/down view}
 \usage{
-plot_stand_2D(
-  trees,
-  top_down = FALSE,
-  slope = 0,
-  aspect = 0,
-  north_to_x_cw = 90
-)
+plot_stand_2D(sl_stand, top_down = FALSE, transparency = TRUE)
 }
 \arguments{
 \item{trees}{a tree table}

@@ -52,7 +52,7 @@ data_trees_IRRES1 <- trees %>%
                 hbase_m = CBH, hmax_m = CMRH,
                 rn_m = RN, rs_m = RS,
                 re_m = RE, rw_m = RW,
-                crown_openess = CrownOpenness, crown_lad = LAD)
+                crown_openness = CrownOpenness, crown_lad = LAD)
 
 
 # GET SENSORS RECORD TABLE ----
@@ -115,17 +115,17 @@ core_polygon_IRRES1 <- core_polygon %>%
   
 # CREATE RADIATION DATASET ----
 
-source("R/get_monthly_rad.R")
+source("R/get_monthly_radiations.R")
 
 # Coordinates of IRRES1 stand
 longitude <- 5.2
 latitude <- 50.04
 
 # Fetch radiation data from PVGIS
-data_rad_IRRES1 <- get_monthly_rad(latitude = latitude,
-                                      longitude = longitude,
-                                      start_year = 2005,
-                                      end_year = 2020)
+data_rad_IRRES1 <- get_monthly_radiations(latitude = latitude,
+                                          longitude = longitude,
+                                          start_year = 2005,
+                                          end_year = 2020)
 
 
 # Create colors set for species ----
@@ -143,13 +143,11 @@ data_IRRES1 <- list(
   "sensors" = data_sensors_IRRES1,
   "core_polygon" = core_polygon_IRRES1,
   "radiations" = data_rad_IRRES1,
-  "info" = c("latitude" = latitude,
-             "longitude" = longitude,
-             "size_x" = NA,
-             "size_y" = NA,
-             "slope" = 6.489,
-             "aspect" = 43.536,
-             "north_to_x_cw" = 90)
+  "info" = list("latitude" = latitude,
+                "longitude" = longitude,
+                "slope" = 6.489,
+                "aspect" = 43.536,
+                "north2x" = 90)
 )
 
 

@@ -8,7 +8,7 @@ library(ggplot2)
 library(RCapsis)
 library(SamsaRaLight)
 
-source("R/sl_run_capsis.R")
+source("dev/sl_run_capsis.R")
 
 # Init for SamsaRaLight R ----
 trees <- SamsaRaLight::data_trees_prenovel %>%

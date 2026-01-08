@@ -4,13 +4,13 @@
 \alias{get_bottom_azimut}
 \title{Compute bottom azimut}
 \usage{
-get_bottom_azimut(aspect, north_to_x_cw)
+get_bottom_azimut(aspect, north2x)
 }
 \arguments{
 \item{aspect}{double - Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
 northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270}
 
-\item{north_to_x_cw}{double - Angle from North to x axis clockwise. (in degrees)
+\item{north2x}{double - Angle from North to x axis clockwise. (in degrees)
 Default correspond to a Y axis oriented toward the North.}
 }
 \description{

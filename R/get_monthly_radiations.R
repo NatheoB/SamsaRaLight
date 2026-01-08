@@ -1,4 +1,4 @@
-#' Fetch monthly radiations
+#' Create the SamsaraLight
 #'
 #' @description Fetch monthly radiation data from PVGIS website (by API)
 #'    between start and end year (limit years are from 2005 to 2020).
@@ -12,7 +12,6 @@
 #' @param longitude longitude of the plot
 #' @param start_year positive integer between 2005 and 2020 - start year on which to fetch monthly data
 #' @param end_year positive integer between 2005 and 2020 - end year on which to fetch monthly data
-#' @param average_years if TRUE, years are averaged to obtain a single value for each month
 #'
 #' @return Monthly horizontal radiation (Hrad) and diffuse to global ratio (DGratio)
 #'    averaged between start_year and end_year
@@ -23,10 +22,10 @@
 #' @importFrom dplyr recode mutate select arrange group_by summarize_all %>% 
 #'
 #' @export
-get_monthly_rad <- function(latitude, longitude,
-                            start_year = 2005,
-                            end_year = 2020,
-                            average_years = TRUE) {
+get_monthly_radiations <- function(latitude, 
+                                   longitude,
+                                   start_year = 2005,
+                                   end_year = 2020) {
 
   # Check for start and end years (PVGIS go from 2005 to 2020) ----
   if (start_year < 2005) stop("PVGIS data start from year 2005")
@@ -76,14 +75,12 @@ get_monthly_rad <- function(latitude, longitude,
     dplyr::arrange(year, month)
 
   
-  # Compute monthly mean of Hrad and DGratio between start and end years if specified
-  if (average_years) {
-    out_df <- out_df %>%
-      dplyr::select(-year) %>%
-      dplyr::group_by(month) %>%
-      dplyr::summarize_all(mean)
-  }
-
+  # Compute monthly mean of Hrad and DGratio between start and end years
+  out_df <- out_df %>%
+    dplyr::select(-year) %>%
+    dplyr::group_by(month) %>%
+    dplyr::summarize_all(mean)
+  
   # Convert to data.frame
   out_df <- as.data.frame(out_df)
   

@@ -28,19 +28,18 @@
 #' @importFrom dplyr bind_rows
 #' @importFrom data.table fifelse
 #'
-#' @export
-#' 
-sl_create_monthly_rays <- function(monthly_rad,
-                                   latitude,
-                                   start_day = 1, end_day = 365,
-                                   soc = TRUE,
-                                   slope = 0,
-                                   north_to_x_cw = 90,
-                                   aspect = 0,
-                                   height_anglemin = 10,
-                                   direct_startoffset = 0,
-                                   direct_anglestep = 5,
-                                   diffuse_anglestep = 15) {
+#' @keywords internal
+create_sl_rays <- function(monthly_rad,
+                           latitude,
+                           start_day = 1, end_day = 365,
+                           soc = TRUE,
+                           slope = 0,
+                           north_to_x_cw = 90,
+                           aspect = 0,
+                           height_anglemin = 10,
+                           direct_startoffset = 0,
+                           direct_anglestep = 5,
+                           diffuse_anglestep = 15) {
   
   ### Set global variables
   

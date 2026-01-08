@@ -20,7 +20,7 @@ its location, species, size, size of the crown and crown information.
 \item{hmax_m}{Height at which the crown radius is maximum.
 Set it to NA in case of simple crown shapes ("P" and "E"), otherwise, your values won't be considered as hmax is automatically computed.}
 \item{rn_m, rs_m, re_m, rw_m}{Biggest radius of the tree crown in m (double)}
-\item{crown_openess}{Crown Openness of the tree (no unit) (i.e. Fraction of the energy of a light ray crossing the crown that is intercepted).
+\item{crown_openness}{Crown Openness of the tree (no unit) (i.e. Fraction of the energy of a light ray crossing the crown that is intercepted).
 Used when computing interception with a crown considered as a porous envelop. (double)}
 \item{crown_lad}{Leaf Area Density of the tree crown in m2/m3 (i.e. surface of leave per volume of crown, considering an homogeneous crown).
 Used when computing interception with a crown considered as a turbid medium. (double)}
