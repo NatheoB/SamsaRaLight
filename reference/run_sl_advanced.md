@@ -15,6 +15,8 @@ run_sl_advanced(
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
+  extinction_coef = 0.5,
+  clumping_factor = 1,
   trunk_interception = TRUE,
   height_anglemin = 10,
   direct_startoffset = 0,
@@ -23,7 +25,9 @@ run_sl_advanced(
   soc = TRUE,
   start_day = 1,
   end_day = 365,
-  detailed_output = FALSE
+  detailed_output = FALSE,
+  parallel_mode = FALSE,
+  n_threads = NULL
 )
 ```
 
@@ -96,6 +100,18 @@ run_sl_advanced(
 
   logical, if TRUE, include detailed rays, energies, and interception
   matrices
+
+- parallel_mode:
+
+  logical. If TRUE, ray–target computations are parallelised using
+  OpenMP. If FALSE, the model runs in single-thread mode.
+
+- n_threads:
+
+  integer or NULL. Number of CPU threads to use when
+  `parallel_mode = TRUE`. If NULL (default), OpenMP automatically
+  selects the number of available cores. If provided, must be a positive
+  integer.
 
 ## Value
 

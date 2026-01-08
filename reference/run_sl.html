@@ -47,7 +47,9 @@ stand using the SamsaRaLight ray-tracing engine.</p>
 <span>  sensors_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_torus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  turbid_medium <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  detailed_output <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  detailed_output <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  parallel_mode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -97,6 +99,21 @@ If <code>TRUE</code>, the output contains detailed diffuse/direct energies in th
 interception matrices <code>interceptions</code> and output of ray discretization <code>monthy_rays</code>.
 If <code>FALSE</code>, only total energies are returned (recommended for most uses).</p></dd>
 
+
+<dt id="arg-parallel-mode">parallel_mode<a class="anchor" aria-label="anchor" href="#arg-parallel-mode"></a></dt>
+<dd><p>logical. If TRUE, ray–target computations are parallelised
+using OpenMP. If FALSE, the model runs in single-thread mode. SamsaRaLight uses OpenMP for ray–target parallelisation. To avoid competition
+between OpenMP and BLAS (matrix algebra libraries), BLAS is automatically forced
+to single-thread mode during the simulation. Using <code>parallel_mode = TRUE</code> is strongly recommended for large stands
+or fine ray discretisation, as computation time scales almost linearly with
+the number of available CPU cores.</p></dd>
+
+
+<dt id="arg-n-threads">n_threads<a class="anchor" aria-label="anchor" href="#arg-n-threads"></a></dt>
+<dd><p>integer or NULL. Number of CPU threads to use when
+<code>parallel_mode = TRUE</code>. If NULL (default), OpenMP automatically selects
+the number of available cores. If provided, must be a positive integer.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
@@ -124,7 +141,7 @@ Advanced ray-tracing and sky discretization parameters are internally set to
 robust defaults and do not need to be provided.</p>
 <p>Internally, <code>run_sl()</code> calls the advanced engine
 <code><a href="run_sl_advanced.html">run_sl_advanced()</a></code> with fixed ray-tracing and sky discretization.</p>
-<p>You should normally <strong>not</strong> use <code><a href="run_sl_advanced.html">run_sl_advanced()</a></code> directly unless you
+<p>You should normally <strong>not</strong> use <code>SamsaRaLight:::run_sl_advanced()</code> directly unless you
 are developing new ray-tracing configurations or doing methodological work.</p>
     </div>
     <div class="section level2">

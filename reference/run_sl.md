@@ -13,7 +13,9 @@ run_sl(
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
-  detailed_output = FALSE
+  detailed_output = FALSE,
+  parallel_mode = FALSE,
+  n_threads = NULL
 )
 ```
 
@@ -63,6 +65,24 @@ run_sl(
   `interceptions` and output of ray discretization `monthy_rays`. If
   `FALSE`, only total energies are returned (recommended for most uses).
 
+- parallel_mode:
+
+  logical. If TRUE, ray–target computations are parallelised using
+  OpenMP. If FALSE, the model runs in single-thread mode. SamsaRaLight
+  uses OpenMP for ray–target parallelisation. To avoid competition
+  between OpenMP and BLAS (matrix algebra libraries), BLAS is
+  automatically forced to single-thread mode during the simulation.
+  Using `parallel_mode = TRUE` is strongly recommended for large stands
+  or fine ray discretisation, as computation time scales almost linearly
+  with the number of available CPU cores.
+
+- n_threads:
+
+  integer or NULL. Number of CPU threads to use when
+  `parallel_mode = TRUE`. If NULL (default), OpenMP automatically
+  selects the number of available cores. If provided, must be a positive
+  integer.
+
 ## Value
 
 An object of class `"sl_output"`, containing:
@@ -102,8 +122,7 @@ Internally, `run_sl()` calls the advanced engine
 [`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
 with fixed ray-tracing and sky discretization.
 
-You should normally **not** use
-[`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
+You should normally **not** use `SamsaRaLight:::run_sl_advanced()`
 directly unless you are developing new ray-tracing configurations or
 doing methodological work.
 

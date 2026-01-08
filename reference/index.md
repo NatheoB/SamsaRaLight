@@ -24,12 +24,12 @@
   : Create the SamsaraLight
 - [`get_z()`](https://natheob.github.io/SamsaRaLight/reference/get_z.md)
   : Compute z coordinate of a point (x,y).
+- [`plot(`*`<sl_output>`*`)`](https://natheob.github.io/SamsaRaLight/reference/plot.sl_output.md)
+  : Plot a SamsaRaLight output
+- [`plot(`*`<sl_stand>`*`)`](https://natheob.github.io/SamsaRaLight/reference/plot.sl_stand.md)
+  : Plot a SamsaRaLight virtual stand
 - [`plot_inventory()`](https://natheob.github.io/SamsaRaLight/reference/plot_inventory.md)
   : Plot a from-above view of a tree inventory
-- [`plot_sl_output()`](https://natheob.github.io/SamsaRaLight/reference/plot_sl_output.md)
-  : Function to plot SamsaRaLight object output
-- [`plot_stand_2D()`](https://natheob.github.io/SamsaRaLight/reference/plot_stand_2D.md)
-  : Function to plot SamsaRaLight trees with top/down view
 - [`plot_stand_3D()`](https://natheob.github.io/SamsaRaLight/reference/plot_stand_3D.md)
   : Function to plot SamsaRaLight stand in 3D
 - [`run_sl()`](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)

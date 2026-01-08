@@ -50,6 +50,8 @@ customization of ray discretization, sky type and trunk interception.</p>
 <span>  sensors_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_torus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  turbid_medium <span class="op">=</span> <span class="cn">TRUE</span>,</span>
+<span>  extinction_coef <span class="op">=</span> <span class="fl">0.5</span>,</span>
+<span>  clumping_factor <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  trunk_interception <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  height_anglemin <span class="op">=</span> <span class="fl">10</span>,</span>
 <span>  direct_startoffset <span class="op">=</span> <span class="fl">0</span>,</span>
@@ -58,7 +60,9 @@ customization of ray discretization, sky type and trunk interception.</p>
 <span>  soc <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  start_day <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  end_day <span class="op">=</span> <span class="fl">365</span>,</span>
-<span>  detailed_output <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span>  detailed_output <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  parallel_mode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -127,6 +131,17 @@ diffuse to global ratio (DGratio), computed with <a href="get_monthly_radiations
 
 <dt id="arg-detailed-output">detailed_output<a class="anchor" aria-label="anchor" href="#arg-detailed-output"></a></dt>
 <dd><p>logical, if TRUE, include detailed rays, energies, and interception matrices</p></dd>
+
+
+<dt id="arg-parallel-mode">parallel_mode<a class="anchor" aria-label="anchor" href="#arg-parallel-mode"></a></dt>
+<dd><p>logical. If TRUE, ray–target computations are parallelised
+using OpenMP. If FALSE, the model runs in single-thread mode.</p></dd>
+
+
+<dt id="arg-n-threads">n_threads<a class="anchor" aria-label="anchor" href="#arg-n-threads"></a></dt>
+<dd><p>integer or NULL. Number of CPU threads to use when
+<code>parallel_mode = TRUE</code>. If NULL (default), OpenMP automatically selects
+the number of available cores. If provided, must be a positive integer.</p></dd>
 
 </dl></div>
     <div class="section level2">
