@@ -11,14 +11,15 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
 // sl_run_rcpp
-List sl_run_rcpp(DataFrame trees, DataFrame sensors, bool sensors_only, DataFrame rays, double e_direct_above_slope_m2, double e_diffuse_above_slope_m2, double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus, bool turbid_medium, bool trunk_interception);
-RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP sensorsSEXP, SEXP sensors_onlySEXP, SEXP raysSEXP, SEXP e_direct_above_slope_m2SEXP, SEXP e_diffuse_above_slope_m2SEXP, SEXP e_direct_above_horizontal_m2SEXP, SEXP e_diffuse_above_horizontal_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP trunk_interceptionSEXP) {
+List sl_run_rcpp(DataFrame trees, DataFrame sensors, bool sensors_only, DataFrame cells, DataFrame rays, double e_direct_above_slope_m2, double e_diffuse_above_slope_m2, double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus, bool turbid_medium, double extinction_coef, double clumping_factor, bool trunk_interception);
+RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP sensorsSEXP, SEXP sensors_onlySEXP, SEXP cellsSEXP, SEXP raysSEXP, SEXP e_direct_above_slope_m2SEXP, SEXP e_diffuse_above_slope_m2SEXP, SEXP e_direct_above_horizontal_m2SEXP, SEXP e_diffuse_above_horizontal_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP extinction_coefSEXP, SEXP clumping_factorSEXP, SEXP trunk_interceptionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< DataFrame >::type trees(treesSEXP);
     Rcpp::traits::input_parameter< DataFrame >::type sensors(sensorsSEXP);
     Rcpp::traits::input_parameter< bool >::type sensors_only(sensors_onlySEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type cells(cellsSEXP);
     Rcpp::traits::input_parameter< DataFrame >::type rays(raysSEXP);
     Rcpp::traits::input_parameter< double >::type e_direct_above_slope_m2(e_direct_above_slope_m2SEXP);
     Rcpp::traits::input_parameter< double >::type e_diffuse_above_slope_m2(e_diffuse_above_slope_m2SEXP);
@@ -32,14 +33,38 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type n_cells_y(n_cells_ySEXP);
     Rcpp::traits::input_parameter< bool >::type use_torus(use_torusSEXP);
     Rcpp::traits::input_parameter< bool >::type turbid_medium(turbid_mediumSEXP);
+    Rcpp::traits::input_parameter< double >::type extinction_coef(extinction_coefSEXP);
+    Rcpp::traits::input_parameter< double >::type clumping_factor(clumping_factorSEXP);
     Rcpp::traits::input_parameter< bool >::type trunk_interception(trunk_interceptionSEXP);
-    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, sensors, sensors_only, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, trunk_interception));
+    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, sensors, sensors_only, cells, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, extinction_coef, clumping_factor, trunk_interception));
     return rcpp_result_gen;
+END_RCPP
+}
+// sl_set_openmp
+void sl_set_openmp(bool parallel_mode, int num_threads);
+RcppExport SEXP _SamsaRaLight_sl_set_openmp(SEXP parallel_modeSEXP, SEXP num_threadsSEXP) {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< bool >::type parallel_mode(parallel_modeSEXP);
+    Rcpp::traits::input_parameter< int >::type num_threads(num_threadsSEXP);
+    sl_set_openmp(parallel_mode, num_threads);
+    return R_NilValue;
+END_RCPP
+}
+// sl_print_openmp_status
+void sl_print_openmp_status();
+RcppExport SEXP _SamsaRaLight_sl_print_openmp_status() {
+BEGIN_RCPP
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    sl_print_openmp_status();
+    return R_NilValue;
 END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 17},
+    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 20},
+    {"_SamsaRaLight_sl_set_openmp", (DL_FUNC) &_SamsaRaLight_sl_set_openmp, 2},
+    {"_SamsaRaLight_sl_print_openmp_status", (DL_FUNC) &_SamsaRaLight_sl_print_openmp_status, 0},
     {NULL, NULL, 0}
 };
 
