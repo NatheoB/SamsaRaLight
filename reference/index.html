@@ -16,15 +16,6 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1-simple_case.html">1 - A first simple case</a></li>
-    <li><a class="dropdown-item" href="../articles/2-stand_geometry.html">2 - Understand stand information</a></li>
-    <li><a class="dropdown-item" href="../articles/3-transmission_model.html">3 - Choose the transmission model</a></li>
-    <li><a class="dropdown-item" href="../articles/4-core_polygon.html">4 - Create a virtual stand from an inventory</a></li>
-    <li><a class="dropdown-item" href="../articles/5-irregular_crowns.html">5 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/7-light_sensors.html">7 - Add light sensors</a></li>
-  </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
       </ul></div>
@@ -43,78 +34,122 @@
 
 
 
-
-    </div><div class="section level2">
+      <dl></dl></div><div class="section level2">
 
 
 
 
       <dl><dt>
 
-          <code><a href="create_rect_stand.html">create_rect_stand()</a></code>
+          <code><a href="check_inventory.html">check_inventory()</a></code>
 
         </dt>
-        <dd>Center the surveyed trees of the core polygon in a rectangle plot</dd>
-      </dl><dl><dt>
+        <dd>Check the format and validity of a tree inventory data.frame</dd>
+
+        <dt>
+
+          <code><a href="check_monthly_radiations.html">check_monthly_radiations()</a></code>
+
+        </dt>
+        <dd>Validate monthly radiation input</dd>
+
+        <dt>
+
+          <code><a href="check_sensors.html">check_sensors()</a></code>
+
+        </dt>
+        <dd>Check the format and validity of a sensor position data.frame</dd>
+
+        <dt>
+
+          <code><a href="create_sl_stand.html">create_sl_stand()</a></code>
+
+        </dt>
+        <dd>Create a rectangular virtual stand from a tree inventory</dd>
+
+        <dt>
 
           <code><a href="data_IRRES1.html">data_IRRES1</a></code>
 
         </dt>
         <dd>Information for IRRES1 inventory</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="data_bechefa.html">data_bechefa</a></code>
 
         </dt>
         <dd>Information for bechefa inventory</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="data_cloture20.html">data_cloture20</a></code>
 
         </dt>
         <dd>Information for cloture20 inventory</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="data_prenovel.html">data_prenovel</a></code>
 
         </dt>
         <dd>Information for Prenovel inventory</dd>
-      </dl><dl><dt>
+
+        <dt>
 
           <code><a href="get_bottom_azimut.html">get_bottom_azimut()</a></code>
 
         </dt>
         <dd>Compute bottom azimut</dd>
-      </dl><dl><dt>
 
-          <code><a href="get_monthly_rad.html">get_monthly_rad()</a></code>
+        <dt>
+
+          <code><a href="get_monthly_radiations.html">get_monthly_radiations()</a></code>
 
         </dt>
-        <dd>Fetch monthly radiations</dd>
-      </dl><dl><dt>
+        <dd>Create the SamsaraLight</dd>
+
+        <dt>
 
           <code><a href="get_z.html">get_z()</a></code>
 
         </dt>
         <dd>Compute z coordinate of a point (x,y).</dd>
-      </dl><dl><dt>
+
+        <dt>
+
+          <code><a href="plot_inventory.html">plot_inventory()</a></code>
+
+        </dt>
+        <dd>Plot a from-above view of a tree inventory</dd>
+
+        <dt>
 
           <code><a href="plot_sl_output.html">plot_sl_output()</a></code>
 
         </dt>
-        <dd>@param plot.trees Character string indicating the filling variables of the trees. Set it to NULL if you do not want to plot the trees</dd>
-      </dl><dl><dt>
+        <dd>Function to plot SamsaRaLight object output</dd>
 
-          <code><a href="sl_create_monthly_rays.html">sl_create_monthly_rays()</a></code>
+        <dt>
 
-        </dt>
-        <dd>Compute direct and diffuse rays of a growing season</dd>
-      </dl><dl><dt>
-
-          <code><a href="sl_run.html">sl_run()</a></code>
+          <code><a href="plot_stand_2D.html">plot_stand_2D()</a></code>
 
         </dt>
-        <dd>Compute samsara ligth radiative balance</dd>
+        <dd>Function to plot SamsaRaLight trees with top/down view</dd>
+
+        <dt>
+
+          <code><a href="plot_stand_3D.html">plot_stand_3D()</a></code>
+
+        </dt>
+        <dd>Function to plot SamsaRaLight stand in 3D</dd>
+
+        <dt>
+
+          <code><a href="run_sl.html">run_sl()</a></code>
+
+        </dt>
+        <dd>Run SamsaRaLight radiative balance</dd>
       </dl></div>
   </main></div>
 
@@ -124,7 +159,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

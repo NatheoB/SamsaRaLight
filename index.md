@@ -1,0 +1,240 @@
+# SamsaRaLight
+
+The R package SamsaraLight provides a simpler and faster way to use the
+SamsaraLight ray-tracing model within the R environment. SamsaraLight is
+a forest radiative transfer model based on ray tracing (Courbaud et al.,
+2003) that enables users to estimate the light intercepted by each tree
+and the light that reaches the ground or virtual light sensors, in a
+given forest stand inventory.
+
+## Installation of the SamsaRaLight R package
+
+You can install the development version of SamsaRaLight from
+[GitHub](https://github.com/) with:
+
+``` r
+install.packages("devtools")
+devtools::install_github("NatheoB/SamsaRaLight")
+```
+
+## Global description of the SamsaraLight model
+
+### 1 - Construct the virtual stand from an input tree inventory
+
+The user’s inventory plot is represented by an axis-aligned rectangle
+with a specified slope and aspect. The constructed virtual stand is then
+divided into square cells of the same size for use in the ray-tracing
+model.
+
+The user’s inventoried trees are located within this virtual stand, with
+each tree’s crown represented by a simple 3D geometric volume whose
+dimensions and shape are defined by the user. The crown can be given a
+symmetrical shape, such as an ellipsoid (typically used for broadleaves)
+or a paraboloid (typically used for conifers). Users can increase the
+complexity of the crown representation by using asymmetric shapes and
+defining the crown radii at the four cardinal points, as well as the
+height at which the crown radius is at its maximum. This can be
+constructed easily and automatically in the model using parts of
+ellipsoids and paraboloids (*i.e.* two halves or eight eighths of an
+ellipsoid, or four quarters of a paraboloid).
+
+### 2 - Discretize the annual light
+
+Based on the user definition of the monthly radiations (*i.e.* global
+energy in an horizontal plane (in $MJ.ha^{- 1}$) and the ratio between
+diffuse and global energy for a given month), the SamsaraLight
+ray-tracing model discretizes annual light into a finite number of
+direct and diffuse rays. Considering whether direct or diffuse light,
+the model calculates the angles (height angle), orientation (azimuth)
+and energy of diffuse and direct light rays depending on plot latitude
+(more direct radiations with greater height angle toward lower latitudes
+in Spain, compared to more diffuse and horizontal rays towards higher
+latitudes in Scandinavia).
+
+### 3 - Cast the light rays toward the stand
+
+The model then cast
+
+### 4 - Estimate light interception by trees
+
+Thus, when a ray intercepts the crown of a tree, the intercepted light
+energy is calculated by considering the crown as a turbid medium and
+applying Beer-Lambert’s law, taking into account the incident energy of
+the ray and the leaf area density of the tree. It assumes that the
+leaves are arranged homogeneously and not aggregated within the canopy.
+
+To consider the fact that we don’t know the environment around the
+stand, it represents plot boundaries with a torus system (Courbaud et
+al. 2003). Indeed, trees around the border of the stand are not
+described but they also participates to the attenuation of the coming
+rays. Thus, if we do not consider environment after boundaries, we
+overestimate interception of light, especially for trees closer to the
+plot boundaries.
+
+### 5 - Compute the output energy and light competition variables
+
+In this way, it estimates the attenuation of the energy of each light
+ray following successive interceptions by the tree crowns, and
+calculates the sum of the intercepted energy from each ray, for all the
+trees in the stand, and the consequent energy reaching each cell. By
+doing so, light variables can be derived from total energies and some
+example of usual indicators are provided in the outputs, such as LCI for
+trees or PACL for ground light.
+
+## Package functionnalities
+
+## Main R functions and pipeline
+
+### Prepare the inputs
+
+In case of the user’s complex inventory protocol (i.e. non-axis-aligned
+rectangle or non-rectangular shape), the R package allows
+
+### Run the model
+
+### Analyse the outputs
+
+## Learn with applied tutorials
+
+You can find simple examples as tutorial for different stand situations
+and with different tree crown dimensions accuracy:
+
+1.  Compute light interception with simplified symmetric crowns
+2.  Consider interception of light by trunks
+3.  Complexify crown representation with irregular crowns
+
+## Inputs
+
+### Stand geometry
+
+You first need to consider the geometry of the stand as argument of the
+`sl_run()` function.
+
+You will need the `latitude` of the plot (Y-coordinate in WGS84 system)
+for computation of angle and azimuth of each diffuse and direct rays.
+
+The forest stand is defined as a flat plane with a given :
+
+- `slope` (uniform slope in degrees of the flat plane)
+
+- `aspect` (Angle of slope bottom on the compass from the North,
+  clockwise rotation in degrees. northern aspect = 0, eastern aspect =
+  90, southern aspect = 180, western aspect = 270)
+
+- `north_to_x_cw` (Angle from North to x axis clockwise in degrees, the
+  default 90 value corresponds to a Y axis oriented toward the North)
+
+You need to define the size of the plot by setting the size
+(`cell_size`) and the number of cells composing the plot (`n_cells_x`
+and `n_cells_x`, respectively the number of cells in a column and a
+row).
+
+All the diffuse and direct rays are launch towards the center of each
+cell with a computed azimuth and angle. Then, the more cells there are
+in the plot, the more rays will be launched , and the longer the
+calculation time will be.
+
+### Trees description
+
+Then, you need to provide a well formatted data.frame containing
+description of each tree of the plot.
+
+The trees data.frame should contain all the below variables, with the
+correct name and type of the column:
+
+- `id_tree`: Unique id of the tree (integer)
+
+- `x`, `y`: Relative location of the tree in the stand (double, in m)
+
+- `crown_type`: Type of the crown form. Between “E” and “P” for
+  symmetric crown (see tutorial n°1). Between “2E”, “8E” or “4P” for
+  irregular crowns (see tutorial n°3) (character)
+
+- `dbh_cm`: Diameter at breast height (1.30m) of the trunk of the tree
+  (double, in cm) (Can be set to NA if one do not consider light
+  interception by trunks, otherwise, see tutorial n°2)
+
+- `h_m`: Height of the top of the tree crown from the ground (double, in
+
+  13. 
+
+- `hbase_m`: Height of the tree crown base (double, in m)
+
+- `hmax_m`; Height at which the tree crown diameter is the biggest
+  (double, in m)
+
+- `rn_m`, `rs_m`, `re_m`, `rw_m`: Tree crown radius at hmax towards
+  respectively North, South, East and West (in m, double).
+
+- `crown_lad`: Leaf Area Density of the tree crown (in m2/m3) (i.e.
+  surface of leave per volume of crown, considering an homogeneous
+  crown). (Used when computing interception with a crown considered as a
+  turbid medium, i.e argument turbid_medium = TRUE, can be set to NA
+  otherwise). (double)
+
+- `crown_openess`: Crown Openness of the tree (no unit) (i.e. Fraction
+  of the energy of a light ray crossing the crown that is intercepted).
+  (Used when computing interception with a crown considered as a porous
+  envelop, i.e argument turbid_medium = FALSE, can be set to NA
+  otherwise). (double)
+
+### Monthly radiation
+
+You will also need to provide a data.frame to that indicates the monthly
+radiations. You need to provide three columns with 12 rows, each
+indicating radiations for a month:
+
+- `month`: the month between 1 and 12
+
+- `Hrad`: monthly global radiation on a horizontal plane in MJ.m^2
+
+- `DGratio`: ratio of monthly diffuse energy to global energy (needed to
+  compute direct energy)
+
+You can fetch this data.frame for a given `latitude` and `longitude`
+using the function `get_monthly_rad()`. It fetches monthly data between
+given start and end year (range between 2005 and 2020) from the PVGIS
+database
+<https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en>.
+Here, you can choose to average the monthly values between all the years
+between 2005 and 2020 or to choose values of a given year.
+
+## Outputs
+
+The function returns a list with two data.frames:
+
+`trees`: Light interception for each tree
+
+- `epot`: Potential energy intercepted by the tree without its
+  neighbours (in MJ/year)
+
+- `e`: Energy intercepted by the tree when considering competition with
+  neighbours (in MJ/year)
+
+`cells`: Light coming to each cell of the plot
+
+- `e`: Total energy arriving to the cell (in MJ/year)
+
+- `erel`: Relative energy coming to the cell compared to the one above
+  canopy. It ranges from 0 (no light on the ground) to 1 (no energy has
+  been intercepted by above trees).
+
+## Bibliography
+
+\[1\] Courbaud, B. et al. (2015). “Applying ecological model
+evaludation: Lessons learned with the forest dynamics model Samsara2”.
+Ecological Modelling 314, p. 1. doi: 10.1016/j.ecolmodel.2015.06.039.
+
+\[2\] Courbaud, B., F. de Coligny, and T. Cordonnier (2003). “Simulating
+radiation distribution in a heterogeneous Norway spruce forest on a
+slope”. Agricultural and Forest Meteorology 116.1, pp. 1–18. doi:
+10.1016/S0168-1923(02)00254-X.
+
+\[3\] Ligot, G., Balandier, P., Courbaud, B., Claessens, H., 2014.
+“Forest radiative transfer models: which approach for which
+application?”. Can. J. For. Res. 44:385-397.
+<https://hdl.handle.net/2268/163600>
+
+\[4\] Ligot, G., Balandier, P., Coubraud, B., Jonard, M., Kneeshaw, D.,
+Claessens, H, 2014. “Managing understory light to maintain a mixture of
+species with different shade tolerance”. For. Ecol. Manage. 327:189-200.

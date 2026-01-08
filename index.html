@@ -32,17 +32,6 @@
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="reference/index.html">Reference</a></li>
-<li class="nav-item dropdown">
-  <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="articles/1-simple_case.html">1 - A first simple case</a></li>
-    <li><a class="dropdown-item" href="articles/2-stand_geometry.html">2 - Understand stand information</a></li>
-    <li><a class="dropdown-item" href="articles/3-transmission_model.html">3 - Choose the transmission model</a></li>
-    <li><a class="dropdown-item" href="articles/4-core_polygon.html">4 - Create a virtual stand from an inventory</a></li>
-    <li><a class="dropdown-item" href="articles/5-irregular_crowns.html">5 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="articles/7-light_sensors.html">7 - Add light sensors</a></li>
-  </ul>
-</li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -58,19 +47,9 @@
   <main id="main" class="col-md-9"><div class="section level1">
 <div class="page-header"><h1 id="samsaralight">SamsaRaLight<a class="anchor" aria-label="anchor" href="#samsaralight"></a>
 </h1></div>
-<p>SamsaraLight is a ray tracing model (Courbaud et al. 2003) that estimates light interception by each tree within a stand and light that arrives to the ground. SamsaraLight is a spatially explicit, individual-based model that estimate the amount of light intercepted by a tree throughout a growing season. It is based on light beam interception and attenuation by the 3D crowns of each tree in the stand.</p>
-<p>The SamsaraLight model was initially implemented within the Java platform Capsis (<a href="https://capsis.cirad.fr/capsis/help_en/samsaralight" class="external-link uri">https://capsis.cirad.fr/capsis/help_en/samsaralight</a>). However, for the sake of fast computing and easier use within R paradigm, we needed to reformulate the model as an R package and we used Rcpp with C++ script for fast computing.</p>
+<p>The R package SamsaraLight provides a simpler and faster way to use the SamsaraLight ray-tracing model within the R environment. SamsaraLight is a forest radiative transfer model based on ray tracing (Courbaud et al., 2003) that enables users to estimate the light intercepted by each tree and the light that reaches the ground or virtual light sensors, in a given forest stand inventory.</p>
 <div class="section level2">
-<h2 id="global-description">Global description<a class="anchor" aria-label="anchor" href="#global-description"></a>
-</h2>
-<p>Firstly, the stand is divided into square cells of the same size. The trees are explicitly located within the stand and their crowns are represented in space.</p>
-<p>Secondly, it projects monthly diffuse and direct rays towards the center of each cell composing the stand, with an energy given by to the global energy of the month per <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>m</mi><mn>2</mn></msup><annotation encoding="application/x-tex">m^2</annotation></semantics></math>. It involves estimating the geometry, quantity and energy of monthly direct and diffuse radiation at a given latitude. It calculates for each plot the angles and intensity of diffuse and direct light beams depending on plot latitude. Then, one have to give both the global energy in an horizontal plane (in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><mi>h</mi><msup><mi>a</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.ha^{-1}</annotation></semantics></math>) and the ratio between diffuse and global energy for a given month (see chapter ).</p>
-<p>Thus, when a ray intercepts the crown of a tree, the intercepted light energy is calculated by considering the crown as a turbid medium and applying Beer-Lambert’s law, taking into account the incident energy of the ray and the leaf area density of the tree. It assumes that the leaves are arranged homogeneously and not aggregated within the canopy.</p>
-<p>In this way, it estimates the attenuation of the energy of each light ray following successive interceptions by the tree crowns, and calculates the sum of the intercepted energy from each ray, for all the trees in the stand.</p>
-<p>To consider the fact that we don’t know the environment around the stand, it represents plot boundaries with a torus system (Courbaud et al. 2003). Indeed, trees around the border of the stand are not described but they also participates to the attenuation of the coming rays. Thus, if we do not consider environment after boundaries, we overestimate interception of light, especially for trees closer to the plot boundaries</p>
-</div>
-<div class="section level2">
-<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+<h2 id="installation-of-the-samsaralight-r-package">Installation of the SamsaRaLight R package<a class="anchor" aria-label="anchor" href="#installation-of-the-samsaralight-r-package"></a>
 </h2>
 <p>You can install the development version of SamsaRaLight from <a href="https://github.com/" class="external-link">GitHub</a> with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
@@ -78,7 +57,59 @@
 <span><span class="fu">devtools</span><span class="fu">::</span><span class="fu">install_github</span><span class="op">(</span><span class="st">"NatheoB/SamsaRaLight"</span><span class="op">)</span></span></code></pre></div>
 </div>
 <div class="section level2">
-<h2 id="applied-tutorials">Applied tutorials<a class="anchor" aria-label="anchor" href="#applied-tutorials"></a>
+<h2 id="global-description-of-the-samsaralight-model">Global description of the SamsaraLight model<a class="anchor" aria-label="anchor" href="#global-description-of-the-samsaralight-model"></a>
+</h2>
+<div class="section level3">
+<h3 id="id_1---construct-the-virtual-stand-from-an-input-tree-inventory">1 - Construct the virtual stand from an input tree inventory<a class="anchor" aria-label="anchor" href="#id_1---construct-the-virtual-stand-from-an-input-tree-inventory"></a>
+</h3>
+<p>The user’s inventory plot is represented by an axis-aligned rectangle with a specified slope and aspect. The constructed virtual stand is then divided into square cells of the same size for use in the ray-tracing model.</p>
+<p>The user’s inventoried trees are located within this virtual stand, with each tree’s crown represented by a simple 3D geometric volume whose dimensions and shape are defined by the user. The crown can be given a symmetrical shape, such as an ellipsoid (typically used for broadleaves) or a paraboloid (typically used for conifers). Users can increase the complexity of the crown representation by using asymmetric shapes and defining the crown radii at the four cardinal points, as well as the height at which the crown radius is at its maximum. This can be constructed easily and automatically in the model using parts of ellipsoids and paraboloids (<em>i.e.</em> two halves or eight eighths of an ellipsoid, or four quarters of a paraboloid).</p>
+</div>
+<div class="section level3">
+<h3 id="id_2---discretize-the-annual-light">2 - Discretize the annual light<a class="anchor" aria-label="anchor" href="#id_2---discretize-the-annual-light"></a>
+</h3>
+<p>Based on the user definition of the monthly radiations (<em>i.e.</em> global energy in an horizontal plane (in <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><mi>h</mi><msup><mi>a</mi><mrow><mo>−</mo><mn>1</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.ha^{-1}</annotation></semantics></math>) and the ratio between diffuse and global energy for a given month), the SamsaraLight ray-tracing model discretizes annual light into a finite number of direct and diffuse rays. Considering whether direct or diffuse light, the model calculates the angles (height angle), orientation (azimuth) and energy of diffuse and direct light rays depending on plot latitude (more direct radiations with greater height angle toward lower latitudes in Spain, compared to more diffuse and horizontal rays towards higher latitudes in Scandinavia).</p>
+</div>
+<div class="section level3">
+<h3 id="id_3---cast-the-light-rays-toward-the-stand">3 - Cast the light rays toward the stand<a class="anchor" aria-label="anchor" href="#id_3---cast-the-light-rays-toward-the-stand"></a>
+</h3>
+<p>The model then cast</p>
+</div>
+<div class="section level3">
+<h3 id="id_4---estimate-light-interception-by-trees">4 - Estimate light interception by trees<a class="anchor" aria-label="anchor" href="#id_4---estimate-light-interception-by-trees"></a>
+</h3>
+<p>Thus, when a ray intercepts the crown of a tree, the intercepted light energy is calculated by considering the crown as a turbid medium and applying Beer-Lambert’s law, taking into account the incident energy of the ray and the leaf area density of the tree. It assumes that the leaves are arranged homogeneously and not aggregated within the canopy.</p>
+<p>To consider the fact that we don’t know the environment around the stand, it represents plot boundaries with a torus system (Courbaud et al. 2003). Indeed, trees around the border of the stand are not described but they also participates to the attenuation of the coming rays. Thus, if we do not consider environment after boundaries, we overestimate interception of light, especially for trees closer to the plot boundaries.</p>
+</div>
+<div class="section level3">
+<h3 id="id_5---compute-the-output-energy-and-light-competition-variables">5 - Compute the output energy and light competition variables<a class="anchor" aria-label="anchor" href="#id_5---compute-the-output-energy-and-light-competition-variables"></a>
+</h3>
+<p>In this way, it estimates the attenuation of the energy of each light ray following successive interceptions by the tree crowns, and calculates the sum of the intercepted energy from each ray, for all the trees in the stand, and the consequent energy reaching each cell. By doing so, light variables can be derived from total energies and some example of usual indicators are provided in the outputs, such as LCI for trees or PACL for ground light.</p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="package-functionnalities">Package functionnalities<a class="anchor" aria-label="anchor" href="#package-functionnalities"></a>
+</h2>
+</div>
+<div class="section level2">
+<h2 id="main-r-functions-and-pipeline">Main R functions and pipeline<a class="anchor" aria-label="anchor" href="#main-r-functions-and-pipeline"></a>
+</h2>
+<div class="section level3">
+<h3 id="prepare-the-inputs">Prepare the inputs<a class="anchor" aria-label="anchor" href="#prepare-the-inputs"></a>
+</h3>
+<p>In case of the user’s complex inventory protocol (i.e. non-axis-aligned rectangle or non-rectangular shape), the R package allows</p>
+</div>
+<div class="section level3">
+<h3 id="run-the-model">Run the model<a class="anchor" aria-label="anchor" href="#run-the-model"></a>
+</h3>
+</div>
+<div class="section level3">
+<h3 id="analyse-the-outputs">Analyse the outputs<a class="anchor" aria-label="anchor" href="#analyse-the-outputs"></a>
+</h3>
+</div>
+</div>
+<div class="section level2">
+<h2 id="learn-with-applied-tutorials">Learn with applied tutorials<a class="anchor" aria-label="anchor" href="#learn-with-applied-tutorials"></a>
 </h2>
 <p>You can find simple examples as tutorial for different stand situations and with different tree crown dimensions accuracy:</p>
 <ol style="list-style-type: decimal">
@@ -93,7 +124,7 @@
 <div class="section level3">
 <h3 id="stand-geometry">Stand geometry<a class="anchor" aria-label="anchor" href="#stand-geometry"></a>
 </h3>
-<p>You first need to consider the geometry of the stand as argument of the <code><a href="reference/sl_run.html">sl_run()</a></code> function.</p>
+<p>You first need to consider the geometry of the stand as argument of the <code>sl_run()</code> function.</p>
 <p>You will need the <code>latitude</code> of the plot (Y-coordinate in WGS84 system) for computation of angle and azimuth of each diffuse and direct rays.</p>
 <p>The forest stand is defined as a flat plane with a given :</p>
 <ul>
@@ -135,7 +166,7 @@
 <li><p><code>Hrad</code>: monthly global radiation on a horizontal plane in MJ.m^2</p></li>
 <li><p><code>DGratio</code>: ratio of monthly diffuse energy to global energy (needed to compute direct energy)</p></li>
 </ul>
-<p>You can fetch this data.frame for a given <code>latitude</code> and <code>longitude</code> using the function <code><a href="reference/get_monthly_rad.html">get_monthly_rad()</a></code>. It fetches monthly data between given start and end year (range between 2005 and 2020) from the PVGIS database <a href="https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en" class="external-link uri">https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en</a>. Here, you can choose to average the monthly values between all the years between 2005 and 2020 or to choose values of a given year.</p>
+<p>You can fetch this data.frame for a given <code>latitude</code> and <code>longitude</code> using the function <code>get_monthly_rad()</code>. It fetches monthly data between given start and end year (range between 2005 and 2020) from the PVGIS database <a href="https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en" class="external-link uri">https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en</a>. Here, you can choose to average the monthly values between all the years between 2005 and 2020 or to choose values of a given year.</p>
 </div>
 </div>
 <div class="section level2">
@@ -154,12 +185,7 @@
 </ul>
 </div>
 <div class="section level2">
-<h2 id="speed-analysis">Speed analysis<a class="anchor" aria-label="anchor" href="#speed-analysis"></a>
-</h2>
-<p>You can find here a comparison of speed between R-based and Capsis-based SamsaraLight for different degree of stand complexity and sizes.</p>
-</div>
-<div class="section level2">
-<h2 id="scientific-papers">Scientific papers<a class="anchor" aria-label="anchor" href="#scientific-papers"></a>
+<h2 id="bibliography">Bibliography<a class="anchor" aria-label="anchor" href="#bibliography"></a>
 </h2>
 <p>[1] Courbaud, B. et al. (2015). “Applying ecological model evaludation: Lessons learned with the forest dynamics model Samsara2”. Ecological Modelling 314, p. 1. doi: 10.1016/j.ecolmodel.2015.06.039.</p>
 <p>[2] Courbaud, B., F. de Coligny, and T. Cordonnier (2003). “Simulating radiation distribution in a heterogeneous Norway spruce forest on a slope”. Agricultural and Forest Meteorology 116.1, pp. 1–18. doi: 10.1016/S0168-1923(02)00254-X.</p>
@@ -206,7 +232,7 @@
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
