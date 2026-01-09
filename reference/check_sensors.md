@@ -17,22 +17,30 @@ check_sensors(sensors, verbose = TRUE)
 
   A data.frame with one row per sensor and the following columns:
 
-  - id_sensorUnique identifier of the sensor (numeric or character, no
-    duplicates)
+  id_sensor
 
-  - xX position of the sensor (numeric)
+  :   Unique identifier of the sensor (numeric or character, no
+      duplicates)
 
-  - yY position of the sensor (numeric)
+  x
 
-  - h_mHeight above ground of the sensor (numeric, meters)
+  :   X position of the sensor (numeric, meters)
+
+  y
+
+  :   Y position of the sensor (numeric, meters)
+
+  h_m
+
+  :   Height above ground of the sensor (numeric, meters)
 
 - verbose:
 
-  Logical; if `TRUE`, informative messages are printed.
+  Logical; if TRUE, informative messages are printed.
 
 ## Value
 
-Invisibly returns `TRUE` if all checks pass.
+Invisibly returns TRUE if all checks pass.
 
 ## Examples
 
@@ -44,7 +52,6 @@ sensors <- data.frame(
   y = c(5, 15, 25),
   h_m = c(1.5, 2.0, 1.8)
 )
-
 check_sensors(sensors)
 } # }
 ```

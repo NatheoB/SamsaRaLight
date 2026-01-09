@@ -54,20 +54,29 @@ height of sensors within a forest stand.</p>
 
 
 <dl><dt id="arg-sensors">sensors<a class="anchor" aria-label="anchor" href="#arg-sensors"></a></dt>
-<dd><p>A data.frame with one row per sensor and the following columns:</p><ul><li><p>id_sensorUnique identifier of the sensor (numeric or character, no duplicates)</p></li>
-<li><p>xX position of the sensor (numeric)</p></li>
-<li><p>yY position of the sensor (numeric)</p></li>
-<li><p>h_mHeight above ground of the sensor (numeric, meters)</p></li>
-</ul></dd>
+<dd><p>A data.frame with one row per sensor and the following columns:</p><dl><dt>id_sensor</dt>
+<dd><p>Unique identifier of the sensor (numeric or character, no duplicates)</p></dd>
+
+<dt>x</dt>
+<dd><p>X position of the sensor (numeric, meters)</p></dd>
+
+<dt>y</dt>
+<dd><p>Y position of the sensor (numeric, meters)</p></dd>
+
+<dt>h_m</dt>
+<dd><p>Height above ground of the sensor (numeric, meters)</p></dd>
+
+
+</dl></dd>
 
 
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
-<dd><p>Logical; if <code>TRUE</code>, informative messages are printed.</p></dd>
+<dd><p>Logical; if TRUE, informative messages are printed.</p></dd>
 
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>Invisibly returns <code>TRUE</code> if all checks pass.</p>
+    <p>Invisibly returns TRUE if all checks pass.</p>
     </div>
 
     <div class="section level2">
@@ -79,7 +88,6 @@ height of sensors within a forest stand.</p>
 <span class="r-in"><span>  y <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">15</span>, <span class="fl">25</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>  h_m <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1.5</span>, <span class="fl">2.0</span>, <span class="fl">1.8</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">check_sensors</span><span class="op">(</span><span class="va">sensors</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
 <span class="r-in"><span></span></span>

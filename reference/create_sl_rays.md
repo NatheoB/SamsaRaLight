@@ -80,10 +80,18 @@ create_sl_rays(
 list of 3 elements : horizontal energy (double), slope energy (double)
 and rays (data.frame) with n rows and 5 columns:
 
-- azimutAzimut of the ray in radians
+- azimut:
 
-- height_angleAngle between beam and soil (in radians)
+  Azimut of the ray in radians
 
-- eEnergy of ray before crossing the canopy (in MJ.m-2)
+- height_angle:
 
-- directtrue if the ray is direct false if it is diffuse
+  Angle between beam and soil (in radians)
+
+- e:
+
+  Energy of ray before crossing the canopy (in MJ.m-2)
+
+- direct:
+
+  true if the ray is direct false if it is diffuse

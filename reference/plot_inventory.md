@@ -18,16 +18,25 @@ plot_inventory(trees_inv, transparency = TRUE, show_id = TRUE)
   [check_inventory](https://natheob.github.io/SamsaRaLight/reference/check_inventory.md).
   Must contain at least:
 
-  - `x`, `y`Tree coordinates (meters).
+  `x`, `y`
 
-  - `rn_m`, `rs_m`, `re_m`, `rw_m`Crown radii (meters).
+  :   Tree coordinates (meters).
 
-  - `h_m`Total height (meters) for plotting order.
+  `rn_m`, `rs_m`, `re_m`, `rw_m`
 
-  - `id_tree`Optional if show_id is FALSE; Tree identifier used for
-    labeling.
+  :   Crown radii (meters).
 
-  - `species`Optional; species name (character) for coloring.
+  `h_m`
+
+  :   Total height (meters) for plotting order.
+
+  `id_tree`
+
+  :   Optional if show_id is FALSE; Tree identifier used for labeling.
+
+  `species`
+
+  :   Optional; species name (character) for coloring.
 
 - transparency:
 

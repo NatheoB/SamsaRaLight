@@ -7,7 +7,7 @@ model. The table must contain exactly 12 months of radiation data.
 ## Usage
 
 ``` r
-check_monthly_radiations(x)
+check_monthly_radiations(x, verbose = TRUE)
 ```
 
 ## Arguments
@@ -17,6 +17,10 @@ check_monthly_radiations(x)
   A data.frame with monthly radiation values, typically produced by
   [`get_monthly_radiations`](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md).
 
+- verbose:
+
+  Logical; if `TRUE`, informative messages are printed.
+
 ## Value
 
 Invisibly returns `TRUE` if all checks pass.
@@ -25,26 +29,48 @@ Invisibly returns `TRUE` if all checks pass.
 
 The input must contain the following columns:
 
-- monthInteger month number (1–12)
+- month:
 
-- HradMonthly global horizontal irradiation (MJ m⁻²)
+  Integer month number (1-12)
 
-- DGratioDiffuse-to-global radiation ratio (unitless, 0–1)
+- Hrad:
+
+  Monthly global horizontal irradiation (MJ/m2)
+
+- DGratio:
+
+  Diffuse-to-global radiation ratio (unitless, 0-1)
 
 The function checks:
 
-- The object is a data.frame
+- 1:
 
-- Required columns are present
+  The object is a data.frame.
 
-- There are exactly 12 months
+- 2:
 
-- Each month (1–12) is present exactly once
+  Required columns are present.
 
-- Data are numeric and finite
+- 3:
 
-- Hrad ≥ 0
+  There are exactly 12 months.
 
-- 0 ≤ DGratio ≤ 1
+- 4:
 
-- Months are in increasing order
+  Each month (1-12) is present exactly once.
+
+- 5:
+
+  Data are numeric and finite.
+
+- 6:
+
+  Hrad strictly positive.
+
+- 7:
+
+  DGratio between 0 and 1.
+
+- 8:
+
+  Months are in increasing order.

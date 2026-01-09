@@ -49,7 +49,8 @@ stand using the SamsaRaLight ray-tracing engine.</p>
 <span>  turbid_medium <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  detailed_output <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  parallel_mode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
+<span>  n_threads <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -113,6 +114,10 @@ the number of available CPU cores.</p></dd>
 <dd><p>integer or NULL. Number of CPU threads to use when
 <code>parallel_mode = TRUE</code>. If NULL (default), OpenMP automatically selects
 the number of available cores. If provided, must be a positive integer.</p></dd>
+
+
+<dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
+<dd><p>Logical; if <code>TRUE</code>, informative messages are printed.</p></dd>
 
 </dl></div>
     <div class="section level2">

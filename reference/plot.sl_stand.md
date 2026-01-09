@@ -8,7 +8,7 @@ side/top view with cells and trees.
 
 ``` r
 # S3 method for class 'sl_stand'
-plot(x, top_down = FALSE, transparency = TRUE)
+plot(x, ..., top_down = FALSE, only_inv = FALSE)
 ```
 
 ## Arguments
@@ -17,14 +17,19 @@ plot(x, top_down = FALSE, transparency = TRUE)
 
   An object of class `sl_stand`.
 
+- ...:
+
+  Additional arguments passed to lower-level plotting functions.
+
 - top_down:
 
   Logical, if TRUE, creates a top-down view with multiple directions
   (south, north, west, east).
 
-- transparency:
+- only_inv:
 
-  Logical, if TRUE, trees are semi-transparent.
+  Logical, if TRUE, plot only trees from the initial inventory (i.e. not
+  trees added to fill around the core polygon)
 
 ## Value
 

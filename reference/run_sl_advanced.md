@@ -27,7 +27,8 @@ run_sl_advanced(
   end_day = 365,
   detailed_output = FALSE,
   parallel_mode = FALSE,
-  n_threads = NULL
+  n_threads = NULL,
+  verbose = TRUE
 )
 ```
 
@@ -62,6 +63,22 @@ run_sl_advanced(
 
   logical, if TRUE, crowns are considered turbid medium, else porous
   envelope
+
+- extinction_coef:
+
+  Numeric scalar. Leaf extinction coefficient controlling the
+  probability that a ray is intercepted by foliage. It represents the
+  effective light attenuation per unit leaf area and is linked to
+  average leaf orientation. Higher values increase interception (default
+  = 0.5).
+
+- clumping_factor:
+
+  Numeric scalar controlling the aggregation of leaves within the crown
+  volume. A value of 1 corresponds to a homogeneous (random) foliage
+  distribution; values \< 1 indicate clumped foliage, and values \> 1
+  indicate more regular spacing. This modifies effective light
+  interception in the turbid medium model (default = 1).
 
 - trunk_interception:
 
@@ -112,6 +129,10 @@ run_sl_advanced(
   `parallel_mode = TRUE`. If NULL (default), OpenMP automatically
   selects the number of available cores. If provided, must be a positive
   integer.
+
+- verbose:
+
+  Logical; if `TRUE`, informative messages are printed.
 
 ## Value
 

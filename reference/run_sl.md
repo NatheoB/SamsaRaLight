@@ -15,7 +15,8 @@ run_sl(
   turbid_medium = TRUE,
   detailed_output = FALSE,
   parallel_mode = FALSE,
-  n_threads = NULL
+  n_threads = NULL,
+  verbose = TRUE
 )
 ```
 
@@ -82,6 +83,10 @@ run_sl(
   `parallel_mode = TRUE`. If NULL (default), OpenMP automatically
   selects the number of available cores. If provided, must be a positive
   integer.
+
+- verbose:
+
+  Logical; if `TRUE`, informative messages are printed.
 
 ## Value
 
