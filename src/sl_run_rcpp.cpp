@@ -2278,14 +2278,14 @@ public:
 			/*sensor->correctNullEnergy(1e-6);*/
 
 			// Export energies toward the sensor
-			// BE CAREFUL !! Horizontal energy
-			e_sensors[s] = sensor->getEnergyHorizontal();
-			e_direct_sensors[s] = sensor->getEnergyDirectHorizontal();
-			e_diffuse_sensors[s] = sensor->getEnergyDiffuseHorizontal();
+			// BE CAREFUL !! Horizontal energy, in MJ/m2
+			e_sensors[s] = sensor->getEnergyHorizontal() / this->stand.getCellAreaHorizontal();
+			e_direct_sensors[s] = sensor->getEnergyDirectHorizontal() / this->stand.getCellAreaHorizontal();
+			e_diffuse_sensors[s] = sensor->getEnergyDiffuseHorizontal() / this->stand.getCellAreaHorizontal();
 
-			pacl_sensors[s] = sensor->getEnergyHorizontal() / (this->rays.getEnergyAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
-			pacl_direct_sensors[s] = sensor->getEnergyDirectHorizontal() / (this->rays.getEnergyDirectAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
-			pacl_diffuse_sensors[s] = sensor->getEnergyDiffuseHorizontal() / (this->rays.getEnergyDiffuseAboveHorizontalM2() * this->stand.getCellAreaHorizontal());
+			pacl_sensors[s] = e_sensors[s] / this->rays.getEnergyAboveHorizontalM2();
+			pacl_direct_sensors[s] = e_direct_sensors[s] / this->rays.getEnergyDirectAboveHorizontalM2();
+			pacl_diffuse_sensors[s] = e_diffuse_sensors[s] / this->rays.getEnergyDiffuseAboveHorizontalM2();
 
 			punobs_sensors[s] = sensor->getEnergyUnobstructedHorizontal() / sensor->getEnergyHorizontal();
 			punobs_direct_sensors[s] = sensor->getEnergyUnobstructedDirectHorizontal() / sensor->getEnergyDirectHorizontal();
@@ -2426,14 +2426,14 @@ public:
 					//cell->correctNullEnergy(1e-6);
 
 					// Export energies for cells
-					// BE CAREFUL !! Slope energies
-					e_cells[icell] = cell->getEnergySlope();
-					e_direct_cells[icell] = cell->getEnergyDirectSlope();
-					e_diffuse_cells[icell] = cell->getEnergyDiffuseSlope();
+					// BE CAREFUL !! Slope energies, in MJ/m2
+					e_cells[icell] = cell->getEnergySlope() / this->stand.getCellAreaSlope();
+					e_direct_cells[icell] = cell->getEnergyDirectSlope() / this->stand.getCellAreaSlope();
+					e_diffuse_cells[icell] = cell->getEnergyDiffuseSlope() / this->stand.getCellAreaSlope();
 
-					pacl_cells[icell] = cell->getEnergySlope() / (this->rays.getEnergyAboveSlopeM2() * this->stand.getCellAreaSlope());
-					pacl_direct_cells[icell] = cell->getEnergyDirectSlope() / (this->rays.getEnergyDirectAboveSlopeM2() * this->stand.getCellAreaSlope());
-					pacl_diffuse_cells[icell] = cell->getEnergyDiffuseSlope() / (this->rays.getEnergyDiffuseAboveSlopeM2() * this->stand.getCellAreaSlope());
+					pacl_cells[icell] = e_cells[icell] / this->rays.getEnergyAboveSlopeM2();
+					pacl_direct_cells[icell] = e_direct_cells[icell] / this->rays.getEnergyDirectAboveSlopeM2();
+					pacl_diffuse_cells[icell] = e_diffuse_cells[icell] / this->rays.getEnergyDiffuseAboveSlopeM2();
 
 					punobs_cells[icell] = cell->getEnergyUnobstructedSlope() / cell->getEnergySlope();
 					punobs_direct_cells[icell] = cell->getEnergyUnobstructedDirectSlope() / cell->getEnergyDirectSlope();

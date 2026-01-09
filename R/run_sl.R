@@ -47,6 +47,8 @@
 #'   \code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
 #'   the number of available cores. If provided, must be a positive integer.
 #'
+#' @param verbose Logical; if \code{TRUE}, informative messages are printed.
+#'
 #' @details
 #' Internally, \code{run_sl()} calls the advanced engine
 #' \code{run_sl_advanced()} with fixed ray-tracing and sky discretization.
@@ -109,10 +111,11 @@ run_sl <- function(
     turbid_medium = TRUE,
     detailed_output = FALSE,
     parallel_mode = FALSE,
-    n_threads = NULL
+    n_threads = NULL,
+    verbose = TRUE
 ) {
   
-  SamsaRaLight:::run_sl_advanced(
+  run_sl_advanced(
     sl_stand = sl_stand,
     monthly_radiations = monthly_radiations,
     latitude = latitude,
@@ -131,6 +134,7 @@ run_sl <- function(
     end_day = 365,
     detailed_output = detailed_output,
     parallel_mode = parallel_mode,
-    n_threads = n_threads
+    n_threads = n_threads,
+    verbose = verbose
   )
 }

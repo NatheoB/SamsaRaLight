@@ -16,6 +16,15 @@
 #' @param sensors_only logical, if TRUE, compute interception only for sensors
 #' @param use_torus logical, if TRUE, use torus system for borders, else open grassland
 #' @param turbid_medium logical, if TRUE, crowns are considered turbid medium, else porous envelope
+#' @param extinction_coef Numeric scalar. Leaf extinction coefficient controlling
+#'   the probability that a ray is intercepted by foliage. It represents the
+#'   effective light attenuation per unit leaf area and is linked to average
+#'   leaf orientation. Higher values increase interception (default = 0.5).
+#' @param clumping_factor Numeric scalar controlling the aggregation of leaves
+#'   within the crown volume. A value of 1 corresponds to a homogeneous (random)
+#'   foliage distribution; values < 1 indicate clumped foliage, and values > 1
+#'   indicate more regular spacing. This modifies effective light interception
+#'   in the turbid medium model (default = 1).
 #' @param trunk_interception logical, if TRUE, account for trunk interception
 #' @param height_anglemin numeric, minimum altitude angle for rays (degrees)
 #' @param direct_startoffset numeric, starting angle of first direct ray (degrees)
@@ -30,6 +39,7 @@
 #' @param n_threads integer or NULL. Number of CPU threads to use when
 #'   \code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
 #'   the number of available cores. If provided, must be a positive integer.
+#' @param verbose Logical; if \code{TRUE}, informative messages are printed.
 #'
 #' @return An object of class \code{"sl_output"} (list) containing:
 #' \itemize{
@@ -45,10 +55,13 @@
 #' For most users, see \link{run_sl} which wraps this function with default
 #' parameters suitable for standard runs.
 #'
-#' @import data.table
 #' @importFrom Rcpp sourceCpp
+#' @importFrom dplyr select %>%
+#' 
 #' @useDynLib SamsaRaLight, .registration = TRUE
+#' 
 #' @keywords internal
+#'
 run_sl_advanced <- function(
     sl_stand,
     monthly_radiations,
@@ -68,21 +81,57 @@ run_sl_advanced <- function(
     end_day = 365,
     detailed_output = FALSE,
     parallel_mode = FALSE,
-    n_threads = NULL
+    n_threads = NULL,
+    verbose = TRUE
 ) {
   
-  # ARGUMENTS CHECKS ----
+  # ---- ARGUMENTS CHECKS ----
   
-  ## Input data ----
-  SamsaRaLight:::validate_sl_stand(sl_stand)
-  SamsaRaLight:::validate_interception_model(sl_stand$trees, turbid_medium)
-  SamsaRaLight::check_monthly_radiations(monthly_radiations)
+  # sl_stand
+  validate_sl_stand(sl_stand)
   
-  ## Parallelisation arguments ----
-  if (!is.logical(parallel_mode) || length(parallel_mode) != 1 || is.na(parallel_mode)) {
-    stop("`parallel_mode` must be a single TRUE or FALSE.", call. = FALSE)
+  # monthly_radiations
+  check_monthly_radiations(monthly_radiations, verbose = FALSE)
+  
+  # Latitude
+  if (!is.numeric(latitude) || length(latitude) != 1 || is.na(latitude)) {
+    stop("`latitude` must be a single numeric value.", call. = FALSE)
+  }
+  if (latitude < -90 || latitude > 90) {
+    stop("`latitude` must be between -90 and 90 degrees.", call. = FALSE)
   }
   
+  # Logical arguments
+  for (arg_name in c("sensors_only", "use_torus", "turbid_medium", "trunk_interception",
+                     "soc", "detailed_output", "parallel_mode", "verbose")) {
+    arg_val <- get(arg_name)
+    if (!is.logical(arg_val) || length(arg_val) != 1 || is.na(arg_val)) {
+      stop(sprintf("`%s` must be a single TRUE or FALSE.", arg_name), call. = FALSE)
+    }
+  }
+  
+  # Numeric scalar arguments
+  for (arg_name in c("extinction_coef", "clumping_factor",
+                     "height_anglemin", "direct_startoffset",
+                     "direct_anglestep", "diffuse_anglestep")) {
+    arg_val <- get(arg_name)
+    if (!is.numeric(arg_val) || length(arg_val) != 1 || is.na(arg_val)) {
+      stop(sprintf("`%s` must be a single numeric value.", arg_name), call. = FALSE)
+    }
+  }
+  
+  # Days
+  if (!is.numeric(start_day) || length(start_day) != 1 || start_day < 1 || start_day > 365) {
+    stop("`start_day` must be a single number between 1 and 365.", call. = FALSE)
+  }
+  if (!is.numeric(end_day) || length(end_day) != 1 || end_day < 1 || end_day > 365) {
+    stop("`end_day` must be a single number between 1 and 365.", call. = FALSE)
+  }
+  if (end_day < start_day) {
+    stop("`end_day` cannot be smaller than `start_day`.", call. = FALSE)
+  }
+  
+  # Parallel threads
   if (!is.null(n_threads)) {
     if (!is.numeric(n_threads) || length(n_threads) != 1 || is.na(n_threads)) {
       stop("`n_threads` must be a single integer or NULL.", call. = FALSE)
@@ -91,6 +140,11 @@ run_sl_advanced <- function(
       stop("`n_threads` must be a positive integer.", call. = FALSE)
     }
   }
+  
+  # Interception model checks
+  validate_interception_model(sl_stand$trees, turbid_medium)
+  
+  
   
   
   # CREATE RAYS ----
@@ -118,7 +172,9 @@ run_sl_advanced <- function(
   ## Set parallel ----
   if (is.null(n_threads)) n_threads <- -1L
   sl_set_openmp(parallel_mode, as.integer(n_threads))
-  sl_print_openmp_status()
+  
+  if (verbose) sl_print_openmp_status()
+  
   
   ## Run the model ----
   out <- sl_run_rcpp(
@@ -186,7 +242,9 @@ run_sl_advanced <- function(
   
   class(out_sl) <- c("sl_output", "list")
   
-  SamsaRaLight:::validate_sl_output(out_sl)
+  validate_sl_output(out_sl)
+  if (verbose) message("SamsaRaLight simulation was run successfully.")
+  
   return(out_sl)
 }
 

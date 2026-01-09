@@ -7,5 +7,5 @@ src/*.so
 src/*.dll
 docs
 *.html
-dev
+dev/
 vignettes_old/

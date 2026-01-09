@@ -4,21 +4,35 @@
 #' It can display a top-down view with tree crowns or a side/top view with cells and trees.
 #'
 #' @param x An object of class `sl_stand`.
+#' @param ... Additional arguments passed to lower-level plotting functions.
 #' @param top_down Logical, if TRUE, creates a top-down view with multiple directions (south, north, west, east).
-#' @param transparency Logical, if TRUE, trees are semi-transparent.
+#' @param only_inv Logical, if TRUE, plot only trees from the initial inventory (i.e. not trees added to fill around the core polygon)
 #'
 #' @return A `ggplot` object representing the stand.
 #'
-#' @import ggplot2 ggforce dplyr
+#' @importFrom ggplot2 ggplot aes geom_segment geom_curve geom_tile geom_polygon geom_rect labs coord_equal theme_bw theme scale_x_continuous scale_y_continuous xlab ylab facet_wrap
+#' @importFrom ggforce geom_ellipse
+#' @importFrom dplyr filter mutate case_when
+#' @importFrom tidyr crossing
+#' 
 #' @export
 #' @method plot sl_stand
-plot.sl_stand <- function(x, top_down = FALSE, transparency = TRUE) {
+#' 
+plot.sl_stand <- function(x, ..., 
+                          top_down = FALSE,
+                          only_inv = FALSE) {
   
   stopifnot(inherits(x, "sl_stand"))
   stopifnot(is.logical(top_down), length(top_down) == 1)
-  stopifnot(is.logical(transparency), length(transparency) == 1)
+  stopifnot(is.logical(only_inv), length(only_inv) == 1)
   
   sl_stand <- x  # Rename for internal use
+  
+  if (only_inv) {
+    sl_stand$trees <- sl_stand$trees %>% 
+      dplyr::filter(!added_to_fill)
+  }
+  
   plt <- NULL
   
   ## Top-down view
@@ -32,97 +46,88 @@ plot.sl_stand <- function(x, top_down = FALSE, transparency = TRUE) {
       "east" = "east view - S to N"
     )
     
-    
-    # Create the plot for each top-down view
-    for (view in names(view_description)) {
-      
-      trees_topdown <- sl_stand$trees %>% 
-        dplyr::mutate(
-          
-          view_label = view_description[[view]],
-          
-          # define tree position given the view
-          pos = case_when(
-            view == "south" ~ x,
-            view == "north" ~ -x,
-            view == "west" ~ -y,
-            view == "east" ~ y
-          ),
-          
-          # define left/right radius given the view
-          r_left_m = case_when(
-            view == "south" ~ rw_m,
-            view == "north" ~ re_m,
-            view == "west" ~ rn_m,
-            view == "east" ~ rs_m
-          ),
-          r_right_m = case_when(
-            view == "south" ~ re_m,
-            view == "north" ~ rw_m,
-            view == "west" ~ rs_m,
-            view == "east" ~ rn_m
-          )
+    # Create the trees for each top-down view
+    trees_topdown <- sl_stand$trees %>% 
+      tidyr::crossing(view = names(view_description)) %>% 
+      dplyr::mutate(
+        
+        view_label = view_description[view],
+        
+        # Height of the maximum radius
+        hmax_m = case_when(
+          crown_type == "E" ~ (h_m + hbase_m) / 2, 
+          crown_type %in% c("P", "4P") ~ hbase_m,
+          crown_type %in% c("2E", "8E") ~ hmax_m
+        ),
+        
+        # define tree position given the view
+        pos = case_when(
+          view == "south" ~ x,
+          view == "north" ~ -x,
+          view == "west" ~ -y,
+          view == "east" ~ y
+        ),
+        
+        # define left/right radius given the view
+        r_left_m = case_when(
+          view == "south" ~ rw_m,
+          view == "north" ~ re_m,
+          view == "west" ~ rn_m,
+          view == "east" ~ rs_m
+        ),
+        r_right_m = case_when(
+          view == "south" ~ re_m,
+          view == "north" ~ rw_m,
+          view == "west" ~ rs_m,
+          view == "east" ~ rn_m
         )
+      )
+    
+    # 2D top/down
+    plt <- ggplot(trees_topdown) +
       
+      # trunks
+      geom_segment(aes(x = pos, xend = pos, 
+                       y = z, yend = z + hmax_m), 
+                   linewidth = 0.1) +
       
-      # Order trees 
-      if (view == "south") {
-        trees_topdown %>% dplyr::arrange(desc(y))
-      } else if (view == "north") {
-        trees_topdown %>% dplyr::arrange(y)
-      } else if (view == "west") {
-        trees_topdown %>% dplyr::arrange(desc(x))
-      } else if (view == "east") {
-        trees_topdown %>% dplyr::arrange(x)
-      }
+      # --- Ellipsoids ---
+      geom_curve(
+        data = subset(trees_topdown, crown_type %in% c("E", "2E", "8E")),
+        aes(x = pos - r_left_m, xend = pos, 
+            y = z + hmax_m, yend = z + h_m, 
+            color = species),
+        curvature = -0.4
+      ) +
+      geom_curve(
+        data = subset(trees_topdown, crown_type %in% c("E", "2E", "8E")),
+        aes(x = pos + r_right_m, xend = pos, 
+            y = z + hmax_m, yend = z + h_m, 
+            color = species),
+        curvature = 0.4
+      ) +
       
-      # 2D top/down
-      plt <- ggplot(trees_topdown) +
-        
-        # trunks
-        geom_segment(aes(x = pos, xend = pos, 
-                         y = z, yend = z + hmax_m), 
-                     linewidth = 0.1) +
-        
-        # --- Ellipsoids ---
-        geom_curve(
-          data = subset(trees_topdown, crown_type %in% c("E", "2E", "8E")),
-          aes(x = pos - r_left_m, xend = pos, 
-              y = z + hmax_m, yend = z + h_m, 
-              color = species),
-          curvature = -0.4
-        ) +
-        geom_curve(
-          data = subset(trees_topdown, crown_type %in% c("E", "2E", "8E")),
-          aes(x = pos + r_right_m, xend = pos, 
-              y = z + hmax_m, yend = z + h_m, 
-              color = species),
-          curvature = 0.4
-        ) +
-        
-        # --- Paraboloids ---
-        geom_curve(
-          data = subset(trees_topdown, crown_type %in% c("P", "4P")),
-          aes(x = pos - r_left_m, xend = pos, 
-              y = z + hmax_m, yend = z + h_m, 
-              color = species),
-          curvature = -0.2
-        ) +
-        geom_curve(
-          data = subset(trees_topdown, crown_type %in% c("P", "4P")),
-          aes(x = pos + r_right_m, xend = pos, 
-              y = z + hmax_m, yend = z + h_m, 
-              color = species),
-          curvature = 0.2
-        ) +
-        
-        labs(x = "Position", y = "Height (m)") +
-        coord_equal() +
-        theme_bw() +
-        facet_wrap(~view_label, ncol = 1)
+      # --- Paraboloids ---
+      geom_curve(
+        data = subset(trees_topdown, crown_type %in% c("P", "4P")),
+        aes(x = pos - r_left_m, xend = pos, 
+            y = z + hmax_m, yend = z + h_m, 
+            color = species),
+        curvature = -0.2
+      ) +
+      geom_curve(
+        data = subset(trees_topdown, crown_type %in% c("P", "4P")),
+        aes(x = pos + r_right_m, xend = pos, 
+            y = z + hmax_m, yend = z + h_m, 
+            color = species),
+        curvature = 0.2
+      ) +
       
-    }
-      
+      labs(x = "Position", y = "Height (m)") +
+      coord_equal() +
+      theme_bw() +
+      facet_wrap(~view_label, ncol = 1)
+    
   }
   
   # Plot from above view
@@ -148,8 +153,8 @@ plot.sl_stand <- function(x, top_down = FALSE, transparency = TRUE) {
     
     # TREES
     
-    # Set alpha based on transparency argument
-    alpha_val <- ifelse(transparency, 0.6, 1)
+    # Set alpha for transparency
+    alpha_val <- 0.6
     
     # Order trees by height (smaller first, taller on top)
     trees_plot <- sl_stand$trees[order(sl_stand$trees$h_m), ]
@@ -193,16 +198,16 @@ plot.sl_stand <- function(x, top_down = FALSE, transparency = TRUE) {
     
     
     # SENSORS
-    # plt <- plt +
-    #   geom_rect(data = data_stand$sensors,
-    #             mapping = aes(xmin = x - 0.5,
-    #                           ymin = y - 0.5,
-    #                           xmax = x + 0.5,
-    #                           ymax = y + 0.5),
-    #             color = "red", fill = "black")
-      
+    plt <- plt +
+      geom_rect(data = sl_stand$sensors,
+                mapping = aes(xmin = x - 0.5,
+                              ymin = y - 0.5,
+                              xmax = x + 0.5,
+                              ymax = y + 0.5),
+                color = "red", fill = "black")
     
-      # GRAPHIC
+    
+    # GRAPHIC
     plt <- plt +
       scale_x_continuous(breaks = seq(0, sl_stand$geometry$n_cells_x * sl_stand$geometry$cell_size,
                                       by = sl_stand$geometry$cell_size),

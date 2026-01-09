@@ -9,7 +9,7 @@ plot_inventory(trees_inv, transparency = TRUE, show_id = TRUE)
 \arguments{
 \item{trees_inv}{A data.frame of trees that passed \link{check_inventory}.
 Must contain at least:
-\itemize{
+\describe{
 \item{\code{x}, \code{y}}{Tree coordinates (meters).}
 \item{\code{rn_m}, \code{rs_m}, \code{re_m}, \code{rw_m}}{Crown radii (meters).}
 \item{\code{h_m}}{Total height (meters) for plotting order.}

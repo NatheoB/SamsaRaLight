@@ -10,7 +10,7 @@ deg2rad <- function(deg) {(deg * pi) / 180}
 
 #' Convert dbh into basal area
 #' @noRd
-dbh2ba <- function(x){pi/4*x*x}
+dbh2ba <- function(x) {pi/4*x*x}
 
 #' Convert basal area into dbh
 #' @noRd

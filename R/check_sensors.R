@@ -6,16 +6,16 @@
 #' height of sensors within a forest stand.
 #'
 #' @param sensors A data.frame with one row per sensor and the following columns:
-#' \itemize{
+#' \describe{
 #'   \item{id_sensor}{Unique identifier of the sensor (numeric or character, no duplicates)}
-#'   \item{x}{X position of the sensor (numeric)}
-#'   \item{y}{Y position of the sensor (numeric)}
+#'   \item{x}{X position of the sensor (numeric, meters)}
+#'   \item{y}{Y position of the sensor (numeric, meters)}
 #'   \item{h_m}{Height above ground of the sensor (numeric, meters)}
 #' }
 #'
-#' @param verbose Logical; if \code{TRUE}, informative messages are printed.
+#' @param verbose Logical; if TRUE, informative messages are printed.
 #'
-#' @return Invisibly returns \code{TRUE} if all checks pass.
+#' @return Invisibly returns TRUE if all checks pass.
 #'
 #' @examples
 #' \dontrun{
@@ -25,7 +25,6 @@
 #'   y = c(5, 15, 25),
 #'   h_m = c(1.5, 2.0, 1.8)
 #' )
-#'
 #' check_sensors(sensors)
 #' }
 #'
@@ -80,9 +79,7 @@ check_sensors <- function(sensors, verbose = TRUE) {
   }
   
   ## ---- success --------------------------------------------------------------
-  if (verbose) {
-    message("Sensors successfully validated: structure and values are consistent.")
-  }
+  if (verbose) message("Sensors table successfully validated.")
   
   invisible(TRUE)
 }

@@ -8,7 +8,7 @@ check_inventory(tree_inv, verbose = TRUE)
 }
 \arguments{
 \item{tree_inv}{A data.frame with one row per tree and the following columns:
-\itemize{
+\describe{
 \item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates)}
 \item{x}{X position of the tree within the stand (numeric, meters)}
 \item{y}{Y position of the tree within the stand (numeric, meters)}
@@ -25,8 +25,8 @@ For other crown types, the value is ignored and internally recomputed.}
 \item{rs_m}{Crown radius toward South (numeric, meters)}
 \item{re_m}{Crown radius toward East (numeric, meters)}
 \item{rw_m}{Crown radius toward West (numeric, meters)}
-\item{crown_openness}{OPTIONAL – Crown openness (unitless), mandatory for porous envelope interception}
-\item{crown_lad}{OPTIONAL – Leaf Area Density (m² m⁻³), mandatory for turbid medium interception}
+\item{crown_openness}{Crown openness (unitless), optional if turbid medium interception}
+\item{crown_lad}{Leaf Area Density (m² m⁻³), optional if porous envelope interception}
 }}
 
 \item{verbose}{Logical; if \code{TRUE}, informative messages and warnings are printed.}
@@ -42,16 +42,16 @@ describing the geometry and attributes of trees within a forest stand.
 }
 \details{
 The function performs the following checks and validations:
-\itemize{
-\item Ensures \code{tree_inv} is a non-empty data.frame with all required columns.
-\item Checks that \code{id_tree} values are unique.
-\item Validates numeric columns (\code{x}, \code{y}, \code{dbh_cm}, \code{h_m}, \code{hbase_m}, \code{rn_m}, \code{rs_m}, \code{re_m}, \code{rw_m}) are numeric and non-negative.
-\item Verifies that \code{crown_type} values are one of \code{"E"}, \code{"P"}, \code{"2E"}, \code{"8E"}, or \code{"4P"}.
-\item Ensures crown radii are present according to crown type. For symmetric crowns (\code{"E"}, \code{"P"}, \code{"2E"}), a single effective radius is computed if the four directional radii differ. For asymmetric crowns (\code{"8E"}, \code{"4P"}), all four directional radii must be provided.
-\item Checks that \code{hmax_m} is provided when required by crown type (\code{"2E"} or \code{"8E"}) and lies between \code{hbase_m} and \code{h_m}.
-\item Ensures \code{hbase_m} < \code{h_m}.
-\item Verifies that each tree has at least one crown interception property defined (\code{crown_openness} or \code{crown_lad}).
-\item Provides informative error messages and warnings for all invalid conditions.
+\describe{
+\item{1}{Ensures \code{tree_inv} is a non-empty data.frame with all required columns.}
+\item{2}{Checks that \code{id_tree} values are unique.}
+\item{3}{Validates numeric columns (\code{x}, \code{y}, \code{dbh_cm}, \code{h_m}, \code{hbase_m}, \code{rn_m}, \code{rs_m}, \code{re_m}, \code{rw_m}) are numeric and non-negative.}
+\item{4}{Verifies that \code{crown_type} values are one of \code{"E"}, \code{"P"}, \code{"2E"}, \code{"8E"}, or \code{"4P"}.}
+\item{5}{Ensures crown radii are present according to crown type.}
+\item{6}{Checks that \code{hmax_m} is provided when required and lies between \code{hbase_m} and \code{h_m}.}
+\item{7}{Ensures \code{hbase_m < h_m}.}
+\item{8}{Verifies that each tree has at least one crown interception property defined.}
+\item{9}{Provides informative error messages and warnings for all invalid conditions.}
 }
 }
 \examples{

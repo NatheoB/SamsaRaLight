@@ -87,10 +87,13 @@
 #' inventory and positioned outside the core polygon until the target basal area
 #' per hectare is reached for the full rectangular stand.
 #'
-#' @import sf
+#' @importFrom sf st_as_sf st_is_valid st_make_valid st_area st_buffer st_intersects st_minimum_rotated_rectangle
+#' @importFrom sf st_point st_coordinates st_collection_extract
 #' @importFrom concaveman concaveman
 #' @importFrom sfheaders sf_polygon
-#' @importFrom dplyr mutate select distinct bind_rows row_number
+#' @importFrom dplyr bind_rows mutate select distinct arrange
+#' @importFrom tidyr expand_grid
+#' @importFrom stats runif
 #'
 #' @examples
 #' \dontrun{
@@ -241,7 +244,7 @@ create_sl_stand <- function(trees_inv,
       
       # If extraction failed or result is empty, throw error
       if (is.null(extracted) || length(extracted) == 0) {
-        reason <- st_is_valid_reason(core_polygon_sf)
+        reason <- st_is_valid(core_polygon_sf, reason = TRUE)
         stop(paste("Could not extract a valid POLYGON from GEOMETRYCOLLECTION. Reason:", reason))
       }
       
@@ -250,7 +253,7 @@ create_sl_stand <- function(trees_inv,
     
     # Recheck that the result is valid
     if (!st_is_valid(core_polygon_sf)) {
-      reason <- st_is_valid_reason(core_polygon_sf)
+      reason <- st_is_valid(core_polygon_sf, reason = TRUE)
       stop(paste("Polygon is still invalid after attempting to fix. Reason:", reason))
     }
     
@@ -577,6 +580,7 @@ create_sl_stand <- function(trees_inv,
   
   ## Validate the object ----
   validate_sl_stand(stand)
+  if (verbose) message("SamsaRaLight stand successfully created.")
   
   return(stand)
 }

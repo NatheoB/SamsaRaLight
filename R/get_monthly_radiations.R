@@ -18,8 +18,9 @@
 #'
 #' @source https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en
 #'
-#' @import readr httr
-#' @importFrom dplyr recode mutate select arrange group_by summarize_all %>% 
+#' @importFrom httr GET
+#' @importFrom dplyr recode mutate select arrange group_by summarize_all
+#' @importFrom utils read.table
 #'
 #' @export
 get_monthly_radiations <- function(latitude, 

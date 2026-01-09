@@ -18,14 +18,14 @@
 #'
 #' @return list of 3 elements : horizontal energy (double), slope energy (double)
 #' and rays (data.frame) with n rows and 5 columns:
-#' \itemize{
+#' \describe{
 #'  \item{azimut}{Azimut of the ray in radians}
 #'  \item{height_angle}{Angle between beam and soil (in radians)}
 #'  \item{e}{Energy of ray before crossing the canopy (in MJ.m-2)}
 #'  \item{direct}{true if the ray is direct false if it is diffuse}
 #' }
 #'
-#' @importFrom dplyr bind_rows
+#' @importFrom dplyr bind_rows bind_cols
 #' @importFrom data.table fifelse
 #'
 #' @keywords internal
@@ -361,7 +361,7 @@ sl_create_rays_direct <- function(latitude_rad,
 #' @param height_angle_rad double - Angle between beam and soil (in radians)
 #' @param southazimut_ccw_rad double - Azimuth of south counterclockwise from x axis
 #'  in the (x,y) system (in radians)
-#'  
+#' 
 #' @importFrom data.table fifelse
 #' 
 #' @export

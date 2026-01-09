@@ -21,21 +21,17 @@ LazyData: true
 Imports:
     dplyr,
     httr,
-    readr,
     data.table,
     Rcpp,
     sf,
     concaveman,
     ggforce,
-    purrr,
     ggplot2,
-    cowplot,
     tidyr,
-    grid,
     sfheaders,
     ggnewscale,
-    plotly,
-    scales
+    scales,
+    RhpcBLASctl
 Suggests: 
     knitr,
     rmarkdown,

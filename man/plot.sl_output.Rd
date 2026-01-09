@@ -6,6 +6,7 @@
 \usage{
 \method{plot}{sl_output}(
   x,
+  ...,
   what_trees = c("compet", "intercepted", "potential"),
   what_cells = c("relative", "absolute"),
   show_trees = TRUE
@@ -14,18 +15,20 @@
 \arguments{
 \item{x}{An object of class \code{sl_output}, returned by \code{run_sl()}.}
 
+\item{...}{Additional arguments passed to lower-level plotting functions.}
+
 \item{what_trees}{Character; which tree metric to plot. Choices are:
 \describe{
-\item{"compet"}{Light competition index (LCI), scaled 0–1, reversed viridis scale.}
-\item{"intercepted"}{Intercepted energy (MJ).}
-\item{"potential"}{Potential intercepted energy (MJ).}
+\item{"compet"}{Light competition index (LCI), reversed viridis scale.}
+\item{"intercepted"}{Intercepted energy (MJ/m2).}
+\item{"potential"}{Potential intercepted energy (MJ/m2).}
 }
 Default is "compet".}
 
 \item{what_cells}{Character; which cell (ground) metric to plot. Choices are:
 \describe{
-\item{"relative"}{Proportion of above canopy light (PACL), 0–1).}
-\item{"absolute"}{Energy on the ground (MJ.m²).}
+\item{"relative"}{Proportion of above canopy light (PACL)).}
+\item{"absolute"}{Energy on the ground (MJ/m2).}
 }
 Default is "relative".}
 

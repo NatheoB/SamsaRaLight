@@ -7,31 +7,33 @@
 #'
 #' @param x A data.frame with monthly radiation values, typically produced by
 #'   \code{\link{get_monthly_radiations}}.
+#'   
+#' @param verbose Logical; if \code{TRUE}, informative messages are printed.
 #'
 #' @details
 #' The input must contain the following columns:
-#' \itemize{
-#'   \item{month}{Integer month number (1–12)}
-#'   \item{Hrad}{Monthly global horizontal irradiation (MJ m⁻²)}
-#'   \item{DGratio}{Diffuse-to-global radiation ratio (unitless, 0–1)}
+#' \describe{
+#'   \item{month}{Integer month number (1-12)}
+#'   \item{Hrad}{Monthly global horizontal irradiation (MJ/m2)}
+#'   \item{DGratio}{Diffuse-to-global radiation ratio (unitless, 0-1)}
 #' }
 #'
 #' The function checks:
-#' \itemize{
-#'   \item The object is a data.frame
-#'   \item Required columns are present
-#'   \item There are exactly 12 months
-#'   \item Each month (1–12) is present exactly once
-#'   \item Data are numeric and finite
-#'   \item Hrad ≥ 0
-#'   \item 0 ≤ DGratio ≤ 1
-#'   \item Months are in increasing order
+#' \describe{
+#'   \item{1}{The object is a data.frame.}
+#'   \item{2}{Required columns are present.}
+#'   \item{3}{There are exactly 12 months.}
+#'   \item{4}{Each month (1-12) is present exactly once.}
+#'   \item{5}{Data are numeric and finite.}
+#'   \item{6}{Hrad strictly positive.}
+#'   \item{7}{DGratio between 0 and 1.}
+#'   \item{8}{Months are in increasing order.}
 #' }
 #'
 #' @return Invisibly returns \code{TRUE} if all checks pass.
 #'
 #' @export
-check_monthly_radiations <- function(x) {
+check_monthly_radiations <- function(x, verbose = TRUE) {
   
   ## ---- basic structure ------------------------------------------------------
   if (!is.data.frame(x)) {
@@ -72,7 +74,7 @@ check_monthly_radiations <- function(x) {
   }
   
   if (!setequal(x$month, 1:12)) {
-    stop("`month` must contain exactly the values 1–12, each once.", call. = FALSE)
+    stop("`month` must contain exactly the values between 1 and 12, each once.", call. = FALSE)
   }
   
   if (anyDuplicated(x$month)) {
@@ -93,5 +95,7 @@ check_monthly_radiations <- function(x) {
     stop("`DGratio` must be between 0 and 1.", call. = FALSE)
   }
   
+  ## ---- success --------------------------------------------------------------
+  if (verbose) message("Radiation table successfully validated.")
   invisible(TRUE)
 }

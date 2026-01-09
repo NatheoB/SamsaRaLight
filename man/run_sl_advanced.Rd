@@ -23,7 +23,8 @@ run_sl_advanced(
   end_day = 365,
   detailed_output = FALSE,
   parallel_mode = FALSE,
-  n_threads = NULL
+  n_threads = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -41,6 +42,17 @@ diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.}
 \item{use_torus}{logical, if TRUE, use torus system for borders, else open grassland}
 
 \item{turbid_medium}{logical, if TRUE, crowns are considered turbid medium, else porous envelope}
+
+\item{extinction_coef}{Numeric scalar. Leaf extinction coefficient controlling
+the probability that a ray is intercepted by foliage. It represents the
+effective light attenuation per unit leaf area and is linked to average
+leaf orientation. Higher values increase interception (default = 0.5).}
+
+\item{clumping_factor}{Numeric scalar controlling the aggregation of leaves
+within the crown volume. A value of 1 corresponds to a homogeneous (random)
+foliage distribution; values < 1 indicate clumped foliage, and values > 1
+indicate more regular spacing. This modifies effective light interception
+in the turbid medium model (default = 1).}
 
 \item{trunk_interception}{logical, if TRUE, account for trunk interception}
 
@@ -66,6 +78,8 @@ using OpenMP. If FALSE, the model runs in single-thread mode.}
 \item{n_threads}{integer or NULL. Number of CPU threads to use when
 \code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
 the number of available cores. If provided, must be a positive integer.}
+
+\item{verbose}{Logical; if \code{TRUE}, informative messages are printed.}
 }
 \value{
 An object of class \code{"sl_output"} (list) containing:

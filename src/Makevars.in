@@ -1,5 +1,20 @@
-## -- compiling for OpenMP
-PKG_CXXFLAGS=-fopenmp
-##
-## -- linking for OpenMP
-PKG_LIBS= -fopenmp -lgomp
+## Portable Makevars.in for OpenMP
+
+# Detect OpenMP flags from R
+PKG_CXXFLAGS = $(SHLIB_OPENMP_CXXFLAGS)
+PKG_LIBS     = $(SHLIB_OPENMP_CXXFLAGS)
+
+# Source files
+# List them explicitly instead of using wildcard
+SOURCES = my_cpp_file1.cpp my_cpp_file2.cpp
+
+# Object files
+OBJECTS = $(SOURCES:.cpp=.o)
+
+# Compile rule (default rules usually work for R, but can be explicit)
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) $(PKG_CXXFLAGS) -c $< -o $@
+
+# Link rule
+$(SHLIB): $(OBJECTS)
+	$(CXX) $(CXXFLAGS) $(PKG_CXXFLAGS) -shared -o $@ $(OBJECTS) $(PKG_LIBS)

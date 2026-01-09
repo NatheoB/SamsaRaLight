@@ -9,12 +9,11 @@ devtools::clean_dll()
 
 rm(list = ls())
 
-devtools::load_all('.')
 devtools::document('.')
+devtools::load_all('.')
+
 devtools::test()
 devtools::check()
 
-# usethis::use_testthat()
-
-pkgdown::build_site()
-usethis::use_pkgdown_github_pages()
+# pkgdown::build_site()
+# usethis::use_pkgdown_github_pages()

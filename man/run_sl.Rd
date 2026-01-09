@@ -13,7 +13,8 @@ run_sl(
   turbid_medium = TRUE,
   detailed_output = FALSE,
   parallel_mode = FALSE,
-  n_threads = NULL
+  n_threads = NULL,
+  verbose = TRUE
 )
 }
 \arguments{
@@ -56,6 +57,8 @@ the number of available CPU cores.}
 \item{n_threads}{integer or NULL. Number of CPU threads to use when
 \code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
 the number of available cores. If provided, must be a positive integer.}
+
+\item{verbose}{Logical; if \code{TRUE}, informative messages are printed.}
 }
 \value{
 An object of class \code{"sl_output"}, containing:

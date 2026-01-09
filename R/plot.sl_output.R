@@ -3,17 +3,18 @@
 #' Visualize ground light and tree energy metrics for a \code{sl_output} object.
 #'
 #' @param x An object of class \code{sl_output}, returned by \code{run_sl()}.
+#' @param ... Additional arguments passed to lower-level plotting functions.
 #' @param what_trees Character; which tree metric to plot. Choices are:
 #'   \describe{
-#'     \item{"compet"}{Light competition index (LCI), scaled 0–1, reversed viridis scale.}
-#'     \item{"intercepted"}{Intercepted energy (MJ).}
-#'     \item{"potential"}{Potential intercepted energy (MJ).}
+#'     \item{"compet"}{Light competition index (LCI), reversed viridis scale.}
+#'     \item{"intercepted"}{Intercepted energy (MJ/m2).}
+#'     \item{"potential"}{Potential intercepted energy (MJ/m2).}
 #'   }
 #'   Default is "compet".
 #' @param what_cells Character; which cell (ground) metric to plot. Choices are:
 #'   \describe{
-#'     \item{"relative"}{Proportion of above canopy light (PACL), 0–1).}
-#'     \item{"absolute"}{Energy on the ground (MJ.m²).}
+#'     \item{"relative"}{Proportion of above canopy light (PACL)).}
+#'     \item{"absolute"}{Energy on the ground (MJ/m2).}
 #'   }
 #'   Default is "relative".
 #' @param show_trees Logical; whether to display trees on top of the ground light map. Default is TRUE.
@@ -26,8 +27,17 @@
 #' plot(sl_output_object, what_trees = "potential", what_cells = "absolute", show_trees = FALSE)
 #' }
 #' 
+#' @importFrom ggplot2 ggplot aes geom_raster scale_fill_gradient scale_x_continuous
+#'   scale_y_continuous coord_equal labs theme element_text element_blank guide_colorbar scale_fill_viridis_c
+#' @importFrom ggplot2 xlab ylab theme_minimal
+#' @importFrom scales pretty_breaks
+#' @importFrom ggnewscale new_scale_fill
+#' @importFrom ggforce geom_ellipse
+#' 
 #' @export
-plot.sl_output <- function(x,
+#' @method plot sl_output
+#' 
+plot.sl_output <- function(x, ...,
                            what_trees = c("compet", "intercepted", "potential"),
                            what_cells = c("relative", "absolute"),
                            show_trees = TRUE) {
@@ -60,12 +70,12 @@ plot.sl_output <- function(x,
   # ---- Automatic legend labels ----
   tree_label <- switch(what_trees,
                        "compet" = "TREE\nLight competition index (LCI)",
-                       "potential" = "TREE\nPotential intercepted energy (MJ)",
-                       "intercepted" = "TREE\nIntercepted energy (MJ)")
+                       "potential" = "TREE\nPotential intercepted energy (MJ/m2)",
+                       "intercepted" = "TREE\nIntercepted energy (MJ/m2)")
   
   cell_label <- switch(what_cells,
                        "relative" = "CELL\nProportion of above canopy light (PACL)",
-                       "absolute" = "CELL\nEnergy on the ground (MJ.m²)")
+                       "absolute" = "CELL\nEnergy on the ground (MJ/m2)")
   
   # ---- Base: ground light ----
   plt <- ggplot() + coord_equal()

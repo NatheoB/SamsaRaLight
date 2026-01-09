@@ -8,17 +8,17 @@ check_sensors(sensors, verbose = TRUE)
 }
 \arguments{
 \item{sensors}{A data.frame with one row per sensor and the following columns:
-\itemize{
+\describe{
 \item{id_sensor}{Unique identifier of the sensor (numeric or character, no duplicates)}
-\item{x}{X position of the sensor (numeric)}
-\item{y}{Y position of the sensor (numeric)}
+\item{x}{X position of the sensor (numeric, meters)}
+\item{y}{Y position of the sensor (numeric, meters)}
 \item{h_m}{Height above ground of the sensor (numeric, meters)}
 }}
 
-\item{verbose}{Logical; if \code{TRUE}, informative messages are printed.}
+\item{verbose}{Logical; if TRUE, informative messages are printed.}
 }
 \value{
-Invisibly returns \code{TRUE} if all checks pass.
+Invisibly returns TRUE if all checks pass.
 }
 \description{
 This function checks whether a sensor data.frame is correctly formatted
@@ -34,7 +34,6 @@ sensors <- data.frame(
   y = c(5, 15, 25),
   h_m = c(1.5, 2.0, 1.8)
 )
-
 check_sensors(sensors)
 }
 

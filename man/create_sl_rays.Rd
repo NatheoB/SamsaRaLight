@@ -50,7 +50,7 @@ northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect 
 \value{
 list of 3 elements : horizontal energy (double), slope energy (double)
 and rays (data.frame) with n rows and 5 columns:
-\itemize{
+\describe{
 \item{azimut}{Azimut of the ray in radians}
 \item{height_angle}{Angle between beam and soil (in radians)}
 \item{e}{Energy of ray before crossing the canopy (in MJ.m-2)}

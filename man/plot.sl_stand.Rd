@@ -4,14 +4,16 @@
 \alias{plot.sl_stand}
 \title{Plot a SamsaRaLight virtual stand}
 \usage{
-\method{plot}{sl_stand}(x, top_down = FALSE, transparency = TRUE)
+\method{plot}{sl_stand}(x, ..., top_down = FALSE, only_inv = FALSE)
 }
 \arguments{
 \item{x}{An object of class \code{sl_stand}.}
 
+\item{...}{Additional arguments passed to lower-level plotting functions.}
+
 \item{top_down}{Logical, if TRUE, creates a top-down view with multiple directions (south, north, west, east).}
 
-\item{transparency}{Logical, if TRUE, trees are semi-transparent.}
+\item{only_inv}{Logical, if TRUE, plot only trees from the initial inventory (i.e. not trees added to fill around the core polygon)}
 }
 \value{
 A \code{ggplot} object representing the stand.

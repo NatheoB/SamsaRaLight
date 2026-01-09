@@ -5,7 +5,7 @@
 #' 
 #' @param trees_inv A data.frame of trees that passed \link{check_inventory}.
 #'   Must contain at least:
-#'   \itemize{
+#'   \describe{
 #'     \item{\code{x}, \code{y}}{Tree coordinates (meters).}
 #'     \item{\code{rn_m}, \code{rs_m}, \code{re_m}, \code{rw_m}}{Crown radii (meters).}
 #'     \item{\code{h_m}}{Total height (meters) for plotting order.}
@@ -20,9 +20,9 @@
 #'
 #' @return A ggplot object displaying the trees as ellipses in a from-above view.
 #' 
-#' @import ggplot2
-#' @import ggforce
-#' @import cowplot
+#' @importFrom ggplot2 ggplot aes geom_text coord_equal theme_minimal theme xlab ylab
+#' @importFrom ggforce geom_ellipse
+#' 
 #' @export
 plot_inventory <- function(trees_inv, transparency = TRUE, show_id = TRUE) {
   
