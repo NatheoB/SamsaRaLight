@@ -16,8 +16,6 @@
 #'   (\code{DGratio}), typically obtained using
 #'   \link{get_monthly_radiations} and checked using \link{check_monthly_radiations}..
 #'
-#' @param latitude Numeric. Latitude of the stand (degrees).
-#'
 #' @param sensors_only Logical.  
 #' If \code{TRUE}, compute light interception only for sensors (much faster).
 #'
@@ -85,6 +83,7 @@
 #'   trees = data_prenovel$trees,
 #'   sensors = data_prenovel$sensors,
 #'   cell_size = 5,
+#'   latitude = 45.8,
 #'   slope = 10,
 #'   aspect = 180,
 #'   north2x = 0
@@ -94,8 +93,7 @@
 #'
 #' out <- run_sl(
 #'   sl_stand = stand,
-#'   monthly_radiations = rad,
-#'   latitude = 45.8
+#'   monthly_radiations = rad
 #' )
 #'
 #' out$light$trees
@@ -105,7 +103,6 @@
 run_sl <- function(
     sl_stand,
     monthly_radiations,
-    latitude,
     sensors_only = FALSE,
     use_torus = TRUE,
     turbid_medium = TRUE,
@@ -118,7 +115,6 @@ run_sl <- function(
   run_sl_advanced(
     sl_stand = sl_stand,
     monthly_radiations = monthly_radiations,
-    latitude = latitude,
     sensors_only = sensors_only,
     use_torus = use_torus,
     turbid_medium = turbid_medium,

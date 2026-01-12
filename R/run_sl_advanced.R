@@ -12,7 +12,6 @@
 #'   height, crown radius, crown openness, LAD, etc. See \link{validate_sl_stand}.
 #' @param monthly_radiations data.frame of monthly horizontal radiation (Hrad) and
 #'   diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.
-#' @param latitude numeric, latitude of the stand (degrees)
 #' @param sensors_only logical, if TRUE, compute interception only for sensors
 #' @param use_torus logical, if TRUE, use torus system for borders, else open grassland
 #' @param turbid_medium logical, if TRUE, crowns are considered turbid medium, else porous envelope
@@ -65,7 +64,6 @@
 run_sl_advanced <- function(
     sl_stand,
     monthly_radiations,
-    latitude,
     sensors_only = FALSE,
     use_torus = TRUE,
     turbid_medium = TRUE,
@@ -92,14 +90,6 @@ run_sl_advanced <- function(
   
   # monthly_radiations
   check_monthly_radiations(monthly_radiations, verbose = FALSE)
-  
-  # Latitude
-  if (!is.numeric(latitude) || length(latitude) != 1 || is.na(latitude)) {
-    stop("`latitude` must be a single numeric value.", call. = FALSE)
-  }
-  if (latitude < -90 || latitude > 90) {
-    stop("`latitude` must be between -90 and 90 degrees.", call. = FALSE)
-  }
   
   # Logical arguments
   for (arg_name in c("sensors_only", "use_torus", "turbid_medium", "trunk_interception",
@@ -150,7 +140,7 @@ run_sl_advanced <- function(
   # CREATE RAYS ----
   monthly_rays <- create_sl_rays(
     monthly_rad = monthly_radiations,
-    latitude = latitude,
+    latitude = sl_stand$geometry$latitude,
     start_day = start_day,
     end_day = end_day,
     soc = soc,
@@ -218,7 +208,6 @@ run_sl_advanced <- function(
       "sl_stand" = sl_stand,
       "monthly_radiations" = monthly_radiations,
       "params" = list(
-        "latitude" = latitude,
         "start_day" = start_day,
         "end_day" = end_day,
         "soc" = soc,

@@ -7,6 +7,7 @@
 create_sl_stand(
   trees_inv,
   cell_size,
+  latitude,
   slope,
   aspect,
   north2x,
@@ -22,6 +23,8 @@ create_sl_stand(
 See \link{check_inventory} for the required structure and validated columns.}
 
 \item{cell_size}{Numeric. Side length of square cells composing the stand (meters).}
+
+\item{latitude}{Numeric, latitude of the stand (degrees)}
 
 \item{slope}{Numeric. Slope of the plot (degrees).}
 
@@ -124,6 +127,7 @@ trees_inv <- data_prenovel$trees
 stand <- create_sl_stand(
   trees_inv = trees_inv,
   cell_size = 5,
+  latitude = 46,
   slope = 10,
   aspect = 180,
   north2x = 0,

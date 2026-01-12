@@ -7,7 +7,6 @@
 run_sl(
   sl_stand,
   monthly_radiations,
-  latitude,
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
@@ -26,8 +25,6 @@ and grid geometry.}
 (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global ratio
 (\code{DGratio}), typically obtained using
 \link{get_monthly_radiations} and checked using \link{check_monthly_radiations}..}
-
-\item{latitude}{Numeric. Latitude of the stand (degrees).}
 
 \item{sensors_only}{Logical.
 If \code{TRUE}, compute light interception only for sensors (much faster).}
@@ -101,6 +98,7 @@ stand <- create_sl_stand(
   trees = data_prenovel$trees,
   sensors = data_prenovel$sensors,
   cell_size = 5,
+  latitude = 45.8,
   slope = 10,
   aspect = 180,
   north2x = 0
@@ -110,8 +108,7 @@ rad <- get_monthly_radiations(45.8, 3.1)
 
 out <- run_sl(
   sl_stand = stand,
-  monthly_radiations = rad,
-  latitude = 45.8
+  monthly_radiations = rad
 )
 
 out$light$trees

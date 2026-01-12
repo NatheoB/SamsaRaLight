@@ -7,7 +7,6 @@
 run_sl_advanced(
   sl_stand,
   monthly_radiations,
-  latitude,
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
@@ -34,8 +33,6 @@ height, crown radius, crown openness, LAD, etc. See \link{validate_sl_stand}.}
 
 \item{monthly_radiations}{data.frame of monthly horizontal radiation (Hrad) and
 diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.}
-
-\item{latitude}{numeric, latitude of the stand (degrees)}
 
 \item{sensors_only}{logical, if TRUE, compute interception only for sensors}
 

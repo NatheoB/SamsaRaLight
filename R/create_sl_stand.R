@@ -13,6 +13,7 @@
 #' @param trees_inv A data.frame with one row per tree.
 #'   See \link{check_inventory} for the required structure and validated columns.
 #' @param cell_size Numeric. Side length of square cells composing the stand (meters).
+#' @param latitude Numeric, latitude of the stand (degrees)
 #' @param slope Numeric. Slope of the plot (degrees).
 #' @param aspect Numeric. Aspect of the slope, defined as the azimuth of the
 #'   downslope direction, clockwise from North (degrees).
@@ -103,6 +104,7 @@
 #' stand <- create_sl_stand(
 #'   trees_inv = trees_inv,
 #'   cell_size = 5,
+#'   latitude = 46,
 #'   slope = 10,
 #'   aspect = 180,
 #'   north2x = 0,
@@ -117,6 +119,7 @@
 #' @export
 create_sl_stand <- function(trees_inv, 
                             cell_size,
+                            latitude,
                             slope, 
                             aspect, 
                             north2x,
@@ -139,6 +142,14 @@ create_sl_stand <- function(trees_inv,
   }
   if (cell_size <= 0 || cell_size != as.integer(cell_size)) {
     stop("`cell_size` must be a positive integer (meters).", call. = FALSE)
+  }
+  
+  # latitude
+  if (!is.numeric(latitude) || length(latitude) != 1 || is.na(latitude)) {
+    stop("`latitude` must be a single numeric value.", call. = FALSE)
+  }
+  if (latitude < -90 || latitude > 90) {
+    stop("`latitude` must be between -90 and 90 degrees.", call. = FALSE)
   }
   
   # slope
@@ -570,6 +581,7 @@ create_sl_stand <- function(trees_inv,
     "geometry" = list("cell_size" = cell_size,
                       "n_cells_x" = n_cells_x, 
                       "n_cells_y" = n_cells_y,
+                      "latitude" = latitude,
                       "slope" = slope,
                       "aspect" = aspect,
                       "north2x" = north2x
