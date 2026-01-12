@@ -4,7 +4,7 @@
 \alias{plot.sl_stand}
 \title{Plot a SamsaRaLight virtual stand}
 \usage{
-\method{plot}{sl_stand}(x, ..., top_down = FALSE, only_inv = FALSE)
+\method{plot}{sl_stand}(x, ..., top_down = FALSE, only_inv = FALSE, add_sensors = TRUE)
 }
 \arguments{
 \item{x}{An object of class \code{sl_stand}.}
@@ -14,6 +14,10 @@
 \item{top_down}{Logical, if TRUE, creates a top-down view with multiple directions (south, north, west, east).}
 
 \item{only_inv}{Logical, if TRUE, plot only trees from the initial inventory (i.e. not trees added to fill around the core polygon)}
+
+\item{add_sensors}{Logical; if TRUE (default), sensors are drawn on the plot.
+In top-down mode, sensors are shown as segment from ground to their height; in map view,
+sensors are drawn as squares on the ground.}
 }
 \value{
 A \code{ggplot} object representing the stand.
@@ -21,4 +25,7 @@ A \code{ggplot} object representing the stand.
 \description{
 This function plots a virtual forest stand (\code{sl_stand}) produced by SamsaRaLight.
 It can display a top-down view with tree crowns or a side/top view with cells and trees.
+}
+\details{
+For the sake of the representation in top-down plot, z are offset such as minimum altitude tree is at Y-axis height = 0
 }

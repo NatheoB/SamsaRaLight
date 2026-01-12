@@ -10,7 +10,7 @@
 #'   \item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates)}
 #'   \item{x}{X position of the tree within the stand (numeric, meters)}
 #'   \item{y}{Y position of the tree within the stand (numeric, meters)}
-#'   \item{species}{OPTIONAL – species name (character)}
+#'   \item{species}{Species name (character)}
 #'   \item{dbh_cm}{Diameter at breast height (1.3 m, in cm)}
 #'   \item{crown_type}{Type of crown geometry. One of \code{"E"}, \code{"P"},
 #'     \code{"2E"}, \code{"8E"}, or \code{"4P"}}
@@ -66,7 +66,8 @@ check_inventory <- function(tree_inv, verbose = TRUE) {
   if (nrow(tree_inv) == 0) stop("`tree_inv` must contain at least one tree.", call. = FALSE)
   
   ## ---- required columns -----------------------------------------------------
-  required_cols <- c("id_tree", "x", "y", "crown_type",
+  required_cols <- c("id_tree", "x", "y", 
+                     "species", "crown_type",
                      "dbh_cm", "h_m", "hbase_m", 
                      "rn_m", "rs_m", "re_m", "rw_m")
   missing_cols <- setdiff(required_cols, names(tree_inv))

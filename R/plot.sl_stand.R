@@ -7,6 +7,13 @@
 #' @param ... Additional arguments passed to lower-level plotting functions.
 #' @param top_down Logical, if TRUE, creates a top-down view with multiple directions (south, north, west, east).
 #' @param only_inv Logical, if TRUE, plot only trees from the initial inventory (i.e. not trees added to fill around the core polygon)
+#' @param add_sensors Logical; if TRUE (default), sensors are drawn on the plot.
+#'   In top-down mode, sensors are shown as segment from ground to their height; in map view,
+#'   sensors are drawn as squares on the ground.
+#'
+#' @details
+#' For the sake of the representation in top-down plot, z are offset such as minimum altitude tree is at Y-axis height = 0
+#' 
 #'
 #' @return A `ggplot` object representing the stand.
 #'
@@ -20,7 +27,8 @@
 #' 
 plot.sl_stand <- function(x, ..., 
                           top_down = FALSE,
-                          only_inv = FALSE) {
+                          only_inv = FALSE,
+                          add_sensors = TRUE) {
   
   stopifnot(inherits(x, "sl_stand"))
   stopifnot(is.logical(top_down), length(top_down) == 1)
@@ -40,18 +48,26 @@ plot.sl_stand <- function(x, ...,
     
     # Label for plots 
     view_description <- c(
-      "south" = "south view - W to E",
-      "north" = "north view - E to W",
-      "west" = "west view - N to S",
-      "east" = "east view - S to N"
+      "south" = "south view (X-axis W->E)",
+      "west" = "west view (Y-axis N->S)",
+      "north" = "north view (X-axis E->W)",
+      "east" = "east view (Y-axis S->N)"
     )
+    
+    # z-offset
+    z_offset <- - min(sl_stand$trees$z)
     
     # Create the trees for each top-down view
     trees_topdown <- sl_stand$trees %>% 
       tidyr::crossing(view = names(view_description)) %>% 
       dplyr::mutate(
         
-        view_label = view_description[view],
+        view_label = unname(view_description[view]),
+        view_label = factor(view_label, levels = unname(view_description)),
+        
+        # Change z for better plots (positive altitude)
+        # Lowest tree altitude at 0
+        z = z + z_offset,
         
         # Height of the maximum radius
         hmax_m = case_when(
@@ -63,8 +79,8 @@ plot.sl_stand <- function(x, ...,
         # define tree position given the view
         pos = case_when(
           view == "south" ~ x,
-          view == "north" ~ -x,
-          view == "west" ~ -y,
+          view == "north" ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_x - x,
+          view == "west" ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_y - y,
           view == "east" ~ y
         ),
         
@@ -81,7 +97,7 @@ plot.sl_stand <- function(x, ...,
           view == "west" ~ rs_m,
           view == "east" ~ rn_m
         )
-      )
+      ) 
     
     # 2D top/down
     plt <- ggplot(trees_topdown) +
@@ -123,10 +139,35 @@ plot.sl_stand <- function(x, ...,
         curvature = 0.2
       ) +
       
-      labs(x = "Position", y = "Height (m)") +
+      labs(x = "Axis position (in m)", y = "Height (m)") +
       coord_equal() +
       theme_bw() +
-      facet_wrap(~view_label, ncol = 1)
+      facet_wrap(~view_label, ncol = 2, nrow = 2)
+    
+    # Add sensors
+    if (add_sensors && !is.null(sl_stand$sensors) && nrow(sl_stand$sensors) > 0) {
+      
+      sensors_topdown <- sl_stand$sensors %>%
+        tidyr::crossing(view = names(view_description)) %>%
+        dplyr::mutate(
+          pos = case_when(
+            view == "south" ~ x,
+            view == "north" ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_x - x,
+            view == "west"  ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_y - y,
+            view == "east"  ~ y
+          ),
+          z = z + z_offset,
+          view_label = unname(view_description[view]),
+          view_label = factor(view_label, levels = unname(view_description))
+        )
+      
+      plt <- plt +
+        geom_segment(data = sensors_topdown,
+                     aes(x = pos, xend = pos, 
+                         y = z - h_m, yend = z), 
+                     linewidth = 1,
+                     color = "red")
+    }
     
   }
   
@@ -159,52 +200,36 @@ plot.sl_stand <- function(x, ...,
     # Order trees by height (smaller first, taller on top)
     trees_plot <- sl_stand$trees[order(sl_stand$trees$h_m), ]
     
-    # Base aesthetics
-    aes_mapping_trees <- aes(
-      x0 = x,
-      y0 = y,
-      a = (re_m + rw_m) / 2,
-      b = (rn_m + rs_m) / 2,
-      angle = 0
-    )
-    
-    # Add species fill if available
-    if ("species" %in% names(trees_plot)) {
-      aes_mapping_trees$fill <- quote(species)
-    }
-    
     for (i in seq_len(nrow(trees_plot))) {
       
-      if ("species" %in% names(trees_plot)) {
-        plt <- plt +
-          geom_ellipse(
-            data = trees_plot[i,],
-            mapping = aes_mapping_trees,
-            color = "black",
-            alpha = alpha_val
-          )
-      } else {
-        plt <- plt +
-          geom_ellipse(
-            data = trees_plot[i,],
-            mapping = aes_mapping_trees,
-            color = "black",
-            alpha = alpha_val,
-            fill = "grey"
-          )
-      }
+      plt <- plt +
+        geom_ellipse(
+          data = trees_plot[i,],
+          mapping = aes(
+            x0 = x,
+            y0 = y,
+            a = (re_m + rw_m) / 2,
+            b = (rn_m + rs_m) / 2,
+            angle = 0,
+            fill = species
+          ),
+          color = "black",
+          alpha = alpha_val
+        )
       
     }
     
     
     # SENSORS
-    plt <- plt +
-      geom_rect(data = sl_stand$sensors,
-                mapping = aes(xmin = x - 0.5,
-                              ymin = y - 0.5,
-                              xmax = x + 0.5,
-                              ymax = y + 0.5),
-                color = "red", fill = "black")
+    if (add_sensors && !is.null(sl_stand$sensors) && nrow(sl_stand$sensors) > 0) {
+      plt <- plt +
+        geom_rect(data = sl_stand$sensors,
+                  mapping = aes(xmin = x - 0.5,
+                                ymin = y - 0.5,
+                                xmax = x + 0.5,
+                                ymax = y + 0.5),
+                  color = "red", fill = "black")
+    }
     
     
     # GRAPHIC
