@@ -17,7 +17,7 @@
 #'
 #' @return A `ggplot` object representing the stand.
 #'
-#' @importFrom ggplot2 ggplot aes geom_segment geom_curve geom_tile geom_polygon geom_rect labs coord_equal theme_bw theme scale_x_continuous scale_y_continuous xlab ylab facet_wrap
+#' @importFrom ggplot2 ggplot aes geom_segment geom_curve geom_tile geom_polygon geom_rect labs coord_equal theme_bw theme scale_x_continuous scale_y_continuous xlab ylab facet_wrap guides guide_legend
 #' @importFrom ggforce geom_ellipse
 #' @importFrom dplyr filter mutate case_when
 #' @importFrom tidyr crossing
@@ -49,8 +49,8 @@ plot.sl_stand <- function(x, ...,
     # Label for plots 
     view_description <- c(
       "south" = "south view (X-axis W->E)",
-      "west" = "west view (Y-axis N->S)",
-      "north" = "north view (X-axis E->W)",
+      # "west" = "west view (Y-axis N->S)",
+      # "north" = "north view (X-axis E->W)",
       "east" = "east view (Y-axis S->N)"
     )
     
@@ -79,8 +79,8 @@ plot.sl_stand <- function(x, ...,
         # define tree position given the view
         pos = case_when(
           view == "south" ~ x,
-          view == "north" ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_x - x,
-          view == "west" ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_y - y,
+          view == "north" ~ - x,
+          view == "west" ~ - y,
           view == "east" ~ y
         ),
         
@@ -142,7 +142,9 @@ plot.sl_stand <- function(x, ...,
       labs(x = "Axis position (in m)", y = "Height (m)") +
       coord_equal() +
       theme_bw() +
-      facet_wrap(~view_label, ncol = 2, nrow = 2)
+      theme(legend.position = "bottom") +
+      guides(colour = guide_legend(title.position="top", title.hjust = 0.5)) +
+      facet_wrap(~view_label)
     
     # Add sensors
     if (add_sensors && !is.null(sl_stand$sensors) && nrow(sl_stand$sensors) > 0) {
@@ -152,8 +154,8 @@ plot.sl_stand <- function(x, ...,
         dplyr::mutate(
           pos = case_when(
             view == "south" ~ x,
-            view == "north" ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_x - x,
-            view == "west"  ~ sl_stand$geometry$cell_size * sl_stand$geometry$n_cells_y - y,
+            # view == "north" ~ - x,
+            # view == "west"  ~ - y,
             view == "east"  ~ y
           ),
           z = z + z_offset,

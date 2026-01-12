@@ -12,7 +12,7 @@ check_inventory(tree_inv, verbose = TRUE)
 \item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates)}
 \item{x}{X position of the tree within the stand (numeric, meters)}
 \item{y}{Y position of the tree within the stand (numeric, meters)}
-\item{species}{OPTIONAL – species name (character)}
+\item{species}{Species name (character)}
 \item{dbh_cm}{Diameter at breast height (1.3 m, in cm)}
 \item{crown_type}{Type of crown geometry. One of \code{"E"}, \code{"P"},
 \code{"2E"}, \code{"8E"}, or \code{"4P"}}
