@@ -32,7 +32,7 @@ check_inventory(tree_inv, verbose = TRUE)
 
   species
 
-  :   OPTIONAL – species name (character)
+  :   Species name (character)
 
   dbh_cm
 
