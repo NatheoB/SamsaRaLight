@@ -46,7 +46,6 @@ customization of ray discretization, sky type and trunk interception.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_sl_advanced</span><span class="op">(</span></span>
 <span>  <span class="va">sl_stand</span>,</span>
 <span>  <span class="va">monthly_radiations</span>,</span>
-<span>  <span class="va">latitude</span>,</span>
 <span>  sensors_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_torus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  turbid_medium <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -80,10 +79,6 @@ height, crown radius, crown openness, LAD, etc. See <a href="validate_sl_stand.h
 <dt id="arg-monthly-radiations">monthly_radiations<a class="anchor" aria-label="anchor" href="#arg-monthly-radiations"></a></dt>
 <dd><p>data.frame of monthly horizontal radiation (Hrad) and
 diffuse to global ratio (DGratio), computed with <a href="get_monthly_radiations.html">get_monthly_radiations</a>.</p></dd>
-
-
-<dt id="arg-latitude">latitude<a class="anchor" aria-label="anchor" href="#arg-latitude"></a></dt>
-<dd><p>numeric, latitude of the stand (degrees)</p></dd>
 
 
 <dt id="arg-sensors-only">sensors_only<a class="anchor" aria-label="anchor" href="#arg-sensors-only"></a></dt>

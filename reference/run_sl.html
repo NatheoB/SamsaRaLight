@@ -43,7 +43,6 @@ stand using the SamsaRaLight ray-tracing engine.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_sl</span><span class="op">(</span></span>
 <span>  <span class="va">sl_stand</span>,</span>
 <span>  <span class="va">monthly_radiations</span>,</span>
-<span>  <span class="va">latitude</span>,</span>
 <span>  sensors_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  use_torus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  turbid_medium <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -69,10 +68,6 @@ and grid geometry.</p></dd>
 (<code>Hrad</code>, in MJ m\(^{-2}\)) and diffuse-to-global ratio
 (<code>DGratio</code>), typically obtained using
 <a href="get_monthly_radiations.html">get_monthly_radiations</a> and checked using <a href="check_monthly_radiations.html">check_monthly_radiations</a>..</p></dd>
-
-
-<dt id="arg-latitude">latitude<a class="anchor" aria-label="anchor" href="#arg-latitude"></a></dt>
-<dd><p>Numeric. Latitude of the stand (degrees).</p></dd>
 
 
 <dt id="arg-sensors-only">sensors_only<a class="anchor" aria-label="anchor" href="#arg-sensors-only"></a></dt>
@@ -164,6 +159,7 @@ are developing new ray-tracing configurations or doing methodological work.</p>
 <span class="r-in"><span>  trees <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">trees</span>,</span></span>
 <span class="r-in"><span>  sensors <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">sensors</span>,</span></span>
 <span class="r-in"><span>  cell_size <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>  latitude <span class="op">=</span> <span class="fl">45.8</span>,</span></span>
 <span class="r-in"><span>  slope <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  aspect <span class="op">=</span> <span class="fl">180</span>,</span></span>
 <span class="r-in"><span>  north2x <span class="op">=</span> <span class="fl">0</span></span></span>
@@ -173,8 +169,7 @@ are developing new ray-tracing configurations or doing methodological work.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">run_sl</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  sl_stand <span class="op">=</span> <span class="va">stand</span>,</span></span>
-<span class="r-in"><span>  monthly_radiations <span class="op">=</span> <span class="va">rad</span>,</span></span>
-<span class="r-in"><span>  latitude <span class="op">=</span> <span class="fl">45.8</span></span></span>
+<span class="r-in"><span>  monthly_radiations <span class="op">=</span> <span class="va">rad</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span></span></span>

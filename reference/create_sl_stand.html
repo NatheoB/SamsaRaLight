@@ -52,6 +52,7 @@ to match its basal area per hectare.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">create_sl_stand</span><span class="op">(</span></span>
 <span>  <span class="va">trees_inv</span>,</span>
 <span>  <span class="va">cell_size</span>,</span>
+<span>  <span class="va">latitude</span>,</span>
 <span>  <span class="va">slope</span>,</span>
 <span>  <span class="va">aspect</span>,</span>
 <span>  <span class="va">north2x</span>,</span>
@@ -74,6 +75,10 @@ See <a href="check_inventory.html">check_inventory</a> for the required structur
 
 <dt id="arg-cell-size">cell_size<a class="anchor" aria-label="anchor" href="#arg-cell-size"></a></dt>
 <dd><p>Numeric. Side length of square cells composing the stand (meters).</p></dd>
+
+
+<dt id="arg-latitude">latitude<a class="anchor" aria-label="anchor" href="#arg-latitude"></a></dt>
+<dd><p>Numeric, latitude of the stand (degrees)</p></dd>
 
 
 <dt id="arg-slope">slope<a class="anchor" aria-label="anchor" href="#arg-slope"></a></dt>
@@ -177,6 +182,7 @@ per hectare is reached for the full rectangular stand.</p>
 <span class="r-in"><span><span class="va">stand</span> <span class="op">&lt;-</span> <span class="fu">create_sl_stand</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  trees_inv <span class="op">=</span> <span class="va">trees_inv</span>,</span></span>
 <span class="r-in"><span>  cell_size <span class="op">=</span> <span class="fl">5</span>,</span></span>
+<span class="r-in"><span>  latitude <span class="op">=</span> <span class="fl">46</span>,</span></span>
 <span class="r-in"><span>  slope <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  aspect <span class="op">=</span> <span class="fl">180</span>,</span></span>
 <span class="r-in"><span>  north2x <span class="op">=</span> <span class="fl">0</span>,</span></span>

@@ -9,7 +9,6 @@ forest stand using the SamsaRaLight ray-tracing engine.
 run_sl(
   sl_stand,
   monthly_radiations,
-  latitude,
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
@@ -37,10 +36,6 @@ run_sl(
   [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md)
   and checked using
   [check_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md)..
-
-- latitude:
-
-  Numeric. Latitude of the stand (degrees).
 
 - sensors_only:
 
@@ -149,6 +144,7 @@ stand <- create_sl_stand(
   trees = data_prenovel$trees,
   sensors = data_prenovel$sensors,
   cell_size = 5,
+  latitude = 45.8,
   slope = 10,
   aspect = 180,
   north2x = 0
@@ -158,8 +154,7 @@ rad <- get_monthly_radiations(45.8, 3.1)
 
 out <- run_sl(
   sl_stand = stand,
-  monthly_radiations = rad,
-  latitude = 45.8
+  monthly_radiations = rad
 )
 
 out$light$trees

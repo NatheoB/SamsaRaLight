@@ -12,6 +12,7 @@ to match its basal area per hectare.
 create_sl_stand(
   trees_inv,
   cell_size,
+  latitude,
   slope,
   aspect,
   north2x,
@@ -34,6 +35,10 @@ create_sl_stand(
 - cell_size:
 
   Numeric. Side length of square cells composing the stand (meters).
+
+- latitude:
+
+  Numeric, latitude of the stand (degrees)
 
 - slope:
 
@@ -163,6 +168,7 @@ trees_inv <- data_prenovel$trees
 stand <- create_sl_stand(
   trees_inv = trees_inv,
   cell_size = 5,
+  latitude = 46,
   slope = 10,
   aspect = 180,
   north2x = 0,

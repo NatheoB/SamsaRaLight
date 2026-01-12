@@ -11,7 +11,6 @@ interception.
 run_sl_advanced(
   sl_stand,
   monthly_radiations,
-  latitude,
   sensors_only = FALSE,
   use_torus = TRUE,
   turbid_medium = TRUE,
@@ -46,10 +45,6 @@ run_sl_advanced(
   data.frame of monthly horizontal radiation (Hrad) and diffuse to
   global ratio (DGratio), computed with
   [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md).
-
-- latitude:
-
-  numeric, latitude of the stand (degrees)
 
 - sensors_only:
 
