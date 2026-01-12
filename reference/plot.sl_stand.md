@@ -8,7 +8,7 @@ side/top view with cells and trees.
 
 ``` r
 # S3 method for class 'sl_stand'
-plot(x, ..., top_down = FALSE, only_inv = FALSE)
+plot(x, ..., top_down = FALSE, only_inv = FALSE, add_sensors = TRUE)
 ```
 
 ## Arguments
@@ -31,6 +31,17 @@ plot(x, ..., top_down = FALSE, only_inv = FALSE)
   Logical, if TRUE, plot only trees from the initial inventory (i.e. not
   trees added to fill around the core polygon)
 
+- add_sensors:
+
+  Logical; if TRUE (default), sensors are drawn on the plot. In top-down
+  mode, sensors are shown as segment from ground to their height; in map
+  view, sensors are drawn as squares on the ground.
+
 ## Value
 
 A `ggplot` object representing the stand.
+
+## Details
+
+For the sake of the representation in top-down plot, z are offset such
+as minimum altitude tree is at Y-axis height = 0

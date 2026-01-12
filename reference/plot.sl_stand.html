@@ -41,7 +41,7 @@ It can display a top-down view with tree crowns or a side/top view with cells an
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="co"># S3 method for class 'sl_stand'</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span>, top_down <span class="op">=</span> <span class="cn">FALSE</span>, only_inv <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">x</span>, <span class="va">...</span>, top_down <span class="op">=</span> <span class="cn">FALSE</span>, only_inv <span class="op">=</span> <span class="cn">FALSE</span>, add_sensors <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
@@ -63,10 +63,20 @@ It can display a top-down view with tree crowns or a side/top view with cells an
 <dt id="arg-only-inv">only_inv<a class="anchor" aria-label="anchor" href="#arg-only-inv"></a></dt>
 <dd><p>Logical, if TRUE, plot only trees from the initial inventory (i.e. not trees added to fill around the core polygon)</p></dd>
 
+
+<dt id="arg-add-sensors">add_sensors<a class="anchor" aria-label="anchor" href="#arg-add-sensors"></a></dt>
+<dd><p>Logical; if TRUE (default), sensors are drawn on the plot.
+In top-down mode, sensors are shown as segment from ground to their height; in map view,
+sensors are drawn as squares on the ground.</p></dd>
+
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A <code>ggplot</code> object representing the stand.</p>
+    </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>For the sake of the representation in top-down plot, z are offset such as minimum altitude tree is at Y-axis height = 0</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
