@@ -20,7 +20,7 @@ check_inventory(tree_inv, verbose = TRUE)
 \item{hbase_m}{Height of the crown base (numeric, meters)}
 \item{hmax_m}{Height of the maximum crown radius (numeric, meters).
 Required only if at least one tree has a crown type \code{"2E"} or \code{"8E"}.
-For other crown types, the value is ignored and internally recomputed.}
+For other crown types,column is optional and the value is internally computed.}
 \item{rn_m}{Crown radius toward North (numeric, meters)}
 \item{rs_m}{Crown radius toward South (numeric, meters)}
 \item{re_m}{Crown radius toward East (numeric, meters)}

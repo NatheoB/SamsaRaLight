@@ -18,7 +18,7 @@
 #'   \item{hbase_m}{Height of the crown base (numeric, meters)}
 #'   \item{hmax_m}{Height of the maximum crown radius (numeric, meters).
 #'     Required only if at least one tree has a crown type \code{"2E"} or \code{"8E"}.
-#'     For other crown types, the value is ignored and internally recomputed.}
+#'     For other crown types,column is optional and the value is internally computed.}
 #'   \item{rn_m}{Crown radius toward North (numeric, meters)}
 #'   \item{rs_m}{Crown radius toward South (numeric, meters)}
 #'   \item{re_m}{Crown radius toward East (numeric, meters)}
@@ -147,19 +147,33 @@ check_inventory <- function(tree_inv, verbose = TRUE) {
   if ("hmax_m" %in% names(tree_inv)) {
     if (!(is.numeric(tree_inv$hmax_m) || all(is.na(tree_inv$hmax_m)))) stop("`hmax_m` must be numeric or NA.", call. = FALSE)
     if (need_hmax) {
+      
       missing_hmax <- is.na(tree_inv$hmax_m) & tree_inv$crown_type %in% hmax_types
+      
       if (any(missing_hmax)) stop(
         "`hmax_m` is mandatory for crown_type ", paste(hmax_types, collapse = ", "),
         ". Missing for tree(s) with id: ", paste(tree_inv$id_tree[missing_hmax], collapse = ", "), call. = FALSE
       )
+      
+      bad_hmax <- tree_inv$hmax_m < tree_inv$hbase_m | tree_inv$hmax_m > tree_inv$h_m
+      if (any(bad_hmax, na.rm = TRUE)) {
+        stop(
+          "`hmax_m` must be between `hbase_m` and `h_m` for tree(s) with id_tree: ",
+          paste(tree_inv$id_tree[bad_hmax], collapse = ", "),
+          call. = FALSE
+        )
+      }
+      
     } else {
       if (all(is.na(tree_inv$hmax_m))) NULL else if (verbose) warning(
         "`hmax_m` is provided but will be ignored and recomputed.", call. = FALSE
       )
     }
+    
   } else if (need_hmax) stop(
     "The column `hmax_m` is required because at least one tree has a crown_type in ", paste(hmax_types, collapse = ", "), call. = FALSE
   )
+  
   
   ## ---- height consistency ---------------------------------------------------
   bad_hbase <- tree_inv$hbase_m >= tree_inv$h_m
@@ -167,15 +181,6 @@ check_inventory <- function(tree_inv, verbose = TRUE) {
     stop(
       "`hbase_m` must be strictly lower than `h_m` for tree(s) with id_tree: ",
       paste(tree_inv$id_tree[bad_hbase], collapse = ", "),
-      call. = FALSE
-    )
-  }
-  
-  bad_hmax <- tree_inv$hmax_m < tree_inv$hbase_m | tree_inv$hmax_m > tree_inv$h_m
-  if (any(bad_hmax, na.rm = TRUE)) {
-    stop(
-      "`hmax_m` must be between `hbase_m` and `h_m` for tree(s) with id_tree: ",
-      paste(tree_inv$id_tree[bad_hmax], collapse = ", "),
       call. = FALSE
     )
   }

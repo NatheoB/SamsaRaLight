@@ -471,6 +471,14 @@ create_sl_stand <- function(trees_inv,
     )
   
   ## Compute tree hmax ----
+  # Create the column if it does not exists 
+  # (with check_inventory(), we ensured that crown_types matche the fact that column does not exist)
+  
+  # Ensure hmax_m exists (needed for dplyr::case_when evaluation)
+  if (!"hmax_m" %in% names(trees_filled)) {
+    trees_filled$hmax_m <- NA_real_
+  }
+  
   trees_filled <- trees_filled %>%
     dplyr::mutate(
       hmax_m = dplyr::case_when(
@@ -483,7 +491,7 @@ create_sl_stand <- function(trees_inv,
         # with fixed mid-height maximum radius
         crown_type %in% c("E", "4E") ~ hbase_m + 0.5 * (h_m - hbase_m),
         
-        # Symmetric and assymetric ellipsoidal crowns 
+        # Symmetric and asymetric ellipsoidal crowns 
         # with user-defined hmax
         crown_type %in% c("2E", "8E") ~ hmax_m,
         

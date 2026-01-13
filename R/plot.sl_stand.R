@@ -249,9 +249,14 @@ plot.sl_stand <- function(x, ...,
       xlab("") + ylab("") +
       
       labs(title = "SamsaRaLight input stand",
-           subtitle = paste0(round(sl_stand$transform$new_area_ha, 2), "ha - ",
+           subtitle = paste0("\nInventory zone (yellow): ",
+                             round(sl_stand$transform$core_area_ha, 2), "ha - ",
+                             round(sl_stand$transform$core_batot_m2ha, 2), "m2/ha - ",
+                             sum(!x$trees$added_to_fill), " trees",
+                             "\n\nVirtual plot (rectangle): ",
+                             round(sl_stand$transform$new_area_ha, 2), "ha - ",
                              round(sl_stand$transform$new_batot_m2ha, 2), "m2/ha - ",
-                             nrow(sl_stand$trees), " trees")) +
+                             nrow(x$trees), " trees")) +
       
       theme_minimal() +
       theme(panel.grid.minor = element_blank(),
