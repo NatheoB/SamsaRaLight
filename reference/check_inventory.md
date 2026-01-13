@@ -55,7 +55,8 @@ check_inventory(tree_inv, verbose = TRUE)
 
   :   Height of the maximum crown radius (numeric, meters). Required
       only if at least one tree has a crown type `"2E"` or `"8E"`. For
-      other crown types, the value is ignored and internally recomputed.
+      other crown types,column is optional and the value is internally
+      computed.
 
   rn_m
 
