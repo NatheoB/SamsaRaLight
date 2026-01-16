@@ -36,11 +36,11 @@ plot(
 
   "intercepted"
 
-  :   Intercepted energy (MJ/m2).
+  :   Intercepted energy (MJ).
 
   "potential"
 
-  :   Potential intercepted energy (MJ/m2).
+  :   Potential intercepted energy (MJ).
 
   Default is "compet".
 

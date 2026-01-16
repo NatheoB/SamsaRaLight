@@ -378,3 +378,9 @@ Better Understanding of Parametrization ». *Annals of Forest Science*
 - [`summary(`*`<sl_stand>`*`)`](https://natheob.github.io/SamsaRaLight/reference/summary.sl_stand.md)
   : Summary of a SamsaRaLight stand
 
+# Articles
+
+### All vignettes
+
+- [1 - A first minimal
+  case](https://natheob.github.io/SamsaRaLight/articles/1-minimal_case.md):
