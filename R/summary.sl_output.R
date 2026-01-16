@@ -68,31 +68,5 @@ summary.sl_output <- function(object, ...) {
   cat("\n")
   
   
-  # ==============================
-  # MODEL PARAMETERS
-  # ==============================
-  cat("Model parameters\n")
-  cat("----------------\n")
-  
-  param_fmt <- function(x) {
-    if (is.logical(x)) ifelse(x, "yes", "no") else format(x, digits = 4)
-  }
-  
-  p <- params
-  
-  cat(sprintf(" Latitude              : %sdeg\n", p$latitude))
-  cat(sprintf(" Simulation days       : %s -> %s\n", p$start_day, p$end_day))
-  cat(sprintf(" Turbid medium         : %s\n", param_fmt(p$turbid_medium)))
-  cat(sprintf(" Extinction coefficient: %s\n", param_fmt(p$extinction_coef)))
-  cat(sprintf(" Clumping factor       : %s\n", param_fmt(p$clumping_factor)))
-  cat(sprintf(" Trunk interception    : %s\n", param_fmt(p$trunk_interception)))
-  cat(sprintf(" Height angle min      : %sdeg\n", p$height_anglemin))
-  cat(sprintf(" Direct step           : %sdeg\n", p$direct_anglestep))
-  cat(sprintf(" Diffuse step          : %sdeg\n", p$diffuse_anglestep))
-  cat(sprintf(" Torus projection      : %s\n", param_fmt(p$use_torus)))
-  cat(sprintf(" SOC correction        : %s\n", param_fmt(p$soc)))
-  
-  cat("\n")
-  
   invisible(object)
 }

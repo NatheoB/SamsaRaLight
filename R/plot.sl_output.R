@@ -7,8 +7,8 @@
 #' @param what_trees Character; which tree metric to plot. Choices are:
 #'   \describe{
 #'     \item{"compet"}{Light competition index (LCI), reversed viridis scale.}
-#'     \item{"intercepted"}{Intercepted energy (MJ/m2).}
-#'     \item{"potential"}{Potential intercepted energy (MJ/m2).}
+#'     \item{"intercepted"}{Intercepted energy (MJ).}
+#'     \item{"potential"}{Potential intercepted energy (MJ).}
 #'   }
 #'   Default is "compet".
 #' @param what_cells Character; which cell (ground) metric to plot. Choices are:
@@ -70,8 +70,8 @@ plot.sl_output <- function(x, ...,
   # ---- Automatic legend labels ----
   tree_label <- switch(what_trees,
                        "compet" = "TREE\nLight competition index (LCI)",
-                       "potential" = "TREE\nPotential intercepted energy (MJ/m2)",
-                       "intercepted" = "TREE\nIntercepted energy (MJ/m2)")
+                       "potential" = "TREE\nPotential intercepted energy (MJ)",
+                       "intercepted" = "TREE\nIntercepted energy (MJ)")
   
   cell_label <- switch(what_cells,
                        "relative" = "CELL\nProportion of above canopy light (PACL)",

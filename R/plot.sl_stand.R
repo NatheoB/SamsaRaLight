@@ -234,18 +234,13 @@ plot.sl_stand <- function(x, ...,
     }
     
     
-    # GRAPHIC
+    # ---- Axes, titles and theme ----
+    xbreaks <- scales::pretty_breaks(n = 7)(seq(0, sl_stand$geometry$n_cells_x * sl_stand$geometry$cell_size, by = sl_stand$geometry$cell_size))
+    ybreaks <- scales::pretty_breaks(n = 7)(seq(0, sl_stand$geometry$n_cells_y * sl_stand$geometry$cell_size, by = sl_stand$geometry$cell_size))
+    
     plt <- plt +
-      scale_x_continuous(breaks = seq(0, sl_stand$geometry$n_cells_x * sl_stand$geometry$cell_size,
-                                      by = sl_stand$geometry$cell_size),
-                         labels = round(seq(0, sl_stand$geometry$n_cells_x * sl_stand$geometry$cell_size,
-                                            by = sl_stand$geometry$cell_size),
-                                        digits = 1)) +
-      scale_y_continuous(breaks = seq(0, sl_stand$geometry$n_cells_y * sl_stand$geometry$cell_size,
-                                      by = sl_stand$geometry$cell_size),
-                         labels = round(seq(0, sl_stand$geometry$n_cells_y * sl_stand$geometry$cell_size,
-                                            by = sl_stand$geometry$cell_size),
-                                        digits = 1)) +
+      scale_x_continuous(breaks = xbreaks) +
+      scale_y_continuous(breaks = ybreaks) +
       xlab("") + ylab("") +
       
       labs(title = "SamsaRaLight input stand",

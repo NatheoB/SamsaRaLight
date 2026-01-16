@@ -20,8 +20,8 @@
 \item{what_trees}{Character; which tree metric to plot. Choices are:
 \describe{
 \item{"compet"}{Light competition index (LCI), reversed viridis scale.}
-\item{"intercepted"}{Intercepted energy (MJ/m2).}
-\item{"potential"}{Potential intercepted energy (MJ/m2).}
+\item{"intercepted"}{Intercepted energy (MJ).}
+\item{"potential"}{Potential intercepted energy (MJ).}
 }
 Default is "compet".}
 

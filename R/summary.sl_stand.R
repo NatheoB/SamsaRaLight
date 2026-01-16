@@ -99,8 +99,8 @@ summary.sl_stand <- function(object, ...) {
   ## Print
   ## -------------------------------
   cat("\n")
-  cat("SamsaRaLight stand\n")
-  cat("-----------------\n")
+  cat("SamsaRaLight stand summary\n")
+  cat("================================\n\n")
   
   cat("\nInventory (core polygon):\n")
   cat(sprintf("  Area              : %.2f ha\n", area_core_ha))

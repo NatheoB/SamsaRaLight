@@ -9,32 +9,13 @@
 \arguments{
 \item{x}{An object of class \code{sl_output}.}
 
-\item{...}{Further arguments passed to or from other methods (currently ignored).}
+\item{...}{Further arguments passed to or from other methods (ignored).}
 }
 \value{
 The object \code{x}, invisibly.
 }
 \description{
-Prints a concise overview of a SamsaRaLight simulation result, including
-stand size, grid geometry, model configuration, and which outputs
-(trees, cells, sensors, rays, interceptions) are available.
-}
-\details{
-This method is designed to give a quick human-readable summary of what
-was simulated and what was produced, without printing large data tables.
-
-The printed output includes:
-\itemize{
-\item Stand size (area, number of trees, cells, sensors)
-\item Grid geometry (number of cells and resolution)
-\item Radiation model parameters (latitude, time period, turbid medium, etc.)
-\item Which light and interception outputs are available
-}
-
-Use \code{\link{summary.sl_output}} to obtain numerical summaries
-of light, interception and energy variables, and \code{\link{plot.sl_output}}
-for graphical inspection.
-}
-\seealso{
-\code{\link{summary.sl_output}}, \code{\link{print.sl_stand}}
+Prints a concise one-line summary of a SamsaRaLight simulation result,
+reporting the number of cells, trees, and sensors, and whether detailed
+outputs are available.
 }
