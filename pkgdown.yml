@@ -3,7 +3,8 @@ pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   1-minimal_case: 1-minimal_case.html
-last_built: 2026-01-16T18:33Z
+  2-ray_tracing: 2-ray_tracing.html
+last_built: 2026-01-19T14:50Z
 urls:
   reference: https://natheob.github.io/SamsaRaLight/reference
   article: https://natheob.github.io/SamsaRaLight/articles

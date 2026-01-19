@@ -34,6 +34,7 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
+    <li><a class="dropdown-item" href="../articles/2-ray_tracing.html">2 - Ray discretisation</a></li>
   </ul>
 </li>
       </ul>
@@ -434,9 +435,9 @@ have not been intercepted by any trees).</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">cells</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    10000 obs. of  4 variables:</span></span>
 <span><span class="co">#&gt;  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  478 532 521 505 488 ...</span></span>
+<span><span class="co">#&gt;  $ e      : num  478 532 522 505 488 ...</span></span>
 <span><span class="co">#&gt;  $ pacl   : num  0.105 0.117 0.115 0.111 0.107 ...</span></span>
-<span><span class="co">#&gt;  $ punobs : num  0.308 0.377 0.474 0.406 0.329 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ punobs : num  0.308 0.377 0.473 0.406 0.329 ...</span></span></code></pre></div>
 <p>The object <code>$output$trees</code> contains output light variables
 for each trees, identified by its unique id (<code>id_tree</code>).
 There are 4 output variables, which are <code>e</code> (for the total
@@ -455,10 +456,10 @@ intercepted by any other trees).</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    333 obs. of  5 variables:</span></span>
 <span><span class="co">#&gt;  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...</span></span>
-<span><span class="co">#&gt;  $ epot   : num  387307 253831 203201 76421 221080 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  115775 96242 56340 15399 9714 ...</span></span>
+<span><span class="co">#&gt;  $ epot   : num  386923 253835 203018 76359 221081 ...</span></span>
+<span><span class="co">#&gt;  $ e      : num  115704 96237 56292 15398 9713 ...</span></span>
 <span><span class="co">#&gt;  $ lci    : num  0.701 0.621 0.723 0.798 0.956 ...</span></span>
-<span><span class="co">#&gt;  $ eunobs : num  83950 81005 45504 10109 1318 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ eunobs : num  83930 81000 45459 10109 1318 ...</span></span></code></pre></div>
 <p>The user can observe the output of the SamsaRaLight simulation object
 (<code>sl_output</code> S3 object) using the base functions
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.
@@ -489,22 +490,22 @@ confusing without precise legend…</p>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
 <span><span class="co">#&gt;       epot               e                 lci         </span></span>
-<span><span class="co">#&gt;  Min.   :   6930   Min.   :   861.8   Min.   :0.06633  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 153579   1st Qu.: 23678.3   1st Qu.:0.56728  </span></span>
-<span><span class="co">#&gt;  Median : 282710   Median : 67677.4   Median :0.71630  </span></span>
-<span><span class="co">#&gt;  Mean   : 311466   Mean   :116313.5   Mean   :0.68976  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 444553   3rd Qu.:178183.3   3rd Qu.:0.84026  </span></span>
-<span><span class="co">#&gt;  Max.   :1003496   Max.   :728816.6   Max.   :0.98942  </span></span>
+<span><span class="co">#&gt;  Min.   :   6930   Min.   :   861.3   Min.   :0.06625  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 153992   1st Qu.: 23667.9   1st Qu.:0.56729  </span></span>
+<span><span class="co">#&gt;  Median : 282812   Median : 67847.0   Median :0.71623  </span></span>
+<span><span class="co">#&gt;  Mean   : 311404   Mean   :116295.5   Mean   :0.68976  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 444481   3rd Qu.:178133.3   3rd Qu.:0.84023  </span></span>
+<span><span class="co">#&gt;  Max.   :1003398   Max.   :728867.0   Max.   :0.98942  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
 <span><span class="co">#&gt;        e               pacl             punobs      </span></span>
 <span><span class="co">#&gt;  Min.   :  98.2   Min.   :0.02165   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 442.3   1st Qu.:0.09753   1st Qu.:0.3358  </span></span>
-<span><span class="co">#&gt;  Median : 634.7   Median :0.13996   Median :0.5030  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 442.3   1st Qu.:0.09752   1st Qu.:0.3358  </span></span>
+<span><span class="co">#&gt;  Median : 635.1   Median :0.14004   Median :0.5030  </span></span>
 <span><span class="co">#&gt;  Mean   : 676.9   Mean   :0.14926   Mean   :0.4834  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 860.0   3rd Qu.:0.18962   3rd Qu.:0.6460  </span></span>
-<span><span class="co">#&gt;  Max.   :1601.7   Max.   :0.35317   Max.   :0.9128  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 858.9   3rd Qu.:0.18939   3rd Qu.:0.6461  </span></span>
+<span><span class="co">#&gt;  Max.   :1592.6   Max.   :0.35117   Max.   :0.9128  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sensors</span></span>
 <span><span class="co">#&gt; -------</span></span>

@@ -11,7 +11,8 @@ plot(
   ...,
   what_trees = c("compet", "intercepted", "potential"),
   what_cells = c("relative", "absolute"),
-  show_trees = TRUE
+  show_trees = TRUE,
+  direct_energy = NULL
 )
 ```
 
@@ -62,6 +63,14 @@ plot(
 
   Logical; whether to display trees on top of the ground light map.
   Default is TRUE.
+
+- direct_energy:
+
+  Logical or NULL. If NULL (default), total radiation outputs are
+  plotted (direct + diffuse). If TRUE, only direct radiation components
+  are plotted. If FALSE, only diffuse radiation components are plotted.
+  This option requires `detailed_output = TRUE` when running the
+  simulation
 
 ## Value
 
