@@ -13,7 +13,7 @@ create_sl_stand(
   north2x,
   sensors = NULL,
   core_polygon_df = NULL,
-  use_rect_zone = FALSE,
+  aarect_zone = FALSE,
   fill_around = FALSE,
   verbose = TRUE
 )
@@ -42,8 +42,9 @@ See \link{check_sensors} for the required structure and validated columns.}
 Must contain columns \code{x} and \code{y}. If \code{NULL}, a concave hull
 is automatically computed from tree positions.}
 
-\item{use_rect_zone}{Logical. If \code{TRUE}, the inventory zone is defined
-by the minimum-area enclosing rectangle of the core polygon.
+\item{aarect_zone}{Logical. If \code{TRUE}, the inventory zone is defined
+by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
+obtain an axis-aligned rectangle inventory zone.
 If \code{FALSE}, the core polygon itself is used.}
 
 \item{fill_around}{Logical. If \code{TRUE}, trees are added outside the core
@@ -70,7 +71,7 @@ List describing the inventory zone:
 \itemize{
 \item \code{df}: data.frame of polygon vertices
 \item \code{sf}: corresponding \code{sf} POLYGON
-\item \code{use_rect_zone}: logical flag
+\item \code{aarect_zone}: did we used an axis-aligned rectangle inventory zone ?
 }
 }
 \item{\code{transform}}{
@@ -131,7 +132,7 @@ stand <- create_sl_stand(
   slope = 10,
   aspect = 180,
   north2x = 0,
-  use_rect_zone = TRUE,
+  aarect_zone = TRUE,
   fill_around = FALSE,
   verbose = TRUE
 )

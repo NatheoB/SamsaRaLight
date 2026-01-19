@@ -25,8 +25,9 @@
 #' @param core_polygon_df Optional data.frame defining the core inventory polygon.
 #'   Must contain columns \code{x} and \code{y}. If \code{NULL}, a concave hull
 #'   is automatically computed from tree positions.
-#' @param use_rect_zone Logical. If \code{TRUE}, the inventory zone is defined
-#'   by the minimum-area enclosing rectangle of the core polygon.
+#' @param aarect_zone Logical. If \code{TRUE}, the inventory zone is defined
+#'   by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
+#'   obtain an axis-aligned rectangle inventory zone.
 #'   If \code{FALSE}, the core polygon itself is used.
 #' @param fill_around Logical. If \code{TRUE}, trees are added outside the core
 #'   polygon until the basal area per hectare of the full stand matches that
@@ -50,7 +51,7 @@
 #'     \itemize{
 #'       \item \code{df}: data.frame of polygon vertices
 #'       \item \code{sf}: corresponding \code{sf} POLYGON
-#'       \item \code{use_rect_zone}: logical flag
+#'       \item \code{aarect_zone}: did we used an axis-aligned rectangle inventory zone ?
 #'     }
 #'   }
 #'   \item{\code{transform}}{
@@ -108,7 +109,7 @@
 #'   slope = 10,
 #'   aspect = 180,
 #'   north2x = 0,
-#'   use_rect_zone = TRUE,
+#'   aarect_zone = TRUE,
 #'   fill_around = FALSE,
 #'   verbose = TRUE
 #' )
@@ -125,16 +126,32 @@ create_sl_stand <- function(trees_inv,
                             north2x,
                             sensors = NULL,
                             core_polygon_df = NULL,
-                            use_rect_zone = FALSE,
+                            aarect_zone = FALSE,
                             fill_around = FALSE,
                             verbose = TRUE) {
   
   # ARGUMENT CHECKS ----
   
   # trees_inv
-  if (!inherits(trees_inv, "data.frame")) {
+  if (!check_inventory(trees_inv, verbose = F)) {
     stop("`trees_inv` must be a data.frame verified by check_inventory().", call. = FALSE)
   }
+  
+  # sensors data.frame
+  if (! (is.null(sensors) || check_sensors(sensors, verbose = F)) ) {
+    stop("`sensors` must be NULL or a data.frame verified by check_sensors().", call. = FALSE)
+  }
+  
+  
+  # core_polygon_df
+  if (! (is.null(core_polygon_df) || inherits(core_polygon_df, "data.frame")) ) {
+      stop("`core_polygon_df` must be NULL or a data.frame verified by check_polygon().", call. = FALSE)
+  }
+  
+  if (!is.null(core_polygon_df)) {
+    core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors)
+  }
+  
   
   # cell_size
   if (!is.numeric(cell_size) || length(cell_size) != 1 || is.na(cell_size)) {
@@ -176,24 +193,11 @@ create_sl_stand <- function(trees_inv,
     stop("`north2x` must be between 0 (inclusive) and 360 (exclusive) degrees.", call. = FALSE)
   }
   
-  # core_polygon_df
-  if (!is.null(core_polygon_df)) {
-    if (!inherits(core_polygon_df, "data.frame")) {
-      stop("`core_polygon_df` must be a data.frame or NULL.", call. = FALSE)
-    }
-    if (!all(c("x", "y") %in% names(core_polygon_df))) {
-      stop("`core_polygon_df` must contain columns `x` and `y`.", call. = FALSE)
-    }
-    if (!is.numeric(core_polygon_df$x) || !is.numeric(core_polygon_df$y)) {
-      stop("Columns `x` and `y` in `core_polygon_df` must be numeric.", call. = FALSE)
-    }
-  }
-  
   # logical flags
   logical_args <- list(
-    use_rect_zone = use_rect_zone,
-    fill_around   = fill_around,
-    verbose       = verbose
+    "aarect_zone" = aarect_zone,
+    "fill_around" = fill_around,
+    "verbose"     = verbose
   )
   
   for (nm in names(logical_args)) {
@@ -202,152 +206,68 @@ create_sl_stand <- function(trees_inv,
     }
   }
   
-  
-  # To wrap warnings and messages inside the function
-  my_warning <- function(msg) if(verbose) warning(msg, call. = FALSE)
 
+  # DEFINE THE CORE INVENTORY ZONE ----
   
-  # DEFINE THE CORE INVENTORY ZONES ----
-  
-  ## Check if the core polygone is a polygone (at least 3 tops) ----
-  if (!is.null(core_polygon_df) && nrow(core_polygon_df) < 3) {
-    my_warning("The core polygone has less than 3 tops: we did not considered it")
-    core_polygon_df <- NULL
-  }
-  
-  
-  ## Define a polygon that encompasses all the trees ----
-  # Either the polygon is initially given, or created from concaveman if it was NULL
-  
-  coords_sf <- st_as_sf(
-    dplyr::bind_rows(
-      trees_inv[,c("x", "y")],
-      sensors[,c("x", "y")]
-    ), 
-    coords = c("x", "y")
-  ) 
-  
+  ## If not supplied, define a polygon that encompasses all the trees and sensors ----
   if (is.null(core_polygon_df)) {
+    
+    # SF coordinates of sensors and trees
+    coords_sf <- st_as_sf(
+      dplyr::bind_rows(
+        trees_inv[,c("x", "y")],
+        sensors[,c("x", "y")]
+      ), 
+      coords = c("x", "y")
+    ) 
+    
     # Create concave hull from tree and sensor points
     core_polygon_sf <- concaveman::concaveman(coords_sf, concavity = 10)[[1]]
     
-  } else {
-    # Create polygon from user-supplied data.frame
-    core_polygon_sf <- sfheaders::sf_polygon(core_polygon_df)
+    # Convert back into a dataframe
+    core_polygon_df <- sf::st_coordinates(core_polygon_sf) %>% 
+      as.data.frame() %>% 
+      dplyr::select(x = X, y = Y) %>% 
+      dplyr::distinct()
+    
+    # Check the polygon
+    core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors, verbose = F)
+  }
+  
+
+  ## If specified, get the minimum-area enclosing rectangle from the polygon ----
+  
+  rotation <- 0 # initialise stand rotation to 0
+  
+  if (aarect_zone) {
+    
+    # Create rectangle zone and rotate all the components
+    aarect_list <- create_aarect_inventory(core_polygon_df,
+                                           trees,
+                                           north2x,
+                                           sensors)
+    
+    core_polygon_df <- aarect_list$core_polygon_df
+    trees_inv <- aarect_list$trees
+    sensors <- aarect_list$sensors
+    north2x <- aarect_list$north2x
+    rotation <- aarect_list$rotation
+    
+    # Check the polygon
+    core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors, verbose = F)
   }
   
   
-  ## Ensure the polygon is valid ----
-  if (!st_is_valid(core_polygon_sf)) {
-    
-    # Try to fix invalid geometry
-    core_polygon_sf <- st_make_valid(core_polygon_sf)
-    
-    # If the result is a GEOMETRYCOLLECTION, extract POLYGONs only
-    if (any(grepl("GEOMETRYCOLLECTION", class(core_polygon_sf)))) {
-      
-      # Try to extract a POLYGON
-      extracted <- tryCatch({
-        st_collection_extract(core_polygon_sf, "POLYGON")
-      }, error = function(e) {
-        NULL
-      })
-      
-      # If extraction failed or result is empty, throw error
-      if (is.null(extracted) || length(extracted) == 0) {
-        reason <- st_is_valid(core_polygon_sf, reason = TRUE)
-        stop(paste("Could not extract a valid POLYGON from GEOMETRYCOLLECTION. Reason:", reason))
-      }
-      
-      core_polygon_sf <- extracted
-    }
-    
-    # Recheck that the result is valid
-    if (!st_is_valid(core_polygon_sf)) {
-      reason <- st_is_valid(core_polygon_sf, reason = TRUE)
-      stop(paste("Polygon is still invalid after attempting to fix. Reason:", reason))
-    }
-    
-    if (is.null(core_polygon_df)) {
-      my_warning("We modify the core polygon to make it valid: check anyway you core polygon")
-    }
-  }
   
-  
-  ## Ensure that all trees and sensors are in the core polygon ----
-  # use st_intersect and not st_within to also consider points in the edges of the polygon
-  if (!all(st_intersects(coords_sf, core_polygon_sf, sparse = FALSE))) {
-    
-    ## Buffer to include edge cases ----
-    # i.e. points not included because of rounding errors 
-    # or maybe concaveman algorithm that missed some points
-    
-    # Increase progressively the buffer zone with a maximum of 1m
-    buffer_dist <- 10^(-8:0)
-    buffered_worked <- FALSE
-    
-    for (dist in buffer_dist) {
-      
-      # Buffer the polygon
-      core_polygon_buffered_sf <- st_buffer(core_polygon_sf, dist = dist)
-      
-      # Check if the buffer worked
-      if (all(st_intersects(coords_sf, core_polygon_buffered_sf, sparse = FALSE))) {
-        buffered_worked <- TRUE
-        
-        # Precise with a warning the buffer
-        my_warning(paste0("We added a ", dist, "m buffer around the core polygon because of difficulties of including some points..."))
-        
-        # Keep the buffered polygon
-        core_polygon_sf <- core_polygon_buffered_sf
-        
-        # Stop the loop
-        break
-      }
-    }
-    
-    # If it does not work even after a 1m buffer
-    if (!buffered_worked) {
-      stop("Some trees or sensors are outside the core polygon (even after buffering of about 1 meter). Check your core polygon data.frame or create one yourself to ensure including all the tree and sensor points (automatic algorithm failed)...")
-    }
-    
-  }
-  
-  
-  ## Get the final core polygon df ----
-  core_polygon_df <- st_coordinates(core_polygon_sf) %>% 
-    as.data.frame() %>% 
-    dplyr::select(x = X, y = Y)
-  
-  
-  ## Get the minimum-area enclosing rectangle from the polygon ----
-  rotated_rect_sf <- st_minimum_rotated_rectangle(core_polygon_sf)
-  
-  rotated_rect_df <- st_coordinates(rotated_rect_sf) %>% 
-    as.data.frame() %>% 
-    dplyr::select(x = X, y = Y) %>% 
-    dplyr::distinct() # Because 5 vertices (the last one is the same as the first one)
-  
-    # To update the sf object vertices after having removed the last vertex
-  rotated_rect_sf <- sfheaders::sf_polygon(rotated_rect_df)
-  
-  
-  ## Set the main inventory zone ----
-  if (use_rect_zone) {
-    inv_zone_df <- rotated_rect_df
-    inv_zone_sf <- rotated_rect_sf
-  } else {
-    inv_zone_df <- core_polygon_df
-    inv_zone_sf <- core_polygon_sf
-  }
-  
+  ## Get the inventory zone sf object ----
+  core_polygon_sf <- sfheaders::sf_polygon(core_polygon_df)
   
   
   # CREATE THE SQUARE PLOT ----
   
   ## Get the range of the inventory zone ----
-  inv_size_x <- max(inv_zone_df$x) - min(inv_zone_df$x)
-  inv_size_y <- max(inv_zone_df$y) - min(inv_zone_df$y)
+  inv_size_x <- max(core_polygon_df$x) - min(core_polygon_df$x)
+  inv_size_y <- max(core_polygon_df$y) - min(core_polygon_df$y)
   
   
   ## Find the minimum of cells in the X- and Y-axis ----
@@ -365,8 +285,8 @@ create_sl_stand <- function(trees_inv,
   diff_x <- plot_size_x - inv_size_x
   diff_y <- plot_size_y - inv_size_y
   
-  shift_x <- - ( min(inv_zone_df$x) - diff_x / 2 )
-  shift_y <- - ( min(inv_zone_df$y) - diff_y / 2 )
+  shift_x <- - ( min(core_polygon_df$x) - diff_x / 2 )
+  shift_y <- - ( min(core_polygon_df$y) - diff_y / 2 )
   
   
   ## Shift coordinates ----
@@ -377,22 +297,21 @@ create_sl_stand <- function(trees_inv,
     ) %>% 
     as.data.frame()
   
-  inv_zone_shifted_df <- inv_zone_df %>% 
+  core_polygon_shifted_df <- core_polygon_df %>% 
     dplyr::mutate(
       x = x + shift_x,
       y = y + shift_y
     ) %>% 
     as.data.frame()
   
-  inv_zone_shifted_sf <- sfheaders::sf_polygon(inv_zone_shifted_df)
+  core_polygon_shifted_sf <- sfheaders::sf_polygon(core_polygon_shifted_df)
   
     
-  
-  
   # FILL AROUND THE CORE INVENTORY ZONE ----
   
   ## Compute total basal area per hectare in the polygon ----
-  core_area_m2 <- st_area(inv_zone_shifted_sf)
+  
+  core_area_m2 <- st_area(core_polygon_shifted_sf)
   core_area_ha <- core_area_m2 / 10000
   
   batot_target_m2ha <- sum( 3.1416 * (trees_shifted$dbh_cm / 200) ^ 2 ) / core_area_ha
@@ -430,7 +349,7 @@ create_sl_stand <- function(trees_inv,
       new_x <- runif(1, min = 0, max = plot_size_x)
       new_y <- runif(1, min = 0, max = plot_size_y)
       while (st_intersects(st_point(c(new_x, new_y)), 
-                           inv_zone_shifted_sf, sparse = FALSE)[1,1]) {
+                           core_polygon_shifted_sf, sparse = FALSE)[1,1]) {
         new_x <- runif(1, min = 0, max = plot_size_x)
         new_y <- runif(1, min = 0, max = plot_size_y)
       }
@@ -572,9 +491,9 @@ create_sl_stand <- function(trees_inv,
     "sensors" = sensors,
     "cells" = cells,
     "core_polygon" = list(
-      "df" = inv_zone_shifted_df,
-      "sf" = inv_zone_shifted_sf,
-      "use_rect_zone" = use_rect_zone
+      "df" = core_polygon_shifted_df,
+      "sf" = core_polygon_shifted_sf,
+      "aarect_zone" = aarect_zone
     ),
     "transform" = list(
       "core_area_ha" = core_area_ha, 
@@ -584,7 +503,8 @@ create_sl_stand <- function(trees_inv,
       "new_area_ha" = plot_area_ha,
       "new_batot_m2ha" = current_batot_m2ha,
       "shift_x" = shift_x,
-      "shift_y" = shift_y
+      "shift_y" = shift_y,
+      "rotation" = rotation
     ),
     "geometry" = list("cell_size" = cell_size,
                       "n_cells_x" = n_cells_x, 

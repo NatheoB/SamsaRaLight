@@ -1,0 +1,231 @@
+---
+title: "3 - Transmisison and sensors"
+subtitle: "Understand and calibrate transmission models with virtual light sensors"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{3 - Transmisison and sensors}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+  
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+  
+  
+In this tutorial, we will first create a virtual stand from a rectangle plot tree inventory that comes from GPS data in a longitude/latitude format (i.e. converting into planar coordinates and defining the north2x angle for aligning the rectangle plot with the axis). Then, we will explain the principle behind the light interception models (i.e. energy intercepted by a tree from a ray that crossed its crown), and choosing between two possible models (with either a turbid medium or a porous envelope approach). Finally, we will try to find the best interception models' parameter (`crown_lad` and `crown_openness`) using data from light sensors and estimating light arriving towards located virtual sensors on the plot.
+
+We will use another example inventory called IRRES1, which is stored in the package as `SamsaRaLight::data_IRRES1`. inventory collected in the scope of the IRRES project, that aims to understand the mechanisms of the transition from even-aged to uneven-aged management (see the source information in the data documentation). The IRRES1 stand is composed of common spruce and Douglas fir, with a coppice stool of beech at its center and few silver fir and larch trees.
+
+
+```{r example, message=FALSE, warning=FALSE}
+library(SamsaRaLight)
+library(dplyr)
+library(ggplot2)
+library(sf)
+```
+
+
+# Create a virtual stand from GPS data
+
+Load tree inventory from the example dataset IRRES1
+
+```{r}
+trees <- SamsaRaLight::data_IRRES1$trees
+```
+
+When using `check_inventory()` on the IRRES1 inventory table, it throws an error (Error : Missing required column(s): x, y). Indeed, the tables stored not local x and y coordinates in a Cartesian system, but longitude/latitude coordinates (`lon` and `lat` columns) in an angular system (in degrees).
+
+To observe that it is not possible to use long and lat coordinates for x/y, observe the tree inventory plot:
+
+```{r}
+SamsaRaLight::plot_inventory(trees %>% dplyr::rename(x = lon, y = lat))
+```
+
+This creates non-sense between location in degrees and tree crown dimensions in meters, thus must convert into a local coordinate system in meters.
+
+
+## Convert tree coordinates
+
+from WGS84 (angular) to a planar, local Cartesian system in meters (e.g. local country such as Belgian Lambert 72 or French Lambert 93, r depending on the UTM zone, e.g. UTM Zone 31 North here)
+WGS84 = angular, need to convert to planar coordinate system: use UTM reference system specific to plot latitude
+Belgian Lambert 72 -> EPSG 31370
+UTM Zone 31 North → EPSG:32631 (specific to the zone, here Belgium: https://epsg.io/32631)
+
+
+```{r}
+# Convert tree coordinates
+trees_sf <- st_as_sf(trees,
+                     coords = c("lon", "lat"),
+                     crs = 4326)   # WGS84
+
+trees_l72 <- st_transform(trees_sf, 31370) # Belgian Lambert 72
+
+xy <- st_coordinates(trees_l72)
+trees$x <- xy[,1]
+trees$y <- xy[,2]
+```
+
+
+Now we can check the inventory: notice that does not check the relevance of the coordinates, for this, please check after creating the stand by plotting the inventory with `plot_inventory`.
+
+```{r}
+SamsaRaLight::check_inventory(trees)
+plot_inventory(trees)
+```
+
+Note that no need to details: the inventory is not axis-aligned, and coordinates are not within 0 and the plot size, such as the prenovel example in the Tutorial 1. 
+
+
+## Define the inventory zone
+
+You can create the virtual stand, but you need to define a core_polygon. You could do it by hand such as defining the vertices of the polygon such as in the Tutorial 1, bit you can also let the function do it itself if you do not specify any core_polygon (i.e. argument to NULL).
+
+Stand geometry are stored in the example data, we have a stand with a slope of 6.489° and aspect of 43.536° (i.e. a North-East-facing slope). Here we set the `north2x` variable to 90° as the Y-axis is representing the real North (automatically because we converted gps data into local Lambert72)
+
+```{r}
+sl_stand <- SamsaRaLight::create_sl_stand(
+  trees_inv = trees,
+  cell_size = 5,
+  
+  latitude = SamsaRaLight::data_IRRES1$info$latitude,
+  slope = SamsaRaLight::data_IRRES1$info$slope,
+  aspect = SamsaRaLight::data_IRRES1$info$aspect,
+  north2x = 90,
+  
+  core_polygon_df = NULL
+)
+
+plot(sl_stand)
+```
+
+But we want an axis-aligned rectangle
+
+## Rotate the virtual stand
+
+```{r}
+sl_stand <- SamsaRaLight::create_sl_stand(
+  trees_inv = trees,
+  cell_size = 5,
+  
+  latitude = SamsaRaLight::data_IRRES1$info$latitude,
+  slope = SamsaRaLight::data_IRRES1$info$slope,
+  aspect = SamsaRaLight::data_IRRES1$info$aspect,
+  north2x = 90,
+  
+  core_polygon_df = NULL,
+  aarect_zone = TRUE
+)
+
+plot()
+```
+
+See how north to x has been changed by rotation:
+
+```{r}
+sl_stand$geometry$north2x
+```
+
+
+
+# Understand the light transmission models
+
+```{r}
+input_rad <- get_monthly_radiations(
+  latitude = data_IRRES1$info$latitude,
+  longitude = data_IRRES1$info$longitude
+)
+
+check_monthly_radiations(input_rad)
+```
+
+
+## Crown as a turbid medium
+
+```{r}
+sl_out_turbid <- SamsaRaLight::run_sl(
+  sl_stand = sl_stand,
+  monthly_radiations = input_rad,
+  
+  turbid_medium = TRUE,
+  detailed_output = TRUE
+)
+```
+
+
+
+## Crown as a porous envelope
+
+```{r}
+sl_out_porous <- SamsaRaLight::run_sl(
+  sl_stand = sl_stand,
+  monthly_radiations = input_rad,
+  
+  turbid_medium = FALSE,
+  detailed_output = TRUE
+)
+```
+
+
+## Compare transmission models
+
+```{r}
+data_comparison <- dplyr::bind_rows(
+  sl_out_porous$output$light$trees %>% dplyr::mutate(model = "porous"),
+  sl_out_turbid$output$light$trees %>% dplyr::mutate(model = "turbid")
+) %>% 
+  dplyr::select(id_tree, model, e, epot, lci) %>% 
+  tidyr::pivot_longer(!c(id_tree, model),
+                      names_to = "var",
+                      values_to = "value") %>% 
+  tidyr::pivot_wider(names_from = "model",
+                     values_from = "value") %>% 
+  dplyr::mutate(diff = turbid - porous) %>% 
+  dplyr::left_join(sl_stand$trees, by = "id_tree") 
+```
+
+
+```{r graph_comp, fig.dim = c(8, 6)}
+data_comparison %>% 
+
+  ggplot(aes(y = turbid, x = porous, color = species)) +
+  geom_point() +
+  facet_wrap(~var, scale = "free") +
+  theme_bw() +
+  theme(legend.position = "top") +
+  geom_abline(slope = 1, intercept = 0, color = "black")
+```
+
+
+```{r graph_diff, fig.dim = c(8, 6)}
+data_comparison %>% 
+
+  ggplot(aes(y = diff, x = dbh_cm, color = species)) +
+  geom_point() +
+  facet_wrap(~var, scale = "free") +
+  theme_bw() +
+  theme(legend.position = "top") +
+  geom_hline(yintercept = 0, color = "black")
+```
+
+
+
+# Add virtual light sensors
+
+Virtual sensors needs to be defined inside the 
+
+```{r}
+
+```
+
+
+
+# Fit the crown LAD and crown openness parameters
+
+
+
+
+

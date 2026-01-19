@@ -16,9 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 
-This is the first tutorial, showing you how to solve a basic problem using the SamsaRaLight package. We will demonstrate this with the Prenovel dataset, which is stored in the package as `SamsaRaLight::data_prenovel`. This dataset represents an uneven-aged stand of fir, spruce and beech located in the Jura mountains in France. You can find more information in the data documentation.
-
-We used this dataset as a minimal example this comes from a "marteloscope" exercise, that is a plot used for harvesting exercises on the field. The trees are inventoried inside a formalised 1-ha squared plot (100m*100m), thus being the easier inventory for using the SamsaRaLight package. In the next tutorials, we explain the case where trees are not inventoried in a formalized rectangle plot (4 - Create a virtual stand from more complex tree inventory).
+This is the first tutorial, showing you how to solve a basic problem using the SamsaRaLight package. We will demonstrate this with the Prenovel dataset, which is stored in the package as `SamsaRaLight::data_prenovel`. This dataset represents an uneven-aged stand of fir, spruce and beech located in the Jura mountains in France. You can find more information in the data documentation. We used this dataset as a minimal example this comes from a "marteloscope" exercise, that is a plot used for harvesting exercises on the field. The trees are inventoried inside a formalised 1-ha squared plot (100m*100m), thus being the easier inventory for using the SamsaRaLight package. In the next tutorials, we explain the case where trees are not inventoried in a formalized rectangle plot (4 - Create a virtual stand from more complex tree inventory).
 
 
 ```{r example, message=FALSE, warning=FALSE}
