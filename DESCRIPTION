@@ -31,7 +31,9 @@ Imports:
     sfheaders,
     ggnewscale,
     scales,
-    RhpcBLASctl
+    RhpcBLASctl,
+    cowplot,
+    purrr
 Suggests: 
     knitr,
     rmarkdown,

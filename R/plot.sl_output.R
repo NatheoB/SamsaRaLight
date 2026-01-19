@@ -18,6 +18,12 @@
 #'   }
 #'   Default is "relative".
 #' @param show_trees Logical; whether to display trees on top of the ground light map. Default is TRUE.
+#' @param direct_energy Logical or NULL. 
+#'   If NULL (default), total radiation outputs are plotted (direct + diffuse).
+#'   If TRUE, only direct radiation components are plotted.
+#'   If FALSE, only diffuse radiation components are plotted.
+#'   This option requires \code{detailed_output = TRUE} when running the simulation
+#' 
 #' 
 #' @return A ggplot object.
 #' 
@@ -40,32 +46,66 @@
 plot.sl_output <- function(x, ...,
                            what_trees = c("compet", "intercepted", "potential"),
                            what_cells = c("relative", "absolute"),
-                           show_trees = TRUE) {
+                           show_trees = TRUE,
+                           direct_energy = NULL) {
+  
+  # Rounding error epsilon (for 0-1 limits)
+  epsilon <- 1e-4
   
   # ---- Checks ----
   stopifnot(inherits(x, "sl_output"))
   stopifnot(is.logical(show_trees), length(show_trees) == 1)
+  stopifnot(is.null(direct_energy) || (is.logical(direct_energy) && length(direct_energy) == 1))
   
   what_trees <- match.arg(what_trees)
   what_cells <- match.arg(what_cells)
   
+  # ---- Create base plotting tables ----
   sl_stand  <- x$input$sl_stand
   cells_out <- x$output$light$cells
   trees_out <- x$output$light$trees
   
-  # ---- Merge geometry + outputs ----
   cells_plot <- merge(sl_stand$cells, cells_out, by = "id_cell")
   trees_plot <- merge(sl_stand$trees, trees_out, by = "id_tree")
   
-  # ---- Choose variables ----
-  cell_var <- switch(what_cells,
-                     "relative" = "pacl",
-                     "absolute" = "e")
   
-  tree_var <- switch(what_trees,
-                     "compet"      = "lci",
-                     "intercepted" = "e",
-                     "potential"   = "epot")
+  # ---- Energy type ----
+  energy_suffix <- ""
+  
+  if (!is.null(direct_energy)) {
+    
+    # Check that detailed output exists
+    if (is.null(x$input$params$detailed_output) || !x$input$params$detailed_output) {
+      stop(
+        "direct_energy was requested, but detailed_output = FALSE.\n",
+        "Re-run the simulation with detailed_output = TRUE."
+      )
+    }
+    
+    energy_suffix <- if (direct_energy) "_direct" else "_diffuse"
+  }
+  
+  
+  # ---- Choose variables ----
+  cell_var <- paste0(
+    switch(
+      what_cells,
+      "relative" = "pacl",
+      "absolute" = "e"
+    ),
+    energy_suffix
+  )
+  
+  tree_var <- paste0(
+    switch(
+      what_trees,
+      "compet"      = "lci",
+      "intercepted" = "e",
+      "potential"   = "epot"
+    ),
+    energy_suffix
+  )
+  
   
   # ---- Automatic legend labels ----
   tree_label <- switch(what_trees,
@@ -76,6 +116,7 @@ plot.sl_output <- function(x, ...,
   cell_label <- switch(what_cells,
                        "relative" = "CELL\nProportion of above canopy light (PACL)",
                        "absolute" = "CELL\nEnergy on the ground (MJ/m2)")
+  
   
   # ---- Base: ground light ----
   plt <- ggplot() + coord_equal()
@@ -88,7 +129,7 @@ plot.sl_output <- function(x, ...,
       ) +
       scale_fill_gradient(
         name = cell_label,
-        limits = c(0, 1),
+        limits = c(0 - epsilon, 1 + epsilon),
         low = "black", high = "white",
         guide = guide_colorbar(
           title.position = "top",
@@ -122,10 +163,6 @@ plot.sl_output <- function(x, ...,
     
     trees_plot$zval <- trees_plot[[tree_var]]
     
-    # Limit LCI between 0 and 1
-    if (what_trees == "compet") {
-      trees_plot$zval <- pmin(pmax(trees_plot$zval, 0), 1)
-    }
     
     for (i in seq_len(nrow(trees_plot))) {
       plt <- plt +
@@ -148,6 +185,7 @@ plot.sl_output <- function(x, ...,
     plt <- plt +
       scale_fill_viridis_c(
         name = tree_label,
+        limits = c(0 - epsilon, 1 + epsilon),
         direction = ifelse(what_trees == "compet", -1, 1),
         guide = guide_colorbar(
           title.position = "top",
@@ -158,6 +196,15 @@ plot.sl_output <- function(x, ...,
   }
   
   # ---- Axes & theme ----
+
+  energy_label <- if (is.null(direct_energy)) {
+    "Total radiations"
+  } else if (direct_energy) {
+    "Direct radiations"
+  } else {
+    "Diffuse radiations"
+  }
+  
   xbreaks <- scales::pretty_breaks(n = 7)(seq(0, sl_stand$geometry$n_cells_x * sl_stand$geometry$cell_size, by = sl_stand$geometry$cell_size))
   ybreaks <- scales::pretty_breaks(n = 7)(seq(0, sl_stand$geometry$n_cells_y * sl_stand$geometry$cell_size, by = sl_stand$geometry$cell_size))
   
@@ -165,11 +212,13 @@ plot.sl_output <- function(x, ...,
     scale_x_continuous(breaks = xbreaks) +
     scale_y_continuous(breaks = ybreaks) +
     xlab("") + ylab("") +
-    labs(title = "SamsaRaLight output") +
+    labs(title = "SamsaRaLight output",
+         subtitle = energy_label) +
     theme_minimal() +
     theme(
       panel.grid = element_blank(),
       plot.title = element_text(hjust = 0.5),
+      plot.subtitle = element_text(hjust = 0.5),
       legend.position = "top",
       legend.box = "horizontal",
       legend.title.align = 0.5

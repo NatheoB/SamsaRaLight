@@ -208,6 +208,7 @@ run_sl_advanced <- function(
       "sl_stand" = sl_stand,
       "monthly_radiations" = monthly_radiations,
       "params" = list(
+        "detailed_output" = detailed_output,
         "start_day" = start_day,
         "end_day" = end_day,
         "soc" = soc,
