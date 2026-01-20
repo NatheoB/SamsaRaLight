@@ -63,7 +63,7 @@ to match its basal area per hectare.</p>
 <span>  <span class="va">north2x</span>,</span>
 <span>  sensors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  core_polygon_df <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  use_rect_zone <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  aarect_zone <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  fill_around <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -112,9 +112,10 @@ Must contain columns <code>x</code> and <code>y</code>. If <code>NULL</code>, a 
 is automatically computed from tree positions.</p></dd>
 
 
-<dt id="arg-use-rect-zone">use_rect_zone<a class="anchor" aria-label="anchor" href="#arg-use-rect-zone"></a></dt>
+<dt id="arg-aarect-zone">aarect_zone<a class="anchor" aria-label="anchor" href="#arg-aarect-zone"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, the inventory zone is defined
-by the minimum-area enclosing rectangle of the core polygon.
+by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
+obtain an axis-aligned rectangle inventory zone.
 If <code>FALSE</code>, the core polygon itself is used.</p></dd>
 
 
@@ -143,7 +144,7 @@ around the inventory zone.</p></dd>
 <dt><code>core_polygon</code></dt>
 <dd><p>List describing the inventory zone:</p><ul><li><p><code>df</code>: data.frame of polygon vertices</p></li>
 <li><p><code>sf</code>: corresponding <code>sf</code> POLYGON</p></li>
-<li><p><code>use_rect_zone</code>: logical flag</p></li>
+<li><p><code>aarect_zone</code>: did we used an axis-aligned rectangle inventory zone ?</p></li>
 </ul></dd>
 
 <dt><code>transform</code></dt>
@@ -191,7 +192,7 @@ per hectare is reached for the full rectangular stand.</p>
 <span class="r-in"><span>  slope <span class="op">=</span> <span class="fl">10</span>,</span></span>
 <span class="r-in"><span>  aspect <span class="op">=</span> <span class="fl">180</span>,</span></span>
 <span class="r-in"><span>  north2x <span class="op">=</span> <span class="fl">0</span>,</span></span>
-<span class="r-in"><span>  use_rect_zone <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
+<span class="r-in"><span>  aarect_zone <span class="op">=</span> <span class="cn">TRUE</span>,</span></span>
 <span class="r-in"><span>  fill_around <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>

@@ -8,6 +8,9 @@
 - [`check_monthly_radiations()`](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md)
   : Validate monthly radiation input
 
+- [`check_polygon()`](https://natheob.github.io/SamsaRaLight/reference/check_polygon.md)
+  : Check and validate a polygon defined by vertices
+
 - [`check_sensors()`](https://natheob.github.io/SamsaRaLight/reference/check_sensors.md)
   : Check the format and validity of a sensor position data.frame
 

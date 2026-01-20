@@ -18,7 +18,7 @@ create_sl_stand(
   north2x,
   sensors = NULL,
   core_polygon_df = NULL,
-  use_rect_zone = FALSE,
+  aarect_zone = FALSE,
   fill_around = FALSE,
   verbose = TRUE
 )
@@ -68,11 +68,12 @@ create_sl_stand(
   columns `x` and `y`. If `NULL`, a concave hull is automatically
   computed from tree positions.
 
-- use_rect_zone:
+- aarect_zone:
 
   Logical. If `TRUE`, the inventory zone is defined by the minimum-area
-  enclosing rectangle of the core polygon. If `FALSE`, the core polygon
-  itself is used.
+  enclosing rectangle of the core polygon with minimum rotation to
+  obtain an axis-aligned rectangle inventory zone. If `FALSE`, the core
+  polygon itself is used.
 
 - fill_around:
 
@@ -107,7 +108,8 @@ A named list with the following elements:
 
   - `sf`: corresponding `sf` POLYGON
 
-  - `use_rect_zone`: logical flag
+  - `aarect_zone`: did we used an axis-aligned rectangle inventory zone
+    ?
 
 - `transform`:
 
@@ -172,7 +174,7 @@ stand <- create_sl_stand(
   slope = 10,
   aspect = 180,
   north2x = 0,
-  use_rect_zone = TRUE,
+  aarect_zone = TRUE,
   fill_around = FALSE,
   verbose = TRUE
 )

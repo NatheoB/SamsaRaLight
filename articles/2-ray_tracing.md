@@ -256,14 +256,23 @@ for (i in 1:nrow(exp_design)) {
     core_polygon_df = core_polygon_df
   )
 }
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 ```
 

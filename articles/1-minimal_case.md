@@ -13,15 +13,14 @@ Prenovel dataset, which is stored in the package as
 [`SamsaRaLight::data_prenovel`](https://natheob.github.io/SamsaRaLight/reference/data_prenovel.md).
 This dataset represents an uneven-aged stand of fir, spruce and beech
 located in the Jura mountains in France. You can find more information
-in the data documentation.
-
-We used this dataset as a minimal example this comes from a
-“marteloscope” exercise, that is a plot used for harvesting exercises on
-the field. The trees are inventoried inside a formalised 1-ha squared
-plot (100m\*100m), thus being the easier inventory for using the
-SamsaRaLight package. In the next tutorials, we explain the case where
-trees are not inventoried in a formalized rectangle plot (4 - Create a
-virtual stand from more complex tree inventory).
+in the data documentation. We used this dataset as a minimal example
+this comes from a “marteloscope” exercise, that is a plot used for
+harvesting exercises on the field. The trees are inventoried inside a
+formalised 1-ha squared plot (100m\*100m), thus being the easier
+inventory for using the SamsaRaLight package. In the next tutorials, we
+explain the case where trees are not inventoried in a formalized
+rectangle plot (4 - Create a virtual stand from more complex tree
+inventory).
 
 ``` r
 library(SamsaRaLight)
@@ -180,6 +179,7 @@ input_sl_stand <- SamsaRaLight::create_sl_stand(
   # Definition of the inventory zone definition
   core_polygon_df = SamsaRaLight::data_prenovel$core_polygon
 )
+#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 ```
 
@@ -416,10 +416,10 @@ by any other trees).
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  5 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  386923 253835 203018 76359 221081 ...
-#>  $ e      : num  115704 96237 56292 15398 9713 ...
-#>  $ lci    : num  0.701 0.621 0.723 0.798 0.956 ...
-#>  $ eunobs : num  83930 81000 45459 10109 1318 ...
+#>  $ epot   : num  387287 253854 203115 76447 221081 ...
+#>  $ e      : num  115797 96237 56294 15399 9713 ...
+#>  $ lci    : num  0.701 0.621 0.723 0.799 0.956 ...
+#>  $ eunobs : num  83985 81000 45459 10109 1318 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -457,12 +457,12 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :   6930   Min.   :   861.3   Min.   :0.06625  
-#>  1st Qu.: 153992   1st Qu.: 23667.9   1st Qu.:0.56729  
-#>  Median : 282812   Median : 67847.0   Median :0.71623  
-#>  Mean   : 311404   Mean   :116295.5   Mean   :0.68976  
-#>  3rd Qu.: 444481   3rd Qu.:178133.3   3rd Qu.:0.84023  
-#>  Max.   :1003398   Max.   :728867.0   Max.   :0.98942  
+#>  Min.   :   6930   Min.   :   861.8   Min.   :0.06625  
+#>  1st Qu.: 153986   1st Qu.: 23681.0   1st Qu.:0.56729  
+#>  Median : 282894   Median : 67855.4   Median :0.71628  
+#>  Mean   : 311519   Mean   :116323.4   Mean   :0.68980  
+#>  3rd Qu.: 444481   3rd Qu.:178181.5   3rd Qu.:0.84025  
+#>  Max.   :1003545   Max.   :728911.8   Max.   :0.98942  
 #> 
 #> Cells (ground light)
 #> -------------------
@@ -470,9 +470,9 @@ summary(sl_output)
 #>  Min.   :  98.2   Min.   :0.02165   Min.   :0.0000  
 #>  1st Qu.: 442.3   1st Qu.:0.09752   1st Qu.:0.3358  
 #>  Median : 635.1   Median :0.14004   Median :0.5030  
-#>  Mean   : 676.9   Mean   :0.14926   Mean   :0.4834  
-#>  3rd Qu.: 858.9   3rd Qu.:0.18939   3rd Qu.:0.6461  
-#>  Max.   :1592.6   Max.   :0.35117   Max.   :0.9128  
+#>  Mean   : 677.0   Mean   :0.14928   Mean   :0.4834  
+#>  3rd Qu.: 860.0   3rd Qu.:0.18963   3rd Qu.:0.6461  
+#>  Max.   :1601.7   Max.   :0.35317   Max.   :0.9128  
 #> 
 #> Sensors
 #> -------
