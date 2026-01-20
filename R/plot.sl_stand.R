@@ -244,7 +244,10 @@ plot.sl_stand <- function(x, ...,
       xlab("") + ylab("") +
       
       labs(title = "SamsaRaLight input stand",
-           subtitle = paste0("\nInventory zone (yellow): ",
+           subtitle = paste0("north2x: ", round(sl_stand$geometry$north2x, 2), "°",
+                             " - slope: ", round(sl_stand$geometry$slope, 2), "°",
+                             " - aspect: ", round(sl_stand$geometry$aspect, 2), "°",
+                             "\n\nInventory zone (yellow): ",
                              round(sl_stand$transform$core_area_ha, 2), "ha - ",
                              round(sl_stand$transform$core_batot_m2ha, 2), "m2/ha - ",
                              sum(!x$trees$added_to_fill), " trees",

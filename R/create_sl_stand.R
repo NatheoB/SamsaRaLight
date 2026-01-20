@@ -243,12 +243,12 @@ create_sl_stand <- function(trees_inv,
     
     # Create rectangle zone and rotate all the components
     aarect_list <- create_aarect_inventory(core_polygon_df,
-                                           trees,
+                                           trees_inv,
                                            north2x,
                                            sensors)
     
     core_polygon_df <- aarect_list$core_polygon_df
-    trees_inv <- aarect_list$trees
+    trees_inv <- aarect_list$trees_inv
     sensors <- aarect_list$sensors
     north2x <- aarect_list$north2x
     rotation <- aarect_list$rotation
