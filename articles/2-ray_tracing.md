@@ -1,13 +1,13 @@
-# 2 - Ray discretisation
+# 2 - Ray discretization
 
 In this tutorial, we will go deeper into the SamsaraLight model to
-understand how ray-tracing work, from discretisation of direct and
-diffuse rays to the effect of stand geometry and latitude on light
-distribution on the ground. To do so, we will create from scratch a
-virtual stand with a single large tree at the center to observe its
-shading effect and how it varies between three different cities in
-Europe (Madrid, Brussels and Oslo) and three different stand geometry (a
-flat plane, a South- or a North-facing slope).
+better understand ray-tracing, from discretisation of direct and diffuse
+rays to the effect of stand geometry and latitude on light distribution
+on the ground. To do so, we will create from scratch a virtual stand
+with a single large tree at the center to observe its shading effect and
+how it varies between three different cities in Europe (Madrid, Brussels
+and Oslo) and three different stand geometry (a flat plane, a South- or
+a North-facing slope).
 
 ``` r
 library(SamsaRaLight)
@@ -329,7 +329,7 @@ for (i in 1:nrow(exp_design)) {
 #> available: running sequentially.
 ```
 
-## Observe the outputs
+## Understand the detailed output
 
 ### The change in incident energy with stand latitude and stand geometry
 
