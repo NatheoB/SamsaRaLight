@@ -1,9 +1,9 @@
 ---
-title: "2 - Ray discretisation"
-subtitle: "Understand ray discretization with direct and diffuse radiations"
+title: "2 - Ray discretization"
+subtitle: "Understand ray discretization of direct and diffuse radiations"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{2 - Ray discretisation}
+  %\VignetteIndexEntry{2 - Ray discretization}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 
-In this tutorial, we will go deeper into the SamsaraLight model to understand how ray-tracing work, from discretisation of direct and diffuse rays to the effect of stand geometry and latitude on light distribution on the ground. To do so, we will create from scratch a virtual stand with a single large tree at the center to observe its shading effect and how it varies between three different cities in Europe (Madrid, Brussels and Oslo) and three different stand geometry (a flat plane, a South- or a North-facing slope).
+In this tutorial, we will go deeper into the SamsaraLight model to better understand ray-tracing, from discretisation of direct and diffuse rays to the effect of stand geometry and latitude on light distribution on the ground. To do so, we will create from scratch a virtual stand with a single large tree at the center to observe its shading effect and how it varies between three different cities in Europe (Madrid, Brussels and Oslo) and three different stand geometry (a flat plane, a South- or a North-facing slope).
 
 
 ```{r example, message=FALSE, warning=FALSE}
@@ -246,7 +246,7 @@ for (i in 1:nrow(exp_design)) {
 
 
 
-# Observe the outputs
+# Understand the detailed output
 
 
 ## The change in incident energy with stand latitude and stand geometry

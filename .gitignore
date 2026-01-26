@@ -9,3 +9,5 @@ docs
 *.html
 dev/
 vignettes_old/
+paper/jats
+paper/paper.pdf

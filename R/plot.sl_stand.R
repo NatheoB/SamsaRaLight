@@ -17,7 +17,7 @@
 #'
 #' @return A `ggplot` object representing the stand.
 #'
-#' @importFrom ggplot2 ggplot aes geom_segment geom_curve geom_tile geom_polygon geom_rect labs coord_equal theme_bw theme scale_x_continuous scale_y_continuous xlab ylab facet_wrap guides guide_legend
+#' @importFrom ggplot2 ggplot aes geom_segment geom_curve geom_tile geom_polygon geom_rect labs coord_equal theme_bw theme scale_x_continuous scale_y_continuous xlab ylab facet_wrap
 #' @importFrom ggforce geom_ellipse
 #' @importFrom dplyr filter mutate case_when
 #' @importFrom tidyr crossing
@@ -142,8 +142,8 @@ plot.sl_stand <- function(x, ...,
       labs(x = "Axis position (in m)", y = "Height (m)") +
       coord_equal() +
       theme_bw() +
-      theme(legend.position = "bottom") +
-      guides(colour = guide_legend(title.position="top", title.hjust = 0.5)) +
+      theme(legend.position = "bottom",
+            legend.title = element_blank()) +
       facet_wrap(~view_label)
     
     # Add sensors
@@ -251,16 +251,17 @@ plot.sl_stand <- function(x, ...,
                              round(sl_stand$transform$core_area_ha, 2), "ha - ",
                              round(sl_stand$transform$core_batot_m2ha, 2), "m2/ha - ",
                              sum(!x$trees$added_to_fill), " trees",
-                             "\n\nVirtual plot (rectangle): ",
+                             "\nVirtual plot (rectangle): ",
                              round(sl_stand$transform$new_area_ha, 2), "ha - ",
                              round(sl_stand$transform$new_batot_m2ha, 2), "m2/ha - ",
                              nrow(x$trees), " trees")) +
       
       theme_minimal() +
       theme(panel.grid.minor = element_blank(),
-            legend.position = "right",
+            legend.position = "top",
+            legend.title = element_blank(),
             plot.title = element_text(hjust = 0.5),
-            plot.subtitle = element_text(hjust = 0.5)) 
+            plot.subtitle = element_text(hjust = 0.5))
     
     
   }
