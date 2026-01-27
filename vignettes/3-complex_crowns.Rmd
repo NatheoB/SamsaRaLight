@@ -1,0 +1,168 @@
+---
+title: "3 - More complex crown shapes"
+subtitle: "Represent tree crowns with asymmetric and vertically structured shapes"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{3 - More complex crown shapes}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(SamsaRaLight)
+library(dplyr)
+```
+
+# Introduction
+
+In previous tutorials, tree crowns were represented using simple
+symmetric shapes ("E" and "P"). However, real tree crowns are often
+asymmetric, both horizontally (different crown radii in different
+directions) and vertically (maximum crown width not located at mid-crown
+for "E" nor crown base height for "P").
+
+This tutorial explains how SamsaRaLight represents more realistic crown
+geometries using composite crown shapes, and illustrates their use on a
+real forest inventory.
+
+# Crown shapes available in SamsaRaLight
+
+SamsaRaLight supports the following crown types:
+`"E", "P", "2E", "4P", "8E"`. The number indicates how many crown parts
+are used. The letter indicates the geometric shape (Ellipsoid or
+Paraboloid). Choose the simplest crown type that matches your data
+quality.
+
+## Symmetric crown shapes
+
+Symetric shapes used in the Tutorial 1, defined by the mean crown radius
+(mean of the four radius `rn_m`, `rs_m`, `re_m` and `rw_m`) and the
+crown depth (computed as `h_m - hbase_m`. These shapes are simple and
+efficient, but cannot represent crown asymmetry, knowing that crown
+asymmetry strongly affects light interception.
+
+### *"E" — Symmetric ellipsoid*
+
+-   Single ellipsoidal volume
+
+-   Same radius in all directions
+
+-   Maximum radius automatically computed at mid-crown height
+    (`hmax_m = hbase_m + (h_m - hbase_m) / 2`
+
+### *"P" — Symmetric paraboloid*
+
+-   Single paraboloid volume
+
+-   Same radius in all directions
+
+-   Maximum radius located at crown base height (`hmax_m = base_m`)
+
+## Asymmetric crown shapes
+
+More complex shapes are created by splitting the crown into multiple
+geometric parts.
+
+### *"2E" — Vertical asymmetry*
+
+-   Crown split into an upper and a lower ellipsoid
+
+-   Allows vertical asymmetry
+
+-   Requires `hmax_m`, the height of maximum crown radius
+
+Crown remains horizontally symmetric. Use this shape when crown
+expansion is not centered vertically.
+
+### *"4P" — Horizontal asymmetry*
+
+-   Crown split into four horizontal paraboloids
+
+-   Different radii allowed in the four cardinal directions: `rn_m`
+    (north), `rs_m` (south), `re_m` (east) and `rw_m` (west)
+
+-   Crown is vertically symmetric: `hmax_m` is NOT required (paraboloid,
+    thus `hmax = hbase_m`)
+
+Use this shape when crowns are laterally deformed by competition.
+
+### *"8E" — Full asymmetry*
+
+-   Crown split into upper and lower parts (vertical asymmetry)
+
+-   each split into four cardinal directions (horizontal asymmetry)
+
+-   Requires: `rn_m`, `rs_m`, `re_m`, `rw_m` and `hmax_m`
+
+This is the most detailed crown representation available.
+
+# Example: asymmetric crowns in a real stand 
+
+## Context and data
+
+We illustrate asymmetric crowns using the **Bechefa** marteloscope,
+stored in the package as `SamsaRaLight::data_bechefa`.
+
+This marteloscope was installed in Belgian Ardennes by Gauthier Ligot in
+the scope of the IRRES project, which investigates the transition from
+even-aged to uneven-aged forest management. This is a mature mixed stand
+of Douglas fir and spruce in the Belgian Ardennes. The stand has been
+uneven-aged for more than 10 years.
+
+## Tree inventory
+
+All trees use the `"8E"` crown type, allowing both horizontal and
+vertical asymmetry. Each tree provides four directional crown radii
+(`rn_m`, `rs_m`, `re_m`, `rw_m)` and the height of maximum crown
+expansion (`hmax_m`).
+
+```{r}
+head(SamsaRaLight::data_bechefa$trees)
+```
+
+## Create the stand and run the model
+
+The newt steps remain the same as when using symmetric crowns (see
+Tutorial 1). Considering asymmetric crowns only needs to adapt the
+initial tree inventory. Horizontal asymmetry is visible in the plots,
+but vertical asymmetry is harder to perceive graphically because crowns
+are projected.
+
+```{r}
+stand_bechefa <- SamsaRaLight::create_sl_stand(
+  trees_inv = SamsaRaLight::data_bechefa$trees,
+  cell_size = 5,
+  latitude = SamsaRaLight::data_bechefa$info$latitude,
+  slope = SamsaRaLight::data_bechefa$info$slope,
+  aspect = SamsaRaLight::data_bechefa$info$aspect,
+  north2x = SamsaRaLight::data_bechefa$info$north2x,
+  core_polygon_df = SamsaRaLight::data_bechefa$core_polygon
+)
+
+plot(stand_bechefa)
+plot(stand_bechefa, top_down = TRUE)
+```
+
+```{r}
+radiations_bechefa <- SamsaRaLight::get_monthly_radiations(
+  latitude = SamsaRaLight::data_bechefa$info$latitude,
+  longitude = SamsaRaLight::data_bechefa$info$longitude)
+
+output_bechefa <- SamsaRaLight::run_sl(
+  sl_stand = stand_bechefa,
+  monthly_radiations = radiations_bechefa
+)
+
+plot(output_bechefa)
+plot(output_bechefa, show_trees = F)
+```

@@ -85,11 +85,6 @@ data_rad_prenovel <- get_monthly_radiations(latitude = latitude,
                                             start_year = 2005,
                                             end_year = 2020)
 
-# Create colors set for species ----
-species_colors_prenovel <- c("Picea abies" = "#00D65C",
-                             "Abies alba" = "#45AAF7",
-                             "Fagus sylvatica" = "#F76045")
-
 
 # CREATE CORE POLYGON TABLE ----
 core_polygon_prenovel <- data.frame(
@@ -101,7 +96,6 @@ core_polygon_prenovel <- data.frame(
 # FORMAT THE DATASETS AS A LIST ----
 data_prenovel <- list(
   "trees" = data_trees_prenovel,
-  "species_colors" = species_colors_prenovel,
   "sensors" = NULL,
   "core_polygon" = core_polygon_prenovel,
   "radiations" = data_rad_prenovel,
