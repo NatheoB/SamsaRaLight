@@ -1,4 +1,4 @@
-# 2 - Ray discretization
+# 2 - Understand ray discretization
 
 In this tutorial, we will go deeper into the SamsaraLight model to
 better understand ray-tracing, from discretisation of direct and diffuse
