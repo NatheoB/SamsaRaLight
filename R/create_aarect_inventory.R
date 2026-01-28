@@ -9,7 +9,7 @@
 #'
 #' @param core_polygon_df A validated data.frame defining the inventory polygon
 #'   with columns \code{x} and \code{y}
-#' @param trees_inv A data.frame containing tree coordinates (\code{x}, \code{y})
+#' @param trees A data.frame containing tree coordinates (\code{x}, \code{y})
 #' @param north2x Numeric. Clockwise angle from North to the X-axis (degrees)
 #' @param sensors Optional data.frame containing sensor coordinates
 #'   (\code{x}, \code{y}), or \code{NULL}
@@ -17,7 +17,7 @@
 #' @return A list with elements:
 #' \describe{
 #'   \item{\code{core_polygon_df}}{Axis-aligned rectangular polygon}
-#'   \item{\code{trees_inv}}{Updated tree data.frame}
+#'   \item{\code{trees}}{Updated tree data.frame}
 #'   \item{\code{sensors}}{Updated sensor data.frame (or NULL)}
 #'   \item{\code{north2x}}{Updated orientation angle}
 #'   \item{\code{rotation_rad}}{Applied rotation angle (radians)}
@@ -29,7 +29,7 @@
 #'
 #' @keywords internal
 create_aarect_inventory <- function(core_polygon_df,
-                                    trees_inv,
+                                    trees,
                                     north2x,
                                     sensors = NULL) {
   
@@ -89,13 +89,13 @@ create_aarect_inventory <- function(core_polygon_df,
   
   ## Rotate trees ----
   trees_xy <- rotate_xy(
-    trees_inv$x, trees_inv$y,
+    trees$x, trees$y,
     theta = theta,
     cx = centroid[1],
     cy = centroid[2]
   )
-  trees_inv$x <- trees_xy[, "x"]
-  trees_inv$y <- trees_xy[, "y"]
+  trees$x <- trees_xy[, "x"]
+  trees$y <- trees_xy[, "y"]
   
   
   ## Rotate sensors if present ----
@@ -119,7 +119,7 @@ create_aarect_inventory <- function(core_polygon_df,
   ## Output ----
   return(list(
     core_polygon_df = core_polygon_df,
-    trees_inv       = trees_inv,
+    trees           = trees,
     sensors         = sensors,
     north2x         = north2x,
     rotation        = theta_deg

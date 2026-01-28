@@ -237,6 +237,7 @@ create_sl_stand <- function(trees_inv,
   ## If specified, get the minimum-area enclosing rectangle from the polygon ----
   
   rotation <- 0 # initialise stand rotation to 0
+  trees <- trees_inv # Initialise the trees
   
   if (aarect_zone) {
     
@@ -247,13 +248,13 @@ create_sl_stand <- function(trees_inv,
                                            sensors)
     
     core_polygon_df <- aarect_list$core_polygon_df
-    trees_inv <- aarect_list$trees_inv
+    trees <- aarect_list$trees
     sensors <- aarect_list$sensors
     north2x <- aarect_list$north2x
     rotation <- aarect_list$rotation
     
     # Check the polygon
-    core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors, verbose = F)
+    core_polygon_df <- check_polygon(core_polygon_df, trees, sensors, verbose = F)
   }
   
   
@@ -289,7 +290,7 @@ create_sl_stand <- function(trees_inv,
   
   
   ## Shift coordinates ----
-  trees_shifted <- trees_inv %>% 
+  trees_shifted <- trees %>% 
     dplyr::mutate(
       x = x + shift_x,
       y = y + shift_y
@@ -512,7 +513,8 @@ create_sl_stand <- function(trees_inv,
                       "slope" = slope,
                       "aspect" = aspect,
                       "north2x" = north2x
-    )
+    ),
+    "inventory" = trees_inv
   )
   
   class(stand) <- c("sl_stand", "list")
@@ -540,7 +542,7 @@ create_sl_stand <- function(trees_inv,
 #' \itemize{
 #'   \item The object inherits from class \code{"sl_stand"}.
 #'   \item The top-level components \code{trees}, \code{sensors}, \code{cells},
-#'   \code{core_polygon}, \code{transform}, and \code{geometry} are present.
+#'   \code{core_polygon}, \code{transform}, \code{geometry} and \code{inventory} are present.
 #'   \item The \code{trees} data.frame passes \link{check_inventory}.
 #'   \item The \code{sensors} data.frame passes \link{check_sensors}.
 #'   \item The \code{cells} data.frame contains columns \code{x_center},
@@ -573,7 +575,7 @@ validate_sl_stand <- function(x) {
   }
   
   # Top-level components
-  required <- c("trees", "sensors", "cells", "core_polygon", "transform", "geometry")
+  required <- c("trees", "sensors", "cells", "core_polygon", "transform", "geometry", "inventory")
   missing <- setdiff(required, names(x))
   if (length(missing) > 0) {
     stop("sl_stand is missing element(s): ", paste(missing, collapse = ", "), call. = FALSE)

@@ -24,7 +24,7 @@ The following validations are performed:
 \itemize{
 \item The object inherits from class \code{"sl_stand"}.
 \item The top-level components \code{trees}, \code{sensors}, \code{cells},
-\code{core_polygon}, \code{transform}, and \code{geometry} are present.
+\code{core_polygon}, \code{transform}, \code{geometry} and \code{inventory} are present.
 \item The \code{trees} data.frame passes \link{check_inventory}.
 \item The \code{sensors} data.frame passes \link{check_sensors}.
 \item The \code{cells} data.frame contains columns \code{x_center},

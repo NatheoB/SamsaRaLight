@@ -4,13 +4,13 @@
 \alias{create_aarect_inventory}
 \title{Axis-align an inventory polygon and rotate coordinates accordingly}
 \usage{
-create_aarect_inventory(core_polygon_df, trees_inv, north2x, sensors = NULL)
+create_aarect_inventory(core_polygon_df, trees, north2x, sensors = NULL)
 }
 \arguments{
 \item{core_polygon_df}{A validated data.frame defining the inventory polygon
 with columns \code{x} and \code{y}}
 
-\item{trees_inv}{A data.frame containing tree coordinates (\code{x}, \code{y})}
+\item{trees}{A data.frame containing tree coordinates (\code{x}, \code{y})}
 
 \item{north2x}{Numeric. Clockwise angle from North to the X-axis (degrees)}
 
@@ -21,7 +21,7 @@ with columns \code{x} and \code{y}}
 A list with elements:
 \describe{
 \item{\code{core_polygon_df}}{Axis-aligned rectangular polygon}
-\item{\code{trees_inv}}{Updated tree data.frame}
+\item{\code{trees}}{Updated tree data.frame}
 \item{\code{sensors}}{Updated sensor data.frame (or NULL)}
 \item{\code{north2x}}{Updated orientation angle}
 \item{\code{rotation_rad}}{Applied rotation angle (radians)}
