@@ -8,7 +8,7 @@ with the X and Y axes using the minimum possible rotation.
 ## Usage
 
 ``` r
-create_aarect_inventory(core_polygon_df, trees_inv, north2x, sensors = NULL)
+create_aarect_inventory(core_polygon_df, trees, north2x, sensors = NULL)
 ```
 
 ## Arguments
@@ -18,7 +18,7 @@ create_aarect_inventory(core_polygon_df, trees_inv, north2x, sensors = NULL)
   A validated data.frame defining the inventory polygon with columns `x`
   and `y`
 
-- trees_inv:
+- trees:
 
   A data.frame containing tree coordinates (`x`, `y`)
 
@@ -39,7 +39,7 @@ A list with elements:
 
   Axis-aligned rectangular polygon
 
-- `trees_inv`:
+- `trees`:
 
   Updated tree data.frame
 

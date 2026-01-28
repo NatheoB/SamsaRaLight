@@ -32,7 +32,7 @@ The following validations are performed:
 - The object inherits from class `"sl_stand"`.
 
 - The top-level components `trees`, `sensors`, `cells`, `core_polygon`,
-  `transform`, and `geometry` are present.
+  `transform`, `geometry` and `inventory` are present.
 
 - The `trees` data.frame passes
   [check_inventory](https://natheob.github.io/SamsaRaLight/reference/check_inventory.md).
