@@ -23,6 +23,10 @@
 #'   \item{\code{rotation_rad}}{Applied rotation angle (radians)}
 #' }
 #'
+#' @importFrom sfheaders sf_polygon
+#' @importFrom sf st_minimum_rotated_rectangle st_coordinates
+#' @importFrom dplyr select distinct
+#'
 #' @keywords internal
 create_aarect_inventory <- function(core_polygon_df,
                                     trees_inv,

@@ -89,11 +89,10 @@
 #' inventory and positioned outside the core polygon until the target basal area
 #' per hectare is reached for the full rectangular stand.
 #'
-#' @importFrom sf st_as_sf st_is_valid st_make_valid st_area st_buffer st_intersects st_minimum_rotated_rectangle
-#' @importFrom sf st_point st_coordinates st_collection_extract
+#' @importFrom sf st_as_sf st_area st_intersects st_point st_coordinates
 #' @importFrom concaveman concaveman
 #' @importFrom sfheaders sf_polygon
-#' @importFrom dplyr bind_rows mutate select distinct arrange
+#' @importFrom dplyr bind_rows mutate select distinct arrange case_when
 #' @importFrom tidyr expand_grid
 #' @importFrom stats runif
 #'

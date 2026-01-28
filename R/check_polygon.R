@@ -14,6 +14,10 @@
 #'   - unchanged if valid
 #'   - modified if fixed (with a warning)
 #'
+#' @importFrom sfheaders sf_polygon
+#' @importFrom sf st_is_valid st_make_valid st_collection_extract
+#' @importFrom sf st_as_sf st_intersects st_buffer st_bbox st_coordinates
+#'
 #' @export
 check_polygon <- function(polygon_df, trees_inv, sensors = NULL, verbose = TRUE) {
   
@@ -23,7 +27,7 @@ check_polygon <- function(polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
   }
   
   # Check sensors format ----
-  if (! (is.null(sensors) || check_sensors(trees_inv, verbose = FALSE)) ) {
+  if (! (is.null(sensors) || check_sensors(sensors, verbose = FALSE)) ) {
     stop("`sensors` must be NULL or a data.frame verified by check_sensors().", call. = FALSE)
   }
   
