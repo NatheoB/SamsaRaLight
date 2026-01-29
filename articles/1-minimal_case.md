@@ -460,7 +460,7 @@ summary(sl_output)
 #>  Min.   :   6930   Min.   :   861.8   Min.   :0.06625  
 #>  1st Qu.: 153986   1st Qu.: 23681.0   1st Qu.:0.56729  
 #>  Median : 282894   Median : 67855.4   Median :0.71628  
-#>  Mean   : 311519   Mean   :116323.4   Mean   :0.68980  
+#>  Mean   : 311519   Mean   :116323.3   Mean   :0.68980  
 #>  3rd Qu.: 444481   3rd Qu.:178181.5   3rd Qu.:0.84025  
 #>  Max.   :1003557   Max.   :728911.8   Max.   :0.98942  
 #> 
@@ -469,7 +469,7 @@ summary(sl_output)
 #>        e               pacl             punobs      
 #>  Min.   :  98.2   Min.   :0.02165   Min.   :0.0000  
 #>  1st Qu.: 442.3   1st Qu.:0.09752   1st Qu.:0.3358  
-#>  Median : 635.1   Median :0.14004   Median :0.5030  
+#>  Median : 635.1   Median :0.14004   Median :0.5029  
 #>  Mean   : 677.0   Mean   :0.14928   Mean   :0.4834  
 #>  3rd Qu.: 860.0   3rd Qu.:0.18963   3rd Qu.:0.6461  
 #>  Max.   :1601.7   Max.   :0.35317   Max.   :0.9128  
