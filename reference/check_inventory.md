@@ -8,80 +8,94 @@ describing the geometry and attributes of trees within a forest stand.
 ## Usage
 
 ``` r
-check_inventory(tree_inv, verbose = TRUE)
+check_inventory(trees_inv, verbose = TRUE)
 ```
 
 ## Arguments
 
-- tree_inv:
+- trees_inv:
 
   A data.frame with one row per tree and the following columns:
 
   id_tree
 
   :   Unique identifier of the tree (numeric or character, no
-      duplicates)
+      duplicates).
 
   x
 
-  :   X position of the tree within the stand (numeric, meters)
+  :   X position of the tree within the stand (numeric, meters, planar
+      coordinates). Optional if `lon` and `lat` are provided.
 
   y
 
-  :   Y position of the tree within the stand (numeric, meters)
+  :   Y position of the tree within the stand (numeric, meters, planar
+      coordinates). Optional if `lon` and `lat` are provided.
+
+  lon
+
+  :   Longitude of the tree location (numeric, decimal degrees).
+      Optional; if provided with `lat`, coordinates are converted
+      internally to a UTM planar coordinate system in
+      [`create_sl_stand()`](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md).
+
+  lat
+
+  :   Latitude of the tree location (numeric, decimal degrees).
+      Optional; see `lon`.
 
   species
 
-  :   Species name (character)
+  :   Species name (character).
 
   dbh_cm
 
-  :   Diameter at breast height (1.3 m, in cm)
+  :   Diameter at breast height (1.3 m, in cm).
 
   crown_type
 
   :   Type of crown geometry. One of `"E"`, `"P"`, `"2E"`, `"8E"`, or
-      `"4P"`
+      `"4P"`.
 
   h_m
 
-  :   Total tree height (numeric, meters)
+  :   Total tree height (numeric, meters).
 
   hbase_m
 
-  :   Height of the crown base (numeric, meters)
+  :   Height of the crown base (numeric, meters).
 
   hmax_m
 
   :   Height of the maximum crown radius (numeric, meters). Required
       only if at least one tree has a crown type `"2E"` or `"8E"`. For
-      other crown types,column is optional and the value is internally
-      computed.
+      other crown types, the column is optional and the value is
+      internally computed.
 
   rn_m
 
-  :   Crown radius toward North (numeric, meters)
+  :   Crown radius toward North (numeric, meters).
 
   rs_m
 
-  :   Crown radius toward South (numeric, meters)
+  :   Crown radius toward South (numeric, meters).
 
   re_m
 
-  :   Crown radius toward East (numeric, meters)
+  :   Crown radius toward East (numeric, meters).
 
   rw_m
 
-  :   Crown radius toward West (numeric, meters)
+  :   Crown radius toward West (numeric, meters).
 
   crown_openness
 
-  :   Crown openness (unitless), optional if turbid medium interception
+  :   Crown openness (unitless), optional if turbid medium interception.
 
   crown_lad
 
   :   Leaf Area Density (m² m⁻³), optional if porous envelope
-      interception
+      interception.
 
 - verbose:
 
@@ -97,7 +111,7 @@ The function performs the following checks and validations:
 
 - 1:
 
-  Ensures `tree_inv` is a non-empty data.frame with all required
+  Ensures `trees_inv` is a non-empty data.frame with all required
   columns.
 
 - 2:
@@ -106,33 +120,44 @@ The function performs the following checks and validations:
 
 - 3:
 
-  Validates numeric columns (`x`, `y`, `dbh_cm`, `h_m`, `hbase_m`,
-  `rn_m`, `rs_m`, `re_m`, `rw_m`) are numeric and non-negative.
+  Checks that either planar coordinates (`x`, `y`) or geographic
+  coordinates (`lon`, `lat`) are provided. If only `lon` and `lat` are
+  supplied, they are converted to planar UTM coordinates in
+  [`create_sl_stand()`](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md).
+  The
+  [`plot_inventory()`](https://natheob.github.io/SamsaRaLight/reference/plot_inventory.md)
+  function requires planar coordinates and cannot be used before this
+  conversion.
 
 - 4:
+
+  Validates numeric columns (`dbh_cm`, `h_m`, `hbase_m`, `rn_m`, `rs_m`,
+  `re_m`, `rw_m`) are numeric and non-negative.
+
+- 5:
 
   Verifies that `crown_type` values are one of `"E"`, `"P"`, `"2E"`,
   `"8E"`, or `"4P"`.
 
-- 5:
+- 6:
 
   Ensures crown radii are present according to crown type.
 
-- 6:
+- 7:
 
   Checks that `hmax_m` is provided when required and lies between
   `hbase_m` and `h_m`.
 
-- 7:
+- 8:
 
   Ensures `hbase_m < h_m`.
 
-- 8:
+- 9:
 
   Verifies that each tree has at least one crown interception property
   defined.
 
-- 9:
+- 10:
 
   Provides informative error messages and warnings for all invalid
   conditions.

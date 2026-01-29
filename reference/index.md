@@ -2,6 +2,10 @@
 
 ## All functions
 
+- [`check_coordinates()`](https://natheob.github.io/SamsaRaLight/reference/check_coordinates.md)
+  : Check coordinate columns and determine whether conversion is
+  required
+
 - [`check_inventory()`](https://natheob.github.io/SamsaRaLight/reference/check_inventory.md)
   : Check the format and validity of a tree inventory data.frame
 
@@ -16,6 +20,9 @@
 
 - [`create_sl_stand()`](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md)
   : Create a rectangular virtual stand from a tree inventory
+
+- [`create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md)
+  : Create planar (x, y) coordinates from longitude / latitude
 
 - [`data_IRRES1`](https://natheob.github.io/SamsaRaLight/reference/data_IRRES1.md)
   : Information for IRRES1 inventory

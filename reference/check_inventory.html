@@ -53,61 +53,72 @@ describing the geometry and attributes of trees within a forest stand.</p>
 
     <div class="section level2">
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_inventory</span><span class="op">(</span><span class="va">tree_inv</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">check_inventory</span><span class="op">(</span><span class="va">trees_inv</span>, verbose <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
     </div>
 
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
 
 
-<dl><dt id="arg-tree-inv">tree_inv<a class="anchor" aria-label="anchor" href="#arg-tree-inv"></a></dt>
+<dl><dt id="arg-trees-inv">trees_inv<a class="anchor" aria-label="anchor" href="#arg-trees-inv"></a></dt>
 <dd><p>A data.frame with one row per tree and the following columns:</p><dl><dt>id_tree</dt>
-<dd><p>Unique identifier of the tree (numeric or character, no duplicates)</p></dd>
+<dd><p>Unique identifier of the tree (numeric or character, no duplicates).</p></dd>
 
 <dt>x</dt>
-<dd><p>X position of the tree within the stand (numeric, meters)</p></dd>
+<dd><p>X position of the tree within the stand (numeric, meters, planar coordinates).
+Optional if <code>lon</code> and <code>lat</code> are provided.</p></dd>
 
 <dt>y</dt>
-<dd><p>Y position of the tree within the stand (numeric, meters)</p></dd>
+<dd><p>Y position of the tree within the stand (numeric, meters, planar coordinates).
+Optional if <code>lon</code> and <code>lat</code> are provided.</p></dd>
+
+<dt>lon</dt>
+<dd><p>Longitude of the tree location (numeric, decimal degrees).
+Optional; if provided with <code>lat</code>, coordinates are converted internally
+to a UTM planar coordinate system in <code><a href="create_sl_stand.html">create_sl_stand()</a></code>.</p></dd>
+
+<dt>lat</dt>
+<dd><p>Latitude of the tree location (numeric, decimal degrees).
+Optional; see <code>lon</code>.</p></dd>
 
 <dt>species</dt>
-<dd><p>Species name (character)</p></dd>
+<dd><p>Species name (character).</p></dd>
 
 <dt>dbh_cm</dt>
-<dd><p>Diameter at breast height (1.3 m, in cm)</p></dd>
+<dd><p>Diameter at breast height (1.3 m, in cm).</p></dd>
 
 <dt>crown_type</dt>
 <dd><p>Type of crown geometry. One of <code>"E"</code>, <code>"P"</code>,
-<code>"2E"</code>, <code>"8E"</code>, or <code>"4P"</code></p></dd>
+<code>"2E"</code>, <code>"8E"</code>, or <code>"4P"</code>.</p></dd>
 
 <dt>h_m</dt>
-<dd><p>Total tree height (numeric, meters)</p></dd>
+<dd><p>Total tree height (numeric, meters).</p></dd>
 
 <dt>hbase_m</dt>
-<dd><p>Height of the crown base (numeric, meters)</p></dd>
+<dd><p>Height of the crown base (numeric, meters).</p></dd>
 
 <dt>hmax_m</dt>
 <dd><p>Height of the maximum crown radius (numeric, meters).
 Required only if at least one tree has a crown type <code>"2E"</code> or <code>"8E"</code>.
-For other crown types,column is optional and the value is internally computed.</p></dd>
+For other crown types, the column is optional and the value is internally computed.</p></dd>
 
 <dt>rn_m</dt>
-<dd><p>Crown radius toward North (numeric, meters)</p></dd>
+<dd><p>Crown radius toward North (numeric, meters).</p></dd>
 
 <dt>rs_m</dt>
-<dd><p>Crown radius toward South (numeric, meters)</p></dd>
+<dd><p>Crown radius toward South (numeric, meters).</p></dd>
 
 <dt>re_m</dt>
-<dd><p>Crown radius toward East (numeric, meters)</p></dd>
+<dd><p>Crown radius toward East (numeric, meters).</p></dd>
 
 <dt>rw_m</dt>
-<dd><p>Crown radius toward West (numeric, meters)</p></dd>
+<dd><p>Crown radius toward West (numeric, meters).</p></dd>
 
 <dt>crown_openness</dt>
-<dd><p>Crown openness (unitless), optional if turbid medium interception</p></dd>
+<dd><p>Crown openness (unitless), optional if turbid medium interception.</p></dd>
 
 <dt>crown_lad</dt>
-<dd><p>Leaf Area Density (m² m⁻³), optional if porous envelope interception</p></dd>
+<dd><p>Leaf Area Density (m² m⁻³), optional if porous envelope interception.</p></dd>
 
 
 </dl></dd>
@@ -124,30 +135,35 @@ For other crown types,column is optional and the value is internally computed.</
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>The function performs the following checks and validations:</p><dl><dt>1</dt>
-<dd><p>Ensures <code>tree_inv</code> is a non-empty data.frame with all required columns.</p></dd>
+<dd><p>Ensures <code>trees_inv</code> is a non-empty data.frame with all required columns.</p></dd>
 
 <dt>2</dt>
 <dd><p>Checks that <code>id_tree</code> values are unique.</p></dd>
 
 <dt>3</dt>
-<dd><p>Validates numeric columns (<code>x</code>, <code>y</code>, <code>dbh_cm</code>, <code>h_m</code>, <code>hbase_m</code>, <code>rn_m</code>, <code>rs_m</code>, <code>re_m</code>, <code>rw_m</code>) are numeric and non-negative.</p></dd>
+<dd><p>Checks that either planar coordinates (<code>x</code>, <code>y</code>) or geographic coordinates
+(<code>lon</code>, <code>lat</code>) are provided. If only <code>lon</code> and <code>lat</code> are supplied, they are converted to planar UTM coordinates in <code><a href="create_sl_stand.html">create_sl_stand()</a></code>.
+The <code><a href="plot_inventory.html">plot_inventory()</a></code> function requires planar coordinates and cannot be used before this conversion.</p></dd>
 
 <dt>4</dt>
-<dd><p>Verifies that <code>crown_type</code> values are one of <code>"E"</code>, <code>"P"</code>, <code>"2E"</code>, <code>"8E"</code>, or <code>"4P"</code>.</p></dd>
+<dd><p>Validates numeric columns (<code>dbh_cm</code>, <code>h_m</code>, <code>hbase_m</code>, <code>rn_m</code>, <code>rs_m</code>, <code>re_m</code>, <code>rw_m</code>) are numeric and non-negative.</p></dd>
 
 <dt>5</dt>
-<dd><p>Ensures crown radii are present according to crown type.</p></dd>
+<dd><p>Verifies that <code>crown_type</code> values are one of <code>"E"</code>, <code>"P"</code>, <code>"2E"</code>, <code>"8E"</code>, or <code>"4P"</code>.</p></dd>
 
 <dt>6</dt>
-<dd><p>Checks that <code>hmax_m</code> is provided when required and lies between <code>hbase_m</code> and <code>h_m</code>.</p></dd>
+<dd><p>Ensures crown radii are present according to crown type.</p></dd>
 
 <dt>7</dt>
-<dd><p>Ensures <code>hbase_m &lt; h_m</code>.</p></dd>
+<dd><p>Checks that <code>hmax_m</code> is provided when required and lies between <code>hbase_m</code> and <code>h_m</code>.</p></dd>
 
 <dt>8</dt>
-<dd><p>Verifies that each tree has at least one crown interception property defined.</p></dd>
+<dd><p>Ensures <code>hbase_m &lt; h_m</code>.</p></dd>
 
 <dt>9</dt>
+<dd><p>Verifies that each tree has at least one crown interception property defined.</p></dd>
+
+<dt>10</dt>
 <dd><p>Provides informative error messages and warnings for all invalid conditions.</p></dd>
 
 

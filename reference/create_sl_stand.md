@@ -115,7 +115,7 @@ A named list with the following elements:
 
   List of transformation and filling information, including core area,
   target and final basal area, number of added trees, and applied
-  spatial shifts.
+  spatial transformations
 
 - `geometry`:
 
@@ -150,6 +150,20 @@ with the following controlled modifications:
 
 - If missing, crown interception properties (e.g. `crown_openness`,
   `crown_lad`) are added using default values.
+
+All input data.frames (`trees_inv`, `sensors`, and `core_polygon_df`)
+are automatically checked for coordinate type:
+
+- If `x` and `y` columns exist, they are assumed to be planar.
+
+- If `lon` and `lat` columns exist, they are converted into planar UTM
+  coordinates automatically using
+  [`create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md).
+
+- The UTM projection (EPSG) is determined from the mean coordinates of
+  `trees_inv`. All inputs must share the same EPSG; otherwise, the
+  function stops with an error. If conversion occurred, the epsg is
+  stored in the output.
 
 The function ensures that all trees fall within the core inventory
 polygon, applying small buffers if necessary to handle numerical

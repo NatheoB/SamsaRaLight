@@ -151,7 +151,7 @@ around the inventory zone.</p></dd>
 
 <dt><code>transform</code></dt>
 <dd><p>List of transformation and filling information, including core area,
-target and final basal area, number of added trees, and applied spatial shifts.</p></dd>
+target and final basal area, number of added trees, and applied spatial transformations</p></dd>
 
 <dt><code>geometry</code></dt>
 <dd><p>List describing stand geometry and terrain parameters
@@ -173,6 +173,13 @@ geometry conventions:</p><ul><li><p><code>"P"</code> and <code>"4P"</code>: <cod
 <li><p>If missing, column <code>dbh_cm</code> is added and filled with <code>NA</code>.</p></li>
 <li><p>If missing, crown interception properties (e.g. <code>crown_openness</code>,
 <code>crown_lad</code>) are added using default values.</p></li>
+</ul><p>All input data.frames (<code>trees_inv</code>, <code>sensors</code>, and <code>core_polygon_df</code>) are
+automatically checked for coordinate type:</p><ul><li><p>If <code>x</code> and <code>y</code> columns exist, they are assumed to be planar.</p></li>
+<li><p>If <code>lon</code> and <code>lat</code> columns exist, they are converted into
+planar UTM coordinates automatically using <code><a href="create_xy_from_lonlat.html">create_xy_from_lonlat()</a></code>.</p></li>
+<li><p>The UTM projection (EPSG) is determined from the mean coordinates of
+<code>trees_inv</code>. All inputs must share the same EPSG; otherwise, the
+function stops with an error. If conversion occurred, the epsg is stored in the output.</p></li>
 </ul><p>The function ensures that all trees fall within the core inventory polygon,
 applying small buffers if necessary to handle numerical precision issues.
 Invalid polygons are automatically repaired when possible.</p>
