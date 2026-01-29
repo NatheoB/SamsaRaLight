@@ -4,29 +4,36 @@
 \alias{check_inventory}
 \title{Check the format and validity of a tree inventory data.frame}
 \usage{
-check_inventory(tree_inv, verbose = TRUE)
+check_inventory(trees_inv, verbose = TRUE)
 }
 \arguments{
-\item{tree_inv}{A data.frame with one row per tree and the following columns:
+\item{trees_inv}{A data.frame with one row per tree and the following columns:
 \describe{
-\item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates)}
-\item{x}{X position of the tree within the stand (numeric, meters)}
-\item{y}{Y position of the tree within the stand (numeric, meters)}
-\item{species}{Species name (character)}
-\item{dbh_cm}{Diameter at breast height (1.3 m, in cm)}
+\item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates).}
+\item{x}{X position of the tree within the stand (numeric, meters, planar coordinates).
+Optional if \code{lon} and \code{lat} are provided.}
+\item{y}{Y position of the tree within the stand (numeric, meters, planar coordinates).
+Optional if \code{lon} and \code{lat} are provided.}
+\item{lon}{Longitude of the tree location (numeric, decimal degrees).
+Optional; if provided with \code{lat}, coordinates are converted internally
+to a UTM planar coordinate system in \code{create_sl_stand()}.}
+\item{lat}{Latitude of the tree location (numeric, decimal degrees).
+Optional; see \code{lon}.}
+\item{species}{Species name (character).}
+\item{dbh_cm}{Diameter at breast height (1.3 m, in cm).}
 \item{crown_type}{Type of crown geometry. One of \code{"E"}, \code{"P"},
-\code{"2E"}, \code{"8E"}, or \code{"4P"}}
-\item{h_m}{Total tree height (numeric, meters)}
-\item{hbase_m}{Height of the crown base (numeric, meters)}
+\code{"2E"}, \code{"8E"}, or \code{"4P"}.}
+\item{h_m}{Total tree height (numeric, meters).}
+\item{hbase_m}{Height of the crown base (numeric, meters).}
 \item{hmax_m}{Height of the maximum crown radius (numeric, meters).
 Required only if at least one tree has a crown type \code{"2E"} or \code{"8E"}.
-For other crown types,column is optional and the value is internally computed.}
-\item{rn_m}{Crown radius toward North (numeric, meters)}
-\item{rs_m}{Crown radius toward South (numeric, meters)}
-\item{re_m}{Crown radius toward East (numeric, meters)}
-\item{rw_m}{Crown radius toward West (numeric, meters)}
-\item{crown_openness}{Crown openness (unitless), optional if turbid medium interception}
-\item{crown_lad}{Leaf Area Density (m² m⁻³), optional if porous envelope interception}
+For other crown types, the column is optional and the value is internally computed.}
+\item{rn_m}{Crown radius toward North (numeric, meters).}
+\item{rs_m}{Crown radius toward South (numeric, meters).}
+\item{re_m}{Crown radius toward East (numeric, meters).}
+\item{rw_m}{Crown radius toward West (numeric, meters).}
+\item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.}
+\item{crown_lad}{Leaf Area Density (m² m⁻³), optional if porous envelope interception.}
 }}
 
 \item{verbose}{Logical; if \code{TRUE}, informative messages and warnings are printed.}
@@ -43,15 +50,18 @@ describing the geometry and attributes of trees within a forest stand.
 \details{
 The function performs the following checks and validations:
 \describe{
-\item{1}{Ensures \code{tree_inv} is a non-empty data.frame with all required columns.}
+\item{1}{Ensures \code{trees_inv} is a non-empty data.frame with all required columns.}
 \item{2}{Checks that \code{id_tree} values are unique.}
-\item{3}{Validates numeric columns (\code{x}, \code{y}, \code{dbh_cm}, \code{h_m}, \code{hbase_m}, \code{rn_m}, \code{rs_m}, \code{re_m}, \code{rw_m}) are numeric and non-negative.}
-\item{4}{Verifies that \code{crown_type} values are one of \code{"E"}, \code{"P"}, \code{"2E"}, \code{"8E"}, or \code{"4P"}.}
-\item{5}{Ensures crown radii are present according to crown type.}
-\item{6}{Checks that \code{hmax_m} is provided when required and lies between \code{hbase_m} and \code{h_m}.}
-\item{7}{Ensures \code{hbase_m < h_m}.}
-\item{8}{Verifies that each tree has at least one crown interception property defined.}
-\item{9}{Provides informative error messages and warnings for all invalid conditions.}
+\item{3}{Checks that either planar coordinates (\code{x}, \code{y}) or geographic coordinates
+(\code{lon}, \code{lat}) are provided. If only \code{lon} and \code{lat} are supplied, they are converted to planar UTM coordinates in \code{create_sl_stand()}.
+The \code{plot_inventory()} function requires planar coordinates and cannot be used before this conversion.}
+\item{4}{Validates numeric columns (\code{dbh_cm}, \code{h_m}, \code{hbase_m}, \code{rn_m}, \code{rs_m}, \code{re_m}, \code{rw_m}) are numeric and non-negative.}
+\item{5}{Verifies that \code{crown_type} values are one of \code{"E"}, \code{"P"}, \code{"2E"}, \code{"8E"}, or \code{"4P"}.}
+\item{6}{Ensures crown radii are present according to crown type.}
+\item{7}{Checks that \code{hmax_m} is provided when required and lies between \code{hbase_m} and \code{h_m}.}
+\item{8}{Ensures \code{hbase_m < h_m}.}
+\item{9}{Verifies that each tree has at least one crown interception property defined.}
+\item{10}{Provides informative error messages and warnings for all invalid conditions.}
 }
 }
 \examples{

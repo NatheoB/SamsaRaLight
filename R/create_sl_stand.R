@@ -56,7 +56,7 @@
 #'   }
 #'   \item{\code{transform}}{
 #'     List of transformation and filling information, including core area,
-#'     target and final basal area, number of added trees, and applied spatial shifts.
+#'     target and final basal area, number of added trees, and applied spatial transformations
 #'   }
 #'   \item{\code{geometry}}{
 #'     List describing stand geometry and terrain parameters
@@ -79,6 +79,17 @@
 #'   \item If missing, column \code{dbh_cm} is added and filled with \code{NA}.
 #'   \item If missing, crown interception properties (e.g. \code{crown_openness},
 #'     \code{crown_lad}) are added using default values.
+#' }
+#'
+#' All input data.frames (`trees_inv`, `sensors`, and `core_polygon_df`) are
+#' automatically checked for coordinate type:
+#' \itemize{
+#'   \item If \code{x} and \code{y} columns exist, they are assumed to be planar.
+#'   \item If \code{lon} and \code{lat} columns exist, they are converted into
+#'     planar UTM coordinates automatically using \code{create_xy_from_lonlat()}.
+#'   \item The UTM projection (EPSG) is determined from the mean coordinates of
+#'     \code{trees_inv}. All inputs must share the same EPSG; otherwise, the
+#'     function stops with an error. If conversion occurred, the epsg is stored in the output.
 #' }
 #'
 #' The function ensures that all trees fall within the core inventory polygon,
@@ -128,6 +139,74 @@ create_sl_stand <- function(trees_inv,
                             aarect_zone = FALSE,
                             fill_around = FALSE,
                             verbose = TRUE) {
+  
+  
+  # ---- COORDINATE CHECK AND CONDITIONAL CONVERSION ----
+  
+  # --- Trees inventory ---
+  is_trees_geo <- check_coordinates(trees_inv, verbose = FALSE)
+  if (is_trees_geo) {
+    trees_conv <- create_xy_from_lonlat(trees_inv)
+    trees_inv <- trees_conv$df
+    epsg_used <- trees_conv$epsg
+    
+    if (verbose) message("`trees_inv` converted from lon/lat to planar coordinates (UTM).")
+  } else {
+    epsg_used <- NULL
+  }
+  
+  # --- Sensors ---
+  if (!is.null(sensors)) {
+    is_sensors_geo <- check_coordinates(sensors, verbose = FALSE)
+    
+    if (is_sensors_geo) {
+      # If trees_inv has not been converted
+      if (is.null(epsg_used)) {
+        stop(
+          "`trees_inv` is already planar while `sensors` are geographic. ",
+          "Ensure that all inputs are either all geographic or all planar.",
+          call. = FALSE
+        )
+      }
+      
+      sensors_conv <- create_xy_from_lonlat(sensors)
+      sensors <- sensors_conv$df
+
+      # EPSG consistency
+      if (sensors_conv$epsg != epsg_used) {
+        stop("EPSG of sensors differs from trees_inv. All inputs must share the same UTM zone.", call. = FALSE)
+      }
+      
+      if (verbose) message("`sensors` converted from lon/lat to planar coordinates (UTM).")
+    }
+  }
+  
+  # --- Core polygon ---
+  if (!is.null(core_polygon_df)) {
+    is_polygon_geo <- check_coordinates(core_polygon_df, verbose = FALSE)
+    
+    if (is_polygon_geo) {
+      # If trees_inv has not been converted
+      if (is.null(epsg_used)) {
+        stop(
+          "`trees_inv` is already planar while `core_polygon_df` is geographic. ",
+          "Ensure that all inputs are either all geographic or all planar.",
+          call. = FALSE
+        )
+      }
+      
+      core_conv <- create_xy_from_lonlat(core_polygon_df)
+      core_polygon_df <- core_conv$df
+      
+      # EPSG consistency
+      if (core_conv$epsg != epsg_used) {
+        stop("EPSG of core_polygon_df differs from trees_inv. All inputs must share the same UTM zone.", call. = FALSE)
+      }
+      
+      if (verbose) message("`core_polygon_df` converted from lon/lat to planar coordinates (UTM).")
+    }
+  }
+  
   
   # ARGUMENT CHECKS ----
   
@@ -502,6 +581,7 @@ create_sl_stand <- function(trees_inv,
       "n_added_tree" = i,
       "new_area_ha" = plot_area_ha,
       "new_batot_m2ha" = current_batot_m2ha,
+      "epsg" = epsg_used,
       "shift_x" = shift_x,
       "shift_y" = shift_y,
       "rotation" = rotation

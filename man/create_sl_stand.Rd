@@ -76,7 +76,7 @@ List describing the inventory zone:
 }
 \item{\code{transform}}{
 List of transformation and filling information, including core area,
-target and final basal area, number of added trees, and applied spatial shifts.
+target and final basal area, number of added trees, and applied spatial transformations
 }
 \item{\code{geometry}}{
 List describing stand geometry and terrain parameters
@@ -110,6 +110,17 @@ For crown types \code{"2E"} and \code{"8E"}, \code{hmax_m} must be provided by t
 \item If missing, column \code{dbh_cm} is added and filled with \code{NA}.
 \item If missing, crown interception properties (e.g. \code{crown_openness},
 \code{crown_lad}) are added using default values.
+}
+
+All input data.frames (\code{trees_inv}, \code{sensors}, and \code{core_polygon_df}) are
+automatically checked for coordinate type:
+\itemize{
+\item If \code{x} and \code{y} columns exist, they are assumed to be planar.
+\item If \code{lon} and \code{lat} columns exist, they are converted into
+planar UTM coordinates automatically using \code{create_xy_from_lonlat()}.
+\item The UTM projection (EPSG) is determined from the mean coordinates of
+\code{trees_inv}. All inputs must share the same EPSG; otherwise, the
+function stops with an error. If conversion occurred, the epsg is stored in the output.
 }
 
 The function ensures that all trees fall within the core inventory polygon,

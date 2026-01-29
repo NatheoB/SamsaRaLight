@@ -14,8 +14,14 @@
 plot_inventory <- function(trees_inv, show_id = TRUE) {
   
   # Ensure inventory is correct
-  check_inventory(trees_inv, verbose = F)
+  needs_conversion <- check_coordinates(trees_inv, verbose = F)
   
+  if (needs_conversion) {
+    stop(
+      "Geographic coordinates (`lon`, `lat`) detected: ",
+      "convert the coordinates using `convert_xy_from_lonlat()`."
+    )
+  }
   
   # Plot the trees
   plt <- ggplot() +
