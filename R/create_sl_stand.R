@@ -393,7 +393,7 @@ create_sl_stand <- function(trees_inv,
   core_area_m2 <- st_area(core_polygon_shifted_sf)
   core_area_ha <- core_area_m2 / 10000
   
-  batot_target_m2ha <- sum( 3.1416 * (trees_shifted$dbh_cm / 200) ^ 2 ) / core_area_ha
+  batot_target_m2ha <- sum( pi * (trees_shifted$dbh_cm / 200) ^ 2 ) / core_area_ha
   
   
   ## Fill with trees outside the polygon ----
@@ -402,45 +402,54 @@ create_sl_stand <- function(trees_inv,
   
   plot_area_ha <- (plot_size_x * plot_size_y) / 10000
   
-  current_batot_m2ha <- sum( 3.1416 * (trees_shifted$dbh_cm / 200) ^ 2 ) / plot_area_ha
-  new_id <- max(trees_shifted$id_tree) + 1
+  current_batot_m2ha <- sum( pi * (trees_shifted$dbh_cm / 200) ^ 2 ) / plot_area_ha
+  start_id <- max(trees_shifted$id_tree) + 1
   
-  i <- 0
-  i_max <- 1e6 # Maximum iterations 
+  i_tree <- 0
+  n_iter_max <- 1e4 # Maximum iterations for random positioning
+  # Otherwise, can infinitely loop if inventory zone is very close to virtual plot
   
   trees_to_add <- list() # Dataframe of new trees to add withhin the rectangle
   
-  if (fill_around) {
+  if (fill_around & (abs(current_batot_m2ha - batot_target_m2ha) > 1e-3) ) {
     
     # until we reach the target basal area
-    while ((current_batot_m2ha < batot_target_m2ha) & (i < i_max)) {
-      
-      # print(i)
+    while (current_batot_m2ha < batot_target_m2ha) {
       
       # Get a random tree
       tree_to_add <- trees_shifted[sample(nrow(trees_shifted), 1), ]
       
-      # Create a new id
-      tree_to_add$id_tree <- new_id
-      new_id <- new_id + 1
-      
       # Add a random position until it is outside
       new_x <- runif(1, min = 0, max = plot_size_x)
       new_y <- runif(1, min = 0, max = plot_size_y)
+      
+      i <- 0
       while (st_intersects(st_point(c(new_x, new_y)), 
-                           core_polygon_shifted_sf, sparse = FALSE)[1,1]) {
+                           core_polygon_shifted_sf, sparse = FALSE)[1,1] &
+             (i < n_iter_max)) {
+        
         new_x <- runif(1, min = 0, max = plot_size_x)
         new_y <- runif(1, min = 0, max = plot_size_y)
+        i <- i + 1
       }
+      
+      if (i == n_iter_max) {
+        message("Max iteration reached for filling around inventory zone with trees.")
+        break
+      }
+      
       tree_to_add$x <- new_x
       tree_to_add$y <- new_y
       
+      # Create a new id
+      tree_to_add$id_tree <- start_id + i_tree
+
       # Add the tree to the dataset
-      trees_to_add[[i+1]] <- tree_to_add
+      trees_to_add[[i_tree+1]] <- tree_to_add
+      i_tree <- i_tree + 1
       
-      # Increment the total basal area and the loop index
-      current_batot_m2ha <- current_batot_m2ha + 3.1416 * (tree_to_add$dbh_cm / 200) ^ 2 / plot_area_ha
-      i <- i + 1
+      # Increment the total basal area
+      current_batot_m2ha <- current_batot_m2ha + pi * (tree_to_add$dbh_cm / 200) ^ 2 / plot_area_ha
     }
     
   }
@@ -578,7 +587,7 @@ create_sl_stand <- function(trees_inv,
       "core_area_ha" = core_area_ha, 
       "core_batot_m2ha" = batot_target_m2ha,
       "fill_around" = fill_around,
-      "n_added_tree" = i,
+      "n_added_tree" = i_tree,
       "new_area_ha" = plot_area_ha,
       "new_batot_m2ha" = current_batot_m2ha,
       "epsg" = epsg_used,

@@ -2087,7 +2087,9 @@ public:
 	void findPotentialRelCells() {
 		
 		// Potential relative cells for each ray coming to a cell
+		// Rays are independent thus we can parallelize them
 		int n_rays = this->rays.getNRays();
+
 		for (int i = 0; i < n_rays; i++) {
 
 			Ray* ray = this->rays.getRay(i);
