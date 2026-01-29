@@ -185,7 +185,10 @@ plot.sl_output <- function(x, ...,
     plt <- plt +
       scale_fill_viridis_c(
         name = tree_label,
-        limits = c(0 - epsilon, 1 + epsilon),
+        limits = c(
+          ifelse(what_trees == "compet", 0 - epsilon, NA),
+          ifelse(what_trees == "compet", 1 + epsilon, NA)
+        ),
         direction = ifelse(what_trees == "compet", -1, 1),
         guide = guide_colorbar(
           title.position = "top",

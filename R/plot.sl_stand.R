@@ -48,10 +48,8 @@ plot.sl_stand <- function(x, ...,
     
     # Label for plots 
     view_description <- c(
-      "south" = "south view (X-axis W->E)",
-      # "west" = "west view (Y-axis N->S)",
-      # "north" = "north view (X-axis E->W)",
-      "east" = "east view (Y-axis S->N)"
+      "x" = "X-axis",
+      "y" = "Y-axis"
     )
     
     # z-offset
@@ -78,24 +76,18 @@ plot.sl_stand <- function(x, ...,
         
         # define tree position given the view
         pos = case_when(
-          view == "south" ~ x,
-          view == "north" ~ - x,
-          view == "west" ~ - y,
-          view == "east" ~ y
+          view == "x" ~ x,
+          view == "y" ~ y
         ),
         
         # define left/right radius given the view
         r_left_m = case_when(
-          view == "south" ~ rw_m,
-          view == "north" ~ re_m,
-          view == "west" ~ rn_m,
-          view == "east" ~ rs_m
+          view == "x" ~ rw_m,
+          view == "y" ~ rs_m
         ),
         r_right_m = case_when(
-          view == "south" ~ re_m,
-          view == "north" ~ rw_m,
-          view == "west" ~ rs_m,
-          view == "east" ~ rn_m
+          view == "x" ~ re_m,
+          view == "y" ~ rn_m
         )
       ) 
     
@@ -144,7 +136,7 @@ plot.sl_stand <- function(x, ...,
       theme_bw() +
       theme(legend.position = "bottom",
             legend.title = element_blank()) +
-      facet_wrap(~view_label)
+      facet_wrap(~view_label, ncol = 1)
     
     # Add sensors
     if (add_sensors && !is.null(sl_stand$sensors) && nrow(sl_stand$sensors) > 0) {
@@ -153,10 +145,8 @@ plot.sl_stand <- function(x, ...,
         tidyr::crossing(view = names(view_description)) %>%
         dplyr::mutate(
           pos = case_when(
-            view == "south" ~ x,
-            # view == "north" ~ - x,
-            # view == "west"  ~ - y,
-            view == "east"  ~ y
+            view == "x" ~ x,
+            view == "y"  ~ y
           ),
           z = z + z_offset,
           view_label = unname(view_description[view]),
