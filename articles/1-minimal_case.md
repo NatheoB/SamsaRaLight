@@ -1,54 +1,52 @@
 # 1 - A first minimal case
 
 ``` r
-knitr::opts_chunk$set(
-  collapse = TRUE,
-  comment = "#>"
-)
-```
-
-This is the first tutorial, showing you how to solve a basic problem
-using the SamsaRaLight package. We will demonstrate this with the
-Prenovel dataset, which is stored in the package as
-[`SamsaRaLight::data_prenovel`](https://natheob.github.io/SamsaRaLight/reference/data_prenovel.md).
-This dataset represents an uneven-aged stand of fir, spruce and beech
-located in the Jura mountains in France. You can find more information
-in the data documentation. We used this dataset as a minimal example
-this comes from a “marteloscope” exercise, that is a plot used for
-harvesting exercises on the field. The trees are inventoried inside a
-formalised 1-ha squared plot (100m\*100m), thus being the easier
-inventory for using the SamsaRaLight package. In the next tutorials, we
-explain the case where trees are not inventoried in a formalized
-rectangle plot (4 - Create a virtual stand from more complex tree
-inventory).
-
-``` r
 library(SamsaRaLight)
 library(dplyr)
 ```
+
+## Introduction
+
+This is the first tutorial, showing you how to solve a basic problem
+using the SamsaRaLight package on a ‘marteloscope’ plot — a basic format
+for applying the package. A ‘marteloscope’ is a plot used for harvesting
+exercises in the field. Trees are inventoried inside a delimited plot,
+which is generally 1 ha (100 m x 100 m) squared.
+
+We will demonstrate this using the Prenovel dataset, which is stored in
+the package as
+[`SamsaRaLight::data_prenovel`](https://natheob.github.io/SamsaRaLight/reference/data_prenovel.md).
+This dataset represents an uneven-aged stand of fir, spruce and beech
+located in the Jura mountains in France. Further information can be
+found in the data documentation.
+
+The next tutorials explain how to create a virtual stand from a more
+complex tree inventory (4 - Create a virtual stand from a more complex
+tree inventory).
 
 ## Input data
 
 ### Format the tree inventory
 
-The user needs to define the individual trees composing the stand with
-their crown dimensions. The data frame must be created with a specific
-format and variables. See documentation using
+First, the user needs to define the individual trees composing the stand
+with their crown dimensions. The data frame must be created with a
+specific format and variables. See documentation using
 `?SamsaRaLight::check_inventory()` to understand the format of the trees
 dataset, and validate it using the same function.
 
 The dataframe must contain mandatory information about the trees: a
 unique integer id (`id_tree`), the species name (`species`), coordinates
 in meters (`x`, `y`) and diameter at breast height in cm (`dbh_cm`). The
-x and y coordinates must be given in meters on a flat plane (not
-considering slope), and the z coordinate will be computed automatically
-during the process from stand geometry. Be careful, you cannot use
-longitude/latitude (WGS84 coordinates system), as it is angular
-coordinates, thus not representing correctly relative distance between
-each tree. Consider converting the coordinates in a planar reference
-system such as local UTM. See the Tutorial 4 for an example on how to
-use SamsaRaLight from trees inventoried with GPS data giving long/lat
-coordinates (4 - Create a virtual stand from more complex tree
+`x` and `y` coordinates must be given in meters on a flat plane (not
+considering slope), and the `z` coordinate will be computed
+automatically during the process from stand geometry. Be careful, you
+cannot use longitude/latitude (WGS84 coordinates system), as it is
+angular coordinates, thus not representing correctly relative distance
+between each tree. Consider converting the coordinates in a planar
+reference system such as local UTM. We will see further in the next
+tutorials that the SamsaRaLight package can automatically manage lon/lat
+coordinates, typically for trees inventoried with GPS data giving
+long/lat coordinates (4 - Create a virtual stand from more complex tree
 inventory).
 
 In this tutorial, we represent the tree crowns with simple shapes,
@@ -60,13 +58,14 @@ must provide only 3 values to define the crown dimensions: the height of
 the tree (`h_m` in meters), the height of the base of the crown
 (`hbase_m` in meters) and the crown maximum radius that is the same is
 the four cardinal directions as we consider simple symmetric crowns
-(`rn_m`, `re_m`, `rs_m` and `rw_m`, all in meters). When considering
-those type of simple crown shapes (“E” or “P”), the user must not
-provide the `hmax_m` variable, which is the height at which the crown
-radius is maximum. Indeed, it is automatically computed during the
-process, being set to the crown base height ($hmax = hbase$) when
-considering a paraboloidal shape “P”, and set at the middle of the crown
-for an ellipsoidal shape “E” ($hmax = h - 0.5*(h - hbase)$).
+(`rn_m` for north, `re_m` for east, `rs_m` for south and `rw_m` for
+west, all in meters). When considering those type of simple crown shapes
+(“E” or “P”), the user must not provide the `hmax_m` variable, which is
+the height at which the crown radius is maximum. Indeed, it is
+automatically computed during the process, being set to the crown base
+height ($hmax = hbase$) when considering a paraboloidal shape “P”, and
+set at the middle of the crown for an ellipsoidal shape “E”
+($hmax = h - 0.5*(h - hbase)$).
 
 ``` r
 input_trees_inv <- SamsaRaLight::data_prenovel$trees
@@ -78,13 +77,13 @@ head(input_trees_inv)
 #> 4       4 Abies alba 58.9521 97.9011 19.1539          P 11.7033  4.2050     NA
 #> 5       5 Abies alba 33.3423 39.4053 19.8852          P 14.6597  3.8346     NA
 #> 6       6 Abies alba 57.5743  2.0656 20.1293          P 16.6530  7.6860     NA
-#>     rn_m   re_m   rs_m   rw_m crown_openness crown_lad
-#> 1 3.0204 3.0204 3.0204 3.0204            0.2     0.767
-#> 2 3.0896 3.0896 3.0896 3.0896            0.2     0.767
-#> 3 2.8350 2.8350 2.8350 2.8350            0.2     0.767
-#> 4 2.5196 2.5196 2.5196 2.5196            0.2     0.767
-#> 5 2.8208 2.8208 2.8208 2.8208            0.2     0.767
-#> 6 3.2436 3.2436 3.2436 3.2436            0.2     0.767
+#>     rn_m   re_m   rs_m   rw_m crown_lad
+#> 1 3.0204 3.0204 3.0204 3.0204     0.767
+#> 2 3.0896 3.0896 3.0896 3.0896     0.767
+#> 3 2.8350 2.8350 2.8350 2.8350     0.767
+#> 4 2.5196 2.5196 2.5196 2.5196     0.767
+#> 5 2.8208 2.8208 2.8208 2.8208     0.767
+#> 6 3.2436 3.2436 3.2436 3.2436     0.767
 
 # Check the format of the inventory table
 SamsaRaLight::check_inventory(input_trees_inv)
@@ -93,8 +92,6 @@ SamsaRaLight::check_inventory(input_trees_inv)
 
 The user can observe its validated inventory using the function
 [`SamsaRaLight::plot_inventory()`](https://natheob.github.io/SamsaRaLight/reference/plot_inventory.md).
-Computation time can be long as the trees are plotted in order of tree
-height to well represent the vertical structure of the stand.
 
 ``` r
 plot_inventory(input_trees_inv)
@@ -102,10 +99,10 @@ plot_inventory(input_trees_inv)
 
 ![](1-minimal_case_files/figure-html/plot_inventory-1.png)
 
-In the next tutorials, we will explain more in details the columns
-`crown_openness`/`crown_lad` (3 - Choose the transmission model) and
-consider more complex, asymmetric crown shapes (5 - Represent the crowns
-with more complex shapes).
+In the next tutorials, we will explain more in details the column
+`crown_lad`, set by default to a value of 0.5 for each tree (3 -
+Understand the transmission model) and consider more complex, asymmetric
+crown shapes (5 - Represent the crowns with more complex shapes).
 
 ### Create the SamsaRaLight input stand
 
@@ -130,15 +127,18 @@ the argument `verbose = FALSE` to avoid success messages).
 Optionally but essential here to well define your virtual stand from the
 tree inventory, the user can define the inventory zone with the argument
 `core_polygon_df`. The polygon is defined by a data.frame that contains
-the relative coordinates `x` and `y` of the vertices of the zone where
-the trees have been inventoried.
+the coordinates `x` and `y` of the vertices of the zone where the trees
+have been inventoried. The tutorial 4 (4 - Complex inventories) will
+address both the automatic computation and modification of the inventory
+zone.
 
 The `cell_size` argument defines the precision of the SamsaRaLight
 ray-tracing model. The ray-tracing model will casts rays towards the
 center of each cell and estimate the light arriving to this cell after
-attenuation by tree crowns and the smaller the cells are defined, the
-more rays the model casts per m2. The default `cell_size` is 10, leading
-to very fast computation time. The user can go towards the maximum
+attenuation by tree crowns. The smaller the cells are defined, the more
+rays the model casts per m2. The default `cell_size` value is 5, leading
+to a good compromise between fast computation time and sufficient model
+precision for output variables. The user can go towards the maximum
 precision which is 1 (1m\*1m square cells) to produce high-resolution
 shading maps (see the end of this tutorial), but will lead to much
 heavier computation time and memory use. Indeed, computation time is not
@@ -147,19 +147,20 @@ the plot increases quadratically with the cell size, and also
 consequently is the total number of cast rays during the simulation
 (which is the main factor for computation time and memory use).
 
-The `north2x` argument is the angle from North to X-axis (clockwise),
-thus defining the rotation of real North (tree inventory) relative to
-the virtual plot X-axis (SamsaRaLight stand). The default 90°
+The `north2x` argument is the angle from real North to the virtual plot
+X-axis (clockwise), allowing to convert the system from geographic (tree
+inventory) to mathematics (SamsaRaLight simulation). The default 90°
 corresponds to a Y-axis oriented toward true North (0°: x-axis points
 North, 90° : x-axis points East, 180° : x-axis points South, 270° :
-x-axis points West). The `slope` and `aspect` arguments define the
-geometry in case of a non-plane stand, with the aspect variable
-representing the direction the slope faces downhill, defined by the
-angle of the steepest downslope direction measured clockwise from true
-North (0°: North-facing slope, East-facing slope: 90°, 180°:
-South-facing slope, 270°: West-facing slope). The Tutorial 2 (2 -
-Understand ray-tracing) also shows how the light on the ground varies
-with stand geometry.
+x-axis points West).
+
+The `slope` and `aspect` arguments define the geometry in case of a
+non-plane stand, with the aspect variable representing the direction the
+slope faces downhill, defined by the angle of the steepest downslope
+direction measured clockwise from true North (0°: North-facing slope,
+90°: East-facing slope, 180°: South-facing slope, 270°: West-facing
+slope). The Tutorial 2 (2 - Understand ray-tracing) also shows how the
+light on the ground varies with stand geometry.
 
 ``` r
 input_sl_stand <- SamsaRaLight::create_sl_stand(
@@ -192,7 +193,9 @@ The user can observe the creating SamsaRaLight virtual stand object
 to observe the stand in two views: a stand map with circles representing
 the located maximum crown radius of trees from above, or a top-down plot
 mainly showing heights of crowns and trunks from a South-view (facing
-North) and a East-view (facing West).
+North) and a East-view (facing West). Computation time can be long for
+the stand map as the trees are plotted in order of tree height to well
+represent the vertical structure of the stand.
 
 ``` r
 print(input_sl_stand)
@@ -228,10 +231,6 @@ summary(input_sl_stand)
 #>   North to X-axis   : 54.00 deg
 #> 
 #> Number of sensors: 0
-#> 
-#> Available light interception models:
-#>   - Turbid medium (crown_lad)
-#>   - Porous envelope (crown_openness)
 ```
 
 ``` r
@@ -246,20 +245,26 @@ plot(input_sl_stand, top_down = TRUE)
 
 ![](1-minimal_case_files/figure-html/plot_sl_stand_topdown-1.png)
 
-In the next tutorials, we explain how to create a virtual stand where
-trees are not inventoried directly in an axis-aligned rectangle plot
-(4 - Create a virtual stand from more complex tree inventory).
+These functions are essential for assessing the consistency of the input
+inventory data and its conversion into a SamsaRaLight stand. They act as
+a preliminary diagnostic to ensure, for example, that no trees are
+forgotten (see the stand summary), the trees are correctly positioned
+within the virtual stand (see the stand map), that the north2x and
+aspect variables are correctly defined according to the tree inventory
+(see the plotted compass next to the stand map, with the blue dotted
+arrow showing the downslope direction), and that the crown dimensions
+are consistent (see the top-down view).
 
 ### Monthly radiations
 
-The user needs to define in a data frame the monthly energy specific to
-its plot location. For each month (represented by an integer number
-between 1 and 12), one needs to inform $Hrad$ as the global monthly
-energies (in $MJ.m^{- 2}$), and $DGratio$ as the ratio of diffuse energy
-relative to global energy (needed to represent the proportion of diffuse
-and direct energy). The discretization of diffuse and direct rays from
-the given radiation dataset is discussed in the next tutorial (2 -
-Understand ray-tracing).
+Then, the user needs to define in a data frame the monthly energy
+specific to its plot location. For each month (represented by an integer
+number between 1 and 12), one needs to inform $Hrad$ as the global
+monthly energies (in $MJ.m^{- 2}$), and $DGratio$ as the ratio of
+diffuse energy relative to global energy (needed to represent the
+proportion of diffuse and direct energy). The discretization of diffuse
+and direct rays from the given radiation dataset is discussed in the
+next tutorial (2 - Understand ray-tracing).
 
 This data frame can be automatically constructed using the SamsaRaLight
 function
@@ -306,16 +311,6 @@ from the only two mandatory arguments: the created SamsaRaLight virtual
 stand object `sl_stand` and the monthly radiations table
 `monthly_radiations`.
 
-The `use_torus` argument is essential to account for the lack of
-information about trees surrounding the inventory zone. When set to TRUE
-(default), the stand is treated as an infinite plot, where the
-inventoried trees are surrounded by identical copies of the stand. When
-set to FALSE, the stand is assumed to be bordered by grasslands without
-trees, which may bias light interception estimates, particularly near
-the edges of the virtual stand. Thus, set the `use_torus` argument to
-FALSE only if it is biologically consistent, such as a stand in the
-middle of a clear-cut or surrounded by fields and roads.
-
 The package SamsaRaLight allows for running the simulation in parallel
 setting the argument `parallel_mode = TRUE`. When activating the
 parallel_mode, the simulation will take by default all the internal
@@ -337,9 +332,6 @@ sl_output <- SamsaRaLight::run_sl(
     # Mandatory arguments
     sl_stand = input_sl_stand,
     monthly_radiations = input_monthly_radiations,
-    
-    # Surrounding environment
-    use_torus = TRUE,
     
     # Parallelisation arguments
     parallel_mode = TRUE,
@@ -394,9 +386,9 @@ i.e. rays that have not been intercepted by any trees).
 str(sl_output$output$light$cells)
 #> 'data.frame':    10000 obs. of  4 variables:
 #>  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...
-#>  $ e      : num  478 532 522 505 488 ...
-#>  $ pacl   : num  0.105 0.117 0.115 0.111 0.107 ...
-#>  $ punobs : num  0.308 0.377 0.473 0.406 0.329 ...
+#>  $ e      : num  478 559 522 505 488 ...
+#>  $ pacl   : num  0.105 0.123 0.115 0.111 0.108 ...
+#>  $ punobs : num  0.308 0.406 0.473 0.406 0.329 ...
 ```
 
 The object `$output$trees` contains output light variables for each
@@ -416,10 +408,10 @@ by any other trees).
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  5 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  387315 253854 203115 76454 221087 ...
-#>  $ e      : num  115800 96237 56294 15399 9713 ...
-#>  $ lci    : num  0.701 0.621 0.723 0.799 0.956 ...
-#>  $ eunobs : num  83985 81000 45459 10109 1318 ...
+#>  $ epot   : num  387481 253846 203073 76482 221092 ...
+#>  $ e      : num  115780 96237 56292 15418 9713 ...
+#>  $ lci    : num  0.701 0.621 0.723 0.798 0.956 ...
+#>  $ eunobs : num  83959 81000 45459 10109 1318 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -441,7 +433,7 @@ example, setting `what_trees = "intercepted"` and
 energies between trees and cells. However, be careful about the colours
 of the cells, white areas do no mean cells in high-light but brighter
 cells relatively to the others, it could be confusing without precise
-legend…
+legend.
 
 ``` r
 print(sl_output)
@@ -456,22 +448,22 @@ summary(sl_output)
 #> 
 #> Trees (crown interception)
 #> ---------------------------
-#>       epot               e                 lci         
-#>  Min.   :   6930   Min.   :   861.8   Min.   :0.06625  
-#>  1st Qu.: 153986   1st Qu.: 23681.0   1st Qu.:0.56729  
-#>  Median : 282894   Median : 67855.4   Median :0.71628  
-#>  Mean   : 311519   Mean   :116323.3   Mean   :0.68980  
-#>  3rd Qu.: 444481   3rd Qu.:178181.5   3rd Qu.:0.84025  
-#>  Max.   :1003557   Max.   :728911.8   Max.   :0.98942  
+#>       epot               e               lci         
+#>  Min.   :   6928   Min.   :   862   Min.   :0.06625  
+#>  1st Qu.: 154062   1st Qu.: 23715   1st Qu.:0.56745  
+#>  Median : 282978   Median : 67858   Median :0.71638  
+#>  Mean   : 311589   Mean   :116343   Mean   :0.68981  
+#>  3rd Qu.: 444537   3rd Qu.:178199   3rd Qu.:0.84014  
+#>  Max.   :1003485   Max.   :728959   Max.   :0.98943  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e               pacl             punobs      
 #>  Min.   :  98.2   Min.   :0.02165   Min.   :0.0000  
-#>  1st Qu.: 442.3   1st Qu.:0.09752   1st Qu.:0.3358  
-#>  Median : 635.1   Median :0.14004   Median :0.5029  
-#>  Mean   : 677.0   Mean   :0.14928   Mean   :0.4834  
-#>  3rd Qu.: 860.0   3rd Qu.:0.18963   3rd Qu.:0.6461  
+#>  1st Qu.: 442.7   1st Qu.:0.09762   1st Qu.:0.3357  
+#>  Median : 635.1   Median :0.14004   Median :0.5030  
+#>  Mean   : 677.2   Mean   :0.14931   Mean   :0.4834  
+#>  3rd Qu.: 860.8   3rd Qu.:0.18981   3rd Qu.:0.6461  
 #>  Max.   :1601.7   Max.   :0.35317   Max.   :0.9128  
 #> 
 #> Sensors

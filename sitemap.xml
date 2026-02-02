@@ -3,8 +3,7 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/LICENSE.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/1-minimal_case.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/2-discretisation_directdiffuse.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/3-complex_crowns.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/4-complex_inventory.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/3-complex_cases.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/index.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/authors.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/index.html</loc></url>
@@ -15,7 +14,7 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/check_polygon.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/check_sensors.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/convert_lonlat.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/reference/create_aarect_inventory.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/create_rect_inventory.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/create_sl_rays.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.html</loc></url>
@@ -33,6 +32,7 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_inventory.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/print.sl_output.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/print.sl_stand.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/rotate_vec_ccw.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/run_sl.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/sl_compute_nrj_diffuse.html</loc></url>

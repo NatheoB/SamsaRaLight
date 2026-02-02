@@ -7,12 +7,12 @@ to fix it.
 ## Usage
 
 ``` r
-check_polygon(polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
+check_polygon(core_polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
 ```
 
 ## Arguments
 
-- polygon_df:
+- core_polygon_df:
 
   A data.frame with columns x and y defining polygon vertices
 

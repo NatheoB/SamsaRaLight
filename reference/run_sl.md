@@ -10,8 +10,6 @@ run_sl(
   sl_stand,
   monthly_radiations,
   sensors_only = FALSE,
-  use_torus = TRUE,
-  turbid_medium = TRUE,
   detailed_output = FALSE,
   parallel_mode = FALSE,
   n_threads = NULL,
@@ -41,18 +39,6 @@ run_sl(
 
   Logical. If `TRUE`, compute light interception only for sensors (much
   faster).
-
-- use_torus:
-
-  Logical. If `TRUE`, stand borders are treated using a torus (periodic)
-  geometry, mimicking an infinite forest, representative of the virtual
-  stand. If `FALSE`, borders are open (surrounded by grassland).
-
-- turbid_medium:
-
-  Logical. If `TRUE`, tree crowns are treated as a turbid medium
-  (Beer–Lambert law using `crown_lad`). If `FALSE`, crowns are treated
-  as porous envelopes (using `crown_openness`).
 
 - detailed_output:
 

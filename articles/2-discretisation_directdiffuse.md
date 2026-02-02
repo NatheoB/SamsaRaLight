@@ -1,5 +1,15 @@
 # 2 - Understand ray discretization with detailed output
 
+``` r
+library(SamsaRaLight)
+library(dplyr)
+library(purrr)
+library(ggplot2)
+library(cowplot)
+```
+
+## Introduction
+
 In this tutorial, we will go deeper into the SamsaraLight model to
 better understand ray-tracing, from discretisation of direct and diffuse
 rays to the effect of stand geometry and latitude on light distribution
@@ -8,14 +18,6 @@ with a single large tree at the center to observe its shading effect and
 how it varies between three different cities in Europe (Madrid, Brussels
 and Oslo) and three different stand geometry (a flat plane, a South- or
 a North-facing slope).
-
-``` r
-library(SamsaRaLight)
-library(dplyr)
-library(purrr)
-library(ggplot2)
-library(cowplot)
-```
 
 ## Prepare the experiment
 
@@ -26,10 +28,9 @@ create the tree inventory:
 
 ``` r
 names(SamsaRaLight::data_prenovel$trees)
-#>  [1] "id_tree"        "species"        "x"              "y"             
-#>  [5] "dbh_cm"         "crown_type"     "h_m"            "hbase_m"       
-#>  [9] "hmax_m"         "rn_m"           "re_m"           "rs_m"          
-#> [13] "rw_m"           "crown_openness" "crown_lad"
+#>  [1] "id_tree"    "species"    "x"          "y"          "dbh_cm"    
+#>  [6] "crown_type" "h_m"        "hbase_m"    "hmax_m"     "rn_m"      
+#> [11] "re_m"       "rs_m"       "rw_m"       "crown_lad"
 ```
 
 Initialise the stand size, say 100x100m 1ha square plot:
@@ -56,7 +57,7 @@ trees_inv <- data.frame(
   re_m = 6,
   rs_m = 6,
   rw_m = 6,
-  crown_lad = 0.5 # Base LAD value, see Tutorial 3 and Tutorial 6 for deeper explanations
+  crown_lad = 0.5 # Base LAD value, see Tutorial 4
 )
 
 trees_inv
@@ -118,9 +119,9 @@ exp_design
 
 For each unique city (Madrid, Brussels and Oslo), create the monthly
 radiation tables containing for each of the 12 months information about
-global energy quantity () and the ratio of this energy between diffuse
-and direct energies (DGratio), in MJ/m2. It is important to note that
-the monthly values here correspond to radiations received on a
+global energy quantity (Hrad) and the ratio of this energy between
+diffuse and direct energies (DGratio), in MJ/m2. It is important to note
+that the monthly values here correspond to radiations received on a
 horizontal plane and are subsequently corrected by the model to estimate
 incident radiation on sloped surfaces.
 
@@ -236,7 +237,8 @@ core_polygon_df
 Then, we create the SamsaRaLight input stand from the created tree
 inventory, for each of the different stand geometry and latitude in our
 experimental design. We set the cell size as 1x1m in order to observe
-with great precision the shading effect of the tree within the stand.
+with great precision the shading effect of the tree within the stand,
+and the `north2x` to 90° to have the Y-axis oriented to the North.
 
 ``` r
 sl_stand_list <- vector("list", length = nrow(exp_design))
@@ -279,9 +281,27 @@ for (i in 1:nrow(exp_design)) {
 ## Run SamsaRaLight
 
 We can now easily run the SamsaraLight ray-tracing model on our 9
-virtual stands. Here, we decided to not use the torus as we want to
-observe the shading effect of only the single tree in the middle of the
-plot, thus considering the virtual 100x100m is surrounded by grasslands.
+virtual stands. For the sake of this tutorial, we disable the torus
+system, which normally treats the virtual plot as being infinitely
+replicated beyond its borders. This can be done by using the advanced
+function run_sl_advanced() and setting the argument use_torus = FALSE.
+
+This option is intended for advanced users only and should be used with
+caution. Disabling the torus system does not simply mean assuming that
+the plot is surrounded by open areas without trees (e.g. grasslands).
+Instead, the torus system primarily compensates for an important
+modelling approximation: rays are only cast toward cells located inside
+the virtual plot. As a consequence, rays that would normally reach cells
+outside the plot are not simulated, leading to an underestimation of
+intercepted radiation, especially for trees located near the plot
+borders. The torus system addresses this limitation by assuming that
+equivalent copies of the stand surround the plot. Under this assumption,
+trees outside the plot intercept rays cast within the plot in the same
+way as trees inside it, thereby contributing to the total intercepted
+energy. This approach provides a practical approximation of edge effects
+without explicitly simulating a larger domain. For a detailed
+description of the torus system and its theoretical foundations, see the
+original SamsaRaLight model paper by Courbaud et al. (2003).
 
 ``` r
 # Store SamsaraLight outputs in a list
@@ -291,14 +311,15 @@ for (i in 1:nrow(exp_design)) {
   
   mod_design <- exp_design[i,]
   
-  # Run SamsaraLight
-  out_sl_list[[i]] <- SamsaRaLight::run_sl(
+  # Run SamsaraLight as advanced user
+  # As the function is internal, we use SamsaRaLight::: for accessing 
+  out_sl_list[[i]] <- SamsaRaLight:::run_sl_advanced(
     
     # Simulation inputs
     sl_stand = sl_stand_list[[i]],
     monthly_radiations = data_rad_list[[mod_design$city]],
     
-    # Define stand boundaries
+    # Disable the torus system (only available in the run_sl_advanced() function)
     use_torus = FALSE,
     
     # Set detailed output to have information about ray-discretization and direct/diffuse outputs

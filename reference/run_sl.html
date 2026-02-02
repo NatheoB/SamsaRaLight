@@ -22,8 +22,7 @@ stand using the SamsaRaLight ray-tracing engine."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
     <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
-    <li><a class="dropdown-item" href="../articles/3-complex_crowns.html">3 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/4-complex_inventory.html">4 - More complex inventory shapes</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -51,8 +50,6 @@ stand using the SamsaRaLight ray-tracing engine.</p>
 <span>  <span class="va">sl_stand</span>,</span>
 <span>  <span class="va">monthly_radiations</span>,</span>
 <span>  sensors_only <span class="op">=</span> <span class="cn">FALSE</span>,</span>
-<span>  use_torus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
-<span>  turbid_medium <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  detailed_output <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  parallel_mode <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  n_threads <span class="op">=</span> <span class="cn">NULL</span>,</span>
@@ -80,20 +77,6 @@ and grid geometry.</p></dd>
 <dt id="arg-sensors-only">sensors_only<a class="anchor" aria-label="anchor" href="#arg-sensors-only"></a></dt>
 <dd><p>Logical.
 If <code>TRUE</code>, compute light interception only for sensors (much faster).</p></dd>
-
-
-<dt id="arg-use-torus">use_torus<a class="anchor" aria-label="anchor" href="#arg-use-torus"></a></dt>
-<dd><p>Logical.
-If <code>TRUE</code>, stand borders are treated using a torus (periodic) geometry,
-mimicking an infinite forest, representative of the virtual stand.
-If <code>FALSE</code>, borders are open (surrounded by grassland).</p></dd>
-
-
-<dt id="arg-turbid-medium">turbid_medium<a class="anchor" aria-label="anchor" href="#arg-turbid-medium"></a></dt>
-<dd><p>Logical.
-If <code>TRUE</code>, tree crowns are treated as a turbid medium (Beer–Lambert law
-using <code>crown_lad</code>).
-If <code>FALSE</code>, crowns are treated as porous envelopes (using <code>crown_openness</code>).</p></dd>
 
 
 <dt id="arg-detailed-output">detailed_output<a class="anchor" aria-label="anchor" href="#arg-detailed-output"></a></dt>

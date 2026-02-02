@@ -52,12 +52,12 @@ run_sl_advanced(
 
 - use_torus:
 
-  logical, if TRUE, use torus system for borders, else open grassland
+  logical, if TRUE, use torus system for borders
 
 - turbid_medium:
 
-  logical, if TRUE, crowns are considered turbid medium, else porous
-  envelope
+  logical, if TRUE, crowns are considered turbid medium (using column
+  `crown_lad`), else porous envelope (using column `crown_openess`)
 
 - extinction_coef:
 

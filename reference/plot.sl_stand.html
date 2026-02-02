@@ -22,8 +22,7 @@ It can display a top-down view with tree crowns or a side/top view with cells an
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
     <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
-    <li><a class="dropdown-item" href="../articles/3-complex_crowns.html">3 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/4-complex_inventory.html">4 - More complex inventory shapes</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -84,7 +83,10 @@ sensors are drawn as squares on the ground.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>For the sake of the representation in top-down plot, z are offset such as minimum altitude tree is at Y-axis height = 0</p>
-    </div>
+<p>The plot function also generates a compass indicating:</p><ul><li><p>Plot orientation (north2x, north in red)</p></li>
+<li><p>Terrain aspect (downslope direction)</p></li>
+<li><p>Slope degrees (annotation only)</p></li>
+</ul></div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

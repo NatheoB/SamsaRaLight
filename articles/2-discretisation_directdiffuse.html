@@ -35,8 +35,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
     <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
-    <li><a class="dropdown-item" href="../articles/3-complex_crowns.html">3 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/4-complex_inventory.html">4 - More complex inventory shapes</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
   </ul>
 </li>
       </ul>
@@ -68,6 +67,15 @@ discretization of direct and diffuse radiations</h3>
 
     
     
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://natheob.github.io/SamsaRaLight/">SamsaRaLight</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
+<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span></code></pre></div>
+<div class="section level2">
+<h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
+</h2>
 <p>In this tutorial, we will go deeper into the SamsaraLight model to
 better understand ray-tracing, from discretisation of direct and diffuse
 rays to the effect of stand geometry and latitude on light distribution
@@ -76,12 +84,7 @@ with a single large tree at the center to observe its shading effect and
 how it varies between three different cities in Europe (Madrid, Brussels
 and Oslo) and three different stand geometry (a flat plane, a South- or
 a North-facing slope).</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://natheob.github.io/SamsaRaLight/">SamsaRaLight</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://purrr.tidyverse.org/" class="external-link">purrr</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ggplot2.tidyverse.org" class="external-link">ggplot2</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://wilkelab.org/cowplot/" class="external-link">cowplot</a></span><span class="op">)</span></span></code></pre></div>
+</div>
 <div class="section level2">
 <h2 id="prepare-the-experiment">Prepare the experiment<a class="anchor" aria-label="anchor" href="#prepare-the-experiment"></a>
 </h2>
@@ -92,10 +95,9 @@ a North-facing slope).</p>
 create the tree inventory:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu">SamsaRaLight</span><span class="fu">::</span><span class="va"><a href="../reference/data_prenovel.html">data_prenovel</a></span><span class="op">$</span><span class="va">trees</span><span class="op">)</span></span>
-<span><span class="co">#&gt;  [1] "id_tree"        "species"        "x"              "y"             </span></span>
-<span><span class="co">#&gt;  [5] "dbh_cm"         "crown_type"     "h_m"            "hbase_m"       </span></span>
-<span><span class="co">#&gt;  [9] "hmax_m"         "rn_m"           "re_m"           "rs_m"          </span></span>
-<span><span class="co">#&gt; [13] "rw_m"           "crown_openness" "crown_lad"</span></span></code></pre></div>
+<span><span class="co">#&gt;  [1] "id_tree"    "species"    "x"          "y"          "dbh_cm"    </span></span>
+<span><span class="co">#&gt;  [6] "crown_type" "h_m"        "hbase_m"    "hmax_m"     "rn_m"      </span></span>
+<span><span class="co">#&gt; [11] "re_m"       "rs_m"       "rw_m"       "crown_lad"</span></span></code></pre></div>
 <p>Initialise the stand size, say 100x100m 1ha square plot:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">stand_size_x</span> <span class="op">&lt;-</span> <span class="fl">100</span></span>
@@ -116,7 +118,7 @@ center of the plot:</p>
 <span>  re_m <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  rs_m <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>  rw_m <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>  crown_lad <span class="op">=</span> <span class="fl">0.5</span> <span class="co"># Base LAD value, see Tutorial 3 and Tutorial 6 for deeper explanations</span></span>
+<span>  crown_lad <span class="op">=</span> <span class="fl">0.5</span> <span class="co"># Base LAD value, see Tutorial 4</span></span>
 <span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">trees_inv</span></span>
@@ -177,9 +179,9 @@ different slope and aspect (a flat plane, a 20° north-facing slope and a
 </h3>
 <p>For each unique city (Madrid, Brussels and Oslo), create the monthly
 radiation tables containing for each of the 12 months information about
-global energy quantity () and the ratio of this energy between diffuse
-and direct energies (DGratio), in MJ/m2. It is important to note that
-the monthly values here correspond to radiations received on a
+global energy quantity (Hrad) and the ratio of this energy between
+diffuse and direct energies (DGratio), in MJ/m2. It is important to note
+that the monthly values here correspond to radiations received on a
 horizontal plane and are subsequently corrected by the model to estimate
 incident radiation on sloped surfaces.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -286,8 +288,9 @@ to correct your polygon, and if it fails, it will send an error.</p>
 <p>Then, we create the SamsaRaLight input stand from the created tree
 inventory, for each of the different stand geometry and latitude in our
 experimental design. We set the cell size as 1x1m in order to observe
-with great precision the shading effect of the tree within the
-stand.</p>
+with great precision the shading effect of the tree within the stand,
+and the <code>north2x</code> to 90° to have the Y-axis oriented to the
+North.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">sl_stand_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">exp_design</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
@@ -330,10 +333,28 @@ stand.</p>
 <h2 id="run-samsaralight">Run SamsaRaLight<a class="anchor" aria-label="anchor" href="#run-samsaralight"></a>
 </h2>
 <p>We can now easily run the SamsaraLight ray-tracing model on our 9
-virtual stands. Here, we decided to not use the torus as we want to
-observe the shading effect of only the single tree in the middle of the
-plot, thus considering the virtual 100x100m is surrounded by
-grasslands.</p>
+virtual stands. For the sake of this tutorial, we disable the torus
+system, which normally treats the virtual plot as being infinitely
+replicated beyond its borders. This can be done by using the advanced
+function run_sl_advanced() and setting the argument use_torus =
+FALSE.</p>
+<p>This option is intended for advanced users only and should be used
+with caution. Disabling the torus system does not simply mean assuming
+that the plot is surrounded by open areas without trees
+(e.g. grasslands). Instead, the torus system primarily compensates for
+an important modelling approximation: rays are only cast toward cells
+located inside the virtual plot. As a consequence, rays that would
+normally reach cells outside the plot are not simulated, leading to an
+underestimation of intercepted radiation, especially for trees located
+near the plot borders. The torus system addresses this limitation by
+assuming that equivalent copies of the stand surround the plot. Under
+this assumption, trees outside the plot intercept rays cast within the
+plot in the same way as trees inside it, thereby contributing to the
+total intercepted energy. This approach provides a practical
+approximation of edge effects without explicitly simulating a larger
+domain. For a detailed description of the torus system and its
+theoretical foundations, see the original SamsaRaLight model paper by
+Courbaud et al. (2003).</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Store SamsaraLight outputs in a list</span></span>
 <span><span class="va">out_sl_list</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/vector.html" class="external-link">vector</a></span><span class="op">(</span><span class="st">"list"</span>, length <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">exp_design</span><span class="op">)</span><span class="op">)</span></span>
@@ -342,14 +363,15 @@ grasslands.</p>
 <span>  </span>
 <span>  <span class="va">mod_design</span> <span class="op">&lt;-</span> <span class="va">exp_design</span><span class="op">[</span><span class="va">i</span>,<span class="op">]</span></span>
 <span>  </span>
-<span>  <span class="co"># Run SamsaraLight</span></span>
-<span>  <span class="va">out_sl_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">SamsaRaLight</span><span class="fu">::</span><span class="fu"><a href="../reference/run_sl.html">run_sl</a></span><span class="op">(</span></span>
+<span>  <span class="co"># Run SamsaraLight as advanced user</span></span>
+<span>  <span class="co"># As the function is internal, we use SamsaRaLight::: for accessing </span></span>
+<span>  <span class="va">out_sl_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu">SamsaRaLight</span><span class="fu">:::</span><span class="fu"><a href="../reference/run_sl_advanced.html">run_sl_advanced</a></span><span class="op">(</span></span>
 <span>    </span>
 <span>    <span class="co"># Simulation inputs</span></span>
 <span>    sl_stand <span class="op">=</span> <span class="va">sl_stand_list</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>,</span>
 <span>    monthly_radiations <span class="op">=</span> <span class="va">data_rad_list</span><span class="op">[[</span><span class="va">mod_design</span><span class="op">$</span><span class="va">city</span><span class="op">]</span><span class="op">]</span>,</span>
 <span>    </span>
-<span>    <span class="co"># Define stand boundaries</span></span>
+<span>    <span class="co"># Disable the torus system (only available in the run_sl_advanced() function)</span></span>
 <span>    use_torus <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>    </span>
 <span>    <span class="co"># Set detailed output to have information about ray-discretization and direct/diffuse outputs</span></span>

@@ -24,8 +24,7 @@ customization of ray discretization, sky type and trunk interception."></head><b
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
     <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
-    <li><a class="dropdown-item" href="../articles/3-complex_crowns.html">3 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/4-complex_inventory.html">4 - More complex inventory shapes</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -93,11 +92,11 @@ diffuse to global ratio (DGratio), computed with <a href="get_monthly_radiations
 
 
 <dt id="arg-use-torus">use_torus<a class="anchor" aria-label="anchor" href="#arg-use-torus"></a></dt>
-<dd><p>logical, if TRUE, use torus system for borders, else open grassland</p></dd>
+<dd><p>logical, if TRUE, use torus system for borders</p></dd>
 
 
 <dt id="arg-turbid-medium">turbid_medium<a class="anchor" aria-label="anchor" href="#arg-turbid-medium"></a></dt>
-<dd><p>logical, if TRUE, crowns are considered turbid medium, else porous envelope</p></dd>
+<dd><p>logical, if TRUE, crowns are considered turbid medium (using column <code>crown_lad</code>), else porous envelope (using column <code>crown_openess</code>)</p></dd>
 
 
 <dt id="arg-extinction-coef">extinction_coef<a class="anchor" aria-label="anchor" href="#arg-extinction-coef"></a></dt>

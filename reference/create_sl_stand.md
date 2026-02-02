@@ -18,7 +18,7 @@ create_sl_stand(
   north2x,
   sensors = NULL,
   core_polygon_df = NULL,
-  aarect_zone = FALSE,
+  modify_polygon = c("none", "rect", "aarect"),
   fill_around = FALSE,
   verbose = TRUE
 )
@@ -47,13 +47,16 @@ create_sl_stand(
 - aspect:
 
   Numeric. Aspect of the slope, defined as the azimuth of the downslope
-  direction, clockwise from North (degrees). North = 0, East = 90, South
-  = 180, West = 270.
+  direction, clockwise from North (degrees). (0°: North-facing slope,
+  90°: East-facing slope, 180°: South-facing slope, 270°: West-facing
+  slope)
 
 - north2x:
 
-  Numeric. Clockwise angle from North to the X-axis (degrees). A value
-  of 0 corresponds to a Y-axis oriented toward North.
+  Numeric. Clockwise angle from North to the X-axis (degrees). The
+  default 90° corresponds to a Y-axis oriented toward true North (0°:
+  x-axis points North, 90° : x-axis points East, 180° : x-axis points
+  South, 270° : x-axis points West)
 
 - sensors:
 
@@ -68,13 +71,6 @@ create_sl_stand(
   columns `x` and `y`. If `NULL`, a concave hull is automatically
   computed from tree positions.
 
-- aarect_zone:
-
-  Logical. If `TRUE`, the inventory zone is defined by the minimum-area
-  enclosing rectangle of the core polygon with minimum rotation to
-  obtain an axis-aligned rectangle inventory zone. If `FALSE`, the core
-  polygon itself is used.
-
 - fill_around:
 
   Logical. If `TRUE`, trees are added outside the core polygon until the
@@ -85,6 +81,13 @@ create_sl_stand(
 
   Logical. If `TRUE` (default), messages and warnings are printed during
   processing. If `FALSE`, output is silent.
+
+- aarect_zone:
+
+  Logical. If `TRUE`, the inventory zone is defined by the minimum-area
+  enclosing rectangle of the core polygon with minimum rotation to
+  obtain an axis-aligned rectangle inventory zone. If `FALSE`, the core
+  polygon itself is used.
 
 ## Value
 

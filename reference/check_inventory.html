@@ -26,8 +26,7 @@ describing the geometry and attributes of trees within a forest stand."></head><
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
     <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
-    <li><a class="dropdown-item" href="../articles/3-complex_crowns.html">3 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/4-complex_inventory.html">4 - More complex inventory shapes</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -114,11 +113,14 @@ For other crown types, the column is optional and the value is internally comput
 <dt>rw_m</dt>
 <dd><p>Crown radius toward West (numeric, meters).</p></dd>
 
-<dt>crown_openness</dt>
-<dd><p>Crown openness (unitless), optional if turbid medium interception.</p></dd>
-
 <dt>crown_lad</dt>
-<dd><p>Leaf Area Density (m² m⁻³), optional if porous envelope interception.</p></dd>
+<dd><p>Leaf Area Density (m² m⁻³).</p></dd>
+
+<dt>crown_openness</dt>
+<dd><p>Crown openness (unitless), optional if turbid medium interception.
+Required if the argument <code>turbid_medium = FALSE</code> in the advanced function <code><a href="run_sl_advanced.html">run_sl_advanced()</a></code>
+(for porous envelope interception). Otherwise, the basic function <code><a href="run_sl.html">run_sl()</a></code> will
+automatically computed interception in a turbid medium using the <code>crown_lad</code> variable.</p></dd>
 
 
 </dl></dd>
@@ -161,7 +163,7 @@ The <code><a href="plot_inventory.html">plot_inventory()</a></code> function req
 <dd><p>Ensures <code>hbase_m &lt; h_m</code>.</p></dd>
 
 <dt>9</dt>
-<dd><p>Verifies that each tree has at least one crown interception property defined.</p></dd>
+<dd><p>Verifies that each tree has the crown LAD defined.</p></dd>
 
 <dt>10</dt>
 <dd><p>Provides informative error messages and warnings for all invalid conditions.</p></dd>

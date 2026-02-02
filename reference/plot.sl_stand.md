@@ -45,3 +45,11 @@ A `ggplot` object representing the stand.
 
 For the sake of the representation in top-down plot, z are offset such
 as minimum altitude tree is at Y-axis height = 0
+
+The plot function also generates a compass indicating:
+
+- Plot orientation (north2x, north in red)
+
+- Terrain aspect (downslope direction)
+
+- Slope degrees (annotation only)

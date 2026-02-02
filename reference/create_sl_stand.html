@@ -28,8 +28,7 @@ to match its basal area per hectare."></head><body>
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
     <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
-    <li><a class="dropdown-item" href="../articles/3-complex_crowns.html">3 - More complex crown shapes</a></li>
-    <li><a class="dropdown-item" href="../articles/4-complex_inventory.html">4 - More complex inventory shapes</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -65,7 +64,7 @@ to match its basal area per hectare.</p>
 <span>  <span class="va">north2x</span>,</span>
 <span>  sensors <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  core_polygon_df <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  aarect_zone <span class="op">=</span> <span class="cn">FALSE</span>,</span>
+<span>  modify_polygon <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"none"</span>, <span class="st">"rect"</span>, <span class="st">"aarect"</span><span class="op">)</span>,</span>
 <span>  fill_around <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  verbose <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -95,12 +94,13 @@ See <a href="check_inventory.html">check_inventory</a> for the required structur
 <dt id="arg-aspect">aspect<a class="anchor" aria-label="anchor" href="#arg-aspect"></a></dt>
 <dd><p>Numeric. Aspect of the slope, defined as the azimuth of the
 downslope direction, clockwise from North (degrees).
-North = 0, East = 90, South = 180, West = 270.</p></dd>
+(0°: North-facing slope, 90°: East-facing slope, 180°: South-facing slope, 270°: West-facing slope)</p></dd>
 
 
 <dt id="arg-north-x">north2x<a class="anchor" aria-label="anchor" href="#arg-north-x"></a></dt>
 <dd><p>Numeric. Clockwise angle from North to the X-axis (degrees).
-A value of 0 corresponds to a Y-axis oriented toward North.</p></dd>
+The default 90° corresponds to a Y-axis oriented toward true North
+(0°: x-axis points North, 90° : x-axis points East, 180° : x-axis points South, 270° : x-axis points West)</p></dd>
 
 
 <dt id="arg-sensors">sensors<a class="anchor" aria-label="anchor" href="#arg-sensors"></a></dt>
@@ -114,13 +114,6 @@ Must contain columns <code>x</code> and <code>y</code>. If <code>NULL</code>, a 
 is automatically computed from tree positions.</p></dd>
 
 
-<dt id="arg-aarect-zone">aarect_zone<a class="anchor" aria-label="anchor" href="#arg-aarect-zone"></a></dt>
-<dd><p>Logical. If <code>TRUE</code>, the inventory zone is defined
-by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
-obtain an axis-aligned rectangle inventory zone.
-If <code>FALSE</code>, the core polygon itself is used.</p></dd>
-
-
 <dt id="arg-fill-around">fill_around<a class="anchor" aria-label="anchor" href="#arg-fill-around"></a></dt>
 <dd><p>Logical. If <code>TRUE</code>, trees are added outside the core
 polygon until the basal area per hectare of the full stand matches that
@@ -130,6 +123,13 @@ of the core inventory.</p></dd>
 <dt id="arg-verbose">verbose<a class="anchor" aria-label="anchor" href="#arg-verbose"></a></dt>
 <dd><p>Logical. If <code>TRUE</code> (default), messages and warnings are
 printed during processing. If <code>FALSE</code>, output is silent.</p></dd>
+
+
+<dt id="arg-aarect-zone">aarect_zone<a class="anchor" aria-label="anchor" href="#arg-aarect-zone"></a></dt>
+<dd><p>Logical. If <code>TRUE</code>, the inventory zone is defined
+by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
+obtain an axis-aligned rectangle inventory zone.
+If <code>FALSE</code>, the core polygon itself is used.</p></dd>
 
 </dl></div>
     <div class="section level2">

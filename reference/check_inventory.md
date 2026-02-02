@@ -88,14 +88,20 @@ check_inventory(trees_inv, verbose = TRUE)
 
   :   Crown radius toward West (numeric, meters).
 
+  crown_lad
+
+  :   Leaf Area Density (m² m⁻³).
+
   crown_openness
 
   :   Crown openness (unitless), optional if turbid medium interception.
-
-  crown_lad
-
-  :   Leaf Area Density (m² m⁻³), optional if porous envelope
-      interception.
+      Required if the argument `turbid_medium = FALSE` in the advanced
+      function
+      [`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
+      (for porous envelope interception). Otherwise, the basic function
+      [`run_sl()`](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)
+      will automatically computed interception in a turbid medium using
+      the `crown_lad` variable.
 
 - verbose:
 
@@ -154,8 +160,7 @@ The function performs the following checks and validations:
 
 - 9:
 
-  Verifies that each tree has at least one crown interception property
-  defined.
+  Verifies that each tree has the crown LAD defined.
 
 - 10:
 
