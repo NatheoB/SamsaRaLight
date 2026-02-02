@@ -256,9 +256,9 @@ private:
 
 	// Ellipsoid parameters (semi-principal axes)
 	// The signs of a, b and c determine which 8th is considered.
-	double a;
-	double b;
-	double c;
+	double a; // X-axis
+	double b; // Y-axis
+	double c; // Z-axis (height)
 
 
 private:
@@ -453,9 +453,9 @@ private:
 
 	// Paraboloid parameters (semi-principal axes)
 	// Sign of a and b determine which 4th of paraboloid we consider
-	double a;
-	double b;
-	double h;
+	double a; // X-axis
+	double b; // Y-axis
+	double h; // Z-axis (height)
 
 
 private:
@@ -665,10 +665,10 @@ private:
 	// Symetric paraboloid crown
 	void initCrownParaboloid(double x, double y, double z,
 		double h, double hbase,
-		double cr_n, double cr_e, double cr_s, double cr_w) {
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin) {
 
 		// Radius is the same for all directions and is defined by mean crown radius of the four directions
-		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
+		double crown_radius = (cr_ymax + cr_xmax + cr_ymin + cr_xmin) / 4.0;
 
 		// Compute height of the crown
 		double cdepth = (h - hbase);
@@ -687,7 +687,7 @@ private:
 	// Irregular crown composed of 4 eighth of paraboloids
 	void initCrownParaboloid4th(double x, double y, double z,
 		double h, double hbase,
-		double cr_n, double cr_e, double cr_s, double cr_w) {
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin) {
 
 		// Compute height of the crown
 		double cdepth = h - hbase;
@@ -700,22 +700,22 @@ private:
 
 		// Init fourth parts of the crown
 		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
-			x0, y0, z0, cr_e, cr_n, cdepth));
+			x0, y0, z0, cr_xmax, cr_ymax, cdepth));
 		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
-			x0, y0, z0, cr_e, -cr_s, cdepth));
+			x0, y0, z0, cr_xmax, -cr_ymin, cdepth));
 		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
-			x0, y0, z0, -cr_w, -cr_s, cdepth));
+			x0, y0, z0, -cr_xmin, -cr_ymin, cdepth));
 		this->crownParts.push_back(new CrownPartParaboloid(this->vectIdTree, true,
-			x0, y0, z0, -cr_w, cr_n, cdepth));
+			x0, y0, z0, -cr_xmin, cr_ymax, cdepth));
 	}
 
 	// Symetric ellispoidal crown
 	void initCrownEllipsoid(double x, double y, double z,
 		double h, double hbase,
-		double cr_n, double cr_e, double cr_s, double cr_w) {
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin) {
 
 		// Radius is the same for all directions and is defined by mean crown radius of the four directions
-		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
+		double crown_radius = (cr_ymax + cr_xmax + cr_ymin + cr_xmin) / 4.0;
 
 		// Compute height of maximum crown radius as the middle height of the crown depth
 		double cdepth = (h - hbase);
@@ -735,10 +735,10 @@ private:
 	// Irregular crown composed of 2 above and below semi-ellipsoids
 	void initCrownEllipsoidSemi(double x, double y, double z,
 		double h, double hbase, double hmax,
-		double cr_n, double cr_e, double cr_s, double cr_w) {
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin) {
 
 		// Radius is the same for all directions and is defined by mean crown radius of the four directions
-		double crown_radius = (cr_n + cr_e + cr_s + cr_w) / 4.0;
+		double crown_radius = (cr_ymax + cr_xmax + cr_ymin + cr_xmin) / 4.0;
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
@@ -764,7 +764,7 @@ private:
 	// Irregular crown composed of 8 eighth of ellipsoids
 	void initCrownEllipsoid8th(double x, double y, double z,
 		double h, double hbase, double hmax,
-		double cr_n, double cr_e, double cr_s, double cr_w) {
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin) {
 
 		// Get center of the crown 
 		// x, y, z are tree coordinates
@@ -779,25 +779,25 @@ private:
 		// Init top eighth parts of the crown
 		if (depth_up > 0) {
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, cr_e, cr_n, depth_up));
+				x0, y0, z0, cr_xmax, cr_ymax, depth_up));
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, cr_e, -cr_s, depth_up));
+				x0, y0, z0, cr_xmax, -cr_ymin, depth_up));
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, -cr_w, -cr_s, depth_up));
+				x0, y0, z0, -cr_xmin, -cr_ymin, depth_up));
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, -cr_w, cr_n, depth_up));
+				x0, y0, z0, -cr_xmin, cr_ymax, depth_up));
 		}
 
 		// Init bottom eighth parts of the crown
 		if (depth_down > 0) {
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, cr_e, cr_n, -depth_down));
+				x0, y0, z0, cr_xmax, cr_ymax, -depth_down));
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, cr_e, -cr_s, -depth_down));
+				x0, y0, z0, cr_xmax, -cr_ymin, -depth_down));
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, -cr_w, -cr_s, -depth_down));
+				x0, y0, z0, -cr_xmin, -cr_ymin, -depth_down));
 			this->crownParts.push_back(new CrownPartEllipsoid(this->vectIdTree, true, true,
-				x0, y0, z0, -cr_w, cr_n, -depth_down));
+				x0, y0, z0, -cr_xmin, cr_ymax, -depth_down));
 		}
 	}
 
@@ -807,7 +807,7 @@ public:
 		std::string crown_type,
 		double x, double y, double z,
 		double h, double hbase, double hmax,
-		double cr_n, double cr_e, double cr_s, double cr_w,
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin,
 		double crown_openness, double crown_lad)
 	{
 		this->vectIdTree = vectid_tree;
@@ -828,23 +828,23 @@ public:
 		if (crown_type == "8E")
 			this->initCrownEllipsoid8th(x, y, z,
 				h, hbase, hmax, 
-				cr_n, cr_e, cr_s, cr_w);
+				cr_ymax, cr_xmax, cr_ymin, cr_xmin);
 		else if (crown_type == "2E") 
 			this->initCrownEllipsoidSemi(x, y, z,
 				h, hbase, hmax, 
-				cr_n, cr_e, cr_s, cr_w);
+				cr_ymax, cr_xmax, cr_ymin, cr_xmin);
 		else if (crown_type == "E")
 			this->initCrownEllipsoid(x, y, z,
 				h, hbase, 
-				cr_n, cr_e, cr_s, cr_w);
+				cr_ymax, cr_xmax, cr_ymin, cr_xmin);
 		else if (crown_type == "4P")
 			this->initCrownParaboloid4th(x, y, z,
 				h, hbase,
-				cr_n, cr_e, cr_s, cr_w);
+				cr_ymax, cr_xmax, cr_ymin, cr_xmin);
 		else if (crown_type == "P") 
 			this->initCrownParaboloid(x, y, z,
 				h, hbase, 
-				cr_n, cr_e, cr_s, cr_w);
+				cr_ymax, cr_xmax, cr_ymin, cr_xmin);
 		else
 			std::cout << "Unrecognized crown type" << std::endl;
 	}
@@ -1050,10 +1050,10 @@ public:
 		std::string crown_type,
 		double x_crown, double y_crown,
 		double hbase, double hmax,
-		double cr_n, double cr_e, double cr_s, double cr_w,
+		double cr_ymax, double cr_xmax, double cr_ymin, double cr_xmin,
 		double crown_openness, double crown_lad):
 
-		crown(vectid, crown_type, x_crown, y_crown, z, h, hbase, hmax, cr_n, cr_e, cr_s, cr_w,
+		crown(vectid, crown_type, x_crown, y_crown, z, h, hbase, hmax, cr_ymax, cr_xmax, cr_ymin, cr_xmin,
 			crown_openness, crown_lad),
 		trunk(vectid, x, y, z, dbh, h)
 	{
@@ -1565,10 +1565,10 @@ public:
 		NumericVector tree_height = trees["h_m"];
 		NumericVector hbase = trees["hbase_m"];
 		NumericVector hmax = trees["hmax_m"];
-		NumericVector cr_n = trees["rn_m"];
-		NumericVector cr_e = trees["re_m"];
-		NumericVector cr_s = trees["rs_m"];
-		NumericVector cr_w = trees["rw_m"];
+		NumericVector cr_ymax = trees["rymax_m"];
+		NumericVector cr_xmax = trees["rxmax_m"];
+		NumericVector cr_ymin = trees["rymin_m"];
+		NumericVector cr_xmin = trees["rxmin_m"];
 		StringVector ctype = trees["crown_type"];
 		NumericVector cp = trees["crown_openness"];
 		NumericVector clad = trees["crown_lad"];
@@ -1599,7 +1599,7 @@ public:
 				Rcpp::as< std::string >(ctype[i]), 
 				trees_xcrown[i], trees_ycrown[i],
 				hbase[i], hmax[i],
-				cr_n[i], cr_e[i], cr_s[i], cr_w[i], cp[i], clad[i]));
+				cr_ymax[i], cr_xmax[i], cr_ymin[i], cr_xmin[i], cp[i], clad[i]));
 
 			// Add to trees id vectors (i.e. corrrespondance vector between trees id in vect and trees id)
 			this->rcppTreeIdChar.push_back(std::to_string(trees_id[i]));
@@ -1613,7 +1613,7 @@ public:
 
 		// Get maximum height and crown radius of the trees
 		this->maxTreeHeight = max(tree_height);
-		this->maxTreeCrownRadius = std::max({ max(cr_n), max(cr_e), max(cr_s), max(cr_w) });
+		this->maxTreeCrownRadius = std::max({ max(cr_ymax), max(cr_xmax), max(cr_ymin), max(cr_xmin) });
 	}
 
 	~Stand() {

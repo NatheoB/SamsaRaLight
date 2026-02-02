@@ -154,3 +154,36 @@ cells_rel2abs <- function(x_target, y_target,
     x_shift, y_shift, outside
   )
 }
+
+#' Rotate 2D vectors by an angle (counter-clockwise)
+#'
+#' Internal utility to rotate 2D coordinates by a given angle (in radians),
+#' using a standard rotation matrix.
+#'
+#' @param x Numeric vector of x coordinates.
+#' @param y Numeric vector of y coordinates.
+#' @param theta Rotation angle in radians (counter-clockwise).
+#'
+#' @return A data.frame with rotated coordinates:
+#' \describe{
+#'   \item{x}{Rotated x coordinates}
+#'   \item{y}{Rotated y coordinates}
+#' }
+#'
+#' @details
+#' The rotation follows:
+#' \deqn{
+#' x' = x \cos(\theta) - y \sin(\theta)
+#' }
+#' \deqn{
+#' y' = x \sin(\theta) + y \cos(\theta)
+#' }
+#'
+#' @keywords internal
+rotate_vec_ccw <- function(x, y, theta) {
+  data.frame(
+    x = x * cos(theta) - y * sin(theta),
+    y = x * sin(theta) + y * cos(theta)
+  )
+}
+

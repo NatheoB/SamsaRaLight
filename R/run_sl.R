@@ -19,16 +19,6 @@
 #' @param sensors_only Logical.  
 #' If \code{TRUE}, compute light interception only for sensors (much faster).
 #'
-#' @param use_torus Logical.  
-#' If \code{TRUE}, stand borders are treated using a torus (periodic) geometry,
-#' mimicking an infinite forest, representative of the virtual stand.  
-#' If \code{FALSE}, borders are open (surrounded by grassland).
-#'
-#' @param turbid_medium Logical.  
-#' If \code{TRUE}, tree crowns are treated as a turbid medium (Beer–Lambert law
-#' using \code{crown_lad}).  
-#' If \code{FALSE}, crowns are treated as porous envelopes (using \code{crown_openness}).
-#'
 #' @param detailed_output Logical.  
 #' If \code{TRUE}, the output contains detailed diffuse/direct energies in the \code{light} datasets, full
 #' interception matrices \code{interceptions} and output of ray discretization \code{monthy_rays}.  
@@ -104,8 +94,6 @@ run_sl <- function(
     sl_stand,
     monthly_radiations,
     sensors_only = FALSE,
-    use_torus = TRUE,
-    turbid_medium = TRUE,
     detailed_output = FALSE,
     parallel_mode = FALSE,
     n_threads = NULL,
@@ -116,8 +104,8 @@ run_sl <- function(
     sl_stand = sl_stand,
     monthly_radiations = monthly_radiations,
     sensors_only = sensors_only,
-    use_torus = use_torus,
-    turbid_medium = turbid_medium,
+    use_torus = TRUE,
+    turbid_medium = TRUE,
     extinction_coef = 0.5,
     clumping_factor = 1,
     trunk_interception = TRUE,

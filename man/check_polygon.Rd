@@ -4,10 +4,10 @@
 \alias{check_polygon}
 \title{Check and validate a polygon defined by vertices}
 \usage{
-check_polygon(polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
+check_polygon(core_polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
 }
 \arguments{
-\item{polygon_df}{A data.frame with columns x and y defining polygon vertices}
+\item{core_polygon_df}{A data.frame with columns x and y defining polygon vertices}
 
 \item{trees_inv}{A data.frame with one row per tree.
 See \link{check_inventory} for the required structure and validated columns.}

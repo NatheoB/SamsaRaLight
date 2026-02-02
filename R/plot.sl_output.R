@@ -171,8 +171,8 @@ plot.sl_output <- function(x, ...,
           aes(
             x0 = x,
             y0 = y,
-            a = (re_m + rw_m)/2,
-            b = (rn_m + rs_m)/2,
+            a = (rxmax_m + rxmin_m) / 2, # In X-axis
+            b = (rymax_m + rymin_m) / 2, # In Y-axis
             angle = 0,
             fill = zval
           ),
@@ -220,7 +220,7 @@ plot.sl_output <- function(x, ...,
     theme_minimal() +
     theme(
       panel.grid = element_blank(),
-      plot.title = element_text(hjust = 0.5),
+      plot.title = element_text(hjust = 0.5, face = "bold"),
       plot.subtitle = element_text(hjust = 0.5),
       legend.position = "top",
       legend.box = "horizontal",

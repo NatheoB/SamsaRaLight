@@ -13,8 +13,8 @@
 #' @param monthly_radiations data.frame of monthly horizontal radiation (Hrad) and
 #'   diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.
 #' @param sensors_only logical, if TRUE, compute interception only for sensors
-#' @param use_torus logical, if TRUE, use torus system for borders, else open grassland
-#' @param turbid_medium logical, if TRUE, crowns are considered turbid medium, else porous envelope
+#' @param use_torus logical, if TRUE, use torus system for borders
+#' @param turbid_medium logical, if TRUE, crowns are considered turbid medium (using column `crown_lad`), else porous envelope (using column `crown_openess`)
 #' @param extinction_coef Numeric scalar. Leaf extinction coefficient controlling
 #'   the probability that a ray is intercepted by foliage. It represents the
 #'   effective light attenuation per unit leaf area and is linked to average
@@ -306,17 +306,21 @@ validate_interception_model <- function(trees, turbid_medium) {
       )
     }
     
-    if (!is.numeric(trees$crown_lad)) {
-      stop("turbid_medium = TRUE requires column `crown_lad` to be numeric.", call. = FALSE)
+    if (any(is.na(trees$crown_lad))) {
+      stop(
+        "turbid_medium = TRUE requires to define `crown_lad` for all trees.", 
+        call. = FALSE)
     }
     
-    bad <- is.na(trees$crown_lad)
-    if (any(bad)) {
+    if (!is.numeric(trees$crown_lad)) {
+      stop("turbid_medium = TRUE requires column `crown_lad` to be numeric.", 
+           call. = FALSE)
+    }
+    
+    if (any(trees$crown_lad <= 0)) {
       stop(
-        "turbid_medium = TRUE requires to define `crown_lad` for all trees. Missing for tree(s): ",
-        paste(trees$id_tree[bad], collapse = ", "),
-        call. = FALSE
-      )
+        "turbid_medium = TRUE requires `crown_lad` to be strictly positive", 
+        call. = FALSE)
     }
     
   } else {
@@ -324,21 +328,24 @@ validate_interception_model <- function(trees, turbid_medium) {
     if (!"crown_openness" %in% names(trees)) {
       stop(
         "turbid_medium = FALSE requires column `crown_openness` in tree inventory.",
-        call. = FALSE
-      )
+        call. = FALSE)
+    }
+    
+    if (any(is.na(trees$crown_openness))) {
+      stop(
+        "turbid_medium = FALSE requires to define `crown_openness` for all trees.", 
+        call. = FALSE)
     }
     
     if (!is.numeric(trees$crown_openness)) {
-      stop("turbid_medium = FALSE requires column `crown_openness` to be numeric.", call. = FALSE)
+      stop("turbid_medium = FALSE requires column `crown_openness` to be numeric.", 
+           call. = FALSE)
     }
     
-    bad <- is.na(trees$crown_openness)
-    if (any(bad)) {
+    if (any(trees$crown_openness < 0 | trees$crown_openness > 1)) {
       stop(
-        "turbid_medium = FALSE requires to define `crown_openness` for all trees. Missing for tree(s): ",
-        paste(trees$id_tree[bad], collapse = ", "),
-        call. = FALSE
-      )
+        "turbid_medium = FALSE requires `crown_openness` to be in [0,1]", 
+        call. = FALSE)
     }
   }
   

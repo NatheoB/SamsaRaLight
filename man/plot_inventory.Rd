@@ -4,16 +4,23 @@
 \alias{plot_inventory}
 \title{Plot a from-above view of a tree inventory}
 \usage{
-plot_inventory(trees_inv, show_id = TRUE)
+plot_inventory(trees_inv, core_polygon_df = NULL, show_id = TRUE)
 }
 \arguments{
 \item{trees_inv}{A data.frame of trees that passed \link{check_inventory}.}
 
+\item{core_polygon_df}{Optional data.frame defining the core inventory polygon.
+Must contain columns \code{x} and \code{y}.}
+
 \item{show_id}{Logical; if TRUE (default), displays tree identifiers at crown centers.}
 }
 \value{
-A ggplot object displaying the trees as ellipses in a from-above view.
+A ggplot object displaying the trees in a from-above view.
 }
 \description{
 Visualizes a forest inventory as ellipses representing tree crowns.
+}
+\details{
+Because the north2x variable is unknown, trees are plotted as circles
+by considering the mean radius on the four cardinals.
 }

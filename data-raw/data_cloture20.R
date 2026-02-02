@@ -45,7 +45,7 @@ data_trees_cloture20 <- trees %>%
                 hbase_m = CBH, hmax_m = CMRH,
                 rn_m = RN, rs_m = RS,
                 re_m = RE, rw_m = RW,
-                crown_openness = CrownOpenness, crown_lad = LAD)
+                crown_lad = LAD)
 
 
 

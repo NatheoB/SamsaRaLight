@@ -13,7 +13,7 @@ create_sl_stand(
   north2x,
   sensors = NULL,
   core_polygon_df = NULL,
-  aarect_zone = FALSE,
+  modify_polygon = c("none", "rect", "aarect"),
   fill_around = FALSE,
   verbose = TRUE
 )
@@ -30,10 +30,11 @@ See \link{check_inventory} for the required structure and validated columns.}
 
 \item{aspect}{Numeric. Aspect of the slope, defined as the azimuth of the
 downslope direction, clockwise from North (degrees).
-North = 0, East = 90, South = 180, West = 270.}
+(0°: North-facing slope, 90°: East-facing slope, 180°: South-facing slope, 270°: West-facing slope)}
 
 \item{north2x}{Numeric. Clockwise angle from North to the X-axis (degrees).
-A value of 0 corresponds to a Y-axis oriented toward North.}
+The default 90° corresponds to a Y-axis oriented toward true North
+(0°: x-axis points North, 90° : x-axis points East, 180° : x-axis points South, 270° : x-axis points West)}
 
 \item{sensors}{Optional data.frame defining position and height of the sensor within the stand.
 See \link{check_sensors} for the required structure and validated columns.}
@@ -42,17 +43,17 @@ See \link{check_sensors} for the required structure and validated columns.}
 Must contain columns \code{x} and \code{y}. If \code{NULL}, a concave hull
 is automatically computed from tree positions.}
 
-\item{aarect_zone}{Logical. If \code{TRUE}, the inventory zone is defined
-by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
-obtain an axis-aligned rectangle inventory zone.
-If \code{FALSE}, the core polygon itself is used.}
-
 \item{fill_around}{Logical. If \code{TRUE}, trees are added outside the core
 polygon until the basal area per hectare of the full stand matches that
 of the core inventory.}
 
 \item{verbose}{Logical. If \code{TRUE} (default), messages and warnings are
 printed during processing. If \code{FALSE}, output is silent.}
+
+\item{aarect_zone}{Logical. If \code{TRUE}, the inventory zone is defined
+by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
+obtain an axis-aligned rectangle inventory zone.
+If \code{FALSE}, the core polygon itself is used.}
 }
 \value{
 A named list with the following elements:

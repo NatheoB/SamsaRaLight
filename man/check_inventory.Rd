@@ -32,8 +32,11 @@ For other crown types, the column is optional and the value is internally comput
 \item{rs_m}{Crown radius toward South (numeric, meters).}
 \item{re_m}{Crown radius toward East (numeric, meters).}
 \item{rw_m}{Crown radius toward West (numeric, meters).}
-\item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.}
-\item{crown_lad}{Leaf Area Density (m² m⁻³), optional if porous envelope interception.}
+\item{crown_lad}{Leaf Area Density (m² m⁻³).}
+\item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.
+Required if the argument \code{turbid_medium = FALSE} in the advanced function \code{run_sl_advanced()}
+(for porous envelope interception). Otherwise, the basic function \code{run_sl()} will
+automatically computed interception in a turbid medium using the \code{crown_lad} variable.}
 }}
 
 \item{verbose}{Logical; if \code{TRUE}, informative messages and warnings are printed.}
@@ -60,7 +63,7 @@ The \code{plot_inventory()} function requires planar coordinates and cannot be u
 \item{6}{Ensures crown radii are present according to crown type.}
 \item{7}{Checks that \code{hmax_m} is provided when required and lies between \code{hbase_m} and \code{h_m}.}
 \item{8}{Ensures \code{hbase_m < h_m}.}
-\item{9}{Verifies that each tree has at least one crown interception property defined.}
+\item{9}{Verifies that each tree has the crown LAD defined.}
 \item{10}{Provides informative error messages and warnings for all invalid conditions.}
 }
 }

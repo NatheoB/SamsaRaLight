@@ -17,9 +17,10 @@
 #' @param slope Numeric. Slope of the plot (degrees).
 #' @param aspect Numeric. Aspect of the slope, defined as the azimuth of the
 #'   downslope direction, clockwise from North (degrees).
-#'   North = 0, East = 90, South = 180, West = 270.
+#'   (0°: North-facing slope, 90°: East-facing slope, 180°: South-facing slope, 270°: West-facing slope)
 #' @param north2x Numeric. Clockwise angle from North to the X-axis (degrees).
-#'   A value of 0 corresponds to a Y-axis oriented toward North.
+#'   The default 90° corresponds to a Y-axis oriented toward true North 
+#'   (0°: x-axis points North, 90° : x-axis points East, 180° : x-axis points South, 270° : x-axis points West)
 #' @param sensors Optional data.frame defining position and height of the sensor within the stand.
 #'   See \link{check_sensors} for the required structure and validated columns.
 #' @param core_polygon_df Optional data.frame defining the core inventory polygon.
@@ -136,7 +137,7 @@ create_sl_stand <- function(trees_inv,
                             north2x,
                             sensors = NULL,
                             core_polygon_df = NULL,
-                            aarect_zone = FALSE,
+                            modify_polygon = c("none", "rect", "aarect"),
                             fill_around = FALSE,
                             verbose = TRUE) {
   
@@ -230,6 +231,9 @@ create_sl_stand <- function(trees_inv,
     core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors)
   }
   
+  # Modify polygon
+  modify_polygon <- match.arg(modify_polygon)
+  
   
   # cell_size
   if (!is.numeric(cell_size) || length(cell_size) != 1 || is.na(cell_size)) {
@@ -271,9 +275,27 @@ create_sl_stand <- function(trees_inv,
     stop("`north2x` must be between 0 (inclusive) and 360 (exclusive) degrees.", call. = FALSE)
   }
   
+  asym_crowns <- any(trees_inv$crown_type %in% c("4P", "8E")) # Check for asymmetric crowns
+  if (asym_crowns) {
+    # Only multiples of 90° are allowed
+    allowed_angles <- c(0, 90, 180, 270)
+    if (!north2x %in% allowed_angles) {
+      stop(
+        "For asymmetric crowns (crown_type in c('4P','8E')), `north2x` must be one of 0, 90, 180, 270°.",
+        call. = FALSE
+      )
+    }
+    # Cannot rotate the stand
+    if (modify_polygon == "aarect") {
+      stop(
+        "For asymmetric crowns (crown_type in c('4P','8E')), the user inventory cannot be rotated.",
+        call. = FALSE
+      )
+    }
+  }
+  
   # logical flags
   logical_args <- list(
-    "aarect_zone" = aarect_zone,
     "fill_around" = fill_around,
     "verbose"     = verbose
   )
@@ -313,24 +335,26 @@ create_sl_stand <- function(trees_inv,
   }
   
 
-  ## If specified, get the minimum-area enclosing rectangle from the polygon ----
+  ## If specified, get the minimum- (rotated) area enclosing rectangle from the polygon ----
   
-  rotation <- 0 # initialise stand rotation to 0
+  rotation_ccw <- 0 # initialise stand rotation to 0
   trees <- trees_inv # Initialise the trees
   
-  if (aarect_zone) {
+  if (modify_polygon %in% c("rect", "aarect")) {
     
     # Create rectangle zone and rotate all the components
-    aarect_list <- create_aarect_inventory(core_polygon_df,
-                                           trees_inv,
-                                           north2x,
-                                           sensors)
+    aarect_list <- create_rect_inventory(core_polygon_df,
+                                         trees_inv,
+                                         north2x,
+                                         sensors,
+                                         rotate_axisaligned = modify_polygon=="aarect")
     
     core_polygon_df <- aarect_list$core_polygon_df
+    core_polygon_sf <- aarect_list$core_polygon_sf
     trees <- aarect_list$trees
     sensors <- aarect_list$sensors
     north2x <- aarect_list$north2x
-    rotation <- aarect_list$rotation
+    rotation_ccw <- aarect_list$rotation_ccw
     
     # Check the polygon
     core_polygon_df <- check_polygon(core_polygon_df, trees, sensors, verbose = F)
@@ -384,6 +408,53 @@ create_sl_stand <- function(trees_inv,
     as.data.frame()
   
   core_polygon_shifted_sf <- sfheaders::sf_polygon(core_polygon_shifted_df)
+  
+  
+  # CONVERT THE CROWN RADII IN XY PLAN ----
+  
+  ## Symmetric crown (P and E) or only vertical asymmetry (2E) ----
+  # Here all radii are equal and has been checked before to be equal
+  # Radii are equal, thus NSEW geographic = XY planar, no matter north2x
+  horizontal_sym_trees <- trees_shifted$crown_type %in% c("P", "E", "2E")
+  radius_horizontal_sym_trees <- trees_shifted$rw_m[horizontal_sym_trees]
+  
+  trees_shifted$rxmax_m[horizontal_sym_trees] <- radius_horizontal_sym_trees
+  trees_shifted$rxmin_m[horizontal_sym_trees] <- radius_horizontal_sym_trees
+  trees_shifted$rymax_m[horizontal_sym_trees] <- radius_horizontal_sym_trees
+  trees_shifted$rymin_m[horizontal_sym_trees] <- radius_horizontal_sym_trees
+  
+  
+  ## Vertical asymmetry (4P and 8E) ----
+  # XY planar radii depends on north2x
+  # Knowing that north2x can only be a multiple of 90° if there is at least one 4P/8E crown
+  horizontal_asym_trees <- trees_shifted$crown_type %in% c("4P", "8E")
+  
+  if (north2x == 0) {
+    trees_shifted$rxmax_m[horizontal_asym_trees] <- trees_shifted$rn_m[horizontal_asym_trees]
+    trees_shifted$rxmin_m[horizontal_asym_trees] <- trees_shifted$rs_m[horizontal_asym_trees]
+    trees_shifted$rymax_m[horizontal_asym_trees] <- trees_shifted$rw_m[horizontal_asym_trees]
+    trees_shifted$rymin_m[horizontal_asym_trees] <- trees_shifted$re_m[horizontal_asym_trees]
+  } 
+  else if (north2x == 90) {
+    trees_shifted$rxmax_m[horizontal_asym_trees] <- trees_shifted$re_m[horizontal_asym_trees]
+    trees_shifted$rxmin_m[horizontal_asym_trees] <- trees_shifted$rw_m[horizontal_asym_trees]
+    trees_shifted$rymax_m[horizontal_asym_trees] <- trees_shifted$rn_m[horizontal_asym_trees]
+    trees_shifted$rymin_m[horizontal_asym_trees] <- trees_shifted$rs_m[horizontal_asym_trees]
+  } 
+  else if (north2x == 180) {
+    trees_shifted$rxmax_m[horizontal_asym_trees] <- trees_shifted$rs_m[horizontal_asym_trees]
+    trees_shifted$rxmin_m[horizontal_asym_trees] <- trees_shifted$rn_m[horizontal_asym_trees]
+    trees_shifted$rymax_m[horizontal_asym_trees] <- trees_shifted$re_m[horizontal_asym_trees]
+    trees_shifted$rymin_m[horizontal_asym_trees] <- trees_shifted$rw_m[horizontal_asym_trees]
+  } 
+  else if (north2x == 270) {
+    trees_shifted$rxmax_m[horizontal_asym_trees] <- trees_shifted$rw_m[horizontal_asym_trees]
+    trees_shifted$rxmin_m[horizontal_asym_trees] <- trees_shifted$re_m[horizontal_asym_trees]
+    trees_shifted$rymax_m[horizontal_asym_trees] <- trees_shifted$rs_m[horizontal_asym_trees]
+    trees_shifted$rymin_m[horizontal_asym_trees] <- trees_shifted$rn_m[horizontal_asym_trees]
+  }
+
+  
   
     
   # FILL AROUND THE CORE INVENTORY ZONE ----
@@ -466,7 +537,7 @@ create_sl_stand <- function(trees_inv,
   
   
   
-  # FILL THE TABLE WITH LAST VARIABLES ----
+  # FILL THE TABLE WITH MISSING VARIABLES ----
   
   ## Compute tree z ----
   trees_filled <- trees_filled %>% 
@@ -476,6 +547,7 @@ create_sl_stand <- function(trees_inv,
                 deg2rad(get_bottom_azimut(aspect, north2x))),
       .after = y
     )
+  
   
   ## Compute tree hmax ----
   # Create the column if it does not exists 
@@ -507,24 +579,15 @@ create_sl_stand <- function(trees_inv,
       )
     )
   
-  ## Add dbh column to NA if it does not exist ----
-  if (!"dbh_cm" %in% names(trees_filled)) {
-    trees_filled <- trees_filled %>% 
-      dplyr::mutate(dbh_cm = NA_real_, .after = z)
-  }
   
-  ## Add crown openness / LAD columns if missing ----
+  ## Add crown openness column if missing ----
   if (!"crown_openness" %in% names(trees_filled)) {
     trees_filled <- trees_filled %>% 
       dplyr::mutate(crown_openness = NA_real_)
   }
   
-  if (!"crown_lad" %in% names(trees_filled)) {
-    trees_filled <- trees_filled %>% 
-      dplyr::mutate(crown_lad = NA_real_)
-  }
   
-  ## Convert as data.frame ----
+  # CONVERT AS DATA.FRAME ----
   trees_filled <- trees_filled %>% as.data.frame()
   
   
@@ -581,7 +644,7 @@ create_sl_stand <- function(trees_inv,
     "core_polygon" = list(
       "df" = core_polygon_shifted_df,
       "sf" = core_polygon_shifted_sf,
-      "aarect_zone" = aarect_zone
+      "modify_polygon" = modify_polygon
     ),
     "transform" = list(
       "core_area_ha" = core_area_ha, 
@@ -593,7 +656,7 @@ create_sl_stand <- function(trees_inv,
       "epsg" = epsg_used,
       "shift_x" = shift_x,
       "shift_y" = shift_y,
-      "rotation" = rotation
+      "rotation_ccw" = rotation_ccw
     ),
     "geometry" = list("cell_size" = cell_size,
                       "n_cells_x" = n_cells_x, 
@@ -658,31 +721,78 @@ create_sl_stand <- function(trees_inv,
 #' @keywords internal
 validate_sl_stand <- function(x) {
   
-  # Class check
+  # Class check ----
   if (!inherits(x, "sl_stand")) {
     stop("Object is not a `sl_stand`.", call. = FALSE)
   }
   
-  # Top-level components
+  # Top-level components ----
   required <- c("trees", "sensors", "cells", "core_polygon", "transform", "geometry", "inventory")
   missing <- setdiff(required, names(x))
   if (length(missing) > 0) {
     stop("sl_stand is missing element(s): ", paste(missing, collapse = ", "), call. = FALSE)
   }
   
-  # Trees & sensors format
+  # Trees & sensors format ----
   check_inventory(x$trees, verbose = FALSE)
   check_sensors(x$sensors, verbose = FALSE)
   
-  # Cells
-  if (!is.data.frame(x$cells)) stop("`cells` must be a data.frame.", call. = FALSE)
-  required_cells <- c("x_center","y_center","z_center","id_cell")
-  if (!all(required_cells %in% names(x$cells))) {
-    stop("`cells` is malformed. Missing column(s): ",
-         paste(setdiff(required_cells, names(x$cells)), collapse = ", "), call. = FALSE)
-  }
+  # Check the new created variables are well defined ----
   
-  # Geometry
+  ## Required variables
+  required_new_cols <- c("hmax_m",
+                         "rxmax_m", "rxmin_m", "rymax_m", "rymin_m",
+                         "crown_openness",
+                         "z")
+  
+  missing_new_cols <- setdiff(required_new_cols, names(x$trees))
+  if (length(missing_new_cols) > 0) stop(
+    "Missing required column(s): ", 
+    paste(missing_new_cols, collapse = ", "), call. = FALSE
+  )
+  
+  # Non NA and numeric variables (all except crown_openness)
+  nonNAnumeric_new_cols <- c("hmax_m",
+                             "rxmax_m", "rxmin_m", "rymax_m", "rymin_m",
+                             "z")
+  
+  invalid_new_cols <- nonNAnumeric_new_cols[vapply(x$trees[nonNAnumeric_new_cols], 
+                                              function(x) any(is.na(x) | !is.numeric(x), na.rm = TRUE), 
+                                              logical(1))]
+  if (length(invalid_new_cols) > 0) stop(
+    "NA or non-numeric elements detected in column(s): ", 
+    paste(nonNAnumeric_new_cols, collapse = ", "), call. = FALSE
+  )
+  
+  
+  ## Check strictly positive variables
+  positive_new_cols <- c("rxmax_m", "rxmin_m", "rymax_m", "rymin_m",
+                         "hmax_m")
+  nonpositive_newcols <- positive_new_cols[vapply(x$trees[positive_new_cols], 
+                                                  function(x) any(x < 0, na.rm = TRUE), 
+                                                  logical(1))]
+  
+  if (length(nonpositive_newcols) > 0) stop(
+    "Non-strictly-positive elements detected in column(s): ", 
+    paste(positive_new_cols, collapse = ", "), call. = FALSE
+  )
+  
+  
+  ## Check the new created hmax_m column range between hbase and h
+  if (any(x$trees$hmax_m < x$trees$hbase_m | x$trees$hmax_m > x$trees$h_m)) stop(
+    "`hmax_m` must be between `hbase_m` and `h_m`.", call. = FALSE
+  )
+  
+  
+  # Cells format ----
+  if (!is.data.frame(x$cells)) stop("`cells` must be a data.frame.", call. = FALSE)
+  
+  required_cells <- c("x_center","y_center","z_center","id_cell")
+  if (!all(required_cells %in% names(x$cells))) stop(
+    "`cells` is malformed. Missing column(s): ",
+    paste(setdiff(required_cells, names(x$cells)), collapse = ", "), call. = FALSE)
+  
+  # Geometry format ----
   geom <- x$geometry
   if (!is.list(geom)) stop("`geometry` must be a list.", call. = FALSE)
   required_geom <- c("cell_size","n_cells_x","n_cells_y","slope","aspect","north2x")
@@ -691,7 +801,7 @@ validate_sl_stand <- function(x) {
          paste(setdiff(required_geom, names(geom)), collapse = ", "), call. = FALSE)
   }
   
-  # Stand limits
+  # Stand limits ----
   x_max <- geom$cell_size * geom$n_cells_x
   y_max <- geom$cell_size * geom$n_cells_y
   if (any(x$trees$x < 0 | x$trees$x > x_max |

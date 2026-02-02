@@ -67,7 +67,7 @@ data_trees_prenovel <- trees %>%
                 crown_type,
                 h_m = H, hbase_m = CBH, hmax_m, 
                 rn_m = CR, re_m = CR, rs_m = CR, rw_m = CR,
-                crown_openness = crown_openess, crown_lad)
+                crown_lad)
 
 
 

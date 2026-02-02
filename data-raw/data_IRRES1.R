@@ -53,7 +53,7 @@ data_trees_IRRES1 <- trees %>%
                 hbase_m = CBH, hmax_m = CMRH,
                 rn_m = RN, rs_m = RS,
                 re_m = RE, rw_m = RW,
-                crown_openness = CrownOpenness, crown_lad = LAD)
+                crown_lad = LAD)
 
 
 # GET SENSORS RECORD TABLE ----
@@ -193,7 +193,7 @@ data_rad_IRRES1 <- get_monthly_radiations(latitude = latitude,
 data_IRRES1 <- list(
   "trees" = data_trees_IRRES1,
   "sensors" = data_sensors_IRRES1,
-  "core_polygon" = NULL,
+  "core_polygon" = core_polygon_IRRES1,
   "radiations" = data_rad_IRRES1,
   "info" = list("latitude" = latitude,
                 "longitude" = longitude,

@@ -76,24 +76,6 @@ summary.sl_stand <- function(object, ...) {
   ## -------------------------------
   n_sensors <- ifelse(is.null(nrow(sensors)), 0, nrow(sensors))
   
-  ## -------------------------------
-  ## Light interception model
-  ## -------------------------------
-  lad_ok   <- all(!is.na(trees$crown_lad))
-  open_ok  <- all(!is.na(trees$crown_openness))
-  
-  model <- ""
-  if (lad_ok) {
-    model <- "  - Turbid medium (crown_lad)"
-  } 
-  if (open_ok) {
-    str_porous <- "  - Porous envelope (crown_openness)"
-    model <- ifelse(lad_ok, paste(model, str_porous, sep = "\n"), str_porous) 
-  }
-  
-  if (model == "") {
-    model <- "  !!! No valid interception model (missing crown properties)"
-  }
   
   ## -------------------------------
   ## Print
@@ -127,15 +109,11 @@ summary.sl_stand <- function(object, ...) {
   cat("\nNumber of sensors: ")
   cat(sprintf("%s\n", n_sensors))
   
-  cat("\nAvailable light interception models:\n")
-  cat(sprintf("%s\n", model))
-  
   cat("\n")
   
   invisible(list(
     core = core_stats,
     full = all_stats,
-    geometry = geom_stats,
-    model = model
+    geometry = geom_stats
   ))
 }

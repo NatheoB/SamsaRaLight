@@ -36,9 +36,9 @@ diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.}
 
 \item{sensors_only}{logical, if TRUE, compute interception only for sensors}
 
-\item{use_torus}{logical, if TRUE, use torus system for borders, else open grassland}
+\item{use_torus}{logical, if TRUE, use torus system for borders}
 
-\item{turbid_medium}{logical, if TRUE, crowns are considered turbid medium, else porous envelope}
+\item{turbid_medium}{logical, if TRUE, crowns are considered turbid medium (using column \code{crown_lad}), else porous envelope (using column \code{crown_openess})}
 
 \item{extinction_coef}{Numeric scalar. Leaf extinction coefficient controlling
 the probability that a ray is intercepted by foliage. It represents the

@@ -3,7 +3,7 @@
 #' This function converts a data.frame of polygon vertices into an sf POLYGON
 #' and checks its validity. If the polygon is invalid, it attempts to fix it.
 #'
-#' @param polygon_df A data.frame with columns x and y defining polygon vertices
+#' @param core_polygon_df A data.frame with columns x and y defining polygon vertices
 #' @param trees_inv A data.frame with one row per tree.
 #'   See \link{check_inventory} for the required structure and validated columns.
 #' @param sensors Optional data.frame defining position and height of the sensor within the stand.
@@ -19,7 +19,7 @@
 #' @importFrom sf st_as_sf st_intersects st_buffer st_bbox st_coordinates
 #'
 #' @export
-check_polygon <- function(polygon_df, trees_inv, sensors = NULL, verbose = TRUE) {
+check_polygon <- function(core_polygon_df, trees_inv, sensors = NULL, verbose = TRUE) {
   
   # Check trees_inv format ----
   if (!check_inventory(trees_inv, verbose = FALSE)) {
@@ -32,27 +32,31 @@ check_polygon <- function(polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
   }
   
   # Check data.frame format of polygon ----
-  if (!inherits(polygon_df, "data.frame")) {
-    stop("`polygon_df` must be a data.frame.", call. = FALSE)
+  if (!inherits(core_polygon_df, "data.frame")) {
+    stop("`core_polygon_df` must be a data.frame.", call. = FALSE)
   }
   
-  if (!all(c("x", "y") %in% names(polygon_df))) {
-    stop("`polygon_df` must contain columns `x` and `y`.", call. = FALSE)
+  if (!all(c("x", "y") %in% names(core_polygon_df))) {
+    stop("`core_polygon_df` must contain columns `x` and `y`.", call. = FALSE)
   }
   
-  if (!is.numeric(polygon_df$x) || !is.numeric(polygon_df$y)) {
-    stop("Columns `x` and `y` in `polygon_df` must be numeric.", call. = FALSE)
+  if (!is.numeric(core_polygon_df$x) || !is.numeric(core_polygon_df$y)) {
+    stop("Columns `x` and `y` in `core_polygon_df` must be numeric.", call. = FALSE)
   }
   
   
   # Check if the core polygone is a polygone (at least 3 tops) ----
-  if (nrow(polygon_df) < 3) {
+  if (nrow(core_polygon_df) < 3) {
     stop("The polygon has less than 3 vertices and cannot be formed.", call. = FALSE)
   }
   
+  # Remove the lon/lat columsn if they exist in the polygon data.frame
+  # Other wise, error with "GEOS does not support XYM or XYZM geometries; use st_zm() to drop M"
+  core_polygon_df <- core_polygon_df[, c("x", "y")]
+  
   
   # Create polygon from user-supplied data.frame ----
-  core_polygon_sf <- sfheaders::sf_polygon(polygon_df)
+  core_polygon_sf <- sfheaders::sf_polygon(core_polygon_df)
   
   
   # Ensure the polygon is valid ----
@@ -161,6 +165,7 @@ check_polygon <- function(polygon_df, trees_inv, sensors = NULL, verbose = TRUE)
   # Get the final polygon df ----
   polygon_checked_df <- sf::st_coordinates(core_polygon_sf) %>% 
     as.data.frame() %>% 
+    dplyr::distinct() %>% 
     dplyr::select(x = X, y = Y)
   
   

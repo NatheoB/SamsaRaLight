@@ -30,8 +30,11 @@
 #'   \item{rs_m}{Crown radius toward South (numeric, meters).}
 #'   \item{re_m}{Crown radius toward East (numeric, meters).}
 #'   \item{rw_m}{Crown radius toward West (numeric, meters).}
-#'   \item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.}
-#'   \item{crown_lad}{Leaf Area Density (m² m⁻³), optional if porous envelope interception.}
+#'   \item{crown_lad}{Leaf Area Density (m² m⁻³).}
+#'   \item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.
+#'     Required if the argument `turbid_medium = FALSE` in the advanced function `run_sl_advanced()`
+#'     (for porous envelope interception). Otherwise, the basic function `run_sl()` will 
+#'     automatically computed interception in a turbid medium using the `crown_lad` variable.}
 #' }
 #'
 #' @details
@@ -47,7 +50,7 @@
 #'   \item{6}{Ensures crown radii are present according to crown type.}
 #'   \item{7}{Checks that \code{hmax_m} is provided when required and lies between \code{hbase_m} and \code{h_m}.}
 #'   \item{8}{Ensures \code{hbase_m < h_m}.}
-#'   \item{9}{Verifies that each tree has at least one crown interception property defined.}
+#'   \item{9}{Verifies that each tree has the crown LAD defined.}
 #'   \item{10}{Provides informative error messages and warnings for all invalid conditions.}
 #' }
 #'
@@ -103,16 +106,18 @@ check_inventory <- function(trees_inv, verbose = TRUE) {
   )
   
   ## ---- numeric checks -------------------------------------------------------
-  numeric_cols <- c("dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m")
-  non_numeric <- numeric_cols[!vapply(trees_inv[numeric_cols], is.numeric, logical(1))]
-  if (length(non_numeric) > 0) stop(
-    "The following columns must be numeric: ", paste(non_numeric, collapse = ", "), call. = FALSE
+  numeric_cols <- c("dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
+  numeric_cols_invalid <- numeric_cols[!vapply(trees_inv[numeric_cols], is.numeric, logical(1))]
+  if (length(numeric_cols_invalid) > 0) stop(
+    "The following columns must be numeric: ", paste(numeric_cols_invalid, collapse = ", "), call. = FALSE
   )
   
-  numeric_pos_cols <- c("dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m")
-  if (any(trees_inv[numeric_pos_cols] < 0, na.rm = TRUE)) stop(
-    "The following columns must be non-negative: ", paste(non_numeric, collapse = ", "), call. = FALSE
+  pos_cols <- c("dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
+  pos_cols_invalid <- pos_cols[vapply(trees_inv[pos_cols], function(x) any(x < 0, na.rm = TRUE), logical(1))]
+  if (length(pos_cols_invalid) > 0)  stop(
+    "The following columns must be non-negative: ", paste(pos_cols_invalid, collapse = ", "), call. = FALSE
   )
+  
   
   ## ---- crown type -----------------------------------------------------------
   allowed_crown_types <- c("E", "P", "2E", "8E", "4P")
@@ -208,48 +213,6 @@ check_inventory <- function(trees_inv, verbose = TRUE) {
   }
   
   
-  ## ---- crown interception properties ---------------------------------------
-  has_openness <- "crown_openness" %in% names(trees_inv)
-  has_lad <- "crown_lad" %in% names(trees_inv)
-  if (!has_openness && !has_lad) stop("Inventory must contain at least one crown interception variable (`crown_openness` or `crown_lad`).", call. = FALSE)
-  
-  openness_vals <- if (has_openness) trees_inv$crown_openness else rep(NA_real_, nrow(trees_inv))
-  lad_vals <- if (has_lad) trees_inv$crown_lad else rep(NA_real_, nrow(trees_inv))
-  
-  if (has_openness && !(is.numeric(openness_vals) || all(is.na(openness_vals)))) stop("`crown_openness` must be numeric or NA.", call. = FALSE)
-  if (has_lad && !(is.numeric(lad_vals) || all(is.na(lad_vals)))) stop("`crown_lad` must be numeric or NA.", call. = FALSE)
-  
-  missing_interception <- is.na(openness_vals) & is.na(lad_vals)
-  if (any(missing_interception)) stop(
-    "Each tree must have at least one crown interception property defined (`crown_openness` or `crown_lad`). Missing for tree(s) with id: ", paste(trees_inv$id_tree[missing_interception], collapse = ", "), call. = FALSE
-  )
-  
-  if (has_openness) {
-    invalid_openness <- which(trees_inv$crown_openness < 0 | trees_inv$crown_openness > 1)
-    if (length(invalid_openness) > 0) stop(
-      "`crown_openness` must be between 0 and 1 for tree(s) with id_tree: ",
-      paste(trees_inv$id_tree[invalid_openness], collapse = ", "),
-      call. = FALSE
-    )
-  }
-  
-  if (has_lad) {
-    invalid_lad <- which(trees_inv$crown_lad < 0)
-    if (length(invalid_lad) > 0) stop(
-      "`crown_lad` must be non-negative for tree(s) with id_tree: ",
-      paste(trees_inv$id_tree[invalid_lad], collapse = ", "),
-      call. = FALSE
-    )
-  }
-  
-  if (verbose) {
-    if (!has_openness || all(is.na(openness_vals))) warning(
-      "`crown_openness` missing or all NA. Porous envelope interception unavailable.", call. = FALSE
-    )
-    if (!has_lad || all(is.na(lad_vals))) warning(
-      "`crown_lad` missing or all NA. Turbid medium interception unavailable.", call. = FALSE
-    )
-  }
   
   ## ---- success --------------------------------------------------------------
   if (verbose) message("Inventory table successfully validated.")
