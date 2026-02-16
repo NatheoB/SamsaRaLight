@@ -24,7 +24,7 @@
 #' @return A `ggplot` object representing the stand.
 #'
 #' @importFrom ggplot2 ggplot aes geom_segment geom_curve geom_tile geom_polygon geom_rect labs coord_equal theme_bw theme scale_x_continuous scale_y_continuous xlab ylab facet_wrap annotate scale_colour_manual theme_void geom_point guides
-#' @importFrom patchwork plot_layout 
+#' @importFrom patchwork plot_layout plot_spacer
 #' @importFrom grid arrow unit
 #' @importFrom ggforce geom_ellipse
 #' @importFrom dplyr filter mutate case_when
@@ -246,36 +246,60 @@ plot.sl_stand <- function(x, ...,
       xlab("") + ylab("") +
       theme_minimal() +
       theme(panel.grid.minor = element_blank(),
-            legend.position = "top")
+            legend.position = "top",
+            plot.margin = margin(0,0,0,0))
     
     
     # Mini grobs for north2x, aspect and slope
     plt_compass <- plot_orientation_compass(sl_stand$geometry$north2x, 
                                             sl_stand$geometry$slope,
-                                            sl_stand$geometry$aspect)
+                                            sl_stand$geometry$aspect,
+                                            size = 1)
+    
+    plt_slope <- plot_slope_profile(sl_stand$geometry$slope,
+                                    size = 2)
+    
     
     # Create final plot
-    plt <- (plt_stand | plt_compass ) +
-      plot_layout(widths = c(3, 1),
-                  guides = "collect") &
-      patchwork::plot_annotation(
-        title = "SamsaRaLight input stand",
-        subtitle = paste0("\nInventory zone (yellow): ",
-                          round(sl_stand$transform$core_area_ha, 2), "ha - ",
-                          round(sl_stand$transform$core_batot_m2ha, 2), "m2/ha - ",
-                          sum(!x$trees$added_to_fill), " trees",
-                          "\nVirtual plot (rectangle):",
-                          round(sl_stand$transform$new_area_ha, 2), "ha - ",
-                          round(sl_stand$transform$new_batot_m2ha, 2), "m2/ha - ",
-                          nrow(x$trees), " trees")
-      ) &
+    layout <- "
+    AAAAA
+    BCDEF
+    "
+    
+    plt <- (
+      plt_stand + # Plot A
+        patchwork::plot_spacer() + # Plot B (empty space)
+        plt_compass + # Plot C
+        patchwork::plot_spacer() + # Plot D (empty space)
+        plt_slope + # Plot E
+        patchwork::plot_spacer() + # Plot F (empty space)
+        
+        patchwork::plot_layout(
+          design = layout,
+          widths = c(2, 1, 0.2, 1, 2),
+          heights = c(3, 1),
+          guides = "collect"
+        ) +
+        
+        patchwork::plot_annotation(
+          title = "SamsaRaLight input stand",
+          subtitle = paste0("\nInventory zone (yellow): ",
+                            round(sl_stand$transform$core_area_ha, 2), "ha - ",
+                            round(sl_stand$transform$core_batot_m2ha, 2), "m2/ha - ",
+                            sum(!x$trees$added_to_fill), " trees",
+                            "\nVirtual plot (rectangle):",
+                            round(sl_stand$transform$new_area_ha, 2), "ha - ",
+                            round(sl_stand$transform$new_batot_m2ha, 2), "m2/ha - ",
+                            nrow(x$trees), " trees")
+        )
+    ) &
       theme(
         legend.position = "top",
         legend.justification = "center",
         legend.title = element_blank(),
         plot.title = element_text(hjust = 0.5, face="bold"),
         plot.subtitle = element_text(hjust = 0.5, face="italic")
-      ) &
+      ) & 
       guides(colour = "none")
     
   }
@@ -285,6 +309,37 @@ plot.sl_stand <- function(x, ...,
 
 
 
+#' Plot a compass showing stand orientation and slope aspect
+#'
+#' This function creates a small graphical compass illustrating the orientation
+#' of the stand coordinate system relative to North, together with the slope
+#' aspect direction if a slope is defined.
+#'
+#' Cardinal directions (N, E, S, W) are drawn according to the \code{north2x}
+#' parameter, which defines the clockwise rotation (in degrees) from geographic
+#' North to the X-axis of the planar coordinate system. The North direction is
+#' highlighted in red.
+#'
+#' When \code{slope > 0}, the slope aspect (i.e. the downslope direction, given as
+#' a clockwise angle from North) is shown as a dashed blue arrow.
+#'
+#' @param north2x Numeric. Clockwise angle (in degrees) from geographic North to
+#'   the X-axis of the planar coordinate system.
+#' @param slope Numeric. Slope angle in degrees. If \code{NA} or equal to 0, the
+#'   aspect arrow is not displayed.
+#' @param aspect Numeric. Aspect of the slope in degrees, measured clockwise
+#'   from geographic North. Only used if \code{slope > 0}.
+#' @param size Numeric. Scaling factor controlling the size of the compass arrows
+#'   (default = 1).
+#'
+#' @return A \code{ggplot2} object representing the orientation compass.
+#'
+#' @importFrom ggplot2 ggplot geom_segment geom_text scale_colour_manual
+#'   theme_void theme annotate coord_equal arrow
+#' @importFrom grid unit
+#'
+#' @keywords internal
+#' 
 plot_orientation_compass <- function(north2x, slope, aspect, size = 1) {
   
   ### COMPASS ###
@@ -340,41 +395,153 @@ plot_orientation_compass <- function(north2x, slope, aspect, size = 1) {
     geom_text(
       data = df_dirs,
       aes(x = 1.2 * x1, y = 1.2 * y1, label = dir),
-      size = 4
+      size = 3
     ) +
     
+    # Plot aesthetics
     scale_colour_manual(values = c("grey40", "red")) +
     theme_void() +
-    theme(legend.position = "none")
+    theme(legend.position = "none") +
+    
+    coord_fixed(ratio = 1, clip = "off")
+  
   
   # Add aspect arrow ONLY if slope > 0
   if (!is.na(slope) && slope > 0) {
     
+    # Here a dashed line with a solid arrow
+    # Downslope arrow
     gg <- gg +
+      
       geom_segment(
         data = df_aspect,
-        aes(x = x0, y = y0, xend = x1, yend = y1),
+        aes(x = x0, 
+            y = y0, 
+            xend = x1, 
+            yend = y1),
         arrow = arrow(length = unit(2, "mm")),
         linewidth = 1,
         colour = "steelblue",
-        linetype = "dashed"
+        linetype = "solid"
+      ) 
+  }
+  
+  return(gg)
+}
+
+
+
+#' Plot a slope profile indicator
+#'
+#' This function draws a small schematic profile representing terrain slope
+#' as an inclined line relative to a horizontal reference.
+#'
+#' It is intended to be used as a companion graphic to stand orientation
+#' plots (e.g. compass), for visualizing slope magnitude.
+#'
+#' @param slope Numeric. Slope angle in degrees. If \code{NA} or \code{0},
+#'   only the horizontal reference is shown.
+#' @param size Numeric. Scaling factor controlling the size of the graphic
+#'   (default = 1).
+#'
+#' @return A \code{ggplot2} object representing the slope profile.
+#'
+#' @importFrom ggplot2 ggplot geom_segment geom_path annotate
+#' @importFrom ggplot2 coord_equal theme_void theme
+#' @importFrom grid arrow unit
+#'
+#' @keywords internal
+#'
+#' @export
+plot_slope_profile <- function(slope, size = 1) {
+  
+  # Initialise the default baseline (0° flatplane)
+  df_default <- data.frame(
+    x0 = 0, y0 = 0,
+    x1 = 1 * size, 
+    y1 = 0 * size
+  )
+  
+  # Set the slope (x, y) vector
+  # i.e. cw rotated default terrain by slope degrees
+  theta <- deg2rad(slope)
+  vect_slope <- rotate_vec_ccw(1, 0, theta)
+  
+  df_slope <- data.frame(
+    x0 = 0, y0 = 0,
+    x1 = vect_slope$x * size,
+    y1 = vect_slope$y * size
+  )
+  
+  # Plot the baseline terrain
+  gg <- ggplot() +
+    
+    # Default baseline
+    geom_segment(
+      data = df_default,
+      aes(x = x0, y = y0, xend = x1, yend = y1),
+      linewidth = 1,
+      colour = "grey40", linetype = "solid"
+    ) +
+    
+    # Slope label
+    annotate(
+      "text",
+      x = 0, y = -0.1 * size, hjust = 0,
+      label = paste0("slope = ", round(slope, 1), "°"),
+      size = 3,
+      colour = "gray40"
+    ) +
+    
+    # Plot aesthetics
+    theme_void() +
+    theme(legend.position = "none") +
+
+    coord_equal(
+      xlim = c(-0.1 * size, size),
+      ylim = c(-0.2 * size, size)
+    )
+  
+  
+  # Add slope arrow and angle arc
+  if (!is.na(slope) && slope > 0) {
+    
+    # Slope arrow
+    # Here a dashed line with a solid arrow
+    gg <- gg + 
+      
+      geom_segment(
+        data = df_slope,
+        aes(
+          x = x1,
+          y = y1,
+          xend = x0,
+          yend = y0
+        ),
+        arrow = arrow(length = unit(2, "mm")),
+        linewidth = 1,
+        colour = "steelblue",
+        linetype = "solid"
+      ) 
+    
+    # Arc
+    r_arc <- 0.8 * size
+    alpha <- seq(0, theta, length.out = 100)
+    
+    df_arc <- data.frame(
+      x = r_arc * cos(alpha),
+      y = r_arc * sin(alpha)
+    )
+    
+    gg <- gg +
+      geom_path(
+        data = df_arc,
+        aes(x = x, y = y),
+        linewidth = 0.7,
+        colour = "grey40"
       )
   }
   
-  gg +
-  annotate(
-    "text",
-    x = 0, y = 1.75 * size,
-    label = paste0(
-      "slope: ", round(slope, 1), "°"
-    ),
-    size = 3,
-    hjust = 0.5,
-    colour = "grey30"
-  ) +
-    
-    coord_equal(
-      xlim = c(-1.4, 1.4),
-      ylim = c(-1.6, 1.9)
-    )
+  return(gg)
 }
+

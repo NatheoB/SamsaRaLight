@@ -35,8 +35,7 @@ Imports:
     cowplot,
     purrr,
     patchwork,
-    grid,
-    ggtext
+    grid
 Suggests: 
     knitr,
     rmarkdown,

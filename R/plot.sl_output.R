@@ -34,8 +34,7 @@
 #' }
 #' 
 #' @importFrom ggplot2 ggplot aes geom_raster scale_fill_gradient scale_x_continuous
-#'   scale_y_continuous coord_equal labs theme element_text element_blank guide_colorbar scale_fill_viridis_c
-#' @importFrom ggplot2 xlab ylab theme_minimal
+#'   scale_y_continuous coord_equal labs theme element_text element_blank guide_colorbar scale_fill_viridis_c xlab ylab theme_minimal
 #' @importFrom scales pretty_breaks
 #' @importFrom ggnewscale new_scale_fill
 #' @importFrom ggforce geom_ellipse
