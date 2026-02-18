@@ -135,8 +135,6 @@ run_sl_advanced <- function(
   validate_interception_model(sl_stand$trees, turbid_medium)
   
   
-  
-  
   # CREATE RAYS ----
   monthly_rays <- create_sl_rays(
     monthly_rad = monthly_radiations,

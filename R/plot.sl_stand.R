@@ -246,8 +246,7 @@ plot.sl_stand <- function(x, ...,
       xlab("") + ylab("") +
       theme_minimal() +
       theme(panel.grid.minor = element_blank(),
-            legend.position = "top",
-            plot.margin = margin(0,0,0,0))
+            legend.position = "top")
     
     
     # Mini grobs for north2x, aspect and slope

@@ -228,7 +228,7 @@ create_sl_stand <- function(trees_inv,
   }
   
   if (!is.null(core_polygon_df)) {
-    core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors)
+    core_polygon_df <- check_polygon(core_polygon_df, trees_inv, sensors, verbose = F)
   }
   
   # Modify polygon

@@ -1,9 +1,9 @@
 ---
-title: "2 - Understand ray discretization with detailed output"
+title: "2 - Understand ray discretization"
 subtitle: "Understand ray discretization of direct and diffuse radiations"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{2 - Ray discretization}
+  %\VignetteIndexEntry{2 - Understand ray discretization}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -258,6 +258,7 @@ for (i in 1:nrow(exp_design)) {
 
 The annual incident energy of diffuse and direct rays (in MJ/m2), integrated over the year, is provided for both a horizontal surface and the slope in `output$monthly_rays$energies`, returned by the `run_sl()` function. These values represent the annual radiation above the canopy and can be interpreted as the energy reaching the forest floor in the absence of trees, either on a horizontal plane or on the slope. In the ray-tracing model, incident energy on the slope is used to compute tree light interception and energy received by ground cells, whereas energy on a horizontal plane is used for radiation reaching virtual sensors (see Tutorial 3: Understanding transmission models with virtual sensors).
 
+By default, we compute the annual ray interception throughout the year from 1st January to 31th December). If the user is interested in computing the light interception between a more restraint daily period, the `start_day = 1` and the `end_day = 365` default argument can be changed using the `sl_run_advanced()` function.
 
 ```{r graph_energies, fig.dim = c(8, 6)}
 # Create a dataframe for comparing incident energies
@@ -279,7 +280,7 @@ out_sl_list %>%
   geom_col() +
   facet_grid(cols = vars(city), rows = vars(stand_geom)) +
   theme_bw() +
-  ylab("Incident energy in MJ/m2") +
+  ylab("Incident anual energy in MJ/m2") +
   xlab("Type of the rays")
 ```
 
@@ -290,8 +291,7 @@ As discussed above, differences between locations are also evident, with Madrid 
 
 ## Understand the discretisation of direct and diffuse rays
 
-The discretisation of the rays are given in the `output$monthly_rays$rays` of the `run_sl()` function output. Direct rays (`direct = TRUE`) follow the Sun’s annual trajectory as determined by latitude, while diffuse rays (`direct = FALSE`) are discretized over the entire sky hemisphere. Ray directions are defined by azimut and elevation (`azimut` and `height_angle`, in radians), and their incident energies (`e_incident` in MJ/m2) are derived from monthly global radiation and diffuse-to-global ratios and distributed according to ray geometry. Parameters relative to the discretisation of diffuse and direct rays can be seen and tweaked from the arguments of the advanced SamsaRaLight function : `sl_run_advanced()`.
-
+The discretisation of the rays are given in the `output$monthly_rays$rays` of the `run_sl()` function output. Direct rays (`direct = TRUE`) follow the Sun’s annual trajectory as determined by latitude, while diffuse rays (`direct = FALSE`) are discretized over the entire sky hemisphere. Ray directions are defined by azimut and elevation (`azimut` and `height_angle`, in radians), and their incident energies (`e_incident` in MJ/m2) are derived from monthly global radiation and diffuse-to-global ratios and distributed according to ray geometry. Parameters relative to the discretisation of diffuse and direct rays can be seen and tweaked from the arguments of the advanced SamsaRaLight function : `sl_run_advanced()` (using the Standard Overcast Sky by default, in contrast to Uniform Overcast Sky, with default minimum height angle of rays to 10°, direct rays start offset to 0°, direct rays angle step to 5° and diffuse rays angle step to 15°).
 
 ```{r graph_rays}
 out_sl_list %>% 
