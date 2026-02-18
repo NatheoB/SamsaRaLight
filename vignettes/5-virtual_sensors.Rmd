@@ -345,6 +345,7 @@ dplyr::left_join(
 After calibration, predictions are centred around the 1:1 line, and mean bias is strongly reduced. This indicates that virtual sensors can effectively support LAD calibration at the site level.
 
 
+
 # Perspectives on LAD
 
 Virtual sensors provide a practical first step for calibrating foliage-related parameters in SamsaRaLight. However, several limitations must be considered. First, we assume a single mean LAD value for all trees. In reality, LAD varies (1) Between species and functional types, (2) Along ontogenetic gradients, (3) With competition and crown status. Second, crown geometry is simplified in the model. Real trees exhibit strong crown plasticity and asymmetry, which influences light interception and cannot always be captured by idealized shapes. Third, LAD may vary between sites as a function of climate, soil conditions, and disturbance history. Drought, pests, or defoliation events can strongly affect foliage density.
