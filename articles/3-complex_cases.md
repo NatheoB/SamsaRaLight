@@ -238,7 +238,6 @@ stand_irres <- SamsaRaLight::create_sl_stand(
 )
 #> `trees_inv` converted from lon/lat to planar coordinates (UTM).
 #> `core_polygon_df` converted from lon/lat to planar coordinates (UTM).
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 
 plot(stand_irres)
@@ -313,7 +312,6 @@ stand_irres_aarect <- SamsaRaLight::create_sl_stand(
 )
 #> `trees_inv` converted from lon/lat to planar coordinates (UTM).
 #> `core_polygon_df` converted from lon/lat to planar coordinates (UTM).
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 
 plot(stand_irres_aarect)
@@ -508,7 +506,6 @@ stand_bechefa <- SamsaRaLight::create_sl_stand(
   
   core_polygon_df = SamsaRaLight::data_bechefa$core_polygon
 )
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 
 plot(stand_bechefa)
@@ -565,7 +562,6 @@ stand_bechefa_filled <- SamsaRaLight::create_sl_stand(
   modify_polygon = "rect",
   fill_around = TRUE
 )
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 
 plot(stand_bechefa_filled)
@@ -691,7 +687,6 @@ stand_cloture_filled <- SamsaRaLight::create_sl_stand(
   modify_polygon = "none",
   fill_around = TRUE
 )
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 
 plot(stand_cloture_filled)
@@ -759,23 +754,23 @@ summary(output_cloture_filled)
 #> 
 #> Trees (crown interception)
 #> ---------------------------
-#>       epot               e               lci         
-#>  Min.   :  15391   Min.   :   306   Min.   :0.08287  
-#>  1st Qu.:  95968   1st Qu.: 20328   1st Qu.:0.50915  
-#>  Median : 180187   Median : 52540   Median :0.69283  
-#>  Mean   : 345966   Mean   :151203   Mean   :0.65591  
-#>  3rd Qu.: 580316   3rd Qu.:247621   3rd Qu.:0.80673  
-#>  Max.   :1231497   Max.   :727824   Max.   :0.99129  
+#>       epot               e                 lci         
+#>  Min.   :  15372   Min.   :   305.9   Min.   :0.08305  
+#>  1st Qu.:  95938   1st Qu.: 20332.2   1st Qu.:0.50947  
+#>  Median : 181471   Median : 52475.1   Median :0.69298  
+#>  Mean   : 346127   Mean   :151236.6   Mean   :0.65609  
+#>  3rd Qu.: 580348   3rd Qu.:247720.2   3rd Qu.:0.80657  
+#>  Max.   :1232054   Max.   :727809.0   Max.   :0.99134  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e               pacl             punobs      
 #>  Min.   : 192.2   Min.   :0.05108   Min.   :0.0000  
-#>  1st Qu.: 612.0   1st Qu.:0.16267   1st Qu.:0.4246  
-#>  Median : 868.4   Median :0.23081   Median :0.5905  
-#>  Mean   : 893.4   Mean   :0.23745   Mean   :0.5533  
-#>  3rd Qu.:1106.7   3rd Qu.:0.29414   3rd Qu.:0.7007  
-#>  Max.   :2045.2   Max.   :0.54357   Max.   :0.8815  
+#>  1st Qu.: 607.3   1st Qu.:0.16142   1st Qu.:0.4246  
+#>  Median : 868.5   Median :0.23082   Median :0.5901  
+#>  Mean   : 893.3   Mean   :0.23741   Mean   :0.5532  
+#>  3rd Qu.:1102.1   3rd Qu.:0.29292   3rd Qu.:0.7008  
+#>  Max.   :2044.6   Max.   :0.54342   Max.   :0.8817  
 #> 
 #> Sensors
 #> -------

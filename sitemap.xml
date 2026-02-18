@@ -4,6 +4,8 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/1-minimal_case.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/2-discretisation_directdiffuse.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/3-complex_cases.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/4-transmission_interception.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/5-virtual_sensors.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/index.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/authors.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/index.html</loc></url>
@@ -30,6 +32,8 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot.sl_output.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot.sl_stand.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_inventory.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_orientation_compass.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_slope_profile.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/print.sl_output.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/print.sl_stand.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/rotate_vec_ccw.html</loc></url>

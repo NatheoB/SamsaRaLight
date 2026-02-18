@@ -1,4 +1,4 @@
-# 2 - Understand ray discretization with detailed output
+# 2 - Understand ray discretization
 
 ``` r
 library(SamsaRaLight)
@@ -101,6 +101,11 @@ exp_design <- expand.grid(
                   slope > 0 & aspect == 180 ~ "south-facing slope"),
                 id_simu = as.character(row_number())) %>% 
   dplyr::relocate(id_simu)
+#> Warning: There was 1 warning in `dplyr::mutate()`.
+#> ℹ In argument: `latitude = case_match(...)`.
+#> Caused by warning:
+#> ! `case_match()` was deprecated in dplyr 1.2.0.
+#> ℹ Please use `recode_values()` instead.
 
 exp_design
 #>   id_simu     city slope aspect latitude longitude         stand_geom
@@ -258,23 +263,14 @@ for (i in 1:nrow(exp_design)) {
     core_polygon_df = core_polygon_df
   )
 }
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
-#> Polygon successfully validated.
 #> SamsaRaLight stand successfully created.
 ```
 
@@ -367,6 +363,12 @@ on a horizontal plane is used for radiation reaching virtual sensors
 (see Tutorial 3: Understanding transmission models with virtual
 sensors).
 
+By default, we compute the annual ray interception throughout the year
+from 1st January to 31th December). If the user is interested in
+computing the light interception between a more restraint daily period,
+the `start_day = 1` and the `end_day = 365` default argument can be
+changed using the `sl_run_advanced()` function.
+
 ``` r
 # Create a dataframe for comparing incident energies
 out_sl_list %>% 
@@ -387,7 +389,7 @@ out_sl_list %>%
   geom_col() +
   facet_grid(cols = vars(city), rows = vars(stand_geom)) +
   theme_bw() +
-  ylab("Incident energy in MJ/m2") +
+  ylab("Incident anual energy in MJ/m2") +
   xlab("Type of the rays")
 ```
 
@@ -422,7 +424,10 @@ in MJ/m2) are derived from monthly global radiation and
 diffuse-to-global ratios and distributed according to ray geometry.
 Parameters relative to the discretisation of diffuse and direct rays can
 be seen and tweaked from the arguments of the advanced SamsaRaLight
-function : `sl_run_advanced()`.
+function : `sl_run_advanced()` (using the Standard Overcast Sky by
+default, in contrast to Uniform Overcast Sky, with default minimum
+height angle of rays to 10°, direct rays start offset to 0°, direct rays
+angle step to 5° and diffuse rays angle step to 15°).
 
 ``` r
 out_sl_list %>% 

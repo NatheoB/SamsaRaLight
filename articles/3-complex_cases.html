@@ -34,8 +34,10 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
 <li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A first minimal case</a></li>
-    <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization with detailed output</a></li>
+    <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization</a></li>
     <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
+    <li><a class="dropdown-item" href="../articles/4-transmission_interception.html">4 - Understand ray transmission</a></li>
+    <li><a class="dropdown-item" href="../articles/5-virtual_sensors.html">5 - Virtual sensors</a></li>
   </ul>
 </li>
       </ul>
@@ -289,7 +291,6 @@ direction.</p>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; `trees_inv` converted from lon/lat to planar coordinates (UTM).</span></span>
 <span><span class="co">#&gt; `core_polygon_df` converted from lon/lat to planar coordinates (UTM).</span></span>
-<span><span class="co">#&gt; Polygon successfully validated.</span></span>
 <span><span class="co">#&gt; SamsaRaLight stand successfully created.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stand_irres</span><span class="op">)</span></span></code></pre></div>
@@ -357,7 +358,6 @@ function)</li>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; `trees_inv` converted from lon/lat to planar coordinates (UTM).</span></span>
 <span><span class="co">#&gt; `core_polygon_df` converted from lon/lat to planar coordinates (UTM).</span></span>
-<span><span class="co">#&gt; Polygon successfully validated.</span></span>
 <span><span class="co">#&gt; SamsaRaLight stand successfully created.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stand_irres_aarect</span><span class="op">)</span></span></code></pre></div>
@@ -566,7 +566,6 @@ the value of <code>north2x</code>.</p>
 <span>  </span>
 <span>  core_polygon_df <span class="op">=</span> <span class="fu">SamsaRaLight</span><span class="fu">::</span><span class="va"><a href="../reference/data_bechefa.html">data_bechefa</a></span><span class="op">$</span><span class="va">core_polygon</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Polygon successfully validated.</span></span>
 <span><span class="co">#&gt; SamsaRaLight stand successfully created.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stand_bechefa</span><span class="op">)</span></span></code></pre></div>
@@ -616,7 +615,6 @@ per hectare</strong> as the inventory zone.</p></li>
 <span>  modify_polygon <span class="op">=</span> <span class="st">"rect"</span>,</span>
 <span>  fill_around <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Polygon successfully validated.</span></span>
 <span><span class="co">#&gt; SamsaRaLight stand successfully created.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stand_bechefa_filled</span><span class="op">)</span></span></code></pre></div>
@@ -734,7 +732,6 @@ around the inventory zone with <code>fill_around = TRUE</code>.</p>
 <span>  modify_polygon <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>  fill_around <span class="op">=</span> <span class="cn">TRUE</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; Polygon successfully validated.</span></span>
 <span><span class="co">#&gt; SamsaRaLight stand successfully created.</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">stand_cloture_filled</span><span class="op">)</span></span></code></pre></div>
@@ -797,23 +794,23 @@ usual:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
-<span><span class="co">#&gt;       epot               e               lci         </span></span>
-<span><span class="co">#&gt;  Min.   :  15391   Min.   :   306   Min.   :0.08287  </span></span>
-<span><span class="co">#&gt;  1st Qu.:  95968   1st Qu.: 20328   1st Qu.:0.50915  </span></span>
-<span><span class="co">#&gt;  Median : 180187   Median : 52540   Median :0.69283  </span></span>
-<span><span class="co">#&gt;  Mean   : 345966   Mean   :151203   Mean   :0.65591  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 580316   3rd Qu.:247621   3rd Qu.:0.80673  </span></span>
-<span><span class="co">#&gt;  Max.   :1231497   Max.   :727824   Max.   :0.99129  </span></span>
+<span><span class="co">#&gt;       epot               e                 lci         </span></span>
+<span><span class="co">#&gt;  Min.   :  15372   Min.   :   305.9   Min.   :0.08305  </span></span>
+<span><span class="co">#&gt;  1st Qu.:  95938   1st Qu.: 20332.2   1st Qu.:0.50947  </span></span>
+<span><span class="co">#&gt;  Median : 181471   Median : 52475.1   Median :0.69298  </span></span>
+<span><span class="co">#&gt;  Mean   : 346127   Mean   :151236.6   Mean   :0.65609  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 580348   3rd Qu.:247720.2   3rd Qu.:0.80657  </span></span>
+<span><span class="co">#&gt;  Max.   :1232054   Max.   :727809.0   Max.   :0.99134  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
 <span><span class="co">#&gt;        e               pacl             punobs      </span></span>
 <span><span class="co">#&gt;  Min.   : 192.2   Min.   :0.05108   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 612.0   1st Qu.:0.16267   1st Qu.:0.4246  </span></span>
-<span><span class="co">#&gt;  Median : 868.4   Median :0.23081   Median :0.5905  </span></span>
-<span><span class="co">#&gt;  Mean   : 893.4   Mean   :0.23745   Mean   :0.5533  </span></span>
-<span><span class="co">#&gt;  3rd Qu.:1106.7   3rd Qu.:0.29414   3rd Qu.:0.7007  </span></span>
-<span><span class="co">#&gt;  Max.   :2045.2   Max.   :0.54357   Max.   :0.8815  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 607.3   1st Qu.:0.16142   1st Qu.:0.4246  </span></span>
+<span><span class="co">#&gt;  Median : 868.5   Median :0.23082   Median :0.5901  </span></span>
+<span><span class="co">#&gt;  Mean   : 893.3   Mean   :0.23741   Mean   :0.5532  </span></span>
+<span><span class="co">#&gt;  3rd Qu.:1102.1   3rd Qu.:0.29292   3rd Qu.:0.7008  </span></span>
+<span><span class="co">#&gt;  Max.   :2044.6   Max.   :0.54342   Max.   :0.8817  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sensors</span></span>
 <span><span class="co">#&gt; -------</span></span>
