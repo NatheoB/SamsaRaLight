@@ -1,6 +1,8 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://natheob.github.io/SamsaRaLight/404.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/LICENSE.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/0a-model_definition.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/0b-get_started.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/1-minimal_case.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/2-discretisation_directdiffuse.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/3-complex_cases.html</loc></url>

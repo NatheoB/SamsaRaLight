@@ -10354,6 +10354,8374 @@ trees_inv_transmit <- dplyr::bind_rows(
 
 ### Create virtual stands and run SamsaraLight
 
+``` r
+id_simus <- unique(trees_inv_transmit$id_simu)
+
+out_stands <- vector("list", length = length(id_simus))
+  
+for (i in id_simus) {
+  
+  print(i)
+  
+  # Get the tre inventory
+  tmp_inv <- trees_inv_transmit %>% dplyr::filter(id_simu == i)
+  
+  # Create the virtual stand
+  tmp_stand <- SamsaRaLight::create_sl_stand(
+    tmp_inv,
+    cell_size = 10,
+    latitude = latitude,
+    slope = 0,
+    aspect = 0,
+    north2x = 90,
+    core_polygon_df = core_polygon_df,
+    verbose = FALSE
+  )
+  
+  # Run SamsaraLight
+  tmp_out <- SamsaRaLight:::run_sl_advanced(
+    tmp_stand,
+    data_rad,
+    parallel_mode = TRUE,
+    verbose = FALSE,
+    
+    # Transmission model and turbid medium parameters
+    turbid_medium = unique(tmp_inv$turbid_medium),
+    extinction_coef = 0.5,
+    clumping_factor = 1
+  )
+  
+  # Get stand-level output (mean PACL)
+  out_stands[[i]] <- data.frame(
+    id_simu = i,
+    mean_pacl = mean(tmp_out$output$light$cells$pacl)
+  )
+}
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
+#> available: running sequentially.
+
+out_stands <- out_stands %>% 
+  dplyr::bind_rows()
+```
+
 ### Transmission within the stand
 
 For each simulation, we compute the mean proportion of absorbed canopy
