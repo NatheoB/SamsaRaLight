@@ -1,0 +1,34 @@
+url: https://natheob.github.io/SamsaRaLight/
+
+template:
+  light-switch: true
+  bootstrap: 5
+  bootswatch: flatly
+  bslib:
+    primary: "#198754"
+
+navbar:
+  structure:
+    left: [home, model, start, tutorials, functions, news]
+    right: [search, github]
+
+  components:
+      
+    model:
+      text: Model
+      href: articles/0a-model_definition.html
+    
+    start:
+      text: Get started
+      href: articles/0b-get_started.html
+    
+    tutorials:
+      text: Tutorials
+      menu:
+        - text: 1 - A minimal case
+          href: articles/1-minimal_case.html
+  
+    functions:
+      text: Functions
+      href: reference/index.html
+

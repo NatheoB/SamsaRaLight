@@ -1,316 +1,52 @@
-
 # SamsaRaLight
 
-The R package SamsaraLight provides a simpler and faster way to use the
-SamsaraLight ray-tracing model within the R environment. SamsaraLight is
-a forest radiative transfer model based on ray tracing (Courbaud et al.,
-2003) that enables users to estimate the light intercepted by each tree
-and the light that reaches the ground or virtual light sensors, in a
-given forest stand inventory.
+**SamsaRaLight** is an R package for simulating light transmission in forest stands based on the ray-tracing model SamsaraLight ([Courbaud et al. 2003](https://www.sciencedirect.com/science/article/pii/S016819230200254X?via%3Dihub)).
 
-## Installation of the SamsaRaLight R package
+📊 It allows users to estimate:
 
-You can install the development version of SamsaRaLight from
-[GitHub](https://github.com/) with:
+-   Light intercepted by individual trees
+-   Light reaching the forest floor
+-   Light at virtual ground sensors
+
+
+✨  With features:
+
+-   Estimation of direct and diffuse radiation
+-   Flexible crown geometry (symmetric and asymmetric)
+-   Multiple transmission models
+-   Light competition indicators
+-   Virtual light sensors
+-   2D visualization tools
+-   Parallel simulations
+
+
+🌐 Model documentation and tutorials are available here: <https://natheob.github.io/SamsaRaLight/>
+
+
+## 📦 Installation
+
+You can install the development version of SamsaRaLight from [GitHub](https://github.com/NatheoB/SamsaRaLight/) with:
 
 ``` r
 install.packages("devtools")
 devtools::install_github("NatheoB/SamsaRaLight")
 ```
 
-## Global description of the SamsaraLight model
+## 📄 Citation
 
-### 1 - Define the virtual stand from an input tree inventory
+If you use the SamsaraLight in your research, please cite :
 
-The user’s inventory plot is represented by an axis-aligned rectangle
-with a specified slope and aspect. The constructed virtual stand is then
-divided into square cells of the same size for use in the ray-tracing
-model.
+- Courbaud, B., de Coligny, F. & Cordonnier, T. Simulating radiation distribution in a heterogeneous Norway spruce forest on a slope. Agricultural and Forest Meteorology 116, 1–18 (2003).
+[Courbaud et al. 2003](https://www.sciencedirect.com/science/article/pii/S016819230200254X?via%3Dihub).
+- This package: to be published soon to obtain a DOI and being cited as a research tool.
 
-The user’s inventoried trees are located within this virtual stand, with
-each tree’s crown represented by a simple 3D geometric volume whose
-dimensions and shape are defined by the user (see an example of crown
-parametrisation in André et al. 2021). The crown can be given a
-symmetrical shape, such as an ellipsoid (typically used for broadleaves)
-or a paraboloid (typically used for conifers). Users can increase the
-complexity of the crown representation by using asymmetric shapes and
-defining the crown radii at the four cardinal points, as well as the
-height at which the crown radius is at its maximum. This can be
-constructed easily and automatically in the model using parts of
-ellipsoids and paraboloids (*i.e.* two halves or eight eighths of an
-ellipsoid, or four quarters of a paraboloid).
 
-### 2 - Discretize the annual light and cast the light rays
+## 🤝 Contributing
 
-The SamsaraLight ray-tracing model divides annual light into a finite
-number of direct and diffuse rays based on the user’s definition of
-monthly radiation (*i.e.* global energy in a horizontal plane in
-$MJ.m^{-2}$) and the ratio of diffuse to global energy for a given
-month. It then calculates the angles, orientation and energy of these
-rays depending on whether they are direct or diffuse*.* The annual
-direct rays are discretised by following the sun’s trajectory across the
-year, and the annual diffuse rays are created by generating rays from
-all directions across the sky. The rays characteristics also depends on
-the plot’s latitude: there are relatively more diffuse radiations, with
-more horizontal rays, towards higher latitudes in Scandinavia than
-towards lower latitudes in Spain.
+Contributions, bug reports, and feature requests are welcome.
 
-The model then cast each ray towards the centre of each cell that
-composed the virtual stand. The energy of each ray, measured in
-megajoules ($MJ$), depends on the initial energy of the ray (in
-$MJ.m^{-2}$) and the area of the cell. This enabled the continuous plane
-to be considered as a discrete surface, allowing the light reaching the
-ground to be modeled. Therefore, cell size is a proxy for model
-accuracy: smaller cells lead to a more precise and continuous estimation
-of light on the ground, but this comes at the expense of quadratic
-increases in computation time and memory usage.
+Please [open an issue](https://github.com/NatheoB/SamsaRaLight/issues) or [pull request](https://github.com/NatheoB/SamsaRaLight/pulls) on the github project.
 
-### 3 - Determine interceptions between light rays and tree crowns
+## 📜 License
 
-For each light ray directed towards a cell centre, the model estimates
-all the interceptions with the tree crowns. To do this, it estimates the
-solutions of a solvable system of equations based on the intersection
-between a simple volume (the crown) and a straight line (the ray). This
-leads to a polynomial solution with either 0 (no intersection), 1 (the
-ray is tangent to the crown and is therefore not considered) or 2
-solutions (an intersection with entry and exit points). The model then
-stores all interceptions for each ray towards each cell centre and
-defines them by the path length in the crown (the distance between the
-entry and exit points) and the distance from the cell centre (the
-distance between the middle point of the path into the crown and the
-cell centre point).
-
-Given that we do not know the environment around the stand, the model
-uses a torus system to represent plot boundaries (see the graphical
-representation in Courbaud et al., 2003). Trees around the border of the
-stand are not described, but they also participate in intercepting
-incoming rays. Therefore, failing to consider them could result in an
-underestimation of the number of interceptions, particularly for cells
-in close proximity to the plot boundaries. Overall, the torus system
-allows an infinite representation of the virtual stand to be created by
-joining the left and right rectangular sides together, as well as the
-top and bottom sides. In practice, this means that the trees outside the
-left boundary are considered to be the trees on the right side of the
-stand (and vice versa), and the trees outside the top boundary are
-considered to be the trees on the bottom side of the stand (and vice
-versa).
-
-An algorithm has been implemented to reduce computation time by
-estimating which trees could potentially be intercepted by each ray.
-Given the height angle of a ray and the maximum height of the trees in
-the stand, there is a maximum radius around the casting point beyond
-which it would be impossible to intercept any tree crown. By estimating
-this radius for each ray, the computation time for determining crown
-interceptions is drastically reduced, as it is only necessary to iterate
-over trees that could potentially intercept the ray when casting it
-towards a given cell center.
-
-### 4 - Estimate the attenuation of light throughout successive interceptions
-
-The distance from the cell centre allows the interception of a given ray
-by the crowns to be ordered from the farthest (i.e. the first crown to
-intercept the ray) to the closest (i.e. the last crown to intercept the
-ray). Doing so allows us to estimate the attenuation of each ray’s
-energy following successive interceptions by the tree crowns, starting
-with the initial energy of the ray coming from above the canopy in $MJ$.
-The transmitted energy for each intercepted crown is estimated based on
-the incident energy of the ray (*i.e.* equal to the initial energy for
-the first intercepted crown, or equal to the attenuated initial energy
-for subsequent interceptions).
-
-The user can choose between two transmission models that vary in how the
-crown is considered: (1) as a porous envelope or (2) as a turbid medium.
-In the porous envelope model, the transmitted energy is computed based
-only on a crown parameter: crown openness. This is a parameter between 0
-and 1 that indicates the fraction of light energy transmitted. For
-example, a value of 0.7 indicates that 70% of the energy is transmitted
-and 30% is absorbed by the tree. Therefore, the first model is
-independent of the length of the ray path within the crown. The second,
-more complex model considers the crown to be a turbid medium and assumes
-that the leaves are arranged homogeneously within the canopy and not
-aggregated. In this case, Beer–Lambert’s law can be applied to estimate
-the transmitted energy based on the ray’s path length within the crown
-and a crown parameter: LAD (the Leaf Area Density) (see Ligot et al.,
-2014, for more details on the transmission models).
-
-### 5 - Compute the output light variables
-
-After estimating the transmitted energies for all rays directed towards
-each cell centre, the model sums up energies to deduce the total amount
-of energy absorbed by the tree during the year (in $MJ$). The model also
-estimates the total amount of energy reaching a cell centre after
-attenuation by the above-mentioned crowns of each ray directed towards
-this cell. This is standardised by cell area to give the amount of
-energy reaching the ground per unit area (in $MJ.m^{-2}$). The
-SamsaRaLight package also return more detailed output if the user
-specified it: the direct/diffuse energies, the matrices of interceptions
-(i.e. the number of intercepted rays and energies for each tree per
-target cell).
-
-For each cell, the package also derives a common relative indicator to
-represent light on the ground, $PACL$ (percentage of above canopy
-light), which is the ratio of the energy reaching the cell to the energy
-above the canopy before interception. This allows shade to be considered
-not as an absolute amount of energy, which is highly dependent on site
-location (*i.e.* greater global energy in lower latitudes), but as a
-relative indicator dependent only on light interception by trees. In
-practice, the indicator ranges from 0 (full shade) to 1 (full
-light).This indicator is considered a better proxy for modelling the
-effect of light on tree regeneration (see model calibration in Unkule et
-al., manuscript in preparation) and for representing the impact of
-silviculture on ground-level light (see Ligot et al., 2014b).
-
-For each tree, the package also derives a light competition index
-($LCI$), representing the level of light competition around a focal
-tree. This index is based on the ratio between the actual energy
-intercepted by the tree and the potential energy that would have been
-intercepted if the tree were alone in the stand (*i.e.* not considering
-interception by surrounding competitors). When considering light as a
-resource, $LCI$ can be interpreted as the amount of light absorbed by
-the tree (the supply) compared to what it would have needed based on its
-crown characteristics (the demand). In practice, the indicator ranges
-from 0 (full light) to 1 (full shade). This indicator is considered a
-reliable proxy for estimating the effect of light competition on the
-growth and survival of individual trees (see model calibration in
-Beauchamp et al., 2025).
-
-## Learn SamsaRaLight with applied tutorials
-
-Following this website: <https://natheob.github.io/SamsaRaLight/>, you
-can find articles presenting progressive tutorials on how to use the
-SamsaRaLight R package, increasing in complexity and providing a deeper
-understanding of the model functionalities. The tutorials are based on
-real tree inventory datasets, that are stored in the SamsaRaLight R
-package.
-
-1.  A first simple case
-2.  Understand stand information
-3.  Choose the transmission model
-4.  Create a virtual stand from an inventory
-5.  Consider asymmetric crown shapes
-6.  Estimating light competition on a statistical inventory
-7.  Add light sensors and fit the LAD parameter
-
-## Main R functions and pipeline
-
-### 1 - Construct the virtual stand
-
-To run the SamsaraLight model, the first step is to construct the
-virtual stand by defining its geometry and trees composing it.
-
-The user must provide as an input parameter a well-formatted trees
-data.frame in which each tree information is provided: id, location,
-species, trunk diameter, crown type, crown dimensions and crown
-transmission parameters (see `?SamsaRaLight::sl_run` documentation for
-the trees table formatting). The **Tutorial 1** explains how to create
-the trees table by representing the trees with simple symmetric shapes,
-the **Tutorial 3** explain how to parametrize the transmission model
-parameters and the **Tutorial 5** allows increase the crown shape
-complexity by representing tree crowns with asymmetric shapes.
-
-The virtual stand must be an axis-aligned rectangle composed of square
-cells, thus the dimensions being defined by the cell size ($cellsize$)
-and the number of cells on each axis ($ncells_x$ and $ncells_y$). The
-trees coordinates ($x$ and $y$) specified in the trees table must be
-relative to the rectangle stand, thus with
-$0 \leq x \leq cellsize * ncells_x$ and
-$0 \leq y \leq cellsize * ncells_y$. The plane representing the virtual
-stand is defined by the user with the slope (angle in degrees between an
-horizontal plane and the stand), the aspect (angle in degrees of slope
-bottom on the compass from the North) and the north to X angle (angle in
-degrees from North to x axis). The **Tutorial 1** shows a simple
-parametrisation of the virtual stand geometry, and the **Tutorial 2**
-shows the influence of the stand geometry on the shading effect of a
-single tree for different stand latitudes.
-
-Most of the users’ tree inventories may not fit with the strong rule of
-an axis-aligned rectangle inventory zone for several reasons: (1) the
-tree coordinates of the axis-aligned rectangle plot are not standardized
-between 0 and the rectangle dimensions, (2) the rectangle inventory zone
-is not axis-aligned, (3) the inventory zone is a complex shape, or (4)
-the inventory zone is a statistical sampling protocol. To bypass the
-first, second and third limitations, we created the function
-`SamsaRaLight::create_rect_stand()` to help the user creating a
-well-formatted axis-aligned rectangle virtual plot from a trees
-inventory with all tree inventoried and located within a non-axis
-aligned rectangle or a complex shape. The **Tutorial 4** shows how to
-use this function correctly. The fourth limitations must necessitate a
-pre-treatment work from the user as in a statistical sampling protocol,
-each tree may not have a precise location, and have assigned a
-statistical weight corresponding to the number of equivalent trees per
-hectare. The **Tutorial 6** shows how to compute light competition
-variables for each sampled trees.
-
-To visualize the initial virtual stand, a ggplot2 function is
-implemented in the package `plot_stand_2D()` allowing to observe the
-trees from either a view from above or a top/down view. It is very
-useful for visualizing the initial stand before running the ray-tracing
-model to ensure for no mistakes in the crown geometries. A function for
-visualizing the initial stand in 3D using the plotly package is also
-implemented `plot_stand_3D` but is to use with specific care because it
-is time and memory consuming, and may imply some lags during the run of
-the function (especially for denser stands).
-
-### 2 - Inform the monthly radiations
-
-You will also need to provide a data.frame to that inform the monthly
-radiations (see `?SamsaRaLight::sl_run` documentation for the
-monthly_rad table formatting). You can fetch and format automatically
-this data.frame for a given `latitude` and `longitude` using the
-function `get_monthly_rad()`. It fetches monthly data between given
-start and end year (range between 2005 and 2020) from the PVGIS database
-<https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-information-system_en>.
-Here, you can choose to average the monthly values between all the years
-between 2005 and 2020 or to choose values of a given year.
-
-### 3 - Run the SamsaraLight model
-
-After having defined the trees table, the stand geometry and the monthly
-radiations, the user can run the SamsaraLight model using the function
-`sl_run()`. The default arguments of this function can be tweaked to
-manage the SamsaraLight ray-tracing model, such as for setting the stand
-geometry (see Tutorial 1 and 2), choosing the transmission model (see
-Tutorial 3), considering interception by trunks…
-
-The SamsaRaLight R package also allows to estimate the light arriving
-towards virtual sensors on the ground, defined by a position and a
-height within the stand (see Tutorial 7).
-
-### 4 - Understand the output variables
-
-The function returns a list with the inputs, the model inputs, the
-monthly rays that are discretized by the model and the output energies
-for each tree, each cell and each sensor. Each Tutorial explain
-progressively how to manage with the output objects.
-
-The package implements a graphical function `plot_sl_output` that allows
-plotting the stands with the output light variables by cells and trees,
-using the package ggplot2. It is a useful and nice way to present the
-output light results, such as a ground light map or a map of trees with
-energy of competition output variables.
-
-## Bibliography
-
-\[1\] Courbaud, B. et al. (2015). “Applying ecological model
-evaludation: Lessons learned with the forest dynamics model Samsara2”.
-Ecological Modelling 314, p. 1. doi: 10.1016/j.ecolmodel.2015.06.039.
-
-\[2\] Courbaud, B., F. de Coligny, and T. Cordonnier (2003). “Simulating
-radiation distribution in a heterogeneous Norway spruce forest on a
-slope”. Agricultural and Forest Meteorology 116.1, pp. 1–18. doi:
-10.1016/S0168-1923(02)00254-X.
-
-\[3\] Ligot, G., Balandier, P., Courbaud, B., Claessens, H., 2014.
-“Forest radiative transfer models: which approach for which
-application?”. Can. J. For. Res. 44:385-397.
-<https://hdl.handle.net/2268/163600>
-
-\[4\] Ligot, G., Balandier, P., Coubraud, B., Jonard, M., Kneeshaw, D.,
-Claessens, H, 2014. “Managing understory light to maintain a mixture of
-species with different shade tolerance”. For. Ecol. Manage. 327:189-200.
-
-\[5\] André, Frédéric, Louis de Wergifosse, François de Coligny, et al.
-« Radiative Transfer Modeling in Structurally Complex Stands: Towards a
-Better Understanding of Parametrization ». *Annals of Forest Science*
-78, n<sup>o</sup> 4 (2021): 1‑21.
-<https://doi.org/10.1007/s13595-021-01106-8>.
+This package is released under the GPL-3 License. See LICENSE for details.

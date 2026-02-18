@@ -1,6 +1,6 @@
 ---
 title: "4 - Understand ray transmission"
-subtitle: "Transmission models and turbid medium interception"
+subtitle: "Transmission models : porous envelope and turbid medium crowns"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{4 - Understand ray transmission}
@@ -388,7 +388,7 @@ trees_inv_transmit <- dplyr::bind_rows(
 
 ## Create virtual stands and run SamsaraLight
 
-```{r include=FALSE}
+```{r echo = T, results = 'hide'}
 id_simus <- unique(trees_inv_transmit$id_simu)
 
 out_stands <- vector("list", length = length(id_simus))

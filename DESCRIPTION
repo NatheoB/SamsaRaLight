@@ -1,15 +1,15 @@
 Package: SamsaRaLight
-Title: Forest light computation
+Title: An R package for estimation of tree light interception using ray-tracing 
 Version: 1.0
 Authors@R: 
   c(
-    person("Natheo", "Beauchamp", , "beauchamp.natheo@gmail.com", role = c("aut", "cre"), comment = "R package developper"),
-    person("Gauthier", "Ligot", , "gligot@uliege.be", role = c("aut", "cph"), comment = "Java Capsis developper and algorithm improvment"),
-    person("Francois", "de Coligny", , "coligny@cirad.fr", role = c("aut"), comment = "Java Capsis developper"),
-    person("Maxime", "Jaunatre", , "maxime.jaunatre@inrae.fr", role = c("aut"), comment = "R package support developper"),
-    person("Benoit", "Courbaud", , "benoit.courbaud@inrae.fr", role = c("aut", "cph"), comment = "Algorithm and theory creator")
+    person(given = "Natheo", family = "Beauchamp", email = "beauchamp.natheo@gmail.com", role = c("aut", "cre"), comment = c("R package developper", ORCID = "0009-0007-9103-5194")),
+    person(given = "Gauthier", family = "Ligot", email = "gligot@uliege.be", role = c("aut", "cph"), comment = c("Java Capsis developper and algorithm improvment", ORCID = "0000-0002-5508-4358")),
+    person(given = "Francois", family = "de Coligny", email = "francois.decoligny@inrae.fr", role = c("aut"), comment = c("Java Capsis developper", ORCID = "0000-0002-8538-3009")),
+    person(given = "Maxime", family = "Jaunatre", email = "maxime.jaunatre@inrae.fr", role = c("aut"), comment = c("R package support developper", ORCID = "0009-0002-2816-1677")),
+    person(given = "Benoit", family = "Courbaud", email = "benoit.courbaud@inrae.fr", role = c("aut", "cph"), comment = c("Algorithm and theory creator", ORCID = "0000-0002-3050-9559"))
     )
-Description: The package computes annuel direct and diffuse rays to estimate tree light interception by 3D crowns and light on the ground within a forest.
+Description: The package computes annuel direct and diffuse rays to estimate tree light interception by 3D crowns within a forest.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -42,4 +42,4 @@ Suggests:
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 VignetteBuilder: knitr
-URL: https://natheob.github.io/SamsaRaLight/
+URL: https://natheob.github.io/SamsaRaLight

@@ -1,6 +1,6 @@
 ---
 title: "2 - Understand ray discretization"
-subtitle: "Understand ray discretization of direct and diffuse radiations"
+subtitle: "Discretization of direct and diffuse radiations into rays"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{2 - Understand ray discretization}
