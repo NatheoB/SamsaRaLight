@@ -334,7 +334,7 @@ plot.sl_stand <- function(x, ...,
 #' @return A \code{ggplot2} object representing the orientation compass.
 #'
 #' @importFrom ggplot2 ggplot geom_segment geom_text scale_colour_manual
-#'   theme_void theme annotate coord_equal arrow
+#'   theme_void theme annotate coord_equal arrow coord_fixed
 #' @importFrom grid unit
 #'
 #' @keywords internal
