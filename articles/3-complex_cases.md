@@ -754,23 +754,23 @@ summary(output_cloture_filled)
 #> 
 #> Trees (crown interception)
 #> ---------------------------
-#>       epot               e                 lci        
-#>  Min.   :  15369   Min.   :   308.6   Min.   :0.0830  
-#>  1st Qu.:  95823   1st Qu.: 20334.6   1st Qu.:0.5087  
-#>  Median : 181153   Median : 52493.3   Median :0.6923  
-#>  Mean   : 345843   Mean   :151145.8   Mean   :0.6560  
-#>  3rd Qu.: 580143   3rd Qu.:247509.5   3rd Qu.:0.8065  
-#>  Max.   :1232111   Max.   :727772.6   Max.   :0.9912  
+#>       epot               e                 lci         
+#>  Min.   :  15324   Min.   :   310.6   Min.   :0.08281  
+#>  1st Qu.:  96165   1st Qu.: 20317.4   1st Qu.:0.50912  
+#>  Median : 180691   Median : 52323.2   Median :0.69227  
+#>  Mean   : 346222   Mean   :151277.2   Mean   :0.65608  
+#>  3rd Qu.: 580334   3rd Qu.:247648.7   3rd Qu.:0.80684  
+#>  Max.   :1231795   Max.   :727679.2   Max.   :0.99120  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e               pacl             punobs      
 #>  Min.   : 192.2   Min.   :0.05108   Min.   :0.0000  
-#>  1st Qu.: 607.0   1st Qu.:0.16134   1st Qu.:0.4260  
-#>  Median : 868.1   Median :0.23071   Median :0.5884  
-#>  Mean   : 893.1   Mean   :0.23736   Mean   :0.5535  
-#>  3rd Qu.:1106.0   3rd Qu.:0.29395   3rd Qu.:0.7013  
-#>  Max.   :2040.6   Max.   :0.54234   Max.   :0.8800  
+#>  1st Qu.: 612.2   1st Qu.:0.16270   1st Qu.:0.4246  
+#>  Median : 868.4   Median :0.23080   Median :0.5903  
+#>  Mean   : 893.8   Mean   :0.23757   Mean   :0.5532  
+#>  3rd Qu.:1106.6   3rd Qu.:0.29411   3rd Qu.:0.7005  
+#>  Max.   :2048.5   Max.   :0.54446   Max.   :0.8800  
 #> 
 #> Sensors
 #> -------
