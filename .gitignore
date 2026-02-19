@@ -8,6 +8,6 @@ src/*.dll
 docs
 *.html
 dev/
-vignettes_old/
+vignettes_tmp/
 paper/jats
 paper/paper.pdf

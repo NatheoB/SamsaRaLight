@@ -1,5 +1,5 @@
 Package: SamsaRaLight
-Title: An R package for estimation of tree light interception using ray-tracing 
+Title: An R package to estimate tree light interception using ray-tracing 
 Version: 1.0
 Authors@R: 
   c(
