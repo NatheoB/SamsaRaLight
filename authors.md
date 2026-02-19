@@ -25,12 +25,12 @@
 ## Citation
 
 Beauchamp N, Ligot G, de Coligny F, Jaunatre M, Courbaud B (2026).
-*SamsaRaLight: An R package for estimation of tree light interception
-using ray-tracing*. R package version 1.0,
+*SamsaRaLight: An R package to estimate tree light interception using
+ray-tracing*. R package version 1.0,
 <https://natheob.github.io/SamsaRaLight>.
 
     @Manual{,
-      title = {SamsaRaLight: An R package for estimation of tree light interception using ray-tracing},
+      title = {SamsaRaLight: An R package to estimate tree light interception using ray-tracing},
       author = {Natheo Beauchamp and Gauthier Ligot and Francois {de Coligny} and Maxime Jaunatre and Benoit Courbaud},
       year = {2026},
       note = {R package version 1.0},
