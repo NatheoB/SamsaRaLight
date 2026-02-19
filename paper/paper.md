@@ -44,8 +44,6 @@ Light is a key resource driving tree growth and mortality [@beauchamp_light_2025
 
 The SamsaraLight ray-tracing model, developed by Courbaud et al. [-@courbaud_simulating_2003], is a widely used models for this purpose in forest ecology. It has been applied to study the effects of light interception on tree growth and mortality dynamics [@beauchamp_light_2025], as well as to quantify light transmittance to the forest floor and its influence on regeneration processes [@ligot_managing_2014; @ligot_tree_2016]. Explicitly coupling light competition with forest simulators is essential to study forest stand evolution over time and how silvicultural strategies influence stand structure, dynamics, and regeneration [@lafond_uneven-aged_2014, @barrere_oak_2024]. For this reason, SamsaraLight has been integrated as a core module in numerous forest simulators including Samsara2 [@courbaud_applying_2015], PDG-ARENA [@rouet_pdg-arena_2025], HETEROFOR 1.0 [@jonard_heterofor_2020; @de_wergifosse_heterofor_2020], or RReShar [@barrere_oak_2024].
 
-### 
-
 ## State of the field
 
 The SamsaraLight ray-tracing model was originally developed within the CAPSIS platform [@dufour-kowalski_capsis_2012], a Java-based framework simplifying the development of forest simulators. However, the tight coupling of SamsaraLight to CAPSIS limits its independent use and integration into common statistical workflows. To address this, Fortin [-@fortin_executing_2020] introduced the R packages *{J4R}* and *{RCapsis}*, enabling CAPSIS models to be accessed from R. Despite this advance, the approach remains technically demanding, requiring interaction with external software, intermediate files, and multi-language pipelines, which restricts accessibility for many users.
