@@ -35,6 +35,10 @@
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A minimal case</a></li>
+    <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
+    <li><a class="dropdown-item" href="../articles/4-transmission_interception.html">4 - Understand ray transmission</a></li>
+    <li><a class="dropdown-item" href="../articles/5-virtual_sensors.html">5 - Virtual sensors</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
@@ -384,8 +388,8 @@ parallelisation is disabled and computations run in sequential mode
 <span>    parallel_mode <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    n_threads <span class="op">=</span> <span class="cn">NULL</span></span>
 <span>  <span class="op">)</span></span>
-<span><span class="co">#&gt; Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not</span></span>
-<span><span class="co">#&gt; available: running sequentially.</span></span>
+<span><span class="co">#&gt; Warning in sl_set_openmp(parallel_mode = parallel_mode, num_threads =</span></span>
+<span><span class="co">#&gt; as.integer(n_threads), : OpenMP not available: running sequentially.</span></span>
 <span><span class="co">#&gt; parallel mode disabled because OpenMP was not available</span></span>
 <span><span class="co">#&gt; SamsaRaLight simulation was run successfully.</span></span></code></pre></div>
 <p>For advanced users, an internal function is available using

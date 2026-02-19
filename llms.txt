@@ -10,7 +10,7 @@ al. 2003](https://www.sciencedirect.com/science/article/pii/S016819230200254X?v
 - Light reaching the forest floor
 - Light at virtual ground sensors
 
-✨ With features:
+✨ With many features:
 
 - Estimation of direct and diffuse radiation
 - Flexible crown geometry (symmetric and asymmetric)
@@ -23,7 +23,7 @@ al. 2003](https://www.sciencedirect.com/science/article/pii/S016819230200254X?v
 🌐 Model documentation and tutorials are available here:
 <https://natheob.github.io/SamsaRaLight/>
 
-## 📦 Installation
+## Installation
 
 You can install the development version of SamsaRaLight from
 [GitHub](https://github.com/NatheoB/SamsaRaLight/) with:
@@ -33,7 +33,7 @@ install.packages("devtools")
 devtools::install_github("NatheoB/SamsaRaLight")
 ```
 
-## 📄 Citation
+## Citation
 
 If you use the SamsaraLight in your research, please cite :
 
@@ -44,7 +44,7 @@ If you use the SamsaraLight in your research, please cite :
 - This package: to be published soon to obtain a DOI and being cited as
   a research tool.
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, bug reports, and feature requests are welcome.
 
@@ -52,7 +52,7 @@ Please [open an issue](https://github.com/NatheoB/SamsaRaLight/issues)
 or [pull request](https://github.com/NatheoB/SamsaRaLight/pulls) on the
 github project.
 
-## 📜 License
+## License
 
 This package is released under the GPL-3 License. See LICENSE for
 details.
@@ -78,7 +78,7 @@ details.
   : Check the format and validity of a sensor position data.frame
 
 - [`create_sl_stand()`](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md)
-  : Create a rectangular virtual stand from a tree inventory
+  : Create a virtual stand from a tree inventory
 
 - [`create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md)
   : Create planar (x, y) coordinates from longitude / latitude

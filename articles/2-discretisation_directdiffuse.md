@@ -326,24 +326,6 @@ for (i in 1:nrow(exp_design)) {
     verbose = FALSE
   ) 
 }
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
 ```
 
 ## Understand the detailed output

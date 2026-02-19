@@ -336,8 +336,8 @@ sl_output <- SamsaRaLight::run_sl(
     parallel_mode = TRUE,
     n_threads = NULL
   )
-#> Warning in sl_set_openmp(parallel_mode, as.integer(n_threads)): OpenMP not
-#> available: running sequentially.
+#> Warning in sl_set_openmp(parallel_mode = parallel_mode, num_threads =
+#> as.integer(n_threads), : OpenMP not available: running sequentially.
 #> parallel mode disabled because OpenMP was not available
 #> SamsaRaLight simulation was run successfully.
 ```

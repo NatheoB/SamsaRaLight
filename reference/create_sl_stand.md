@@ -1,10 +1,12 @@
-# Create a rectangular virtual stand from a tree inventory
+# Create a virtual stand from a tree inventory
 
-This function builds a rectangular (or square) virtual forest stand from
-a user-provided tree inventory. Trees are spatially shifted so that the
-inventory zone is centered within a regular grid of square cells.
-Optionally, additional trees can be added around the core inventory area
-to match its basal area per hectare.
+This function builds a virtual forest stand from a user-provided tree
+inventory. The inventory zone (core polygon) can optionally be modified
+(e.g., replaced by an enclosing rectangle or an axis-aligned rectangle)
+before constructing the stand. Trees are spatially shifted so that the
+resulting inventory zone is centered within a regular grid of square
+cells. Optionally, additional trees can be added around the core
+inventory area to match its basal area per hectare.
 
 ## Usage
 
@@ -38,7 +40,7 @@ create_sl_stand(
 
 - latitude:
 
-  Numeric, latitude of the stand (degrees)
+  Numeric. Latitude of the stand (degrees).
 
 - slope:
 
@@ -47,16 +49,16 @@ create_sl_stand(
 - aspect:
 
   Numeric. Aspect of the slope, defined as the azimuth of the downslope
-  direction, clockwise from North (degrees). (0°: North-facing slope,
-  90°: East-facing slope, 180°: South-facing slope, 270°: West-facing
-  slope)
+  direction, clockwise from North (degrees). (0 degrees: North-facing
+  slope, 90 degrees: East-facing slope, 180 degrees: South-facing slope,
+  270 degrees: West-facing slope)
 
 - north2x:
 
   Numeric. Clockwise angle from North to the X-axis (degrees). The
-  default 90° corresponds to a Y-axis oriented toward true North (0°:
-  x-axis points North, 90° : x-axis points East, 180° : x-axis points
-  South, 270° : x-axis points West)
+  default 90 degrees corresponds to a Y-axis oriented toward true North
+  (0 degrees: x-axis points North, 90 degrees: x-axis points East, 180
+  degrees: x-axis points South, 270 degrees: x-axis points West).
 
 - sensors:
 
@@ -71,6 +73,18 @@ create_sl_stand(
   columns `x` and `y`. If `NULL`, a concave hull is automatically
   computed from tree positions.
 
+- modify_polygon:
+
+  Character. Defines how the inventory polygon is modified. One of:
+
+  - `"none"`: the core polygon is used as provided or computed.
+
+  - `"rect"`: the polygon is replaced by its minimum enclosing
+    rectangle.
+
+  - `"aarect"`: the polygon is replaced by an axis-aligned enclosing
+    rectangle.
+
 - fill_around:
 
   Logical. If `TRUE`, trees are added outside the core polygon until the
@@ -81,13 +95,6 @@ create_sl_stand(
 
   Logical. If `TRUE` (default), messages and warnings are printed during
   processing. If `FALSE`, output is silent.
-
-- aarect_zone:
-
-  Logical. If `TRUE`, the inventory zone is defined by the minimum-area
-  enclosing rectangle of the core polygon with minimum rotation to
-  obtain an axis-aligned rectangle inventory zone. If `FALSE`, the core
-  polygon itself is used.
 
 ## Value
 
@@ -111,14 +118,13 @@ A named list with the following elements:
 
   - `sf`: corresponding `sf` POLYGON
 
-  - `aarect_zone`: did we used an axis-aligned rectangle inventory zone
-    ?
+  - `modify_polygon`: applied polygon modification
 
 - `transform`:
 
   List of transformation and filling information, including core area,
   target and final basal area, number of added trees, and applied
-  spatial transformations
+  spatial transformations.
 
 - `geometry`:
 
@@ -165,7 +171,7 @@ are automatically checked for coordinate type:
 
 - The UTM projection (EPSG) is determined from the mean coordinates of
   `trees_inv`. All inputs must share the same EPSG; otherwise, the
-  function stops with an error. If conversion occurred, the epsg is
+  function stops with an error. If conversion occurred, the EPSG is
   stored in the output.
 
 The function ensures that all trees fall within the core inventory
@@ -175,7 +181,7 @@ possible.
 
 When `fill_around = TRUE`, trees are randomly sampled from the original
 inventory and positioned outside the core polygon until the target basal
-area per hectare is reached for the full rectangular stand.
+area per hectare is reached for the full stand.
 
 ## Examples
 
@@ -191,7 +197,7 @@ stand <- create_sl_stand(
   slope = 10,
   aspect = 180,
   north2x = 0,
-  aarect_zone = TRUE,
+  modify_polygon = "aarect",
   fill_around = FALSE,
   verbose = TRUE
 )

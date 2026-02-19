@@ -19,7 +19,7 @@
   : Check the format and validity of a sensor position data.frame
 
 - [`create_sl_stand()`](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md)
-  : Create a rectangular virtual stand from a tree inventory
+  : Create a virtual stand from a tree inventory
 
 - [`create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md)
   : Create planar (x, y) coordinates from longitude / latitude

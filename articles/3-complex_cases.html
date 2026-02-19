@@ -31,10 +31,14 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../articles/0a-model_definition.html">Model</a></li>
 <li class="nav-item"><a class="nav-link" href="../articles/0b-get_started.html">Get started</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
 <li><a class="dropdown-item" href="../articles/1-minimal_case.html">1 - A minimal case</a></li>
+    <li><a class="dropdown-item" href="../articles/2-discretisation_directdiffuse.html">2 - Understand ray discretization</a></li>
+    <li><a class="dropdown-item" href="../articles/3-complex_cases.html">3 - More complex crown shapes and inventories</a></li>
+    <li><a class="dropdown-item" href="../articles/4-transmission_interception.html">4 - Understand ray transmission</a></li>
+    <li><a class="dropdown-item" href="../articles/5-virtual_sensors.html">5 - Virtual sensors</a></li>
   </ul>
 </li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
@@ -792,23 +796,23 @@ usual:</p>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
-<span><span class="co">#&gt;       epot               e                 lci         </span></span>
-<span><span class="co">#&gt;  Min.   :  15283   Min.   :   305.8   Min.   :0.08288  </span></span>
-<span><span class="co">#&gt;  1st Qu.:  95615   1st Qu.: 20337.4   1st Qu.:0.50946  </span></span>
-<span><span class="co">#&gt;  Median : 180313   Median : 52246.9   Median :0.69238  </span></span>
-<span><span class="co">#&gt;  Mean   : 346035   Mean   :151219.9   Mean   :0.65596  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 580498   3rd Qu.:247703.1   3rd Qu.:0.80572  </span></span>
-<span><span class="co">#&gt;  Max.   :1231708   Max.   :727570.6   Max.   :0.99131  </span></span>
+<span><span class="co">#&gt;       epot               e                 lci        </span></span>
+<span><span class="co">#&gt;  Min.   :  15369   Min.   :   308.6   Min.   :0.0830  </span></span>
+<span><span class="co">#&gt;  1st Qu.:  95823   1st Qu.: 20334.6   1st Qu.:0.5087  </span></span>
+<span><span class="co">#&gt;  Median : 181153   Median : 52493.3   Median :0.6923  </span></span>
+<span><span class="co">#&gt;  Mean   : 345843   Mean   :151145.8   Mean   :0.6560  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 580143   3rd Qu.:247509.5   3rd Qu.:0.8065  </span></span>
+<span><span class="co">#&gt;  Max.   :1232111   Max.   :727772.6   Max.   :0.9912  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
 <span><span class="co">#&gt;        e               pacl             punobs      </span></span>
-<span><span class="co">#&gt;  Min.   : 190.0   Min.   :0.05049   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 605.7   1st Qu.:0.16098   1st Qu.:0.4258  </span></span>
-<span><span class="co">#&gt;  Median : 864.1   Median :0.22966   Median :0.5930  </span></span>
-<span><span class="co">#&gt;  Mean   : 893.0   Mean   :0.23733   Mean   :0.5534  </span></span>
-<span><span class="co">#&gt;  3rd Qu.:1101.5   3rd Qu.:0.29276   3rd Qu.:0.7009  </span></span>
-<span><span class="co">#&gt;  Max.   :2030.0   Max.   :0.53953   Max.   :0.8881  </span></span>
+<span><span class="co">#&gt;  Min.   : 192.2   Min.   :0.05108   Min.   :0.0000  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 607.0   1st Qu.:0.16134   1st Qu.:0.4260  </span></span>
+<span><span class="co">#&gt;  Median : 868.1   Median :0.23071   Median :0.5884  </span></span>
+<span><span class="co">#&gt;  Mean   : 893.1   Mean   :0.23736   Mean   :0.5535  </span></span>
+<span><span class="co">#&gt;  3rd Qu.:1106.0   3rd Qu.:0.29395   3rd Qu.:0.7013  </span></span>
+<span><span class="co">#&gt;  Max.   :2040.6   Max.   :0.54234   Max.   :0.8800  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sensors</span></span>
 <span><span class="co">#&gt; -------</span></span>
