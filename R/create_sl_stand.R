@@ -1,8 +1,11 @@
-#' Create a rectangular virtual stand from a tree inventory
+#' Create a virtual stand from a tree inventory
 #'
-#' This function builds a rectangular (or square) virtual forest stand from a
-#' user-provided tree inventory. Trees are spatially shifted so that the
-#' inventory zone is centered within a regular grid of square cells.
+#' This function builds a virtual forest stand from a
+#' user-provided tree inventory. The inventory zone (core polygon)
+#' can optionally be modified (e.g., replaced by an enclosing rectangle
+#' or an axis-aligned rectangle) before constructing the stand.
+#' Trees are spatially shifted so that the resulting inventory zone
+#' is centered within a regular grid of square cells.
 #' Optionally, additional trees can be added around the core inventory area
 #' to match its basal area per hectare.
 #'
@@ -13,23 +16,28 @@
 #' @param trees_inv A data.frame with one row per tree.
 #'   See \link{check_inventory} for the required structure and validated columns.
 #' @param cell_size Numeric. Side length of square cells composing the stand (meters).
-#' @param latitude Numeric, latitude of the stand (degrees)
+#' @param latitude Numeric. Latitude of the stand (degrees).
 #' @param slope Numeric. Slope of the plot (degrees).
 #' @param aspect Numeric. Aspect of the slope, defined as the azimuth of the
 #'   downslope direction, clockwise from North (degrees).
-#'   (0°: North-facing slope, 90°: East-facing slope, 180°: South-facing slope, 270°: West-facing slope)
+#'   (0 degrees: North-facing slope, 90 degrees: East-facing slope, 
+#'   180 degrees: South-facing slope, 270 degrees: West-facing slope)
 #' @param north2x Numeric. Clockwise angle from North to the X-axis (degrees).
-#'   The default 90° corresponds to a Y-axis oriented toward true North 
-#'   (0°: x-axis points North, 90° : x-axis points East, 180° : x-axis points South, 270° : x-axis points West)
+#'   The default 90 degrees corresponds to a Y-axis oriented toward true North 
+#'   (0 degrees: x-axis points North, 90 degrees: x-axis points East, 
+#'   180 degrees: x-axis points South, 270 degrees: x-axis points West).
 #' @param sensors Optional data.frame defining position and height of the sensor within the stand.
 #'   See \link{check_sensors} for the required structure and validated columns.
 #' @param core_polygon_df Optional data.frame defining the core inventory polygon.
 #'   Must contain columns \code{x} and \code{y}. If \code{NULL}, a concave hull
 #'   is automatically computed from tree positions.
-#' @param aarect_zone Logical. If \code{TRUE}, the inventory zone is defined
-#'   by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
-#'   obtain an axis-aligned rectangle inventory zone.
-#'   If \code{FALSE}, the core polygon itself is used.
+#' @param modify_polygon Character. Defines how the inventory polygon is modified.
+#'   One of:
+#'   \itemize{
+#'     \item \code{"none"}: the core polygon is used as provided or computed.
+#'     \item \code{"rect"}: the polygon is replaced by its minimum enclosing rectangle.
+#'     \item \code{"aarect"}: the polygon is replaced by an axis-aligned enclosing rectangle.
+#'   }
 #' @param fill_around Logical. If \code{TRUE}, trees are added outside the core
 #'   polygon until the basal area per hectare of the full stand matches that
 #'   of the core inventory.
@@ -52,12 +60,12 @@
 #'     \itemize{
 #'       \item \code{df}: data.frame of polygon vertices
 #'       \item \code{sf}: corresponding \code{sf} POLYGON
-#'       \item \code{aarect_zone}: did we used an axis-aligned rectangle inventory zone ?
+#'       \item \code{modify_polygon}: applied polygon modification
 #'     }
 #'   }
 #'   \item{\code{transform}}{
 #'     List of transformation and filling information, including core area,
-#'     target and final basal area, number of added trees, and applied spatial transformations
+#'     target and final basal area, number of added trees, and applied spatial transformations.
 #'   }
 #'   \item{\code{geometry}}{
 #'     List describing stand geometry and terrain parameters
@@ -82,7 +90,7 @@
 #'     \code{crown_lad}) are added using default values.
 #' }
 #'
-#' All input data.frames (`trees_inv`, `sensors`, and `core_polygon_df`) are
+#' All input data.frames (\code{trees_inv}, \code{sensors}, and \code{core_polygon_df}) are
 #' automatically checked for coordinate type:
 #' \itemize{
 #'   \item If \code{x} and \code{y} columns exist, they are assumed to be planar.
@@ -90,7 +98,7 @@
 #'     planar UTM coordinates automatically using \code{create_xy_from_lonlat()}.
 #'   \item The UTM projection (EPSG) is determined from the mean coordinates of
 #'     \code{trees_inv}. All inputs must share the same EPSG; otherwise, the
-#'     function stops with an error. If conversion occurred, the epsg is stored in the output.
+#'     function stops with an error. If conversion occurred, the EPSG is stored in the output.
 #' }
 #'
 #' The function ensures that all trees fall within the core inventory polygon,
@@ -99,7 +107,7 @@
 #'
 #' When \code{fill_around = TRUE}, trees are randomly sampled from the original
 #' inventory and positioned outside the core polygon until the target basal area
-#' per hectare is reached for the full rectangular stand.
+#' per hectare is reached for the full stand.
 #'
 #' @importFrom sf st_as_sf st_area st_intersects st_point st_coordinates
 #' @importFrom concaveman concaveman
@@ -120,7 +128,7 @@
 #'   slope = 10,
 #'   aspect = 180,
 #'   north2x = 0,
-#'   aarect_zone = TRUE,
+#'   modify_polygon = "aarect",
 #'   fill_around = FALSE,
 #'   verbose = TRUE
 #' )
@@ -277,11 +285,11 @@ create_sl_stand <- function(trees_inv,
   
   asym_crowns <- any(trees_inv$crown_type %in% c("4P", "8E")) # Check for asymmetric crowns
   if (asym_crowns) {
-    # Only multiples of 90° are allowed
+    # Only multiples of 90 degrees are allowed
     allowed_angles <- c(0, 90, 180, 270)
     if (!north2x %in% allowed_angles) {
       stop(
-        "For asymmetric crowns (crown_type in c('4P','8E')), `north2x` must be one of 0, 90, 180, 270°.",
+        "For asymmetric crowns (crown_type in c('4P','8E')), `north2x` must be one of 0, 90, 180, 270 degrees.",
         call. = FALSE
       )
     }
@@ -426,7 +434,7 @@ create_sl_stand <- function(trees_inv,
   
   ## Vertical asymmetry (4P and 8E) ----
   # XY planar radii depends on north2x
-  # Knowing that north2x can only be a multiple of 90° if there is at least one 4P/8E crown
+  # Knowing that north2x can only be a multiple of 90 degrees if there is at least one 4P/8E crown
   horizontal_asym_trees <- trees_shifted$crown_type %in% c("4P", "8E")
   
   if (north2x == 0) {

@@ -81,7 +81,7 @@ check_inventory <- function(trees_inv, verbose = TRUE) {
   ## ---- check coordinates ----------------------------------------------------
   needs_conversion <- check_coordinates(trees_inv, verbose = F)
   
-  if (needs_conversion) {
+  if (needs_conversion & verbose) {
     message(
       "Geographic coordinates (`lon`, `lat`) detected. They will be converted ",
       "to planar UTM coordinates in `create_sl_stand()`. ",

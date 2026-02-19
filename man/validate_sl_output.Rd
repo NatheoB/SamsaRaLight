@@ -7,20 +7,33 @@
 validate_sl_output(x)
 }
 \arguments{
-\item{x}{Object of class \code{"sl_output"}.}
+\item{x}{Object expected to inherit from class \code{"sl_output"}.}
 }
 \value{
-Invisibly returns TRUE if validation passes, stops with informative message otherwise.
+Invisibly returns \code{TRUE} if validation passes.
+Stops with an informative error message otherwise.
 }
 \description{
-Checks the internal consistency of an object returned by \code{run_sl_advanced}.
+Performs structural and internal consistency checks on an object
+returned by \code{run_sl_advanced()} or \code{run_sl()}.
 }
 \details{
-Validates that:
+This function is called internally at the end of a simulation to ensure
+that the returned object is valid and complete before being provided
+to the user.
+
+The function checks that:
 \itemize{
-\item Object inherits from class \code{"sl_output"}.
-\item \code{light} component contains \code{trees}, \code{cells}, and \code{sensors} as data.frames.
-\item All essential columns (\code{id_tree}, \code{id_cell}, \code{id_sensor}, energy variables) exist.
+\item The object inherits from class \code{"sl_output"}.
+\item Top-level components \code{$output} and \code{$input} exist.
+\item \code{$output$light} contains \code{trees}, \code{cells}, and \code{sensors}.
+\item These elements are data.frames.
+\item Required identifier and energy columns are present.
+\item Energy-related columns are numeric.
 }
+
+If detailed outputs were requested, the presence and structure of
+\code{$output$monthly_rays} and \code{$output$interceptions}
+are also verified when available.
 }
 \keyword{internal}

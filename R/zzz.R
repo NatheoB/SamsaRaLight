@@ -2,6 +2,8 @@
 if (getRversion() >= "2.15.1") utils::globalVariables(
   c(".data",
     "x", "y", "rn_m", "rs_m", "re_m", "rw_m", "h_m", 
+    "rxmax_m", "rxmin_m", "rymax_m", "rymin_m", 
+    "view_label", "x0", "x1", "y0", "y1",
     "hbase_m", "hmax_m", "dbh_cm", "crown_type", "id_tree",
     "species", "crown_openness", "crown_lad",
     "X", "Y", "z", "r", "x_center", "y_center", "z_center", "id_cell",

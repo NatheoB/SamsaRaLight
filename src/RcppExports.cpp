@@ -41,13 +41,14 @@ BEGIN_RCPP
 END_RCPP
 }
 // sl_set_openmp
-void sl_set_openmp(bool parallel_mode, int num_threads);
-RcppExport SEXP _SamsaRaLight_sl_set_openmp(SEXP parallel_modeSEXP, SEXP num_threadsSEXP) {
+void sl_set_openmp(bool parallel_mode, int num_threads, bool verbose);
+RcppExport SEXP _SamsaRaLight_sl_set_openmp(SEXP parallel_modeSEXP, SEXP num_threadsSEXP, SEXP verboseSEXP) {
 BEGIN_RCPP
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< bool >::type parallel_mode(parallel_modeSEXP);
     Rcpp::traits::input_parameter< int >::type num_threads(num_threadsSEXP);
-    sl_set_openmp(parallel_mode, num_threads);
+    Rcpp::traits::input_parameter< bool >::type verbose(verboseSEXP);
+    sl_set_openmp(parallel_mode, num_threads, verbose);
     return R_NilValue;
 END_RCPP
 }
@@ -63,7 +64,7 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 20},
-    {"_SamsaRaLight_sl_set_openmp", (DL_FUNC) &_SamsaRaLight_sl_set_openmp, 2},
+    {"_SamsaRaLight_sl_set_openmp", (DL_FUNC) &_SamsaRaLight_sl_set_openmp, 3},
     {"_SamsaRaLight_sl_print_openmp_status", (DL_FUNC) &_SamsaRaLight_sl_print_openmp_status, 0},
     {NULL, NULL, 0}
 };

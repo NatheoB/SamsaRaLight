@@ -32,8 +32,6 @@ Imports:
     ggnewscale,
     scales,
     RhpcBLASctl,
-    cowplot,
-    purrr,
     patchwork,
     grid
 Suggests: 

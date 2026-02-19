@@ -159,7 +159,9 @@ run_sl_advanced <- function(
 
   ## Set parallel ----
   if (is.null(n_threads)) n_threads <- -1L
-  sl_set_openmp(parallel_mode, as.integer(n_threads))
+  sl_set_openmp(parallel_mode = parallel_mode, 
+                num_threads = as.integer(n_threads),
+                verbose = verbose)
   
   if (verbose) sl_print_openmp_status()
   
@@ -239,43 +241,128 @@ run_sl_advanced <- function(
 
 #' Validate a SamsaRaLight simulation output object
 #'
-#' Checks the internal consistency of an object returned by \code{run_sl_advanced}.
+#' Performs structural and internal consistency checks on an object
+#' returned by \code{run_sl_advanced()} or \code{run_sl()}.
 #'
-#' @param x Object of class \code{"sl_output"}.
-#' 
+#' This function is called internally at the end of a simulation to ensure
+#' that the returned object is valid and complete before being provided
+#' to the user.
+#'
+#' @param x Object expected to inherit from class \code{"sl_output"}.
+#'
 #' @details
-#' Validates that:
+#' The function checks that:
 #' \itemize{
-#'   \item Object inherits from class \code{"sl_output"}.
-#'   \item \code{light} component contains \code{trees}, \code{cells}, and \code{sensors} as data.frames.
-#'   \item All essential columns (\code{id_tree}, \code{id_cell}, \code{id_sensor}, energy variables) exist.
+#'   \item The object inherits from class \code{"sl_output"}.
+#'   \item Top-level components \code{$output} and \code{$input} exist.
+#'   \item \code{$output$light} contains \code{trees}, \code{cells}, and \code{sensors}.
+#'   \item These elements are data.frames.
+#'   \item Required identifier and energy columns are present.
+#'   \item Energy-related columns are numeric.
 #' }
 #'
-#' @return Invisibly returns TRUE if validation passes, stops with informative message otherwise.
-#' 
+#' If detailed outputs were requested, the presence and structure of
+#' \code{$output$monthly_rays} and \code{$output$interceptions}
+#' are also verified when available.
+#'
+#' @return Invisibly returns \code{TRUE} if validation passes.
+#'   Stops with an informative error message otherwise.
+#'
 #' @keywords internal
 validate_sl_output <- function(x) {
   
-  if (!inherits(x, "sl_output")) stop("Object is not of class 'sl_output'", call. = FALSE)
-  # if (!is.list(x$output)) stop("'light' component must be a list", call. = FALSE)
-  # 
-  # # Trees
-  # trees_req <- c("id_tree", "epot", "e", "lci", "eunobs")
-  # if (!all(trees_req %in% names(x$light$trees))) {
-  #   stop("`trees` output is missing columns: ", paste(setdiff(trees_req, names(x$light$trees)), collapse = ", "))
-  # }
-  # 
-  # # Cells
-  # cells_req <- c("id_cell", "e", "pacl", "punobs")
-  # if (!all(cells_req %in% names(x$light$cells))) {
-  #   stop("`cells` output is missing columns: ", paste(setdiff(cells_req, names(x$light$cells)), collapse = ", "))
-  # }
-  # 
-  # # Sensors
-  # sensors_req <- c("id_sensor", "e", "pacl", "punobs")
-  # if (!all(sensors_req %in% names(x$light$sensors))) {
-  #   stop("`sensors` output is missing columns: ", paste(setdiff(sensors_req, names(x$light$sensors)), collapse = ", "))
-  # }
+  # ---- Class ----
+  if (!inherits(x, "sl_output")) {
+    stop("Object must inherit from class 'sl_output'.", call. = FALSE)
+  }
+  
+  # ---- Top-level structure ----
+  if (!is.list(x$output)) {
+    stop("`x$output` must be a list.", call. = FALSE)
+  }
+  
+  if (!is.list(x$input)) {
+    stop("`x$input` must be a list.", call. = FALSE)
+  }
+  
+  if (!"light" %in% names(x$output)) {
+    stop("`x$output` must contain element `light`.", call. = FALSE)
+  }
+  
+  light <- x$output$light
+  
+  # ---- Required light components ----
+  required_light <- c("trees", "cells", "sensors")
+  missing_light <- setdiff(required_light, names(light))
+  if (length(missing_light) > 0) {
+    stop("Missing element(s) in `output$light`: ",
+         paste(missing_light, collapse = ", "),
+         call. = FALSE)
+  }
+  
+  # ---- Check data.frame structure ----
+  for (comp in required_light) {
+    if (!is.data.frame(light[[comp]])) {
+      stop(sprintf("`output$light$%s` must be a data.frame.", comp),
+           call. = FALSE)
+    }
+  }
+  
+  # ---- Minimal required columns ----
+  
+  # Trees
+  trees_req <- c("id_tree", "e")
+  missing_trees <- setdiff(trees_req, names(light$trees))
+  if (length(missing_trees) > 0) {
+    stop("`trees` output is missing column(s): ",
+         paste(missing_trees, collapse = ", "),
+         call. = FALSE)
+  }
+  
+  # Cells
+  cells_req <- c("id_cell", "e")
+  missing_cells <- setdiff(cells_req, names(light$cells))
+  if (length(missing_cells) > 0) {
+    stop("`cells` output is missing column(s): ",
+         paste(missing_cells, collapse = ", "),
+         call. = FALSE)
+  }
+  
+  # Sensors
+  sensors_req <- c("id_sensor", "e")
+  missing_sensors <- setdiff(sensors_req, names(light$sensors))
+  if (length(missing_sensors) > 0) {
+    stop("`sensors` output is missing column(s): ",
+         paste(missing_sensors, collapse = ", "),
+         call. = FALSE)
+  }
+  
+  # ---- Energy columns must be numeric ----
+  numeric_check <- function(df, cols, name) {
+    for (col in intersect(cols, names(df))) {
+      if (!is.numeric(df[[col]])) {
+        stop(sprintf("Column `%s` in `%s` must be numeric.", col, name),
+             call. = FALSE)
+      }
+    }
+  }
+  
+  numeric_check(light$trees,   c("e", "epot", "lci", "eunobs"), "trees")
+  numeric_check(light$cells,   c("e", "pacl", "punobs"), "cells")
+  numeric_check(light$sensors, c("e", "pacl", "punobs"), "sensors")
+  
+  # ---- Optional detailed outputs ----
+  if ("monthly_rays" %in% names(x$output)) {
+    if (!is.list(x$output$monthly_rays)) {
+      stop("`output$monthly_rays` must be a list.", call. = FALSE)
+    }
+  }
+  
+  if ("interceptions" %in% names(x$output)) {
+    if (!is.list(x$output$interceptions)) {
+      stop("`output$interceptions` must be a list.", call. = FALSE)
+    }
+  }
   
   invisible(TRUE)
 }

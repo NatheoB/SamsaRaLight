@@ -5,8 +5,8 @@ sl_run_rcpp <- function(trees, sensors, sensors_only, cells, rays, e_direct_abov
     .Call(`_SamsaRaLight_sl_run_rcpp`, trees, sensors, sensors_only, cells, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, extinction_coef, clumping_factor, trunk_interception)
 }
 
-sl_set_openmp <- function(parallel_mode, num_threads = -1L) {
-    invisible(.Call(`_SamsaRaLight_sl_set_openmp`, parallel_mode, num_threads))
+sl_set_openmp <- function(parallel_mode, num_threads = -1L, verbose = TRUE) {
+    invisible(.Call(`_SamsaRaLight_sl_set_openmp`, parallel_mode, num_threads, verbose))
 }
 
 sl_print_openmp_status <- function() {

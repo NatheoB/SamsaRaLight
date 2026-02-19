@@ -2633,7 +2633,7 @@ List sl_run_rcpp(
 
 
 // [[Rcpp::export]]
-void sl_set_openmp(bool parallel_mode, int num_threads = -1) {
+void sl_set_openmp(bool parallel_mode, int num_threads = -1, bool verbose = true) {
 
 	#ifdef _OPENMP
 	omp_set_dynamic(0);   // absolutely critical
@@ -2661,7 +2661,7 @@ void sl_set_openmp(bool parallel_mode, int num_threads = -1) {
 	}
 
 	#else
-	if (parallel_mode) {
+	if (parallel_mode && verbose) {
 		Rcpp::warning("OpenMP not available: running sequentially.");
 	}
 	g_parallel_enabled = false;

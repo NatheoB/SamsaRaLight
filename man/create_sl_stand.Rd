@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_sl_stand.R
 \name{create_sl_stand}
 \alias{create_sl_stand}
-\title{Create a rectangular virtual stand from a tree inventory}
+\title{Create a virtual stand from a tree inventory}
 \usage{
 create_sl_stand(
   trees_inv,
@@ -24,17 +24,19 @@ See \link{check_inventory} for the required structure and validated columns.}
 
 \item{cell_size}{Numeric. Side length of square cells composing the stand (meters).}
 
-\item{latitude}{Numeric, latitude of the stand (degrees)}
+\item{latitude}{Numeric. Latitude of the stand (degrees).}
 
 \item{slope}{Numeric. Slope of the plot (degrees).}
 
 \item{aspect}{Numeric. Aspect of the slope, defined as the azimuth of the
 downslope direction, clockwise from North (degrees).
-(0°: North-facing slope, 90°: East-facing slope, 180°: South-facing slope, 270°: West-facing slope)}
+(0 degrees: North-facing slope, 90 degrees: East-facing slope,
+180 degrees: South-facing slope, 270 degrees: West-facing slope)}
 
 \item{north2x}{Numeric. Clockwise angle from North to the X-axis (degrees).
-The default 90° corresponds to a Y-axis oriented toward true North
-(0°: x-axis points North, 90° : x-axis points East, 180° : x-axis points South, 270° : x-axis points West)}
+The default 90 degrees corresponds to a Y-axis oriented toward true North
+(0 degrees: x-axis points North, 90 degrees: x-axis points East,
+180 degrees: x-axis points South, 270 degrees: x-axis points West).}
 
 \item{sensors}{Optional data.frame defining position and height of the sensor within the stand.
 See \link{check_sensors} for the required structure and validated columns.}
@@ -43,17 +45,20 @@ See \link{check_sensors} for the required structure and validated columns.}
 Must contain columns \code{x} and \code{y}. If \code{NULL}, a concave hull
 is automatically computed from tree positions.}
 
+\item{modify_polygon}{Character. Defines how the inventory polygon is modified.
+One of:
+\itemize{
+\item \code{"none"}: the core polygon is used as provided or computed.
+\item \code{"rect"}: the polygon is replaced by its minimum enclosing rectangle.
+\item \code{"aarect"}: the polygon is replaced by an axis-aligned enclosing rectangle.
+}}
+
 \item{fill_around}{Logical. If \code{TRUE}, trees are added outside the core
 polygon until the basal area per hectare of the full stand matches that
 of the core inventory.}
 
 \item{verbose}{Logical. If \code{TRUE} (default), messages and warnings are
 printed during processing. If \code{FALSE}, output is silent.}
-
-\item{aarect_zone}{Logical. If \code{TRUE}, the inventory zone is defined
-by the minimum-area enclosing rectangle of the core polygon with minimum rotation to
-obtain an axis-aligned rectangle inventory zone.
-If \code{FALSE}, the core polygon itself is used.}
 }
 \value{
 A named list with the following elements:
@@ -72,12 +77,12 @@ List describing the inventory zone:
 \itemize{
 \item \code{df}: data.frame of polygon vertices
 \item \code{sf}: corresponding \code{sf} POLYGON
-\item \code{aarect_zone}: did we used an axis-aligned rectangle inventory zone ?
+\item \code{modify_polygon}: applied polygon modification
 }
 }
 \item{\code{transform}}{
 List of transformation and filling information, including core area,
-target and final basal area, number of added trees, and applied spatial transformations
+target and final basal area, number of added trees, and applied spatial transformations.
 }
 \item{\code{geometry}}{
 List describing stand geometry and terrain parameters
@@ -86,9 +91,12 @@ List describing stand geometry and terrain parameters
 }
 }
 \description{
-This function builds a rectangular (or square) virtual forest stand from a
-user-provided tree inventory. Trees are spatially shifted so that the
-inventory zone is centered within a regular grid of square cells.
+This function builds a virtual forest stand from a
+user-provided tree inventory. The inventory zone (core polygon)
+can optionally be modified (e.g., replaced by an enclosing rectangle
+or an axis-aligned rectangle) before constructing the stand.
+Trees are spatially shifted so that the resulting inventory zone
+is centered within a regular grid of square cells.
 Optionally, additional trees can be added around the core inventory area
 to match its basal area per hectare.
 }
@@ -121,7 +129,7 @@ automatically checked for coordinate type:
 planar UTM coordinates automatically using \code{create_xy_from_lonlat()}.
 \item The UTM projection (EPSG) is determined from the mean coordinates of
 \code{trees_inv}. All inputs must share the same EPSG; otherwise, the
-function stops with an error. If conversion occurred, the epsg is stored in the output.
+function stops with an error. If conversion occurred, the EPSG is stored in the output.
 }
 
 The function ensures that all trees fall within the core inventory polygon,
@@ -130,7 +138,7 @@ Invalid polygons are automatically repaired when possible.
 
 When \code{fill_around = TRUE}, trees are randomly sampled from the original
 inventory and positioned outside the core polygon until the target basal area
-per hectare is reached for the full rectangular stand.
+per hectare is reached for the full stand.
 }
 \examples{
 \dontrun{
@@ -144,7 +152,7 @@ stand <- create_sl_stand(
   slope = 10,
   aspect = 180,
   north2x = 0,
-  aarect_zone = TRUE,
+  modify_polygon = "aarect",
   fill_around = FALSE,
   verbose = TRUE
 )

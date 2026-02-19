@@ -112,7 +112,7 @@ check_polygon <- function(core_polygon_df, trees_inv, sensors = NULL, verbose = 
   # use st_intersect and not st_within to also consider points in the edges of the polygon
   if (!all(st_intersects(coords_sf, core_polygon_sf, sparse = FALSE))) {
     
-    # Increase progressively the buffer zone with a maximum of ~1‰ of polygon size
+    # Increase progressively the buffer zone with a maximum of 1% of polygon size
     # (scale-aware: works for metric and normalized coordinates)
     bbox <- st_bbox(core_polygon_sf)
     poly_scale <- sqrt((bbox$xmax - bbox$xmin)^2 +
@@ -136,7 +136,7 @@ check_polygon <- function(core_polygon_df, trees_inv, sensors = NULL, verbose = 
           warning(paste0(
             "We added a buffer of ",
             signif(dist, 3),
-            " (≈ ",
+            " (",
             signif(dist / poly_scale * 100, 3),
             "% of polygon size) around the core polygon to include edge points."
           ))

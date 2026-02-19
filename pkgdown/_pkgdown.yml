@@ -27,6 +27,14 @@ navbar:
       menu:
         - text: 1 - A minimal case
           href: articles/1-minimal_case.html
+        - text: 2 - Understand ray discretization
+          href: articles/2-discretisation_directdiffuse.html
+        - text: 3 - More complex crown shapes and inventories
+          href: articles/3-complex_cases.html
+        - text: 4 - Understand ray transmission
+          href: articles/4-transmission_interception.html
+        - text: 5 - Virtual sensors
+          href: articles/5-virtual_sensors.html
   
     functions:
       text: Functions

@@ -9,7 +9,7 @@
 -   Light at virtual ground sensors
 
 
-✨  With features:
+✨  With many features: 
 
 -   Estimation of direct and diffuse radiation
 -   Flexible crown geometry (symmetric and asymmetric)
@@ -23,7 +23,7 @@
 🌐 Model documentation and tutorials are available here: <https://natheob.github.io/SamsaRaLight/>
 
 
-## 📦 Installation
+## Installation
 
 You can install the development version of SamsaRaLight from [GitHub](https://github.com/NatheoB/SamsaRaLight/) with:
 
@@ -32,7 +32,7 @@ install.packages("devtools")
 devtools::install_github("NatheoB/SamsaRaLight")
 ```
 
-## 📄 Citation
+## Citation
 
 If you use the SamsaraLight in your research, please cite :
 
@@ -41,12 +41,12 @@ If you use the SamsaraLight in your research, please cite :
 - This package: to be published soon to obtain a DOI and being cited as a research tool.
 
 
-## 🤝 Contributing
+## Contributing
 
 Contributions, bug reports, and feature requests are welcome.
 
 Please [open an issue](https://github.com/NatheoB/SamsaRaLight/issues) or [pull request](https://github.com/NatheoB/SamsaRaLight/pulls) on the github project.
 
-## 📜 License
+## License
 
 This package is released under the GPL-3 License. See LICENSE for details.

@@ -454,7 +454,7 @@ plot_orientation_compass <- function(north2x, slope, aspect, size = 1) {
 #' @export
 plot_slope_profile <- function(slope, size = 1) {
   
-  # Initialise the default baseline (0° flatplane)
+  # Initialise the default baseline (0 degree flatplane)
   df_default <- data.frame(
     x0 = 0, y0 = 0,
     x1 = 1 * size, 
@@ -487,7 +487,7 @@ plot_slope_profile <- function(slope, size = 1) {
     annotate(
       "text",
       x = 0, y = -0.1 * size, hjust = 0,
-      label = paste0("slope = ", round(slope, 1), "°"),
+      label = paste0("slope = ", round(slope, 1)),
       size = 3,
       colour = "gray40"
     ) +
