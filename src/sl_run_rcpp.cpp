@@ -915,7 +915,7 @@ private:
 
 public:
 	Trunk(double vectid_tree, double x, double y, double z,
-		double height_m, double dbh_cm) :
+		double dbh_cm, double height_m) :
 		TreeVolume(vectid_tree, x, y, z)
 	{
 		this->height = height_m;
@@ -1962,7 +1962,7 @@ private:
 
 					intercepted_energy_horizontal = ray_intercepted_by_trunk ? 
 						current_energy_horizontal : 
-						(current_energy_slope * (1 - crown.getCrownOpenness()));
+						(current_energy_horizontal * (1 - crown.getCrownOpenness()));
 
 					// Set the tree as being intercepted
 					is_intercepted[v_interc[j]->vectIdTree] = true;
