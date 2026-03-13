@@ -33,7 +33,8 @@ Imports:
     scales,
     RhpcBLASctl,
     patchwork,
-    grid
+    grid,
+    cowplot
 Suggests: 
     knitr,
     rmarkdown,

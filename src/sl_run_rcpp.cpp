@@ -208,9 +208,13 @@ protected:
 	// Functions for finding if a point is in a volume
 	bool isInBBox(vertex3D pmin, vertex3D pmax, vertex3D p) {
 
-		return (pmin.x - p.x <= EPSILON && p.x - pmax.x <= EPSILON &&
+		return (pmin.x <= p.x && p.x <= pmax.x &&
+			pmin.y <= p.y && p.y <= pmax.y &&
+			pmin.z <= p.z && p.z <= pmax.z);
+
+		/*return (pmin.x - p.x <= EPSILON && p.x - pmax.x <= EPSILON &&
 			pmin.y - p.y <= EPSILON && p.y - pmax.y <= EPSILON &&
-			pmin.z - p.z <= EPSILON && p.z - pmax.z <= EPSILON);
+			pmin.z - p.z <= EPSILON && p.z - pmax.z <= EPSILON);*/
 	}
 
 public:
