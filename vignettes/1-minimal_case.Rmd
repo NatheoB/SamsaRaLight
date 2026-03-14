@@ -151,7 +151,7 @@ sl_output <- SamsaRaLight::run_sl(
   )
 ```
 
-For advanced users, an internal function is available using `SamsaRaLight:::run_sl_advanced()` allowing to control deeper ray-tracing parameters. The user-friendly function `SamsaRaLight::run_sl()` internally wrap the advenced version with default parameters. In the tutorials, we will not adress this advanced function, but all parameters with default values can be find following the documentation of this function. Otherwise, feel free to contact the main authors for a deeper use of the package and the model.
+For advanced users, another function is available `SamsaRaLight::run_sl_advanced()`, allowing to control deeper ray-tracing parameters. The user-friendly function `SamsaRaLight::run_sl()` internally wrap the advanced version with default parameters. In the tutorials, we will not adress this advanced function, but all parameters with default values can be find following the documentation of this function. Otherwise, feel free to contact the main authors for a deeper use of the package and the model.
 
 
 # Simulation output

@@ -22,18 +22,19 @@ The package provides tools to:
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://natheob.github.io/SamsaRaLight}
+  \item \url{https://natheob.github.io/SamsaRaLight/}
+  \item Report bugs at \url{https://github.com/natheob/SamsaRaLight/issues/}
 }
 
 }
 \author{
-\strong{Maintainer}: Natheo Beauchamp \email{beauchamp.natheo@gmail.com} (\href{https://orcid.org/0009-0007-9103-5194}{ORCID}) (R package developper)
+\strong{Maintainer}: Natheo Beauchamp \email{beauchamp.natheo@gmail.com} (\href{https://orcid.org/0009-0007-9103-5194}{ORCID}) (R package developer)
 
 Authors:
 \itemize{
-  \item Gauthier Ligot \email{gligot@uliege.be} (\href{https://orcid.org/0000-0002-5508-4358}{ORCID}) (Java Capsis developper and algorithm improvment) [copyright holder]
-  \item Francois de Coligny \email{francois.decoligny@inrae.fr} (\href{https://orcid.org/0000-0002-8538-3009}{ORCID}) (Java Capsis developper)
-  \item Maxime Jaunatre \email{maxime.jaunatre@inrae.fr} (\href{https://orcid.org/0009-0002-2816-1677}{ORCID}) (R package support developper)
+  \item Gauthier Ligot \email{gligot@uliege.be} (\href{https://orcid.org/0000-0002-5508-4358}{ORCID}) (Java Capsis developer and algorithm improvement)
+  \item Francois de Coligny \email{francois.decoligny@inrae.fr} (\href{https://orcid.org/0000-0002-8538-3009}{ORCID}) (Java Capsis developer)
+  \item Maxime Jaunatre \email{maxime.jaunatre@inrae.fr} (\href{https://orcid.org/0009-0002-2816-1677}{ORCID}) (R package support developer)
   \item Benoit Courbaud \email{benoit.courbaud@inrae.fr} (\href{https://orcid.org/0000-0002-3050-9559}{ORCID}) (Algorithm and theory creator) [copyright holder]
 }
 

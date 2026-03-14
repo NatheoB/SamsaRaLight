@@ -7,6 +7,4 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(SamsaRaLight)
-
 test_check("SamsaRaLight")

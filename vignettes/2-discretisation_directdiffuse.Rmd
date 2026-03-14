@@ -229,8 +229,7 @@ for (i in 1:nrow(exp_design)) {
   mod_design <- exp_design[i,]
   
   # Run SamsaraLight as advanced user
-  # As the function is internal, we use SamsaRaLight::: for accessing 
-  out_sl_list[[i]] <- SamsaRaLight:::run_sl_advanced(
+  out_sl_list[[i]] <- SamsaRaLight::run_sl_advanced(
     
     # Simulation inputs
     sl_stand = sl_stand_list[[i]],

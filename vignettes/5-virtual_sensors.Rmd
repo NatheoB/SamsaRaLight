@@ -169,69 +169,76 @@ For each simulation, we:
 
 
 ```{r echo = T, results = 'hide'}
-out_residuals <- vector("list", length(LADs))
-i <- 0
-
-time_start <- Sys.time()
-
-for (lad in LADs) {
-  
-  print(lad)
-  i <- i+1
-  
-  # Set the tested LAD value
-  tmp_stand <- stand_cloture
-  
-  tmp_stand$trees <- tmp_stand$trees %>% 
-    dplyr::mutate(crown_lad = lad)
-  
-
-  # Run SamsaraLight
-  out_sensors_calib <- SamsaRaLight::run_sl(
-    
-    sl_stand = tmp_stand, 
-    monthly_rad = SamsaRaLight::data_cloture20$radiations,
-    parallel_mode = TRUE,
-    verbose = FALSE,
-    
-    sensors_only = TRUE # Here important because we run lot of simulations
+# Here, it is heavy computations, thus load precomputed data that have been created as above
+out_residuals <- readRDS(
+  system.file(
+    "extdata",
+    "vignette_5_results.rds",
+    package = "SamsaRaLight"
   )
-  
-  
-  # Compute the mean residuals
-  out_residuals[[i]] <- 
-    
-    dplyr::left_join(
-      
-      SamsaRaLight::data_cloture20$sensors %>% 
-        dplyr::select(id_sensor, pacl) %>% 
-        dplyr::rename_at(vars(-"id_sensor"), ~paste0(., "_obs")),
-      
-      out_sensors_calib$output$light$sensors %>% 
-        dplyr::select(id_sensor, pacl) %>% 
-        dplyr::rename_at(vars(-"id_sensor"), ~paste0(., "_pred")),
-      by = "id_sensor"
-      
-    ) %>% 
-    
-    dplyr::mutate(
-      res = pacl_obs - pacl_pred
-    ) %>% 
-    
-    dplyr::summarise(res = mean(res)) %>% 
-    dplyr::mutate(lad = lad, .before = res)
-}
+)
 
-time_end <- Sys.time()
-time_elapsed <- time_end - time_start
+# ---- PRECOMPUTED DATA SCRIPT ----
 
-out_residuals <- dplyr::bind_rows(out_residuals)
+# out_residuals <- vector("list", length(LADs))
+# i <- 0
+# 
+# time_start <- Sys.time()
+# 
+# for (lad in LADs) {
+#   
+#   print(lad)
+#   i <- i+1
+#   
+#   # Set the tested LAD value
+#   tmp_stand <- stand_cloture
+#   
+#   tmp_stand$trees <- tmp_stand$trees %>% 
+#     dplyr::mutate(crown_lad = lad)
+#   
+# 
+#   # Run SamsaraLight
+#   out_sensors_calib <- SamsaRaLight::run_sl(
+#     
+#     sl_stand = tmp_stand, 
+#     monthly_rad = SamsaRaLight::data_cloture20$radiations,
+#     parallel_mode = TRUE,
+#     verbose = FALSE,
+#     
+#     sensors_only = TRUE # Here important because we run lot of simulations
+#   )
+#   
+#   
+#   # Compute the mean residuals
+#   out_residuals[[i]] <- 
+#     
+#     dplyr::left_join(
+#       
+#       SamsaRaLight::data_cloture20$sensors %>% 
+#         dplyr::select(id_sensor, pacl) %>% 
+#         dplyr::rename_at(vars(-"id_sensor"), ~paste0(., "_obs")),
+#       
+#       out_sensors_calib$output$light$sensors %>% 
+#         dplyr::select(id_sensor, pacl) %>% 
+#         dplyr::rename_at(vars(-"id_sensor"), ~paste0(., "_pred")),
+#       by = "id_sensor"
+#       
+#     ) %>% 
+#     
+#     dplyr::mutate(
+#       res = pacl_obs - pacl_pred
+#     ) %>% 
+#     
+#     dplyr::summarise(res = mean(res)) %>% 
+#     dplyr::mutate(lad = lad, .before = res)
+# }
+# 
+# time_end <- Sys.time()
+# time_elapsed <- time_end - time_start
+# 
+# out_residuals <- dplyr::bind_rows(out_residuals)
 ```
 
-```{r}
-print(paste("Testing", length(LADs), "LAD values")) 
-print(time_elapsed)
-```
 
 ## Identifying the optimal LAD
 

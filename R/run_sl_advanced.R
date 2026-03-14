@@ -59,7 +59,7 @@
 #' 
 #' @useDynLib SamsaRaLight, .registration = TRUE
 #' 
-#' @keywords internal
+#' @export
 #'
 run_sl_advanced <- function(
     sl_stand,

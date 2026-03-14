@@ -12,7 +12,7 @@ test_that("Prenovel stand runs correctly", {
   
   stand <- create_sl_stand(
     inv,
-    cell_size = 5,
+    cell_size = 10,
     latitude = info$latitude,
     slope = info$slope,
     aspect = info$aspect,
@@ -26,7 +26,7 @@ test_that("Prenovel stand runs correctly", {
   
   expect_s3_class(stand, "sl_stand")
   
-  radiations <- get_monthly_radiations(info$latitude, info$longitude)
+  radiations <- data_prenovel$radiations
   expect_silent(check_monthly_radiations(radiations, verbose = FALSE))
   
   out <- run_sl(

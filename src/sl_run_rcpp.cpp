@@ -428,7 +428,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Ellipsoid - Not 0 or 2 solutions - " << nsols << std::endl;
+			Rcpp::Rcout << "Ellipsoid - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -616,7 +616,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Paraboloid crown - Not 0 or 2 solutions - " << nsols << std::endl;
+			Rcpp::Rcout << "Paraboloid crown - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -850,7 +850,7 @@ public:
 				h, hbase, 
 				cr_ymax, cr_xmax, cr_ymin, cr_xmin);
 		else
-			std::cout << "Unrecognized crown type" << std::endl;
+			Rcpp::Rcout << "Unrecognized crown type" << std::endl;
 	}
 
 	~Crown() {
@@ -1015,7 +1015,7 @@ public:
 
 		// If not 0 or 2 solutions ==> problem
 		if (sols.size() != 2) {
-			std::cout << "Trunk - Not 0 or 2 solutions - " << nsols << std::endl;
+			Rcpp::Rcout << "Trunk - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
 		}
 
@@ -1331,7 +1331,7 @@ public:
 	// Methods
 	/*void correctNullEnergy(double epsilon) {
 		if (this->getEnergy() < -epsilon)
-			std::cout << "Problem with energy in target " << this->getIdSensor() << ": energy of " << this->getEnergy() << "MJ";
+			Rcpp::Rcout << "Problem with energy in target " << this->getIdSensor() << ": energy of " << this->getEnergy() << "MJ";
 		if (abs(this->getEnergy()) < epsilon)
 			this->resetEnergy();
 	}*/
@@ -1377,7 +1377,7 @@ public:
 	// Methods
 	//void correctNullEnergy(double epsilon) {
 	//	if (this->getEnergy() < -epsilon)
-	//		std::cout << "Problem with energy in cell " << this->getIdCell() << ": energy of " << this->getEnergy() << "MJ";
+	//		Rcpp::Rcout << "Problem with energy in cell " << this->getIdCell() << ": energy of " << this->getEnergy() << "MJ";
 	//	if (abs(this->getEnergy()) < epsilon)
 	//		this->resetEnergy();
 	//}

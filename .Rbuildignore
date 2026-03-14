@@ -4,3 +4,7 @@
 ^docs$
 ^pkgdown$
 ^\.github$
+^LICENSE\.md$
+^data-raw$
+^dev$
+^paper$

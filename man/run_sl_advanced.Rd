@@ -101,4 +101,3 @@ for users who need full control over ray discretization and modeling options.
 For most users, see \link{run_sl} which wraps this function with default
 parameters suitable for standard runs.
 }
-\keyword{internal}
