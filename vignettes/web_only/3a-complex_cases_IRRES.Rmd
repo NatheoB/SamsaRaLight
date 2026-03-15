@@ -1,0 +1,274 @@
+---
+title: "Non-axis-aligned rectangle stand from GPS data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Non-axis-aligned rectangle stand from GPS data}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(SamsaRaLight)
+library(dplyr)
+```
+
+# Introduction
+
+In previous tutorials, inventories were assumed to be defined directly in a local Cartesian coordinate
+system (meters). In practice, however, forest inventories are often collected with GPS data. 
+
+In this vignette, we how to convert an **inventory based on GPS coordinates** where tree positions are given as longitude and latitude. We will convert the geographic coordinates into planar and axis-align the inventory zone with the virtual plot axes.
+
+
+# Context and data
+
+We first use the example inventory **IRRES1**, stored in the package as
+`SamsaRaLight::data_IRRES1`. This inventory was collected in Belgian
+Ardennes by Gauthier Ligot in the scope of the IRRES project, which
+investigates the transition from even-aged to uneven-aged forest
+management. The stand is dense in a sloppy terrain and is mainly
+composed of Norway spruce and Douglas-fir, with a coppice stool of beech
+at its center and a few silver fir and larch trees.
+
+```{r}
+trees_irres <- SamsaRaLight::data_IRRES1$trees
+
+str(trees_irres)
+```
+
+Running `check_inventory()` on this dataset immediately fails, with an
+error indicating that columns `x` and `y` are missing. This is expected:
+tree positions are provided as longitude (`lon`) and latitude (`lat`),
+expressed in degrees. To illustrate why this is problematic, we
+(incorrectly) rename longitude and latitude to `x` and `y` and attempt
+to plot the inventory. It leads to a meaningless plot as angular
+coordinates (degrees) are incompatible with crown dimensions expressed
+in meters.
+
+```{r}
+SamsaRaLight::plot_inventory(
+  trees_irres %>% rename(x = lon, y = lat)
+)
+```
+
+# Convert the coordinates
+
+Before creating a stand, coordinates must be converted into a planar
+Cartesian system with metric units. Tree coordinates can be converted
+from the global WGS84 reference system (EPSG:4326) to a projected
+coordinate system expressed in meters such as the Universal Transverse
+Mercator (UTM) system. It is a grid-based, metric coordinate system
+mapping the Earth using 60 longitudinal zones (each of them being
+6-degree between 80°S and 84°N latitude), for each of the two
+hemispheres North and South.
+
+The EPSG needed to convert coordinates depends on the plot coordinates.
+However, the UTM zone can be automatically inferred from the mean
+longitude ($zone = floor((lon + 180) / 6) + 1$ and hemisphere inferred
+from the mean latitude ($hemisphere = 32600$ if latitude is positive or
+$hemisphere = 32700$ if latitude is negative). Thus, EPSG code can be
+automatically computed as $EPSG = hemisphere + zone$. The function
+`SamsaRaLight::create_xy_from_lonlat()` allows to automatically convert
+a data.frame containing lon/lat coordinates into planar XY coordinates
+determining the appropriate UTM system.
+
+```{r}
+trees_irres_xy <- SamsaRaLight::create_xy_from_lonlat(trees_irres)
+
+str(trees_irres_xy)
+```
+
+After this conversion, tree positions are expressed in meters and the
+inventory can now be validated and visualized correctly.
+
+```{r}
+SamsaRaLight::check_inventory(trees_irres_xy$df)
+plot_inventory(trees_irres_xy$df)
+```
+
+
+# Define the inventory zone
+
+In the IRRES1 example dataset, the trees were inventoried within a
+rectangular inventory zone. However, the vertices are also expressed in
+a lon/lat coordinate system and therefore need to be converted.
+
+```{r}
+polygon_irres_xy <- SamsaRaLight::create_xy_from_lonlat(
+  SamsaRaLight::data_IRRES1$core_polygon
+)
+
+str(polygon_irres_xy)
+```
+
+We can verify that the trees and the inventory polygon are both
+expressed in metres within the same coordinate system. To do so, we can
+use the same `plot_inventory()` function as above but adding the core
+polygon data.frame as a second argument.
+
+```{r}
+SamsaRaLight::plot_inventory(
+  trees_irres_xy$df,
+  polygon_irres_xy$df
+)
+```
+
+We can use the function `SamsaRaLight::check_polygon()` to check that
+the core polygon is geometrically correct and encompasses all the
+inventoried trees. If it does not, the function tries to correct it by
+making minimal changes, such as converting the polygon into a valid one
+(e.g. if the vertices are not in the correct order) or adding a small
+buffer to the polygon in an attempt to include all the trees (e.g. if
+some trees are close to the border, small rounding errors can lead to
+the polygon excluding them computationally). Thus, the function returns
+the minimally corrected polygon and specifies this with a message if the
+polygon has been modified; otherwise, it throws an error.
+
+```{r}
+polygon_irres_xy$df <- SamsaRaLight::check_polygon(
+  polygon_irres_xy$df,
+  trees_irres_xy$df
+)
+```
+
+
+# Create the virtual stand
+
+Fortunately, the SamsaRaLight package allows you to provide both tree
+inventory and core polygon tables with only longitude/latitude
+coordinates to the `create_sl_stand()` function, which automatically
+performs system conversions. The stand creation process will also handle
+coordinate shifts into a relative coordinate system starting at 0.
+
+Because the projected coordinates follow a conventional GIS orientation
+(Y axis pointing North), we set `north2x = 90`, meaning that geographic
+North corresponds to the positive Y direction.
+
+```{r}
+stand_irres <- SamsaRaLight::create_sl_stand(
+  trees_inv = SamsaRaLight::data_IRRES1$trees,
+  cell_size = 5,
+  
+  latitude = SamsaRaLight::data_IRRES1$info$latitude,
+  slope    = SamsaRaLight::data_IRRES1$info$slope,
+  aspect  = SamsaRaLight::data_IRRES1$info$aspect,
+  north2x = 90,
+  
+  core_polygon_df = SamsaRaLight::data_IRRES1$core_polygon
+)
+
+plot(stand_irres)
+```
+
+The stand dimensions are chosen as the **smallest grid (in number of
+cells)** that fully contains the inventory zone:
+
+```{r}
+stand_irres$geometry$n_cells_x
+stand_irres$geometry$n_cells_y
+```
+
+This corresponds to a stand size of:
+
+```{r}
+stand_irres$geometry$n_cells_x * stand_irres$geometry$cell_size
+stand_irres$geometry$n_cells_y * stand_irres$geometry$cell_size
+```
+
+Then, tree coordinates are shifted to a local coordinate system starting
+at zero:
+
+```{r}
+stand_irres$transform$shift_x
+stand_irres$transform$shift_y
+```
+
+# Set the axis-aligned rectangle option
+
+At this stage, the inventory is not yet axis-aligned. This is not a
+technical issue with this package, and the light computation can be run
+using the virtual non-axis-aligned stand created above. However, as can
+be seen in the above plot, the area surrounding the rectangular
+inventory zone is empty, which could affect light interception.
+Therefore, in most cases, it is preferable to work with a rectangle
+aligned with the simulation axes. To do so, we have to recreate the
+virtual stand by setting `modify_polygon = "aarect"` (for axis-aligned
+rectangle), which:
+
+1.  **compute the minimum bounding rectangle of the inventory polygon**
+    (in this case, as our inventory zone is already a rectangle, it does
+    not change anything),
+2.  **rotate the entire stand (trees and polygon)** so that this
+    rectangle becomes axis-aligned (the rotation counter-clockwise in
+    degrees applied to the stand is stored internally in
+    `transform$rotation_ccw$`)
+3.  **update the `north2x` value accordingly** (and can be seen in the
+    compass of the `plot()` function)
+
+```{r}
+stand_irres_aarect <- SamsaRaLight::create_sl_stand(
+  trees_inv = SamsaRaLight::data_IRRES1$trees,
+  cell_size = 5,
+  
+  latitude = SamsaRaLight::data_IRRES1$info$latitude,
+  slope    = SamsaRaLight::data_IRRES1$info$slope,
+  aspect  = SamsaRaLight::data_IRRES1$info$aspect,
+  north2x = 90,
+  
+  core_polygon_df = SamsaRaLight::data_IRRES1$core_polygon,
+  modify_polygon = "aarect"
+)
+
+plot(stand_irres_aarect)
+```
+
+As we can see, rotating the stand results in a rectangular inventory
+zone (shown in yellow) that may not cover the entire virtual stand area.
+This creates empty spaces around the borders of the virtual stand and
+reduces the total basal area per hectare (due to a larger area with the
+same number of trees). This could slightly bias the light computation,
+even though the small empty areas on the borders could be negligible for
+tree light interception. This can also be avoided by:
+
+1.  Setting the cell size to a smaller value to reduce the empty space,
+    which would result in much higher computation time.
+2.  Alternatively, the rectangle could be set up without being
+    axis-aligned and the 'fill_around' argument could be used. This will
+    be explained in the second and third examples of this tutorial and
+    involves filling around the inventory zone with virtual trees, but
+    introduces stochasticity to the stand virtualisation.
+
+
+# Run SamsaraLight
+
+As shown in the previous tutorials, monthly radiation data are retrieved
+using the geographic location of the stand.
+
+```{r}
+data_radiations_irres <- SamsaRaLight::get_monthly_radiations(
+  latitude  = SamsaRaLight::data_IRRES1$info$latitude,
+  longitude = SamsaRaLight::data_IRRES1$info$longitude
+)
+```
+
+And the simulation is run using `run_sl()` (here run with the
+axis-aligned inventory zone).
+
+```{r}
+output_irres_aarect <- SamsaRaLight::run_sl(
+  sl_stand = stand_irres_aarect,
+  monthly_radiations = data_radiations_irres
+)
+
+plot(output_irres_aarect)
+```

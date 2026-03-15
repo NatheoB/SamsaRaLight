@@ -1,9 +1,8 @@
 ---
-title: "5 - Virtual sensors"
-subtitle: "Estimate light arriving towards a virtual sensor"
+title: "Calibrate the LAD parameter"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{5 - Virtual sensors}
+  %\VignetteIndexEntry{Calibrate the LAD parameter}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -25,39 +24,14 @@ library(grid)
 
 # Introduction
 
-In the previous vignettes, we examined how light transmission depends on crown structure and on the choice of transmission model. In this tutorial, we focus on the use of virtual sensors to compare model outputs with field measurements.
+In the previous vignettes, we examined how virtual sensors can be implemented in the stand to estimate light arriving on the ground. Virtual sensors can be used to calibrate crown parameters by minimizing the discrepancy between observed and simulated light. 
 
-Virtual sensors allow us to estimate the amount of radiation reaching specific locations in the stand, such as the forest floor. They can therefore be used to evaluate model performance and to support parameter calibration.
-
-In this vignette, we first show how to define and use virtual sensors in SamsaRaLight. We then illustrate how sensor outputs can be compared with field measurements of percentage of above canopy light (PACL). Finally, we present a simple approach to calibrate a mean site leaf area density (LAD) using virtual sensors and discuss its limitations.
+In this vignette, we illustrate a simple approach to calibrate the tree leaf area density (LAD), based on a grid search over LAD values.
 
 
+# Initialise the stand
 
-# Estimating PACL with light sensors
-
-## Measuring light in the field
-
-In forest ecosystems, light availability at the ground level can be measured using direct sensors (quantum sensors, dataloggers) or indirect methods such as hemispherical photography. These measurements provide estimates of transmitted radiation or PACL at specific locations. In SamsaRaLight, virtual sensors are designed to reproduce such measurements within simulated stands.
-
-
-## Defining sensors in a virtual stand
-
-In the model, a sensor represents a point where incoming radiation is recorded. Sensors are defined by their spatial coordinates and height over the ground and are provided as a dedicated data.frame when creating the stand. Measurements of PACL are not required as input data for the model, only `id_sensor`, `x`, `y` and `h_m` variables.
-
-The following example shows the sensor configuration used in the `cloture20` dataset.
-
-```{r}
-SamsaRaLight::data_cloture20$sensors
-```
-
-An input sensors data.frame structure can be checked using the function `SamsaRaLight::check_sensors()`
-
-```{r}
-SamsaRaLight::check_sensors(SamsaRaLight::data_cloture20$sensors)
-```
-
-
-Sensors are included in the stand definition using the `sensors` argument of `create_sl_stand()`.
+Here, we will estimate a mean-site LAD on the Cloture dataset, the one we used previously with sensors by fixing a LAD at 0.5m2/m3.
 
 ```{r}
 stand_cloture <- SamsaRaLight::create_sl_stand(
@@ -78,83 +52,8 @@ stand_cloture <- SamsaRaLight::create_sl_stand(
 ) 
 ```
 
-Once the stand is created, their presence can be checked by printing or plotting the object. Sensors appear as red symbols in the graphical outputs and can be hidden if needed (`add_sensors = F` argument).
 
-```{r}
-print(stand_cloture)
-
-plot(stand_cloture)
-plot(stand_cloture, top_down = TRUE)
-```
-
-
-
-## Obtaining sensor outputs
-
-After defining the sensors, the model is run in the usual way. When only sensor outputs are required, the argument `sensors_only = TRUE` can be used to reduce computation time. In this example, we compute the full output for illustration purposes.
-
-```{r}
-out_cloture <- SamsaRaLight::run_sl(
-  sl_stand = stand_cloture,
-  monthly_radiations = SamsaRaLight::data_cloture20$radiations,
-  
-  detailed_output = TRUE,
-  sensors_only = FALSE
-)
-```
-
-Sensor-level results are stored following the same structure as cell outputs and include total, direct, and diffuse components when `detailed_output = TRUE`. Unlike cells, sensor energy is computed on a horizontal plane, which makes it directly comparable with most field measurements.
-
-```{r}
-out_cloture$output$light$sensors
-```
-
-
-
-## Comparing observed and simulated PACL
-
-We can now compare simulated PACL values with field measurements collected at the sensor locations. The following figure shows the relationship between observed and predicted PACL for an initial LAD value of 0.5. When predictions are systematically higher than observations, the model simulates too much transmitted light. This indicates that foliage density is underestimated and that LAD should be increased. Conversely, systematic underestimation would suggest excessive attenuation.
-
-```{r, fig.dim = c(8, 6)}
-dplyr::left_join(
-  
-  SamsaRaLight::data_cloture20$sensors %>% 
-    dplyr::select(id_sensor, pacl) %>% 
-    dplyr::rename_at(vars(-"id_sensor"), ~paste0(., "_obs")),
-  
-  out_cloture$output$light$sensors %>% 
-    dplyr::select(id_sensor, pacl) %>% 
-    dplyr::rename_at(vars(-"id_sensor"), ~paste0(., "_pred")),
-  
-  by = "id_sensor"
-) %>% 
-  
-  dplyr::mutate(
-    diff_pacl = pacl_obs - pacl_pred
-  ) %>% 
-  
-  ggplot(aes(y = pacl_pred, x = pacl_obs)) +
-  geom_point() +
-  geom_smooth(method = "lm", formula = y ~ x, color = "salmon", linewidth = 1.1) +
-  geom_abline(intercept = 0, slope = 1, color = "skyblue", linewidth = 1.1) +
-  xlab("Observed PACL from field data") +
-  ylab("Predicted PACL with virtual sensors in SamsaraLight") +
-  labs(title = "Comparison between PACL from field sensors and predicted with SamsaraLight\nsetting a mean site LAD to 0.5",
-       subtitle = "red line is a linear regression and blue line is the (1,1) control line for perfect fit") +
-  theme_bw() +
-  theme(plot.title = element_text(hjust = 0.5),
-        plot.subtitle = element_text(hjust = 0.5))
-```
-
-In this example, PACL is on average overestimated, suggesting that the default LAD value of 0.5 is slightly too low.
-
-
-# A first approach to LAD calibration using virtual sensors
-
-Virtual sensors can be used to calibrate crown parameters by minimizing the discrepancy between observed and simulated light. Here, we illustrate a simple approach based on a grid search over LAD values.
-
-
-## Running a batch of simulations
+# Running a batch of simulations
 
 We run a series of simulations in which all trees are assigned the same LAD value, spanning a wide range.
 
@@ -240,7 +139,7 @@ out_residuals <- readRDS(
 ```
 
 
-## Identifying the optimal LAD
+# Identifying the optimal LAD
 
 The optimal LAD is defined here as the value minimizing the absolute mean residual:
 
@@ -274,11 +173,11 @@ In this example, the optimal LAD is `r best_lad`, confirming that we underestima
 PACL residuals decrease strongly up to an LAD of about 0.5 and then reach a plateau beyond 1. This indicates that prediction errors are larger at low LAD values, whereas at high LAD light interception is mainly controlled by crown geometry, with limited sensitivity to further increases in foliage density.
 
 
-## Evaluating the calibrated model 
+# Evaluating the calibrated model 
 
 We now rerun the simulation using the calibrated LAD value and compare predicted and observed PACL.
 
-### Set best LAD values to all trees LAD values
+## Set best LAD values to all trees LAD values
 
 ```{r}
 trees_inv_bestlad <- SamsaRaLight::data_cloture20$trees %>% 
@@ -286,7 +185,7 @@ trees_inv_bestlad <- SamsaRaLight::data_cloture20$trees %>%
 ```
 
 
-### Initialise the stand and run SamsaRaLight
+## Initialise the stand and run SamsaRaLight
 
 ```{r}
 stand_cloture_bestlad <- SamsaRaLight::create_sl_stand(
@@ -316,7 +215,7 @@ out_cloture_bestlad <- SamsaRaLight::run_sl(
 )
 ```
 
-### Compare PACL values
+## Compare PACL values
 
 ```{r, fig.dim = c(8, 6)}
 dplyr::left_join(

@@ -1,0 +1,104 @@
+---
+title: "Non-rectangular inventory zone"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Non-rectangular inventory zone}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+```{r include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(SamsaRaLight)
+library(dplyr)
+```
+
+# Introduction
+
+In previous tutorials, inventories were assumed to be simple,
+axis-aligned rectangles. In practice, however, forest inventories are often more
+complex, and may not be necessary rectangle depending on the inventory protocol.
+
+In this vignette, we illustrate the case of an **non-rectangular inventory**. The sampled area is defined by an irregular polygon (*e.g.* a combination of circular plots), filled around by virtual trees.
+
+
+# Context and data
+
+We now consider the example inventory **Cloture20**, stored in the
+package as `SamsaRaLight::data_cloture20`.
+
+This inventory was collected by Gauthier Ligot in Wallonia, Belgium, as
+part of the CLOTURE project, which investigates the effect of fences on
+beech and oak plots with varying beech proportions. In this case, the
+plot is primarily made up of beech trees (Fagus sylvatica). The crowns are described with full asymmetric shapes "8E". The inventory protocol is complex and resulted in non-rectangular inventory zones formed from multiple circular areas. Thus, the core polygon is
+defined by 94 vertices:
+
+```{r}
+str(SamsaRaLight::data_cloture20$core_polygon)
+```
+
+
+# Virtual stand with complex core polygon
+
+First, we can create the virtual stand by setting the pre-defined core
+polygon stored in the package. Representing the inventory as a rectangle
+in this case would be inconsistent with the field protocol. Therefore,
+the polygon is preserved inside a larger virtual stand with `modify_polygon = "none"` and the virtual stand is filled around the inventory zone with `fill_around = TRUE`. 
+
+```{r}
+stand_cloture_filled <- SamsaRaLight::create_sl_stand(
+  trees_inv = SamsaRaLight::data_cloture20$trees,
+  cell_size = 5,
+  
+  latitude = SamsaRaLight::data_cloture20$info$latitude,
+  slope    = SamsaRaLight::data_cloture20$info$slope,
+  aspect  = SamsaRaLight::data_cloture20$info$aspect,
+  north2x = SamsaRaLight::data_cloture20$info$north2x,
+  
+  core_polygon_df = SamsaRaLight::data_cloture20$core_polygon,
+  modify_polygon = "none",
+  fill_around = TRUE
+)
+```
+
+```{r}
+plot(stand_cloture_filled)
+```
+
+```{r}
+summary(stand_cloture_filled)
+```
+
+
+# Run SamsaraLight
+
+Finally, the radiation data and the simulation run are done as usual:
+
+```{r}
+data_radiations_cloture <- SamsaRaLight::get_monthly_radiations(
+  latitude  = SamsaRaLight::data_cloture20$info$latitude,
+  longitude = SamsaRaLight::data_cloture20$info$longitude
+)
+
+output_cloture_filled <- SamsaRaLight::run_sl(
+  sl_stand = stand_cloture_filled,
+  monthly_radiations = data_radiations_cloture
+)
+```
+
+```{r}
+plot(output_cloture_filled)
+```
+
+```{r}
+summary(output_cloture_filled)
+```

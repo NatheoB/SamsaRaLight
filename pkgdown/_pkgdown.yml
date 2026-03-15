@@ -7,8 +7,6 @@ template:
   bslib:
     primary: "#FF9900"
 
-llm-docs: false
-
 navbar:
   structure:
     left: [home, model, start, tutorials, functions, news]
@@ -18,25 +16,48 @@ navbar:
       
     model:
       text: Model
-      href: articles/0a-model_definition.html
+      href: articles/model_definition.html
     
     start:
       text: Get started
-      href: articles/0b-get_started.html
+      href: articles/web_only/0-get_started.html
     
     tutorials:
       text: Tutorials
       menu:
         - text: 1 - A minimal case
           href: articles/1-minimal_case.html
+          
+        - text: ----------
+          
         - text: 2 - Understand ray discretization
-          href: articles/2-discretisation_directdiffuse.html
+          href: articles/web_only/2-discretisation_directdiffuse.html
+          
+        - text: ----------
+          
         - text: 3 - More complex crown shapes and inventories
-          href: articles/3-complex_cases.html
+        - text: a. Non-axis-aligned rectangle stand from GPS data
+          href: articles/web_only/3a-complex_cases_IRRES.html
+        
+        - text: b. Asymmetric crowns in a non-axis-aligned stand
+          href: articles/web_only/3b-complex_cases_bechefa.html
+        
+        - text: c. Non-rectangular inventory zone
+          href: articles/web_only/3c-complex_cases_cloture.html
+          
+        - text: ----------
+          
         - text: 4 - Understand ray transmission
-          href: articles/4-transmission_interception.html
+          href: articles/web_only/4-transmission_interception.html
+          
+        - text: ----------
+          
         - text: 5 - Virtual sensors
-          href: articles/5-virtual_sensors.html
+        - text: a. Implement virtual sensors
+          href: articles/web_only/5a-virtual_sensors_concept.html
+        
+        - text: b. Calibrate LAD parameter
+          href: articles/web_only/5b-virtual_sensors_lad.html
   
     functions:
       text: Functions
