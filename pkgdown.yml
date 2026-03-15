@@ -2,14 +2,18 @@ pandoc: 3.1.11
 pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
-  0a-model_definition: 0a-model_definition.html
-  0b-get_started: 0b-get_started.html
-  1-minimal_case: 1-minimal_case.html
-  2-discretisation_directdiffuse: 2-discretisation_directdiffuse.html
-  3-complex_cases: 3-complex_cases.html
-  4-transmission_interception: 4-transmission_interception.html
-  5-virtual_sensors: 5-virtual_sensors.html
-last_built: 2026-03-15T02:45Z
+  web_only/0-get_started: web_only/0-get_started.html
+  web_only/1-minimal_case: web_only/1-minimal_case.html
+  web_only/2-discretisation_directdiffuse: web_only/2-discretisation_directdiffuse.html
+  web_only/3a-complex_cases_IRRES: web_only/3a-complex_cases_IRRES.html
+  web_only/3b-complex_cases_bechefa: web_only/3b-complex_cases_bechefa.html
+  web_only/3c-complex_cases_cloture: web_only/3c-complex_cases_cloture.html
+  web_only/4-transmission_interception: web_only/4-transmission_interception.html
+  web_only/5a-virtual_sensors_concept: web_only/5a-virtual_sensors_concept.html
+  web_only/5b-virtual_sensors_lad: web_only/5b-virtual_sensors_lad.html
+  minimal_example: minimal_example.html
+  model_definition: model_definition.html
+last_built: 2026-03-15T22:41Z
 urls:
   reference: https://natheob.github.io/SamsaRaLight/reference
   article: https://natheob.github.io/SamsaRaLight/articles

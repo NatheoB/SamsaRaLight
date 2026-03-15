@@ -1,0 +1,43 @@
+# A typical example workflow
+
+``` r
+library(SamsaRaLight)
+
+# Load example inventory
+data("data_cloture20")
+
+# Create virtual stand
+stand <- create_sl_stand(
+  trees_inv = data_cloture20$trees,
+  cell_size = 5,
+  latitude = 50.03617,
+  slope = 0,
+  aspect = 0,
+  north2x = 90,
+  sensors = data_cloture20$sensors,
+  core_polygon_df = data_cloture20$core_polygon,
+  fill_around = TRUE
+)
+
+# Observe input stand
+summary(stand)
+plot(stand)
+plot(stand, top_down = TRUE)
+
+# Get radiation data from PVGIS online database
+rad <- get_monthly_radiations(
+  latitude = 50.03617, 
+  longitude = 5.20634
+)
+
+# Run the model
+out <- run_sl(
+  sl_stand = stand,
+  monthly_rad = rad
+)
+
+# Plot results
+summary(out)
+plot(out)
+plot(out, show_trees = FALSE)
+```

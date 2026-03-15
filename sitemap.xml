@@ -1,14 +1,18 @@
 <urlset xmlns = 'http://www.sitemaps.org/schemas/sitemap/0.9'>
 <url><loc>https://natheob.github.io/SamsaRaLight/404.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/LICENSE.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/0a-model_definition.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/0b-get_started.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/1-minimal_case.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/2-discretisation_directdiffuse.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/3-complex_cases.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/4-transmission_interception.html</loc></url>
-<url><loc>https://natheob.github.io/SamsaRaLight/articles/5-virtual_sensors.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/articles/index.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/minimal_example.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/model_definition.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/0-get_started.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/1-minimal_case.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/2-discretisation_directdiffuse.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/3a-complex_cases_IRRES.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/3b-complex_cases_bechefa.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/3c-complex_cases_cloture.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/4-transmission_interception.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/5a-virtual_sensors_concept.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/articles/web_only/5b-virtual_sensors_lad.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/authors.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/index.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/SamsaRaLight-package.html</loc></url>
