@@ -408,10 +408,10 @@ by any other trees).
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  5 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  386213 254018 203162 76227 221136 ...
-#>  $ e      : num  115259 96334 56389 15360 9724 ...
+#>  $ epot   : num  385978 254030 203072 76198 221154 ...
+#>  $ e      : num  115120 96339 56389 15367 9724 ...
 #>  $ lci    : num  0.702 0.621 0.722 0.798 0.956 ...
-#>  $ eunobs : num  83578 81093 45545 10103 1318 ...
+#>  $ eunobs : num  83472 81094 45545 10103 1318 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -449,21 +449,21 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :   6930   Min.   :   861.5   Min.   :0.06619  
-#>  1st Qu.: 154034   1st Qu.: 23430.3   1st Qu.:0.56732  
-#>  Median : 282421   Median : 67911.9   Median :0.71631  
-#>  Mean   : 311524   Mean   :116348.7   Mean   :0.68976  
-#>  3rd Qu.: 444681   3rd Qu.:178018.1   3rd Qu.:0.84027  
-#>  Max.   :1004209   Max.   :729442.4   Max.   :0.98943  
+#>  Min.   :   6923   Min.   :   861.5   Min.   :0.06619  
+#>  1st Qu.: 154006   1st Qu.: 23424.3   1st Qu.:0.56732  
+#>  Median : 282447   Median : 67909.2   Median :0.71631  
+#>  Mean   : 311373   Mean   :116318.7   Mean   :0.68967  
+#>  3rd Qu.: 444686   3rd Qu.:178114.9   3rd Qu.:0.84027  
+#>  Max.   :1004023   Max.   :729369.7   Max.   :0.98942  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e               pacl             punobs      
 #>  Min.   :  98.2   Min.   :0.02165   Min.   :0.0000  
-#>  1st Qu.: 441.9   1st Qu.:0.09743   1st Qu.:0.3354  
+#>  1st Qu.: 441.9   1st Qu.:0.09743   1st Qu.:0.3356  
 #>  Median : 635.1   Median :0.14005   Median :0.5027  
-#>  Mean   : 677.0   Mean   :0.14927   Mean   :0.4834  
-#>  3rd Qu.: 861.3   3rd Qu.:0.18992   3rd Qu.:0.6462  
+#>  Mean   : 676.9   Mean   :0.14926   Mean   :0.4834  
+#>  3rd Qu.: 861.3   3rd Qu.:0.18992   3rd Qu.:0.6461  
 #>  Max.   :1601.7   Max.   :0.35317   Max.   :0.9128  
 #> 
 #> Sensors
