@@ -20,26 +20,28 @@ The package provides tools to:
 
 Useful links:
 
-- <https://natheob.github.io/SamsaRaLight>
+- <https://natheob.github.io/SamsaRaLight/>
+
+- Report bugs at <https://github.com/natheob/SamsaRaLight/issues/>
 
 ## Author
 
 **Maintainer**: Natheo Beauchamp <beauchamp.natheo@gmail.com>
-([ORCID](https://orcid.org/0009-0007-9103-5194)) (R package developper)
+([ORCID](https://orcid.org/0009-0007-9103-5194)) (R package developer)
 
 Authors:
 
 - Gauthier Ligot <gligot@uliege.be>
   ([ORCID](https://orcid.org/0000-0002-5508-4358)) (Java Capsis
-  developper and algorithm improvment) \[copyright holder\]
+  developer and algorithm improvement)
 
 - Francois de Coligny <francois.decoligny@inrae.fr>
   ([ORCID](https://orcid.org/0000-0002-8538-3009)) (Java Capsis
-  developper)
+  developer)
 
 - Maxime Jaunatre <maxime.jaunatre@inrae.fr>
   ([ORCID](https://orcid.org/0009-0002-2816-1677)) (R package support
-  developper)
+  developer)
 
 - Benoit Courbaud <benoit.courbaud@inrae.fr>
   ([ORCID](https://orcid.org/0000-0002-3050-9559)) (Algorithm and theory

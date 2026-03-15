@@ -2,6 +2,12 @@
 
 ## All functions
 
+- [`data_prenovel`](https://natheob.github.io/SamsaRaLight/reference/SamsaRaLight_data.md)
+  [`data_IRRES1`](https://natheob.github.io/SamsaRaLight/reference/SamsaRaLight_data.md)
+  [`data_bechefa`](https://natheob.github.io/SamsaRaLight/reference/SamsaRaLight_data.md)
+  [`data_cloture20`](https://natheob.github.io/SamsaRaLight/reference/SamsaRaLight_data.md)
+  : Example forest inventory datasets for SamsaRaLight
+
 - [`check_coordinates()`](https://natheob.github.io/SamsaRaLight/reference/check_coordinates.md)
   : Check coordinate columns and determine whether conversion is
   required
@@ -23,18 +29,6 @@
 
 - [`create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md)
   : Create planar (x, y) coordinates from longitude / latitude
-
-- [`data_IRRES1`](https://natheob.github.io/SamsaRaLight/reference/data_IRRES1.md)
-  : Information for IRRES1 inventory
-
-- [`data_bechefa`](https://natheob.github.io/SamsaRaLight/reference/data_bechefa.md)
-  : Information for bechefa inventory
-
-- [`data_cloture20`](https://natheob.github.io/SamsaRaLight/reference/data_cloture20.md)
-  : Information for cloture20 inventory
-
-- [`data_prenovel`](https://natheob.github.io/SamsaRaLight/reference/data_prenovel.md)
-  : Information for Prenovel inventory
 
 - [`get_bottom_azimut()`](https://natheob.github.io/SamsaRaLight/reference/get_bottom_azimut.md)
   : Compute bottom azimut
@@ -66,6 +60,9 @@
 
 - [`run_sl()`](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)
   : Run SamsaRaLight radiative balance
+
+- [`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
+  : Compute advanced SamsaRaLight radiative balance
 
 - [`summary(`*`<sl_output>`*`)`](https://natheob.github.io/SamsaRaLight/reference/summary.sl_output.md)
   : Summary of a SamsaRaLight simulation

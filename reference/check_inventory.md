@@ -90,7 +90,7 @@ check_inventory(trees_inv, verbose = TRUE)
 
   crown_lad
 
-  :   Leaf Area Density (m² m⁻³).
+  :   Leaf Area Density (m2/m3).
 
   crown_openness
 
