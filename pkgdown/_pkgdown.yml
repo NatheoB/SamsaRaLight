@@ -5,7 +5,7 @@ template:
   bootstrap: 5
   bootswatch: flatly
   bslib:
-    primary: "#198754"
+    primary: "#FF9900"
 
 navbar:
   structure:
