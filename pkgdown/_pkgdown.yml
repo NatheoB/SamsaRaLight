@@ -7,6 +7,9 @@ template:
   bslib:
     primary: "#FF9900"
 
+build:
+  llm: false
+
 navbar:
   structure:
     left: [home, model, start, tutorials, functions, news]
