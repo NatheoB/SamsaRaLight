@@ -7,8 +7,7 @@ template:
   bslib:
     primary: "#FF9900"
 
-build:
-  llm: false
+llm-docs: false
 
 navbar:
   structure:
