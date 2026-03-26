@@ -200,9 +200,9 @@ protected:
 
 	// Two points are equal
 	bool areEquals(vertex3D p1, vertex3D p2) {
-		return(abs(p1.x - p2.x) < EPSILON &&
-			abs(p1.y - p2.y) < EPSILON &&
-			abs(p1.z - p2.z) < EPSILON);
+		return(std::abs(p1.x - p2.x) < EPSILON &&
+			std::abs(p1.y - p2.y) < EPSILON &&
+			std::abs(p1.z - p2.z) < EPSILON);
 	}
 
 	// Functions for finding if a point is in a volume
@@ -438,7 +438,7 @@ public:
 		sols.pop_back();
 		double sol2 = sols.back();
 
-		double length = abs(sol1 - sol2);
+		double length = std::abs(sol1 - sol2);
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
@@ -626,7 +626,7 @@ public:
 		sols.pop_back();
 		double sol2 = sols.back();
 
-		double length = abs(sol1 - sol2);
+		double length = std::abs(sol1 - sol2);
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
@@ -937,7 +937,7 @@ public:
 			this->z + shift.z
 		};
 		// Correct for rounding errors after with equality between trunk base shifted center and target cell center
-		if (abs(p0_shift.z) < EPSILON)
+		if (std::abs(p0_shift.z) < EPSILON)
 			p0_shift.z = 0.0;
 
 		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
@@ -1025,7 +1025,7 @@ public:
 		sols.pop_back();
 		double sol2 = sols.back();
 
-		double length = abs(sol1 - sol2);
+		double length = std::abs(sol1 - sol2);
 		double distance = (sol1 + sol2) / 2.0;
 
 		// Create interception 
@@ -1332,7 +1332,7 @@ public:
 	/*void correctNullEnergy(double epsilon) {
 		if (this->getEnergy() < -epsilon)
 			Rcpp::Rcout << "Problem with energy in target " << this->getIdSensor() << ": energy of " << this->getEnergy() << "MJ";
-		if (abs(this->getEnergy()) < epsilon)
+		if (std::abs(this->getEnergy()) < epsilon)
 			this->resetEnergy();
 	}*/
 };
@@ -1378,7 +1378,7 @@ public:
 	//void correctNullEnergy(double epsilon) {
 	//	if (this->getEnergy() < -epsilon)
 	//		Rcpp::Rcout << "Problem with energy in cell " << this->getIdCell() << ": energy of " << this->getEnergy() << "MJ";
-	//	if (abs(this->getEnergy()) < epsilon)
+	//	if (std::abs(this->getEnergy()) < epsilon)
 	//		this->resetEnergy();
 	//}
 };
@@ -1667,7 +1667,7 @@ public:
 
 	// Methods
 	bool almost_equal(double a, double b, double tol = 1e-6) {
-		return std::fabs(a - b) <= tol;
+		return std::abs(a - b) <= tol;
 	}
 	
 	double computeZ(double x, double y) {
@@ -1737,7 +1737,7 @@ private:
 		bool is_outside = row_pot < 0 || row_pot >= this->stand.getNCellsY() || col_pot < 0 || col_pot >= this->stand.getNCellsX();
 
 		// If cel is outside the main this->stand, do not keep as potential if we are not in a torus system
-		if (is_outside && !this->stand.isUseTorus()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
+		if (is_outside && !this->stand.isUseTorus()) { return shiftedCell{ nullptr, {0.0, 0.0, 0.0} }; }
 
 		// Get row and column of the original cell in the grid cell (diffrent only within a torus system, if cell is outside)
 		int row_pot_original = (this->stand.getNCellsY() + (row_pot % this->stand.getNCellsY())) % this->stand.getNCellsY();
@@ -1747,7 +1747,7 @@ private:
 		Cell* original_cell = this->stand.getCell(row_pot_original, col_pot_original);
 
 		// Check if it contains trees, otherwise, do not add as potential cell
-		if ((*original_cell).isEmpty()) { return(shiftedCell{ nullptr, 0.0, 0.0, 0.0 }); }
+		if ((*original_cell).isEmpty()) { return shiftedCell{ nullptr, { 0.0, 0.0, 0.0 } }; }
 
 		// Compute shift in coordinates to apply on trees within the original cell (torus system)
 		// Shift is a multiple of stand_size : how many this->stand size we have to shift tree coordinates times this->stand size, to apply torus system

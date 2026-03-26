@@ -26,7 +26,7 @@ navbar:
       text: Tutorials
       menu:
         - text: 1 - A minimal case
-          href: articles/1-minimal_case.html
+          href: articles/web_only/1-minimal_case.html
           
         - text: ----------
           
