@@ -31,10 +31,10 @@
       <ul class="navbar-nav me-auto">
 <li class="nav-item"><a class="nav-link" href="../../articles/model_definition.html">Model</a></li>
 <li class="nav-item"><a class="nav-link" href="../../articles/web_only/0-get_started.html">Get started</a></li>
-<li class="nav-item dropdown">
+<li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-tutorials" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Tutorials</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-tutorials">
-<li><a class="dropdown-item" href="../../articles/1-minimal_case.html">1 - A minimal case</a></li>
+<li><a class="dropdown-item" href="../../articles/web_only/1-minimal_case.html">1 - A minimal case</a></li>
     <li><hr class="dropdown-divider"></li>
     <li><a class="dropdown-item" href="../../articles/web_only/2-discretisation_directdiffuse.html">2 - Understand ray discretization</a></li>
     <li><hr class="dropdown-divider"></li>
@@ -446,9 +446,9 @@ have not been intercepted by any trees).</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">cells</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    10000 obs. of  4 variables:</span></span>
 <span><span class="co">#&gt;  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  478 485 494 469 495 ...</span></span>
-<span><span class="co">#&gt;  $ pacl   : num  0.105 0.107 0.109 0.103 0.109 ...</span></span>
-<span><span class="co">#&gt;  $ punobs : num  0.332 0.366 0.444 0.396 0.34 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ e      : num  390 446 424 428 426 ...</span></span>
+<span><span class="co">#&gt;  $ pacl   : num  0.086 0.0984 0.0935 0.0943 0.094 ...</span></span>
+<span><span class="co">#&gt;  $ punobs : num  0.357 0.449 0.518 0.479 0.394 ...</span></span></code></pre></div>
 <p>The object <code>$output$trees</code> contains output light variables
 for each trees, identified by its unique id (<code>id_tree</code>).
 There are 4 output variables, which are <code>e</code> (for the total
@@ -467,10 +467,10 @@ intercepted by any other trees).</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    333 obs. of  5 variables:</span></span>
 <span><span class="co">#&gt;  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...</span></span>
-<span><span class="co">#&gt;  $ epot   : num  385932 253995 202996 76117 221085 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  115058 96340 56388 15366 9724 ...</span></span>
-<span><span class="co">#&gt;  $ lci    : num  0.702 0.621 0.722 0.798 0.956 ...</span></span>
-<span><span class="co">#&gt;  $ eunobs : num  83438 81094 45545 10103 1318 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ epot   : num  412748 276722 225069 89583 233393 ...</span></span>
+<span><span class="co">#&gt;  $ e      : num  116969 100891 58739 16559 8306 ...</span></span>
+<span><span class="co">#&gt;  $ lci    : num  0.717 0.635 0.739 0.815 0.964 ...</span></span>
+<span><span class="co">#&gt;  $ eunobs : num  90014 87858 49288 12039 1494 ...</span></span></code></pre></div>
 <p>The user can observe the output of the SamsaRaLight simulation object
 (<code>sl_output</code> S3 object) using the base functions
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.
@@ -501,22 +501,22 @@ confusing without precise legend.</p>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
 <span><span class="co">#&gt;       epot               e                 lci         </span></span>
-<span><span class="co">#&gt;  Min.   :   6922   Min.   :   861.6   Min.   :0.06618  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 153949   1st Qu.: 23411.8   1st Qu.:0.56726  </span></span>
-<span><span class="co">#&gt;  Median : 282279   Median : 67912.9   Median :0.71630  </span></span>
-<span><span class="co">#&gt;  Mean   : 311247   Mean   :116300.2   Mean   :0.68958  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 444680   3rd Qu.:178106.1   3rd Qu.:0.84021  </span></span>
-<span><span class="co">#&gt;  Max.   :1004204   Max.   :729283.4   Max.   :0.98943  </span></span>
+<span><span class="co">#&gt;  Min.   :  11197   Min.   :   650.5   Min.   :0.07586  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 171389   1st Qu.: 23614.5   1st Qu.:0.58646  </span></span>
+<span><span class="co">#&gt;  Median : 306239   Median : 71049.0   Median :0.73844  </span></span>
+<span><span class="co">#&gt;  Mean   : 334116   Mean   :118478.0   Mean   :0.70652  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 468445   3rd Qu.:183624.4   3rd Qu.:0.85198  </span></span>
+<span><span class="co">#&gt;  Max.   :1044288   Max.   :750810.5   Max.   :0.99318  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
-<span><span class="co">#&gt;        e               pacl             punobs      </span></span>
-<span><span class="co">#&gt;  Min.   :  98.2   Min.   :0.02165   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 441.7   1st Qu.:0.09740   1st Qu.:0.3354  </span></span>
-<span><span class="co">#&gt;  Median : 635.1   Median :0.14003   Median :0.5028  </span></span>
-<span><span class="co">#&gt;  Mean   : 676.7   Mean   :0.14922   Mean   :0.4835  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 861.1   3rd Qu.:0.18988   3rd Qu.:0.6466  </span></span>
-<span><span class="co">#&gt;  Max.   :1601.7   Max.   :0.35317   Max.   :0.9128  </span></span>
+<span><span class="co">#&gt;        e                pacl             punobs      </span></span>
+<span><span class="co">#&gt;  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 375.79   1st Qu.:0.08286   1st Qu.:0.3981  </span></span>
+<span><span class="co">#&gt;  Median : 559.57   Median :0.12338   Median :0.5677  </span></span>
+<span><span class="co">#&gt;  Mean   : 604.52   Mean   :0.13329   Mean   :0.5389  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 780.07   3rd Qu.:0.17200   3rd Qu.:0.7046  </span></span>
+<span><span class="co">#&gt;  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sensors</span></span>
 <span><span class="co">#&gt; -------</span></span>
