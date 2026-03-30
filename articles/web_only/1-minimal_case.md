@@ -386,9 +386,9 @@ i.e. rays that have not been intercepted by any trees).
 str(sl_output$output$light$cells)
 #> 'data.frame':    10000 obs. of  4 variables:
 #>  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...
-#>  $ e      : num  390 446 424 428 426 ...
-#>  $ pacl   : num  0.086 0.0984 0.0935 0.0943 0.094 ...
-#>  $ punobs : num  0.357 0.449 0.518 0.479 0.394 ...
+#>  $ e      : num  416 446 424 428 426 ...
+#>  $ pacl   : num  0.0918 0.0984 0.0935 0.0943 0.094 ...
+#>  $ punobs : num  0.399 0.449 0.518 0.479 0.394 ...
 ```
 
 The object `$output$trees` contains output light variables for each
@@ -408,10 +408,10 @@ by any other trees).
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  5 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  413497 276852 225261 89838 233575 ...
-#>  $ e      : num  117281 100888 58740 16554 8306 ...
-#>  $ lci    : num  0.716 0.636 0.739 0.816 0.964 ...
-#>  $ eunobs : num  90257 87856 49288 12039 1494 ...
+#>  $ epot   : num  413075 276825 225091 89701 233537 ...
+#>  $ e      : num  117308 100892 58737 16557 8306 ...
+#>  $ lci    : num  0.716 0.636 0.739 0.815 0.964 ...
+#>  $ eunobs : num  90327 87858 49288 12039 1494 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -449,21 +449,21 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :  11236   Min.   :   650.7   Min.   :0.07584  
-#>  1st Qu.: 171435   1st Qu.: 23636.7   1st Qu.:0.58661  
-#>  Median : 307538   Median : 71049.0   Median :0.73862  
-#>  Mean   : 334455   Mean   :118539.7   Mean   :0.70667  
-#>  3rd Qu.: 468637   3rd Qu.:183648.9   3rd Qu.:0.85199  
-#>  Max.   :1044758   Max.   :750822.2   Max.   :0.99318  
+#>  Min.   :  11220   Min.   :   650.9   Min.   :0.07583  
+#>  1st Qu.: 171395   1st Qu.: 23641.6   1st Qu.:0.58650  
+#>  Median : 306618   Median : 71049.0   Median :0.73856  
+#>  Mean   : 334288   Mean   :118508.3   Mean   :0.70658  
+#>  3rd Qu.: 468542   3rd Qu.:183600.2   3rd Qu.:0.85200  
+#>  Max.   :1044645   Max.   :750821.7   Max.   :0.99318  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e                pacl             punobs      
 #>  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  
-#>  1st Qu.: 375.82   1st Qu.:0.08287   1st Qu.:0.3981  
-#>  Median : 559.57   Median :0.12338   Median :0.5676  
-#>  Mean   : 604.64   Mean   :0.13332   Mean   :0.5389  
-#>  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7046  
+#>  1st Qu.: 375.87   1st Qu.:0.08288   1st Qu.:0.3982  
+#>  Median : 559.70   Median :0.12341   Median :0.5677  
+#>  Mean   : 604.63   Mean   :0.13332   Mean   :0.5389  
+#>  3rd Qu.: 780.17   3rd Qu.:0.17203   3rd Qu.:0.7046  
 #>  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  
 #> 
 #> Sensors
