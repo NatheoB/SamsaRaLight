@@ -615,10 +615,10 @@ public:
 		if (nsols == 0) { return(nullptr); }
 
 		// If not 0 or 2 solutions ==> problem
-		if (sols.size() != 2) {
+		/*if (sols.size() != 2) {
 			Rcpp::Rcout << "Paraboloid crown - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
-		}
+		}*/
 
 		// Distance between target cell and middle point between two interceptions
 		// Length is the length of the ray path across the crown
@@ -1014,10 +1014,10 @@ public:
 		if (nsols == 0) { return(nullptr); }
 
 		// If not 0 or 2 solutions ==> problem
-		if (sols.size() != 2) {
+	/*	if (sols.size() != 2) {
 			Rcpp::Rcout << "Trunk - Not 0 or 2 solutions - " << nsols << std::endl;
 			return nullptr;
-		}
+		}*/
 
 		// Distance between target cell and middle point between two interceptions
 		// Length is the length of the ray path across the crown
