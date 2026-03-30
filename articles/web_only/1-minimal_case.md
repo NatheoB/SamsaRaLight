@@ -408,10 +408,10 @@ by any other trees).
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  5 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  412748 276722 225069 89583 233393 ...
-#>  $ e      : num  116969 100891 58739 16559 8306 ...
-#>  $ lci    : num  0.717 0.635 0.739 0.815 0.964 ...
-#>  $ eunobs : num  90014 87858 49288 12039 1494 ...
+#>  $ epot   : num  413497 276852 225261 89838 233575 ...
+#>  $ e      : num  117281 100888 58740 16554 8306 ...
+#>  $ lci    : num  0.716 0.636 0.739 0.816 0.964 ...
+#>  $ eunobs : num  90257 87856 49288 12039 1494 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -449,21 +449,21 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :  11197   Min.   :   650.5   Min.   :0.07586  
-#>  1st Qu.: 171389   1st Qu.: 23614.5   1st Qu.:0.58646  
-#>  Median : 306239   Median : 71049.0   Median :0.73844  
-#>  Mean   : 334116   Mean   :118478.0   Mean   :0.70652  
-#>  3rd Qu.: 468445   3rd Qu.:183624.4   3rd Qu.:0.85198  
-#>  Max.   :1044288   Max.   :750810.5   Max.   :0.99318  
+#>  Min.   :  11236   Min.   :   650.7   Min.   :0.07584  
+#>  1st Qu.: 171435   1st Qu.: 23636.7   1st Qu.:0.58661  
+#>  Median : 307538   Median : 71049.0   Median :0.73862  
+#>  Mean   : 334455   Mean   :118539.7   Mean   :0.70667  
+#>  3rd Qu.: 468637   3rd Qu.:183648.9   3rd Qu.:0.85199  
+#>  Max.   :1044758   Max.   :750822.2   Max.   :0.99318  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e                pacl             punobs      
 #>  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  
-#>  1st Qu.: 375.79   1st Qu.:0.08286   1st Qu.:0.3981  
-#>  Median : 559.57   Median :0.12338   Median :0.5677  
-#>  Mean   : 604.52   Mean   :0.13329   Mean   :0.5389  
-#>  3rd Qu.: 780.07   3rd Qu.:0.17200   3rd Qu.:0.7046  
+#>  1st Qu.: 375.82   1st Qu.:0.08287   1st Qu.:0.3981  
+#>  Median : 559.57   Median :0.12338   Median :0.5676  
+#>  Mean   : 604.64   Mean   :0.13332   Mean   :0.5389  
+#>  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7046  
 #>  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  
 #> 
 #> Sensors
