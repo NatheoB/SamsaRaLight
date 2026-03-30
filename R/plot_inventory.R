@@ -24,17 +24,17 @@ plot_inventory <- function(trees_inv, core_polygon_df = NULL, show_id = TRUE) {
   if (needs_conversion_trees) {
     stop(
       "Geographic coordinates (`lon`, `lat`) detected in `trees`: ",
-      "convert the coordinates using `convert_xy_from_lonlat()`."
+      "convert the coordinates using `create_xy_from_lonlat()`."
     )
   }
   
   if (!is.null(core_polygon_df)) {
     needs_conversion_polygon <- check_coordinates(core_polygon_df, verbose = F)
     
-    if (needs_conversion_trees) {
+    if (needs_conversion_polygon) {
       stop(
         "Geographic coordinates (`lon`, `lat`) detected in `core_polygon_df`: ",
-        "convert the coordinates using `convert_xy_from_lonlat()`."
+        "convert the coordinates using `create_xy_from_lonlat()`."
       )
     }
   }
