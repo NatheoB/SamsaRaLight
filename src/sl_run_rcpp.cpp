@@ -1136,6 +1136,10 @@ private:
 	std::vector<int> interceptionsTreesNumberDirect;
 	std::vector<int> interceptionsTreesNumberDiffuse;
 
+	std::vector<int> interceptionsTreesNumberUnobstructed;
+	std::vector<int> interceptionsTreesNumberUnobstructedDirect;
+	std::vector<int> interceptionsTreesNumberUnobstructedDiffuse;
+
 	std::vector<double> interceptionsTreesEnergySlope;
 	std::vector<double> interceptionsTreesEnergyDirectSlope;
 	std::vector<double> interceptionsTreesEnergyDiffuseSlope;
@@ -1162,6 +1166,10 @@ public:
 		interceptionsTreesNumber(n_total_trees, 0),
 		interceptionsTreesNumberDirect(n_total_trees, 0),
 		interceptionsTreesNumberDiffuse(n_total_trees, 0),
+
+		interceptionsTreesNumberUnobstructed(n_total_trees, 0),
+		interceptionsTreesNumberUnobstructedDirect(n_total_trees, 0),
+		interceptionsTreesNumberUnobstructedDiffuse(n_total_trees, 0),
 
 		interceptionsTreesEnergySlope(n_total_trees, 0.0),
 		interceptionsTreesEnergyDirectSlope(n_total_trees, 0.0),
@@ -1225,6 +1233,10 @@ public:
 	std::vector<int>& getInterceptionsTreesNumberDirect() { return(this->interceptionsTreesNumberDirect); }
 	std::vector<int>& getInterceptionsTreesNumberDiffuse() { return(this->interceptionsTreesNumberDiffuse); }
 
+	std::vector<int>& getInterceptionsTreesNumberUnobstructed() { return(this->interceptionsTreesNumberUnobstructed); }
+	std::vector<int>& getInterceptionsTreesNumberUnobstructedDirect() { return(this->interceptionsTreesNumberUnobstructedDirect); }
+	std::vector<int>& getInterceptionsTreesNumberUnobstructedDiffuse() { return(this->interceptionsTreesNumberUnobstructedDiffuse); }
+
 	std::vector<double>& getInterceptionsTreesEnergySlope() { return(this->interceptionsTreesEnergySlope); }
 	std::vector<double>& getInterceptionsTreesEnergyDirectSlope() { return(this->interceptionsTreesEnergyDirectSlope); }
 	std::vector<double>& getInterceptionsTreesEnergyDiffuseSlope() { return(this->interceptionsTreesEnergyDiffuseSlope); }
@@ -1238,9 +1250,14 @@ public:
 
 
 	// Setters
-	void interceptRayDirect(double e_slope, double e_horizontal, int vect_id_tree) {
+	void interceptRayDirect(bool is_unobstructed, double e_slope, double e_horizontal, int vect_id_tree) {
 		this->interceptionsTreesNumber[vect_id_tree] += 1;
 		this->interceptionsTreesNumberDirect[vect_id_tree] += 1;
+
+		if (is_unobstructed) {
+			this->interceptionsTreesNumberUnobstructed[vect_id_tree] += 1;
+			this->interceptionsTreesNumberUnobstructedDirect[vect_id_tree] += 1;
+		}
 
 		this->interceptEnergySlope(e_slope, vect_id_tree);
 		this->interceptEnergyDirectSlope(e_slope, vect_id_tree);
@@ -1249,9 +1266,14 @@ public:
 		this->interceptEnergyDirectHorizontal(e_horizontal, vect_id_tree);
 	}
 
-	void interceptRayDiffuse(double e_slope, double e_horizontal, int vect_id_tree) {
+	void interceptRayDiffuse(bool is_unobstructed, double e_slope, double e_horizontal, int vect_id_tree) {
 		this->interceptionsTreesNumber[vect_id_tree] += 1;
 		this->interceptionsTreesNumberDiffuse[vect_id_tree] += 1;
+
+		if (is_unobstructed) {
+			this->interceptionsTreesNumberUnobstructed[vect_id_tree] += 1;
+			this->interceptionsTreesNumberUnobstructedDiffuse[vect_id_tree] += 1;
+		}
 
 		this->interceptEnergySlope(e_slope, vect_id_tree);
 		this->interceptEnergyDiffuseSlope(e_slope, vect_id_tree);
@@ -1980,10 +2002,23 @@ private:
 				}
 			}
 
+			// Remove the intercepted energy by the crown from the total energy above the target
+			// (it is easier to decrease the energy coming from above along interceptions)
+			// (than to add current energy of the ray coming to the target at the end of the interceptions)
+			// Modifying the target is not a critical task for parallelisation as we iterate over independent cells/sensors
+			// The first argument specify if the ray is unobstructed or not, thus the inverse of the ray has already been intercepted
+			// Precise the id in the tree vector that have intercepted the ray, to modify the vectors of interceptions with trees
+			if (ray->isDirect()) {
+				target->interceptRayDirect(!ray_intercepted, intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
+			}
+			else {
+				target->interceptRayDiffuse(!ray_intercepted, intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
+			}
+
 			// Add to the potential and intercepted energy by the tree
-						// CAREFUL: ONLY IF TARGET IS A CELL 
-						// If it is a sensor, do not consider energy of trees
-						// AND DO NOT ADD IF IT IS AN INTERCEPTION WITH A TRUNK
+			// CAREFUL: ONLY IF TARGET IS A CELL 
+			// If it is a sensor, do not consider energy of trees
+			// AND DO NOT ADD IF IT IS AN INTERCEPTION WITH A TRUNK
 			if (!target->isThisSensor() && !ray_intercepted_by_trunk) {
 				#ifdef _OPENMP
 				#pragma omp critical
@@ -1992,6 +2027,7 @@ private:
 
 				// Add energy intercepted real, potential and unobstructed considering the ray is a diffuse or direct one
 				// We add the energy on a slope as we consider the tree
+				// And finally, specify that the ray has now been already intercepted
 				if (ray->isDirect()) {
 					crown.addEnergyPotentialDirect(potential_energy_slope);
 					crown.addEnergyDirect(intercepted_energy_slope);
@@ -2020,19 +2056,6 @@ private:
 			// i.e. output energy is the transmitted energy
 			current_energy_slope -= intercepted_energy_slope;
 			current_energy_horizontal -= intercepted_energy_horizontal;
-
-			// Remove the intercepted energy by the crown from the total energy above the target
-			// (it is easier to decrease the energy coming from above along interceptions)
-			// (than to add current energy of the ray coming to the target at the end of the interceptions)
-			// Precise the id in the tree vector that have intercepted the ray, to modify the vectors of interceptions with trees
-
-			// Diffuse or direct energy
-			if (ray->isDirect()) {
-				target->interceptRayDirect(intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
-			}
-			else {
-				target->interceptRayDiffuse(intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
-			}
 
 			// Delete interception pointer
 			delete v_interc[j];
@@ -2262,6 +2285,10 @@ public:
 		IntegerMatrix interceptions_number_direct_sensors(n_trees, n_sensors);
 		IntegerMatrix interceptions_number_diffuse_sensors(n_trees, n_sensors);
 
+		IntegerMatrix interceptions_number_unobstructed_sensors(n_trees, n_sensors);
+		IntegerMatrix interceptions_number_unobstructed_direct_sensors(n_trees, n_sensors);
+		IntegerMatrix interceptions_number_unobstructed_diffuse_sensors(n_trees, n_sensors);
+
 		NumericMatrix interceptions_energy_sensors(n_trees, n_sensors);
 		NumericMatrix interceptions_energy_direct_sensors(n_trees, n_sensors);
 		NumericMatrix interceptions_energy_diffuse_sensors(n_trees, n_sensors);
@@ -2308,6 +2335,17 @@ public:
 			std::vector<int>& interceptions_number_diffuse_sensor = sensor->getInterceptionsTreesNumberDiffuse();
 			interceptions_number_diffuse_sensors(_, s) = NumericVector(interceptions_number_diffuse_sensor.begin(), interceptions_number_diffuse_sensor.end());
 
+
+			std::vector<int>& interceptions_number_unobstructed_sensor = sensor->getInterceptionsTreesNumberUnobstructed();
+			interceptions_number_unobstructed_sensors(_, s) = NumericVector(interceptions_number_unobstructed_sensor.begin(), interceptions_number_unobstructed_sensor.end());
+
+			std::vector<int>& interceptions_number_unobstructed_direct_sensor = sensor->getInterceptionsTreesNumberUnobstructedDirect();
+			interceptions_number_unobstructed_direct_sensors(_, s) = NumericVector(interceptions_number_unobstructed_direct_sensor.begin(), interceptions_number_unobstructed_direct_sensor.end());
+
+			std::vector<int>& interceptions_number_unobstructed_diffuse_sensor = sensor->getInterceptionsTreesNumberUnobstructedDiffuse();
+			interceptions_number_unobstructed_diffuse_sensors(_, s) = NumericVector(interceptions_number_unobstructed_diffuse_sensor.begin(), interceptions_number_unobstructed_diffuse_sensor.end());
+
+
 			std::vector<double>& interceptions_energy_sensor = sensor->getInterceptionsTreesEnergyHorizontal();
 			interceptions_energy_sensors(_, s) = NumericVector(interceptions_energy_sensor.begin(), interceptions_energy_sensor.end());
 
@@ -2322,6 +2360,9 @@ public:
 		rownames(interceptions_number_sensors) = this->stand.getRcppTreeIdChar();
 		rownames(interceptions_number_direct_sensors) = this->stand.getRcppTreeIdChar();
 		rownames(interceptions_number_diffuse_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_number_unobstructed_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_number_unobstructed_direct_sensors) = this->stand.getRcppTreeIdChar();
+		rownames(interceptions_number_unobstructed_diffuse_sensors) = this->stand.getRcppTreeIdChar();
 		rownames(interceptions_energy_sensors) = this->stand.getRcppTreeIdChar();
 		rownames(interceptions_energy_direct_sensors) = this->stand.getRcppTreeIdChar();
 		rownames(interceptions_energy_diffuse_sensors) = this->stand.getRcppTreeIdChar();
@@ -2329,6 +2370,9 @@ public:
 		colnames(interceptions_number_sensors) = rcpp_sensor_id_char;
 		colnames(interceptions_number_direct_sensors) = rcpp_sensor_id_char;
 		colnames(interceptions_number_diffuse_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_number_unobstructed_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_number_unobstructed_direct_sensors) = rcpp_sensor_id_char;
+		colnames(interceptions_number_unobstructed_diffuse_sensors) = rcpp_sensor_id_char;
 		colnames(interceptions_energy_sensors) = rcpp_sensor_id_char;
 		colnames(interceptions_energy_direct_sensors) = rcpp_sensor_id_char;
 		colnames(interceptions_energy_diffuse_sensors) = rcpp_sensor_id_char;
@@ -2400,6 +2444,10 @@ public:
 		IntegerMatrix interceptions_number_direct_cells(n_trees, n_cells);
 		IntegerMatrix interceptions_number_diffuse_cells(n_trees, n_cells);
 
+		IntegerMatrix interceptions_number_unobstructed_cells(n_trees, n_cells);
+		IntegerMatrix interceptions_number_unobstructed_direct_cells(n_trees, n_cells);
+		IntegerMatrix interceptions_number_unobstructed_diffuse_cells(n_trees, n_cells);
+
 		NumericMatrix interceptions_energy_cells(n_trees, n_cells);
 		NumericMatrix interceptions_energy_direct_cells(n_trees, n_cells);
 		NumericMatrix interceptions_energy_diffuse_cells(n_trees, n_cells);
@@ -2457,6 +2505,16 @@ public:
 					interceptions_number_diffuse_cells(_, icell) = NumericVector(interceptions_number_diffuse_cell.begin(), interceptions_number_diffuse_cell.end());
 
 
+					std::vector<int>& interceptions_number_unobstructed_cell = cell->getInterceptionsTreesNumberUnobstructed();
+					interceptions_number_unobstructed_cells(_, icell) = NumericVector(interceptions_number_unobstructed_cell.begin(), interceptions_number_unobstructed_cell.end());
+
+					std::vector<int>& interceptions_number_unobstructed_direct_cell = cell->getInterceptionsTreesNumberUnobstructedDirect();
+					interceptions_number_unobstructed_direct_cells(_, icell) = NumericVector(interceptions_number_unobstructed_direct_cell.begin(), interceptions_number_unobstructed_direct_cell.end());
+
+					std::vector<int>& interceptions_number_unobstructed_diffuse_cell = cell->getInterceptionsTreesNumberUnobstructedDiffuse();
+					interceptions_number_unobstructed_diffuse_cells(_, icell) = NumericVector(interceptions_number_unobstructed_diffuse_cell.begin(), interceptions_number_unobstructed_diffuse_cell.end());
+
+
 					std::vector<double>& interceptions_energy_cell = cell->getInterceptionsTreesEnergySlope();
 					interceptions_energy_cells(_, icell) = NumericVector(interceptions_energy_cell.begin(), interceptions_energy_cell.end());
 
@@ -2503,6 +2561,9 @@ public:
 			rownames(interceptions_number_cells) = this->stand.getRcppTreeIdChar();
 			rownames(interceptions_number_direct_cells) = this->stand.getRcppTreeIdChar();
 			rownames(interceptions_number_diffuse_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_number_unobstructed_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_number_unobstructed_direct_cells) = this->stand.getRcppTreeIdChar();
+			rownames(interceptions_number_unobstructed_diffuse_cells) = this->stand.getRcppTreeIdChar();
 			rownames(interceptions_energy_cells) = this->stand.getRcppTreeIdChar();
 			rownames(interceptions_energy_direct_cells) = this->stand.getRcppTreeIdChar();
 			rownames(interceptions_energy_diffuse_cells) = this->stand.getRcppTreeIdChar();
@@ -2510,6 +2571,9 @@ public:
 			colnames(interceptions_number_cells) = rcpp_cell_id_char;
 			colnames(interceptions_number_direct_cells) = rcpp_cell_id_char;
 			colnames(interceptions_number_diffuse_cells) = rcpp_cell_id_char;
+			colnames(interceptions_number_unobstructed_cells) = rcpp_cell_id_char;
+			colnames(interceptions_number_unobstructed_direct_cells) = rcpp_cell_id_char;
+			colnames(interceptions_number_unobstructed_diffuse_cells) = rcpp_cell_id_char;
 			colnames(interceptions_energy_cells) = rcpp_cell_id_char;
 			colnames(interceptions_energy_direct_cells) = rcpp_cell_id_char;
 			colnames(interceptions_energy_diffuse_cells) = rcpp_cell_id_char;
@@ -2565,6 +2629,11 @@ public:
 						Named("direct") = interceptions_number_direct_sensors,
 						Named("diffuse") = interceptions_number_diffuse_sensors
 					),
+					Named("number_unobstructed") = List::create(
+						Named("total") = interceptions_number_unobstructed_sensors,
+						Named("direct") = interceptions_number_unobstructed_direct_sensors,
+						Named("diffuse") = interceptions_number_unobstructed_diffuse_sensors
+					),
 					Named("energy") = List::create(
 						Named("total") = interceptions_energy_sensors,
 						Named("direct") = interceptions_energy_direct_sensors,
@@ -2576,6 +2645,11 @@ public:
 						Named("total") = interceptions_number_cells,
 						Named("direct") = interceptions_number_direct_cells,
 						Named("diffuse") = interceptions_number_diffuse_cells
+					),
+					Named("number_unobstructed") = List::create(
+						Named("total") = interceptions_number_unobstructed_cells,
+						Named("direct") = interceptions_number_unobstructed_direct_cells,
+						Named("diffuse") = interceptions_number_unobstructed_diffuse_cells
 					),
 					Named("energy") = List::create(
 						Named("total") = interceptions_energy_cells,
