@@ -1895,9 +1895,9 @@ private:
 		// to stop ray path if it is so
 		bool ray_intercepted_by_trunk = false;
 
-		// Track if the ray has been intercepted, to compute unobstructed energy by the tree
+		// Track the first intercepted tree has been intercepted, to compute unobstructed energy by the tree
 		// i.e. add energy unobstructed to the crown only if it is the first interception of the ray with a crown
-		bool ray_intercepted = false;
+		int idtree_first_intercepted = -1;
 
 		// Necessary when many crown parts, i.e. 4P/4E/8E
 		// Check if a crown has already been intercepted
@@ -2002,18 +2002,10 @@ private:
 				}
 			}
 
-			// Remove the intercepted energy by the crown from the total energy above the target
-			// (it is easier to decrease the energy coming from above along interceptions)
-			// (than to add current energy of the ray coming to the target at the end of the interceptions)
-			// Modifying the target is not a critical task for parallelisation as we iterate over independent cells/sensors
-			// The first argument specify if the ray is unobstructed or not, thus the inverse of the ray has already been intercepted
-			// Precise the id in the tree vector that have intercepted the ray, to modify the vectors of interceptions with trees
-			if (ray->isDirect()) {
-				target->interceptRayDirect(!ray_intercepted, intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
-			}
-			else {
-				target->interceptRayDiffuse(!ray_intercepted, intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
-			}
+			// Set the tree as the first intercepted one if it is
+			if (idtree_first_intercepted == -1)
+				idtree_first_intercepted = v_interc[j]->vectIdTree;
+
 
 			// Add to the potential and intercepted energy by the tree
 			// CAREFUL: ONLY IF TARGET IS A CELL 
@@ -2027,30 +2019,42 @@ private:
 
 				// Add energy intercepted real, potential and unobstructed considering the ray is a diffuse or direct one
 				// We add the energy on a slope as we consider the tree
-				// And finally, specify that the ray has now been already intercepted
 				if (ray->isDirect()) {
 					crown.addEnergyPotentialDirect(potential_energy_slope);
 					crown.addEnergyDirect(intercepted_energy_slope);
 
-					if (!ray_intercepted) {
+					if (v_interc[j]->vectIdTree == idtree_first_intercepted)
 						crown.addEnergyUnobstructedDirect(potential_energy_slope);
-						ray_intercepted = true;
-					}
 				}
 				else {
 					crown.addEnergyPotentialDiffuse(potential_energy_slope);
 					crown.addEnergyDiffuse(intercepted_energy_slope);
 
-					if (!ray_intercepted) {
+					if (v_interc[j]->vectIdTree == idtree_first_intercepted)
 						crown.addEnergyUnobstructedDiffuse(potential_energy_slope);
-						ray_intercepted = true;
-					}
 				}
 
 				#ifdef _OPENMP
 				}
 				#endif
 			}
+
+
+			// Remove the intercepted energy by the crown from the total energy above the target
+			// (it is easier to decrease the energy coming from above along interceptions)
+			// (than to add current energy of the ray coming to the target at the end of the interceptions)
+			// Modifying the target is not a critical task for parallelisation as we iterate over independent cells/sensors
+			// The first argument specify if the ray is unobstructed or not, thus the inverse of the ray has already been intercepted
+			// Precise the id in the tree vector that have intercepted the ray, to modify the vectors of interceptions with trees
+			if (ray->isDirect()) {
+				target->interceptRayDirect(v_interc[j]->vectIdTree == idtree_first_intercepted, 
+					intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
+			}
+			else {
+				target->interceptRayDiffuse(v_interc[j]->vectIdTree == idtree_first_intercepted,
+					intercepted_energy_slope, intercepted_energy_horizontal, v_interc[j]->vectIdTree);
+			}
+
 
 			// Remove the intercepted energy from the energy of the ray
 			// i.e. output energy is the transmitted energy

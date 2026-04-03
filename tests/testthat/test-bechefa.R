@@ -33,7 +33,7 @@ test_that("Bechefa stand runs correctly", {
     stand,
     radiations,
     sensors_only = FALSE,
-    detailed_output = FALSE,
+    detailed_output = TRUE,
     parallel_mode = FALSE, 
     verbose = FALSE
   )
