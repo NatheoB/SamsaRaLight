@@ -145,7 +145,7 @@ summary(output_cloture_filled)
 #>  Min.   :  30904   Min.   :   694.8   Min.   :0.0906  
 #>  1st Qu.: 139463   1st Qu.: 14399.6   1st Qu.:0.5837  
 #>  Median : 244016   Median : 43603.7   Median :0.7845  
-#>  Mean   : 391760   Mean   :148149.6   Mean   :0.7233  
+#>  Mean   : 391751   Mean   :148147.2   Mean   :0.7233  
 #>  3rd Qu.: 617430   3rd Qu.:273832.3   3rd Qu.:0.8966  
 #>  Max.   :1319122   Max.   :815029.7   Max.   :0.9899  
 #> 
