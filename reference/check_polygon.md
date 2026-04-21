@@ -40,3 +40,18 @@ A data.frame of polygon vertices (x, y):
 - unchanged if valid
 
 - modified if fixed (with a warning)
+
+## Examples
+
+``` r
+data_prenovel <- SamsaRaLight::data_prenovel
+
+# Validate polygon
+check_polygon(data_prenovel$core_polygon, data_prenovel$trees)
+#> Polygon successfully validated.
+#>     x   y
+#> 1   0   0
+#> 2 100   0
+#> 3 100 100
+#> 4   0 100
+```

@@ -41,3 +41,26 @@ https://joint-research-centre.ec.europa.eu/pvgis-photovoltaic-geographical-infor
 
 Monthly horizontal radiation (Hrad) and diffuse to global ratio
 (DGratio) averaged between start_year and end_year
+
+## Examples
+
+``` r
+# \donttest{
+# Example: fetch monthly radiation somewhere in Belgium
+rad <- get_monthly_radiations(
+  latitude = 50.85,
+  longitude = 4.35,
+  start_year = 2010,
+  end_year = 2015
+)
+
+head(rad)
+#>   month    Hrad   DGratio
+#> 1     1  87.948 0.6850000
+#> 2     2 137.178 0.6483333
+#> 3     3 311.604 0.5200000
+#> 4     4 474.786 0.4916667
+#> 5     5 537.144 0.5250000
+#> 6     6 569.964 0.5250000
+# }
+```

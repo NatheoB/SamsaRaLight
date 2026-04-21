@@ -26,3 +26,7 @@ get_z(x, y, slope_rad, bottom_azimut_rad)
 
   Azimuth of the vector orthogonal to the ground in the x,y system (in
   radians)
+
+## Value
+
+a z coordinate numeric value

@@ -75,12 +75,3 @@ plot(
 ## Value
 
 A ggplot object.
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-plot(sl_output_object)
-plot(sl_output_object, what_trees = "potential", what_cells = "absolute", show_trees = FALSE)
-} # }
-```

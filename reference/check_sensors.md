@@ -45,7 +45,6 @@ Invisibly returns TRUE if all checks pass.
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 sensors <- data.frame(
   id_sensor = 1:3,
   x = c(10, 20, 30),
@@ -53,5 +52,5 @@ sensors <- data.frame(
   h_m = c(1.5, 2.0, 1.8)
 )
 check_sensors(sensors)
-} # }
+#> Sensors table successfully validated.
 ```

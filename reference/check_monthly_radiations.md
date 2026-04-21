@@ -74,3 +74,18 @@ The function checks:
 - 8:
 
   Months are in increasing order.
+
+## Examples
+
+``` r
+# Using the example dataset from the package
+data_prenovel <- SamsaRaLight::data_prenovel
+radiations <- data_prenovel$radiations
+
+# Check the inventory
+check_monthly_radiations(radiations)
+#> Radiation table successfully validated.
+
+# Quiet mode
+check_monthly_radiations(radiations, verbose = FALSE)
+```

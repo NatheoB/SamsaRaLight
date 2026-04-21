@@ -54,15 +54,3 @@ The following validations are performed:
 [check_inventory](https://natheob.github.io/SamsaRaLight/reference/check_inventory.md),
 [check_sensors](https://natheob.github.io/SamsaRaLight/reference/check_sensors.md),
 [run_sl](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)
-
-## Examples
-
-``` r
-if (FALSE) { # \dontrun{
-data_prenovel <- SamsaRaLight::data_prenovel
-stand <- create_sl_stand(data_prenovel$trees, cell_size = 5,
-                         slope = 10, aspect = 180, north2x = 0)
-
-validate_sl_stand(stand)  # returns TRUE invisibly
-} # }
-```

@@ -38,3 +38,7 @@ sl_compute_sunazimut(
 
   double - Azimuth of south counterclockwise from x axis in the (x,y)
   system (in radians)
+
+## Value
+
+a sun azimuth value

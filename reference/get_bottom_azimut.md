@@ -20,3 +20,7 @@ get_bottom_azimut(aspect, north2x)
 
   double - Angle from North to x axis clockwise. (in degrees) Default
   correspond to a Y axis oriented toward the North.
+
+## Value
+
+a bottom azimuth numeric value

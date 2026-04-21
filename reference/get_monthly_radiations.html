@@ -102,6 +102,29 @@ DGratio = ratio of diffuse to global radiation (in horizontal plane).</p>
 averaged between start_year and end_year</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
+<span class="r-in"><span><span class="co"># Example: fetch monthly radiation somewhere in Belgium</span></span></span>
+<span class="r-in"><span><span class="va">rad</span> <span class="op">&lt;-</span> <span class="fu">get_monthly_radiations</span><span class="op">(</span></span></span>
+<span class="r-in"><span>  latitude <span class="op">=</span> <span class="fl">50.85</span>,</span></span>
+<span class="r-in"><span>  longitude <span class="op">=</span> <span class="fl">4.35</span>,</span></span>
+<span class="r-in"><span>  start_year <span class="op">=</span> <span class="fl">2010</span>,</span></span>
+<span class="r-in"><span>  end_year <span class="op">=</span> <span class="fl">2015</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">rad</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   month    Hrad   DGratio</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1     1  87.948 0.6850000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2     2 137.178 0.6483333</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3     3 311.604 0.5200000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4     4 474.786 0.4916667</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5     5 537.144 0.5250000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6     6 569.964 0.5250000</span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
+<span class="r-in"><span></span></span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

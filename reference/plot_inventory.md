@@ -33,3 +33,13 @@ A ggplot object displaying the trees in a from-above view.
 
 Because the north2x variable is unknown, trees are plotted as circles by
 considering the mean radius on the four cardinals.
+
+## Examples
+
+``` r
+data_prenovel <- SamsaRaLight::data_prenovel
+trees_inv <- data_prenovel$trees
+
+plot_inventory(trees_inv)
+
+```

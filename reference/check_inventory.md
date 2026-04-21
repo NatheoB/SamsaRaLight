@@ -170,15 +170,14 @@ The function performs the following checks and validations:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
 # Using the example dataset from the package
 data_prenovel <- SamsaRaLight::data_prenovel
 trees <- data_prenovel$trees
 
 # Check the inventory
 check_inventory(trees)
+#> Inventory table successfully validated.
 
 # Quiet mode
 check_inventory(trees, verbose = FALSE)
-} # }
 ```

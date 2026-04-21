@@ -156,28 +156,143 @@ are developing new ray-tracing configurations or doing methodological work.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
-<span class="r-in"><span><span class="va">data_prenovel</span> <span class="op">&lt;-</span> <span class="fu">SamsaRaLight</span><span class="fu">::</span><span class="va"><a href="SamsaRaLight_data.html">data_prenovel</a></span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data_prenovel</span> <span class="op">&lt;-</span> <span class="fu">SamsaRaLight</span><span class="fu">::</span><span class="va"><a href="SamsaRaLight_data.html">data_prenovel</a></span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">stand</span> <span class="op">&lt;-</span> <span class="fu"><a href="create_sl_stand.html">create_sl_stand</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  trees <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">trees</span>,</span></span>
 <span class="r-in"><span>  sensors <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">sensors</span>,</span></span>
-<span class="r-in"><span>  cell_size <span class="op">=</span> <span class="fl">5</span>,</span></span>
-<span class="r-in"><span>  latitude <span class="op">=</span> <span class="fl">45.8</span>,</span></span>
-<span class="r-in"><span>  slope <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>  aspect <span class="op">=</span> <span class="fl">180</span>,</span></span>
-<span class="r-in"><span>  north2x <span class="op">=</span> <span class="fl">0</span></span></span>
+<span class="r-in"><span>  cell_size <span class="op">=</span> <span class="fl">10</span>,</span></span>
+<span class="r-in"><span>  latitude <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">latitude</span>,</span></span>
+<span class="r-in"><span>  slope <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">slope</span>,</span></span>
+<span class="r-in"><span>  aspect <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">aspect</span>,</span></span>
+<span class="r-in"><span>  north2x <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">info</span><span class="op">$</span><span class="va">north2x</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">rad</span> <span class="op">&lt;-</span> <span class="fu"><a href="get_monthly_radiations.html">get_monthly_radiations</a></span><span class="op">(</span><span class="fl">45.8</span>, <span class="fl">3.1</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SamsaRaLight stand successfully created.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">run_sl</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  sl_stand <span class="op">=</span> <span class="va">stand</span>,</span></span>
-<span class="r-in"><span>  monthly_radiations <span class="op">=</span> <span class="va">rad</span></span></span>
+<span class="r-in"><span>  monthly_radiations <span class="op">=</span> <span class="va">data_prenovel</span><span class="op">$</span><span class="va">radiations</span></span></span>
 <span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> parallel mode disabled because OpenMP was not available</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> SamsaRaLight simulation was run successfully.</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">out</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> List of 2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ output:List of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ light:List of 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ sensors:'data.frame':	0 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ id_sensor: int(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ e        : num(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ pacl     : num(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ punobs   : num(0) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ trees  :'data.frame':	333 obs. of  5 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ id_tree: int [1:333] 242 258 272 116 157 37 89 224 241 92 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ epot   : num [1:333] 414547 683725 27063 410743 758531 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ e      : num [1:333] 176657 337197 2886 124415 354111 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ lci    : num [1:333] 0.574 0.507 0.893 0.697 0.533 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ eunobs : num [1:333] 150381 289911 1853 99050 295124 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ cells  :'data.frame':	100 obs. of  4 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ id_cell: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ e      : num [1:100] 356 549 872 564 528 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ pacl   : num [1:100] 0.0784 0.1211 0.1922 0.1243 0.1164 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ punobs : num [1:100] 0.269 0.623 0.848 0.723 0.369 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ input :List of 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ sl_stand          :List of 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ trees       :'data.frame':	333 obs. of  21 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ id_tree       : int [1:333] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species       : chr [1:333] "Abies alba" "Abies alba" "Abies alba" "Abies alba" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ x             : num [1:333] 77.8 62.7 84.1 59.1 33.4 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ y             : num [1:333] 71.5 65.6 95.6 98.3 39.8 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z             : num [1:333] 7.51 6.89 10.05 10.33 4.18 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ dbh_cm        : num [1:333] 22.9 18.2 22.8 19.2 19.9 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ crown_type    : chr [1:333] "P" "P" "P" "P" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ h_m           : num [1:333] 14.8 13 15.8 11.7 14.7 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ hbase_m       : num [1:333] 3.31 4.74 4.91 4.21 3.83 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ hmax_m        : num [1:333] 3.31 4.74 4.91 4.21 3.83 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rn_m          : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ re_m          : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rs_m          : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rw_m          : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ crown_lad     : num [1:333] 0.767 0.767 0.767 0.767 0.767 0.767 0.767 0.767 0.767 0.767 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rxmax_m       : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rxmin_m       : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rymax_m       : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rymin_m       : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ added_to_fill : logi [1:333] FALSE FALSE FALSE FALSE FALSE FALSE ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ crown_openness: num [1:333] NA NA NA NA NA NA NA NA NA NA ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ sensors     : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ cells       :'data.frame':	100 obs. of  6 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ id_cell : num [1:100] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ x_center: num [1:100] 5 15 25 35 45 55 65 75 85 95 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ y_center: num [1:100] 95 95 95 95 95 95 95 95 95 95 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ z_center: num [1:100] 9.98 9.98 9.98 9.98 9.98 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ row     : int [1:100] 0 0 0 0 0 0 0 0 0 0 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ col     : int [1:100] 0 1 2 3 4 5 6 7 8 9 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ core_polygon:List of 3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ df            :'data.frame':	15 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ x: num [1:15] 0.163 0.477 0.195 0.116 4.285 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ y: num [1:15] 7.62 14.6 84.6 91.04 96.43 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ sf            :Classes ‘sf’ and 'data.frame':	1 obs. of  2 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ id      : int 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..$ geometry:sfc_POLYGON of length 1; first list element: List of 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. .. ..$ : num [1:16, 1:2] 0.163 0.477 0.195 0.116 4.285 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. .. ..- attr(*, "class")= chr [1:3] "XY" "POLYGON" "sfg"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. .. ..- attr(*, "sf_column")= chr "geometry"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ modify_polygon: chr "none"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ transform   :List of 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ core_area_ha   : num 0.964</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ core_batot_m2ha: num 36.7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ fill_around    : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n_added_tree   : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ new_area_ha    : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ new_batot_m2ha : num 35.4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ epsg           : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ shift_x        : num 0.0998</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ shift_y        : num 0.38</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rotation_ccw   : num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ geometry    :List of 7</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ cell_size: num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n_cells_x: num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ n_cells_y: num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ latitude : num 46.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ slope    : num 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ aspect   : num 144</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ north2x  : num 54</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ inventory   :'data.frame':	333 obs. of  14 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ id_tree   : int [1:333] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ species   : chr [1:333] "Abies alba" "Abies alba" "Abies alba" "Abies alba" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ x         : num [1:333] 77.7 62.6 84 59 33.3 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ y         : num [1:333] 71.1 65.2 95.2 97.9 39.4 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ dbh_cm    : num [1:333] 22.9 18.2 22.8 19.2 19.9 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ crown_type: chr [1:333] "P" "P" "P" "P" ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ h_m       : num [1:333] 14.8 13 15.8 11.7 14.7 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ hbase_m   : num [1:333] 3.31 4.74 4.91 4.21 3.83 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ hmax_m    : logi [1:333] NA NA NA NA NA NA ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rn_m      : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ re_m      : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rs_m      : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ rw_m      : num [1:333] 3.02 3.09 2.83 2.52 2.82 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. .. ..$ crown_lad : num [1:333] 0.767 0.767 0.767 0.767 0.767 0.767 0.767 0.767 0.767 0.767 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..- attr(*, "class")= chr [1:2] "sl_stand" "list"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ monthly_radiations:'data.frame':	12 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ month  : int [1:12] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ Hrad   : num [1:12] 137 206 354 466 535 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ DGratio: num [1:12] 0.581 0.507 0.493 0.49 0.509 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ params            :List of 13</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ detailed_output   : logi FALSE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ start_day         : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ end_day           : num 365</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ soc               : logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ use_torus         : logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ turbid_medium     : logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ extinction_coef   : num 0.5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ clumping_factor   : num 1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ trunk_interception: logi TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ height_anglemin   : num 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ direct_startoffset: num 0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ direct_anglestep  : num 5</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   .. ..$ diffuse_anglestep : num 15</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  - attr(*, "class")= chr [1:2] "sl_output" "list"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
