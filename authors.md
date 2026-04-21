@@ -29,12 +29,12 @@ Source:
 
 Beauchamp N, Ligot G, de Coligny F, Jaunatre M, Courbaud B (2026).
 *SamsaRaLight: Simulate Tree Light Transmission Using Ray-Tracing*. R
-package version 1.0.0, <https://natheob.github.io/SamsaRaLight/>.
+package version 1.0.1, <https://natheob.github.io/SamsaRaLight/>.
 
     @Manual{,
       title = {SamsaRaLight: Simulate Tree Light Transmission Using Ray-Tracing},
       author = {Natheo Beauchamp and Gauthier Ligot and Francois {de Coligny} and Maxime Jaunatre and Benoit Courbaud},
       year = {2026},
-      note = {R package version 1.0.0},
+      note = {R package version 1.0.1},
       url = {https://natheob.github.io/SamsaRaLight/},
     }
