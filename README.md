@@ -36,9 +36,9 @@ devtools::install_github("NatheoB/SamsaRaLight")
 
 If you use the SamsaraLight in your research, please cite :
 
-- Courbaud, B., de Coligny, F. & Cordonnier, T. Simulating radiation distribution in a heterogeneous Norway spruce forest on a slope. Agricultural and Forest Meteorology 116, 1–18 (2003).
+- The original publication of the SamsaraLight model: Courbaud, B., de Coligny, F. & Cordonnier, T. Simulating radiation distribution in a heterogeneous Norway spruce forest on a slope. Agricultural and Forest Meteorology 116, 1–18 (2003).
 [Courbaud et al. 2003](https://www.sciencedirect.com/science/article/pii/S016819230200254X?via%3Dihub).
-- This package: to be published soon to obtain a DOI and being cited as a research tool.
+- This package using `r citation("SamsaRaLight")`: [Beauchamp et al. 2026](https://doi.org/10.32614/CRAN.package.SamsaRaLight).
 
 
 ## Contributing
