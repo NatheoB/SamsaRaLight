@@ -15,6 +15,12 @@
 #' @importFrom ggplot2 ggplot aes geom_text coord_equal theme_minimal theme xlab ylab
 #' @importFrom ggforce geom_circle
 #' 
+#' @examples
+#' data_prenovel <- SamsaRaLight::data_prenovel
+#' trees_inv <- data_prenovel$trees
+#'
+#' plot_inventory(trees_inv)
+#' 
 #' @export
 plot_inventory <- function(trees_inv, core_polygon_df = NULL, show_id = TRUE) {
   

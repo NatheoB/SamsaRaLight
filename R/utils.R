@@ -43,6 +43,8 @@ is_equal_3d <- function(x1, y1, z1,
 #' @param aspect double - Angle of slope bottom on the compass from the North, clockwise rotation (in degrees)
 #'    northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect : 270
 #'    
+#' @return a bottom azimuth numeric value
+#'    
 #' @export
 #' @keywords internals
 #' 
@@ -63,6 +65,8 @@ get_bottom_azimut <- function(aspect,
 #' @param bottom_azimut_rad Azimuth of the vector orthogonal to the ground in the x,y system (in radians)
 #' 
 #' @importFrom data.table fifelse
+#' 
+#' @return a z coordinate numeric value
 #' 
 #' @export
 #' @keywords internals

@@ -15,6 +15,9 @@ get_z(x, y, slope_rad, bottom_azimut_rad)
 
 \item{bottom_azimut_rad}{Azimuth of the vector orthogonal to the ground in the x,y system (in radians)}
 }
+\value{
+a z coordinate numeric value
+}
 \description{
 Compute z coordinate of a point (x,y).
 }

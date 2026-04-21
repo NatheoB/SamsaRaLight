@@ -24,7 +24,7 @@ Authors@R:
            comment = c("Algorithm and theory creator",
                        ORCID = "0000-0002-3050-9559"))
   )
-Description: Simulate tree light transmission using ray tracing to estimate (1) light intercepted by individual trees, (2) light reaching the forest floor, and (3) light at virtual ground sensors.
+Description: Provides tools to simulate light transmission in forest stands using three-dimensional ray-tracing. The package allows users to build virtual stands from tree inventories and to estimate (1) light intercepted by individual trees, (2) light reaching the forest floor, and (3) light at virtual sensors. The package is designed for ecological and forestry applications, including the analysis of light competition, tree growth, and forest regeneration. The implementation builds on the individual-based ray-tracing model SamsaraLight developed by Courbaud et al. (2003) <doi:10.1016/S0168-1923(02)00254-X>.
 License: GPL (>= 3)
 Encoding: UTF-8
 Depends: R (>= 4.0)
@@ -38,13 +38,13 @@ Imports:
     grid,
     httr,
     patchwork,
-    Rcpp,
+    Rcpp (>= 1.1.0),
     RhpcBLASctl,
     scales,
     sf,
     sfheaders,
     tidyr
-LinkingTo: Rcpp
+LinkingTo: Rcpp (>= 1.1.0)
 LazyData: true
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3

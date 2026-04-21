@@ -18,6 +18,12 @@
 #' @importFrom sf st_is_valid st_make_valid st_collection_extract
 #' @importFrom sf st_as_sf st_intersects st_buffer st_bbox st_coordinates
 #'
+#' @examples
+#' data_prenovel <- SamsaRaLight::data_prenovel
+#' 
+#' # Validate polygon
+#' check_polygon(data_prenovel$core_polygon, data_prenovel$trees)
+#'
 #' @export
 check_polygon <- function(core_polygon_df, trees_inv, sensors = NULL, verbose = TRUE) {
   

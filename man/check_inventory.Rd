@@ -68,7 +68,6 @@ The \code{plot_inventory()} function requires planar coordinates and cannot be u
 }
 }
 \examples{
-\dontrun{
 # Using the example dataset from the package
 data_prenovel <- SamsaRaLight::data_prenovel
 trees <- data_prenovel$trees
@@ -78,6 +77,5 @@ check_inventory(trees)
 
 # Quiet mode
 check_inventory(trees, verbose = FALSE)
-}
 
 }

@@ -27,7 +27,6 @@ type, and validity of mandatory variables describing the position and
 height of sensors within a forest stand.
 }
 \examples{
-\dontrun{
 sensors <- data.frame(
   id_sensor = 1:3,
   x = c(10, 20, 30),
@@ -35,6 +34,5 @@ sensors <- data.frame(
   h_m = c(1.5, 2.0, 1.8)
 )
 check_sensors(sensors)
-}
 
 }

@@ -117,24 +117,17 @@
 #' @importFrom stats runif
 #'
 #' @examples
-#' \dontrun{
 #' data_prenovel <- SamsaRaLight::data_prenovel
 #' trees_inv <- data_prenovel$trees
 #'
 #' stand <- create_sl_stand(
 #'   trees_inv = trees_inv,
-#'   cell_size = 5,
-#'   latitude = 46,
-#'   slope = 10,
-#'   aspect = 180,
-#'   north2x = 0,
-#'   modify_polygon = "aarect",
-#'   fill_around = FALSE,
-#'   verbose = TRUE
+#'   cell_size = 10,
+#'   latitude = 46.52666,
+#'   slope = 6,
+#'   aspect = 144,
+#'   north2x = 54
 #' )
-#'
-#' head(stand$trees)
-#' }
 #'
 #' @export
 create_sl_stand <- function(trees_inv, 
@@ -716,15 +709,6 @@ create_sl_stand <- function(trees_inv,
 #'
 #' @seealso
 #' \link{create_sl_stand}, \link{check_inventory}, \link{check_sensors}, \link{run_sl}
-#'
-#' @examples
-#' \dontrun{
-#' data_prenovel <- SamsaRaLight::data_prenovel
-#' stand <- create_sl_stand(data_prenovel$trees, cell_size = 5,
-#'                          slope = 10, aspect = 180, north2x = 0)
-#'
-#' validate_sl_stand(stand)  # returns TRUE invisibly
-#' }
 #'
 #' @keywords internal
 validate_sl_stand <- function(x) {

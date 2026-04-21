@@ -24,3 +24,10 @@ Visualizes a forest inventory as ellipses representing tree crowns.
 Because the north2x variable is unknown, trees are plotted as circles
 by considering the mean radius on the four cardinals.
 }
+\examples{
+data_prenovel <- SamsaRaLight::data_prenovel
+trees_inv <- data_prenovel$trees
+
+plot_inventory(trees_inv)
+
+}

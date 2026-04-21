@@ -40,3 +40,15 @@ The function checks:
 \item{8}{Months are in increasing order.}
 }
 }
+\examples{
+# Using the example dataset from the package
+data_prenovel <- SamsaRaLight::data_prenovel
+radiations <- data_prenovel$radiations
+
+# Check the inventory
+check_monthly_radiations(radiations)
+
+# Quiet mode
+check_monthly_radiations(radiations, verbose = FALSE)
+
+}

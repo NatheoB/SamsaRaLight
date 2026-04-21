@@ -26,6 +26,9 @@ the centre of the sun}
 \item{southazimut_ccw_rad}{double - Azimuth of south counterclockwise from x axis
 in the (x,y) system (in radians)}
 }
+\value{
+a sun azimuth value
+}
 \description{
 Computaion of sun azimut for a given height angle reference system with
 angle origin on X > 0 axis and trigonometric rotation

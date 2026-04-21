@@ -22,6 +22,19 @@
 #' @importFrom dplyr recode mutate select arrange group_by summarize_all
 #' @importFrom utils read.table
 #'
+#' @examples
+#' \donttest{
+#' # Example: fetch monthly radiation somewhere in Belgium
+#' rad <- get_monthly_radiations(
+#'   latitude = 50.85,
+#'   longitude = 4.35,
+#'   start_year = 2010,
+#'   end_year = 2015
+#' )
+#'
+#' head(rad)
+#' }
+#'
 #' @export
 get_monthly_radiations <- function(latitude, 
                                    longitude,
@@ -33,29 +46,30 @@ get_monthly_radiations <- function(latitude,
   if (end_year > 2020) stop("PVGIS data end at year 2020")
   if (start_year > end_year) stop("start_year must be lower or equal to end_year")
 
-
+  # Create the request
+  url <- paste0("https://re.jrc.ec.europa.eu/api/v5_2/MRcalc?", # MRcalc = Monthly radiation tool
+                "lat=", latitude, # lat latitude
+                "&lon=", longitude, # lon = longitude
+                "&startyear=", start_year, # Start year on which to fetch monthly data
+                "&endyear=", end_year, # End year on which to fetch monthly data
+                "&horirrad=1", # horirrad : Output horizontal plane irradiation
+                "&d2g=1", # d2g : Output monthly values of the ratio of diffuse to global radiation (horizontal plane)
+                "&outputformat=basic")
+  
   # Get the data for each month and year, as string format ----
-  out_str <- tryCatch(expr = {
-    
-    # Make our request to the API
-    res <- httr::GET(paste0("https://re.jrc.ec.europa.eu/api/v5_2/MRcalc?", # MRcalc = Monthly radiation tool
-                            "lat=", latitude, # lat latitude
-                            "&lon=", longitude, # lon = longitude
-                            "&startyear=", start_year, # Start year on which to fetch monthly data
-                            "&endyear=", end_year, # End year on which to fetch monthly data
-                            "&horirrad=1", # horirrad : Output horizontal plane irradiation
-                            "&d2g=1", # d2g : Output monthly values of the ratio of diffuse to global radiation (horizontal plane)
-                            "&outputformat=basic")) # outputformat as "basic" = output without text as csv
-    
-    # Transform request in binary into string
+  out_str <- tryCatch({
+    res <- httr::GET(url, httr::timeout(30))
     rawToChar(res$content)
-    
   }, error = function(e) {
-    print(e)
+    message("Request failed: ", e$message)
     return(NULL)
   })
   
   # Check if problems
+  if (is.null(out_str)) {
+    stop("API request failed (timeout or network issue)")
+  }
+  
   if (grepl("message", out_str)) {
     print(out_str)
     stop("Wrong coordinates")

@@ -13,6 +13,9 @@ northern aspect : 0, eastern aspect : 90, southern aspect : 180, western aspect 
 \item{north2x}{double - Angle from North to x axis clockwise. (in degrees)
 Default correspond to a Y axis oriented toward the North.}
 }
+\value{
+a bottom azimuth numeric value
+}
 \description{
 Compute bottom azimut
 }

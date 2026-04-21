@@ -47,10 +47,3 @@ A ggplot object.
 \description{
 Visualize ground light and tree energy metrics for a \code{sl_output} object.
 }
-\examples{
-\dontrun{
-plot(sl_output_object)
-plot(sl_output_object, what_trees = "potential", what_cells = "absolute", show_trees = FALSE)
-}
-
-}

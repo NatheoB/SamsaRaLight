@@ -34,16 +34,6 @@ The following validations are performed:
 \item All trees and sensors lie within the bounds of the rectangular stand.
 }
 }
-\examples{
-\dontrun{
-data_prenovel <- SamsaRaLight::data_prenovel
-stand <- create_sl_stand(data_prenovel$trees, cell_size = 5,
-                         slope = 10, aspect = 180, north2x = 0)
-
-validate_sl_stand(stand)  # returns TRUE invisibly
-}
-
-}
 \seealso{
 \link{create_sl_stand}, \link{check_inventory}, \link{check_sensors}, \link{run_sl}
 }

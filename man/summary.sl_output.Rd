@@ -11,6 +11,10 @@
 
 \item{...}{unused}
 }
+\value{
+A list containing summary statistics of the simulation output,
+including tree-level intercepted light and stand-level incident light.
+}
 \description{
 Summary of a SamsaRaLight simulation
 }

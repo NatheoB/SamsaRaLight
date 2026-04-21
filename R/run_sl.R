@@ -66,28 +66,24 @@
 #' \link{get_monthly_radiations}, \link{check_monthly_radiations}
 #'
 #' @examples
-#' \dontrun{
 #' data_prenovel <- SamsaRaLight::data_prenovel
 #'
 #' stand <- create_sl_stand(
 #'   trees = data_prenovel$trees,
 #'   sensors = data_prenovel$sensors,
-#'   cell_size = 5,
-#'   latitude = 45.8,
-#'   slope = 10,
-#'   aspect = 180,
-#'   north2x = 0
+#'   cell_size = 10,
+#'   latitude = data_prenovel$info$latitude,
+#'   slope = data_prenovel$info$slope,
+#'   aspect = data_prenovel$info$aspect,
+#'   north2x = data_prenovel$info$north2x
 #' )
-#'
-#' rad <- get_monthly_radiations(45.8, 3.1)
 #'
 #' out <- run_sl(
 #'   sl_stand = stand,
-#'   monthly_radiations = rad
+#'   monthly_radiations = data_prenovel$radiations
 #' )
-#'
-#' out$light$trees
-#' }
+#' 
+#' str(out)
 #'
 #' @export
 run_sl <- function(

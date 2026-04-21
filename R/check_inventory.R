@@ -59,7 +59,6 @@
 #' @return Invisibly returns \code{TRUE} if all checks pass.
 #'
 #' @examples
-#' \dontrun{
 #' # Using the example dataset from the package
 #' data_prenovel <- SamsaRaLight::data_prenovel
 #' trees <- data_prenovel$trees
@@ -69,7 +68,6 @@
 #'
 #' # Quiet mode
 #' check_inventory(trees, verbose = FALSE)
-#' }
 #'
 #' @export
 check_inventory <- function(trees_inv, verbose = TRUE) {

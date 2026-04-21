@@ -3,6 +3,9 @@
 #' @param object an object of class \code{sl_output}
 #' @param ... unused
 #'
+#' @return A list containing summary statistics of the simulation output, 
+#' including tree-level intercepted light and stand-level incident light.
+#'
 #' @export
 #' @method summary sl_output
 #'

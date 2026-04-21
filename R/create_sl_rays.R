@@ -362,6 +362,8 @@ sl_create_rays_direct <- function(latitude_rad,
 #' @param southazimut_ccw_rad double - Azimuth of south counterclockwise from x axis
 #'  in the (x,y) system (in radians)
 #' 
+#' @return a sun azimuth value
+#' 
 #' @importFrom data.table fifelse
 #' 
 #' @export

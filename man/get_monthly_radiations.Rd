@@ -30,3 +30,17 @@ DGratio = ratio of diffuse to global radiation (in horizontal plane).
 
 ! YOU NEED AN INTERNET CONNECTION TO ACCESS THE DATA BY API !
 }
+\examples{
+\donttest{
+# Example: fetch monthly radiation somewhere in Belgium
+rad <- get_monthly_radiations(
+  latitude = 50.85,
+  longitude = 4.35,
+  start_year = 2010,
+  end_year = 2015
+)
+
+head(rad)
+}
+
+}

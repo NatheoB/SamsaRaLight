@@ -141,23 +141,16 @@ inventory and positioned outside the core polygon until the target basal area
 per hectare is reached for the full stand.
 }
 \examples{
-\dontrun{
 data_prenovel <- SamsaRaLight::data_prenovel
 trees_inv <- data_prenovel$trees
 
 stand <- create_sl_stand(
   trees_inv = trees_inv,
-  cell_size = 5,
-  latitude = 46,
-  slope = 10,
-  aspect = 180,
-  north2x = 0,
-  modify_polygon = "aarect",
-  fill_around = FALSE,
-  verbose = TRUE
+  cell_size = 10,
+  latitude = 46.52666,
+  slope = 6,
+  aspect = 144,
+  north2x = 54
 )
-
-head(stand$trees)
-}
 
 }

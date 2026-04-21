@@ -28,3 +28,10 @@ A data.frame of polygon vertices (x, y):
 This function converts a data.frame of polygon vertices into an sf POLYGON
 and checks its validity. If the polygon is invalid, it attempts to fix it.
 }
+\examples{
+data_prenovel <- SamsaRaLight::data_prenovel
+
+# Validate polygon
+check_polygon(data_prenovel$core_polygon, data_prenovel$trees)
+
+}
