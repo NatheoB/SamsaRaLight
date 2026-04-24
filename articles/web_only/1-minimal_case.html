@@ -52,6 +52,7 @@
 </li>
 <li class="nav-item"><a class="nav-link" href="../../reference/index.html">Functions</a></li>
 <li class="nav-item"><a class="nav-link" href="../../news/index.html">Changelog</a></li>
+<li class="nav-item"><a class="external-link nav-link" href="https://natheob.shinyapps.io/samsaralight/">Try it online !</a></li>
       </ul>
 <ul class="navbar-nav">
 <li class="nav-item"><form class="form-inline" role="search">
@@ -468,10 +469,10 @@ intercepted by any other trees).</p>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    333 obs. of  5 variables:</span></span>
 <span><span class="co">#&gt;  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...</span></span>
-<span><span class="co">#&gt;  $ epot   : num  413307 276817 225169 89805 233557 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  117241 100887 58739 16554 8306 ...</span></span>
+<span><span class="co">#&gt;  $ epot   : num  413548 276852 225261 89883 233575 ...</span></span>
+<span><span class="co">#&gt;  $ e      : num  117282 100888 58740 16554 8306 ...</span></span>
 <span><span class="co">#&gt;  $ lci    : num  0.716 0.636 0.739 0.816 0.964 ...</span></span>
-<span><span class="co">#&gt;  $ eunobs : num  90242 87856 49288 12039 1494 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ eunobs : num  90257 87856 49288 12039 1494 ...</span></span></code></pre></div>
 <p>The user can observe the output of the SamsaRaLight simulation object
 (<code>sl_output</code> S3 object) using the base functions
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.
@@ -502,21 +503,21 @@ confusing without precise legend.</p>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
 <span><span class="co">#&gt;       epot               e                 lci         </span></span>
-<span><span class="co">#&gt;  Min.   :  11230   Min.   :   650.7   Min.   :0.07585  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 171345   1st Qu.: 23632.6   1st Qu.:0.58649  </span></span>
-<span><span class="co">#&gt;  Median : 307523   Median : 71021.1   Median :0.73854  </span></span>
-<span><span class="co">#&gt;  Mean   : 334297   Mean   :118494.3   Mean   :0.70663  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 468491   3rd Qu.:183643.4   3rd Qu.:0.85192  </span></span>
-<span><span class="co">#&gt;  Max.   :1044588   Max.   :750321.3   Max.   :0.99318  </span></span>
+<span><span class="co">#&gt;  Min.   :  11236   Min.   :   650.7   Min.   :0.07584  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 171437   1st Qu.: 23636.7   1st Qu.:0.58664  </span></span>
+<span><span class="co">#&gt;  Median : 307599   Median : 71049.0   Median :0.73869  </span></span>
+<span><span class="co">#&gt;  Mean   : 334466   Mean   :118539.0   Mean   :0.70668  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 468711   3rd Qu.:183635.7   3rd Qu.:0.85199  </span></span>
+<span><span class="co">#&gt;  Max.   :1044769   Max.   :750822.2   Max.   :0.99319  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
 <span><span class="co">#&gt;        e                pacl             punobs      </span></span>
 <span><span class="co">#&gt;  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 375.81   1st Qu.:0.08287   1st Qu.:0.3981  </span></span>
-<span><span class="co">#&gt;  Median : 559.40   Median :0.12335   Median :0.5676  </span></span>
-<span><span class="co">#&gt;  Mean   : 604.53   Mean   :0.13330   Mean   :0.5389  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 780.15   3rd Qu.:0.17202   3rd Qu.:0.7046  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 375.72   1st Qu.:0.08285   1st Qu.:0.3981  </span></span>
+<span><span class="co">#&gt;  Median : 559.57   Median :0.12338   Median :0.5677  </span></span>
+<span><span class="co">#&gt;  Mean   : 604.63   Mean   :0.13332   Mean   :0.5389  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7046  </span></span>
 <span><span class="co">#&gt;  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sensors</span></span>
