@@ -26,29 +26,29 @@ static bool g_threads_auto = true;
 
 
 struct relativeCoords {
-	int row;
-	int col;
+	int row = 0;
+	int col = 0;
 };
 
 struct vertex3D {
-	double x;
-	double y;
-	double z;
+	double x = 0.0;
+	double y = 0.0;
+	double z = 0.0;
 };
 
 struct interception {
 
 	// Id of the intercepted tree in the trees vector in the Stand object
-	int vectIdTree;
+	int vectIdTree = -1;
 
 	// Length of the path across the crown
-	double length;
+	double length = 0.0;
 
 	// Distance between interception point (middle of full path) and target cell
-	double distance;
+	double distance = 0.0;
 
 	// Interception by crown or trunk ?
-	bool withTrunk;
+	bool withTrunk = false;
 };
 
 class Ray {
