@@ -1,6 +1,7 @@
 # A typical example workflow
 
 ``` r
+
 library(SamsaRaLight)
 
 # Load example inventory

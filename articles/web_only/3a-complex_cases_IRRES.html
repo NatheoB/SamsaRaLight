@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Non-axis-aligned rectangle stand from GPS data • SamsaRaLight</title>
 <script src="../../lightswitch.js"></script><script src="../../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../../deps/headroom-0.11.0/headroom.min.js"></script><script src="../../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../../deps/search-1.0.0/fuse.min.js"></script><script src="../../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../../pkgdown.js"></script><meta property="og:title" content="Non-axis-aligned rectangle stand from GPS data">
 </head>
@@ -161,7 +161,7 @@ hemispheres North and South.</p>
 <p>The EPSG needed to convert coordinates depends on the plot
 coordinates. However, the UTM zone can be automatically inferred from
 the mean longitude
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mi>o</mi><mi>n</mi><mi>e</mi><mo>=</mo><mi>f</mi><mi>l</mi><mi>o</mi><mi>o</mi><mi>r</mi><mrow><mo stretchy="true" form="prefix">(</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>180</mn><mo stretchy="true" form="postfix">)</mo></mrow><mi>/</mi><mn>6</mn><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">zone = floor((lon + 180) / 6) + 1</annotation></semantics></math>
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>z</mi><mi>o</mi><mi>n</mi><mi>e</mi><mo>=</mo><mi>f</mi><mi>l</mi><mi>o</mi><mi>o</mi><mi>r</mi><mo stretchy="false" form="prefix">(</mo><mo stretchy="false" form="prefix">(</mo><mi>l</mi><mi>o</mi><mi>n</mi><mo>+</mo><mn>180</mn><mo stretchy="false" form="postfix">)</mo><mi>/</mi><mn>6</mn><mo stretchy="false" form="postfix">)</mo><mo>+</mo><mn>1</mn></mrow><annotation encoding="application/x-tex">zone = floor((lon + 180) / 6) + 1</annotation></semantics></math>
 and hemisphere inferred from the mean latitude
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>h</mi><mi>e</mi><mi>m</mi><mi>i</mi><mi>s</mi><mi>p</mi><mi>h</mi><mi>e</mi><mi>r</mi><mi>e</mi><mo>=</mo><mn>32600</mn></mrow><annotation encoding="application/x-tex">hemisphere = 32600</annotation></semantics></math>
 if latitude is positive or

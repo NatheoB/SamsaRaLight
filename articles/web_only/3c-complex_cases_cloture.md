@@ -1,6 +1,7 @@
 # Non-rectangular inventory zone
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 #> 
@@ -40,6 +41,7 @@ multiple circular areas. Thus, the core polygon is defined by 94
 vertices:
 
 ``` r
+
 str(SamsaRaLight::data_cloture20$core_polygon)
 #> 'data.frame':    94 obs. of  2 variables:
 #>  $ x: num  54 56.4 59.1 61.9 64.8 ...
@@ -56,6 +58,7 @@ the polygon is preserved inside a larger virtual stand with
 inventory zone with `fill_around = TRUE`.
 
 ``` r
+
 stand_cloture_filled <- SamsaRaLight::create_sl_stand(
   trees_inv = SamsaRaLight::data_cloture20$trees,
   cell_size = 5,
@@ -73,12 +76,14 @@ stand_cloture_filled <- SamsaRaLight::create_sl_stand(
 ```
 
 ``` r
+
 plot(stand_cloture_filled)
 ```
 
 ![](3c-complex_cases_cloture_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
+
 summary(stand_cloture_filled)
 #> 
 #> SamsaRaLight stand summary
@@ -114,6 +119,7 @@ summary(stand_cloture_filled)
 Finally, the radiation data and the simulation run are done as usual:
 
 ``` r
+
 data_radiations_cloture <- SamsaRaLight::get_monthly_radiations(
   latitude  = SamsaRaLight::data_cloture20$info$latitude,
   longitude = SamsaRaLight::data_cloture20$info$longitude
@@ -128,12 +134,14 @@ output_cloture_filled <- SamsaRaLight::run_sl(
 ```
 
 ``` r
+
 plot(output_cloture_filled)
 ```
 
 ![](3c-complex_cases_cloture_files/figure-html/unnamed-chunk-8-1.png)
 
 ``` r
+
 summary(output_cloture_filled)
 #> 
 #> SamsaRaLight simulation summary
@@ -145,7 +153,7 @@ summary(output_cloture_filled)
 #>  Min.   :  30904   Min.   :   694.8   Min.   :0.0906  
 #>  1st Qu.: 139463   1st Qu.: 14399.6   1st Qu.:0.5837  
 #>  Median : 244016   Median : 43603.7   Median :0.7845  
-#>  Mean   : 391760   Mean   :148149.6   Mean   :0.7233  
+#>  Mean   : 391758   Mean   :148149.6   Mean   :0.7233  
 #>  3rd Qu.: 617430   3rd Qu.:273832.3   3rd Qu.:0.8966  
 #>  Max.   :1319122   Max.   :815029.7   Max.   :0.9899  
 #> 

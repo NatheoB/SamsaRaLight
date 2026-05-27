@@ -25,7 +25,7 @@ ellipsoid, or four quarters of a paraboloid).
 The SamsaraLight ray-tracing model divides annual light into a finite
 number of direct and diffuse rays based on the user’s definition of
 monthly radiation (*i.e.* global energy in a horizontal plane in
-$MJ.m^{- 2}$) and the ratio of diffuse to global energy for a given
+$`MJ.m^{-2}`$) and the ratio of diffuse to global energy for a given
 month. It then calculates the angles, orientation and energy of these
 rays depending on whether they are direct or diffuse*.* The annual
 direct rays are discretised by following the sun’s trajectory across the
@@ -37,8 +37,8 @@ towards lower latitudes in Spain.
 
 The model then cast each ray towards the centre of each cell that
 composed the virtual stand. The energy of each ray, measured in
-megajoules ($MJ$), depends on the initial energy of the ray (in
-$MJ.m^{- 2}$) and the area of the cell. This enabled the continuous
+megajoules ($`MJ`$), depends on the initial energy of the ray (in
+$`MJ.m^{-2}`$) and the area of the cell. This enabled the continuous
 plane to be considered as a discrete surface, allowing the light
 reaching the ground to be modeled. Therefore, cell size is a proxy for
 model accuracy: smaller cells lead to a more precise and continuous
@@ -92,11 +92,11 @@ by the crowns to be ordered from the farthest (i.e. the first crown to
 intercept the ray) to the closest (i.e. the last crown to intercept the
 ray). Doing so allows us to estimate the attenuation of each ray’s
 energy following successive interceptions by the tree crowns, starting
-with the initial energy of the ray coming from above the canopy in $MJ$.
-The transmitted energy for each intercepted crown is estimated based on
-the incident energy of the ray (*i.e.* equal to the initial energy for
-the first intercepted crown, or equal to the attenuated initial energy
-for subsequent interceptions).
+with the initial energy of the ray coming from above the canopy in
+$`MJ`$. The transmitted energy for each intercepted crown is estimated
+based on the incident energy of the ray (*i.e.* equal to the initial
+energy for the first intercepted crown, or equal to the attenuated
+initial energy for subsequent interceptions).
 
 The user can choose between two transmission models that vary in how the
 crown is considered: (1) as a porous envelope or (2) as a turbid medium.
@@ -117,18 +117,18 @@ and a crown parameter: LAD (the Leaf Area Density) (see Ligot et al.,
 
 After estimating the transmitted energies for all rays directed towards
 each cell centre, the model sums up energies to deduce the total amount
-of energy absorbed by the tree during the year (in $MJ$). The model also
-estimates the total amount of energy reaching a cell centre after
+of energy absorbed by the tree during the year (in $`MJ`$). The model
+also estimates the total amount of energy reaching a cell centre after
 attenuation by the above-mentioned crowns of each ray directed towards
 this cell. This is standardised by cell area to give the amount of
-energy reaching the ground per unit area (in $MJ.m^{- 2}$). The
+energy reaching the ground per unit area (in $`MJ.m^{-2}`$). The
 SamsaRaLight package also return more detailed output if the user
 specified it: the direct/diffuse energies, the matrices of interceptions
 (i.e. the number of intercepted rays and energies for each tree per
 target cell).
 
 For each cell, the package also derives a common relative indicator to
-represent light on the ground, $PACL$ (percentage of above canopy
+represent light on the ground, $`PACL`$ (percentage of above canopy
 light), which is the ratio of the energy reaching the cell to the energy
 above the canopy before interception. This allows shade to be considered
 not as an absolute amount of energy, which is highly dependent on site
@@ -141,12 +141,12 @@ al., manuscript in preparation) and for representing the impact of
 silviculture on ground-level light (see Ligot et al., 2014b).
 
 For each tree, the package also derives a light competition index
-($LCI$), representing the level of light competition around a focal
+($`LCI`$), representing the level of light competition around a focal
 tree. This index is based on the ratio between the actual energy
 intercepted by the tree and the potential energy that would have been
 intercepted if the tree were alone in the stand (*i.e.* not considering
 interception by surrounding competitors). When considering light as a
-resource, $LCI$ can be interpreted as the amount of light absorbed by
+resource, $`LCI`$ can be interpreted as the amount of light absorbed by
 the tree (the supply) compared to what it would have needed based on its
 crown characteristics (the demand). In practice, the indicator ranges
 from 0 (full light) to 1 (full shade). This indicator is considered a

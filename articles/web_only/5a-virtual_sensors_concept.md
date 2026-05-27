@@ -1,6 +1,7 @@
 # Implement virtual sensors
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 library(ggplot2)
@@ -36,6 +37,7 @@ The following example shows the sensor configuration used in the
 `cloture20` dataset.
 
 ``` r
+
 SamsaRaLight::data_cloture20$sensors
 #>    id_sensor     x     y h_m pacl pacl_direct pacl_diffuse
 #> 1          1 22.00 56.64   2 0.11        0.13         0.10
@@ -60,6 +62,7 @@ An input sensors data.frame structure can be checked using the function
 [`SamsaRaLight::check_sensors()`](https://natheob.github.io/SamsaRaLight/reference/check_sensors.md)
 
 ``` r
+
 SamsaRaLight::check_sensors(SamsaRaLight::data_cloture20$sensors)
 #> Sensors table successfully validated.
 ```
@@ -69,6 +72,7 @@ argument of
 [`create_sl_stand()`](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md).
 
 ``` r
+
 stand_cloture <- SamsaRaLight::create_sl_stand(
   
   # Tree inventory
@@ -93,6 +97,7 @@ plotting the object. Sensors appear as red symbols in the graphical
 outputs and can be hidden if needed (`add_sensors = F` argument).
 
 ``` r
+
 print(stand_cloture)
 #> SamsaRaLight stand of 1 ha with 112 trees and 16 sensors (20 x 20 cells, 5 m)
 
@@ -102,6 +107,7 @@ plot(stand_cloture)
 ![](5a-virtual_sensors_concept_files/figure-html/unnamed-chunk-5-1.png)
 
 ``` r
+
 plot(stand_cloture, top_down = TRUE)
 ```
 
@@ -115,6 +121,7 @@ used to reduce computation time. In this example, we compute the full
 output for illustration purposes.
 
 ``` r
+
 out_cloture <- SamsaRaLight::run_sl(
   sl_stand = stand_cloture,
   monthly_radiations = SamsaRaLight::data_cloture20$radiations,
@@ -133,40 +140,41 @@ horizontal plane, which makes it directly comparable with most field
 measurements.
 
 ``` r
+
 out_cloture$output$light$sensors
 #>    id_sensor         e  e_direct e_diffuse       pacl pacl_direct pacl_diffuse
 #> 1          1  817.4559 425.40610  392.0498 0.21726347  0.24757768   0.19178300
-#> 2          2 1454.4341 716.25729  738.1768 0.38655958  0.41684714   0.36110152
+#> 2          2 1454.6943 716.51742  738.1768 0.38662872  0.41699853   0.36110152
 #> 3          3 1622.5131 788.95822  833.5549 0.43123163  0.45915760   0.40775859
 #> 4          4 1240.0123 404.74326  835.2691 0.32957054  0.23555232   0.40859712
 #> 5          5  680.8260 176.53401  504.2920 0.18094998  0.10273919   0.24668969
 #> 6          6  593.9706 128.45331  465.5173 0.15786554  0.07475721   0.22772186
 #> 7          7  858.2436 405.83814  452.4055 0.22810404  0.23618952   0.22130782
-#> 8          8  821.6580 397.79317  423.8648 0.21838030  0.23150752   0.20734629
+#> 8          8  819.6804 395.81556  423.8648 0.21785469  0.23035658   0.20734629
 #> 9          9  253.9889 132.70715  121.2817 0.06750518  0.07723286   0.05932862
 #> 10        10 1359.5740 693.37862  666.1954 0.36134765  0.40353222   0.32588961
 #> 11        11  490.3601 285.78999  204.5701 0.13032792  0.16632395   0.10007163
 #> 12        12  422.3859 263.06666  159.3193 0.11226176  0.15309943   0.07793584
 #> 13        13  307.0776  59.24406  247.8335 0.08161509  0.03447884   0.12123525
 #> 14        14  680.3499  62.72809  617.6218 0.18082343  0.03650647   0.30212838
-#> 15        15  457.6489  81.03445  376.6145 0.12163396  0.04716040   0.18423236
+#> 15        15  457.6311  81.01657  376.6145 0.12162921  0.04714999   0.18423236
 #> 16        16  372.5266 214.53832  157.9883 0.09901014  0.12485693   0.07728474
 #>        punobs punobs_direct punobs_diffuse
 #> 1  0.59504353     0.6521300      0.5331001
-#> 2  0.82050838     0.8237331      0.8173794
+#> 2  0.82036166     0.8234341      0.8173794
 #> 3  0.85558266     0.8613794      0.8500961
 #> 4  0.78413732     0.6482008      0.8500076
 #> 5  0.58082708     0.2665100      0.6908579
 #> 6  0.66061987     0.2641992      0.7700069
 #> 7  0.76225271     0.7478208      0.7751991
-#> 8  0.70538618     0.7032524      0.7073887
+#> 8  0.70708804     0.7067660      0.7073887
 #> 9  0.07753127     0.0000000      0.1623664
 #> 10 0.81266572     0.8212472      0.8037341
 #> 11 0.33330079     0.3169804      0.3561008
 #> 12 0.35900030     0.3691445      0.3422504
 #> 13 0.50439532     0.4545890      0.5163014
 #> 14 0.82227653     0.5574548      0.8491729
-#> 15 0.74476584     0.6549218      0.7640972
+#> 15 0.74479493     0.6550663      0.7640972
 #> 16 0.34946436     0.3930375      0.2902947
 ```
 
@@ -182,6 +190,7 @@ increased. Conversely, systematic underestimation would suggest
 excessive attenuation.
 
 ``` r
+
 dplyr::left_join(
   
   SamsaRaLight::data_cloture20$sensors %>% 

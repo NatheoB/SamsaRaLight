@@ -1,6 +1,7 @@
 # 2 - Understand ray discretization
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 library(purrr)
@@ -27,6 +28,7 @@ We can take an example dataset to observe which variable we need to
 create the tree inventory:
 
 ``` r
+
 names(SamsaRaLight::data_prenovel$trees)
 #>  [1] "id_tree"    "species"    "x"          "y"          "dbh_cm"    
 #>  [6] "crown_type" "h_m"        "hbase_m"    "hmax_m"     "rn_m"      
@@ -36,6 +38,7 @@ names(SamsaRaLight::data_prenovel$trees)
 Initialise the stand size, say 100x100m 1ha square plot:
 
 ``` r
+
 stand_size_x <- 100
 stand_size_y <- 100
 ```
@@ -44,6 +47,7 @@ Thus, create the tree inventory with one single large tree at the center
 of the plot:
 
 ``` r
+
 trees_inv <- data.frame(
   id_tree = 1,
   species = "not specified",
@@ -77,6 +81,7 @@ different slope and aspect (a flat plane, a 20° north-facing slope and a
 20° south-facing slope).
 
 ``` r
+
 exp_design <- expand.grid(
   city = c("Madrid", "Brussels", "Oslo"), # Define three towns with different latitudes in Europe
   slope = c(0, 20),
@@ -131,6 +136,7 @@ horizontal plane and are subsequently corrected by the model to estimate
 incident radiation on sloped surfaces.
 
 ``` r
+
 # Get each unique city coordinate
 coords <- exp_design %>% 
   dplyr::distinct(city, longitude, latitude)
@@ -155,6 +161,7 @@ for (i in seq_along(coords)) {
 ```
 
 ``` r
+
 # Create the plot with monthly global energies
 plt_hrad <- data_rad_list %>% 
   dplyr::bind_rows(.id = "city") %>%
@@ -226,6 +233,7 @@ mathematically correct polygon, otherwise, the function will first try
 to correct your polygon, and if it fails, it will send an error.
 
 ``` r
+
 core_polygon_df <- data.frame(
   x = c(0, 100, 100, 0),
   y = c(0, 0, 100, 100)
@@ -246,6 +254,7 @@ with great precision the shading effect of the tree within the stand,
 and the `north2x` to 90° to have the Y-axis oriented to the North.
 
 ``` r
+
 sl_stand_list <- vector("list", length = nrow(exp_design))
 
 for (i in 1:nrow(exp_design)) {
@@ -300,6 +309,7 @@ description of the torus system and its theoretical foundations, see the
 original SamsaRaLight model paper by Courbaud et al. (2003).
 
 ``` r
+
 # Store SamsaraLight outputs in a list
 out_sl_list <- vector("list", length = nrow(exp_design))
 
@@ -351,6 +361,7 @@ the `start_day = 1` and the `end_day = 365` default argument can be
 changed using the `sl_run_advanced()` function.
 
 ``` r
+
 # Create a dataframe for comparing incident energies
 out_sl_list %>% 
   purrr::map(~as.data.frame(as.list(.x$output$monthly_rays$energies))) %>% 
@@ -411,6 +422,7 @@ height angle of rays to 10°, direct rays start offset to 0°, direct rays
 angle step to 5° and diffuse rays angle step to 15°).
 
 ``` r
+
 out_sl_list %>% 
   purrr::map(~as.data.frame(as.list(.x$output$monthly_rays$rays))) %>% 
   dplyr::bind_rows(.id = "id_simu") %>% 
@@ -452,6 +464,7 @@ how the annual energy intercepted by the tree varies with stand geometry
 and latitude, for both direct and diffuse rays.
 
 ``` r
+
 # Create a dataframe for comparing intercepted energies
 out_sl_list %>% 
   purrr::map(~as.data.frame(as.list(.x$output$light$trees))) %>% 
@@ -510,11 +523,12 @@ of the plot. Be careful, the color for both direct and diffuse are not
 on the same scale. Also, note that in the output of this experiment, the
 tree light competition index LCI is equal to 0 (i.e. no light
 competition) as the tree is alone in the stand: the total energy
-intercepted $e$ is equal to the potential energy intercepted $epot$.
+intercepted $`e`$ is equal to the potential energy intercepted $`epot`$.
 
 ##### Direct radiations
 
 ``` r
+
 plot(out_sl_list[[2]], what_cells = "absolute", 
      show_trees = TRUE, direct_energy = TRUE)
 ```
@@ -535,6 +549,7 @@ compensating the tree shading effect over the course of the day.
 ##### Diffuse radiations
 
 ``` r
+
 plot(out_sl_list[[2]], what_cells = "absolute", 
      show_trees = TRUE, direct_energy = FALSE)
 ```
@@ -564,6 +579,7 @@ patterns, as it primarily reflects the shading effects of trees within
 the stand rather than large-scale site effects.
 
 ``` r
+
 # Get minimum PACL value 
 pacl_range <- out_sl_list %>% 
   purrr::map(~.x$output$light$cells$pacl) %>% 

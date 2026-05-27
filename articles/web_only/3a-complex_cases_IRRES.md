@@ -1,6 +1,7 @@
 # Non-axis-aligned rectangle stand from GPS data
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 #> 
@@ -36,6 +37,7 @@ with a coppice stool of beech at its center and a few silver fir and
 larch trees.
 
 ``` r
+
 trees_irres <- SamsaRaLight::data_IRRES1$trees
 
 str(trees_irres)
@@ -67,6 +69,7 @@ to a meaningless plot as angular coordinates (degrees) are incompatible
 with crown dimensions expressed in meters.
 
 ``` r
+
 SamsaRaLight::plot_inventory(
   trees_irres %>% rename(x = lon, y = lat)
 )
@@ -87,17 +90,17 @@ hemispheres North and South.
 
 The EPSG needed to convert coordinates depends on the plot coordinates.
 However, the UTM zone can be automatically inferred from the mean
-longitude ($zone = floor\left( (lon + 180)/6 \right) + 1$ and hemisphere
-inferred from the mean latitude ($hemisphere = 32600$ if latitude is
-positive or $hemisphere = 32700$ if latitude is negative). Thus, EPSG
-code can be automatically computed as $EPSG = hemisphere + zone$. The
-function
+longitude ($`zone = floor((lon + 180) / 6) + 1`$ and hemisphere inferred
+from the mean latitude ($`hemisphere = 32600`$ if latitude is positive
+or $`hemisphere = 32700`$ if latitude is negative). Thus, EPSG code can
+be automatically computed as $`EPSG = hemisphere + zone`$. The function
 [`SamsaRaLight::create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md)
 allows to automatically convert a data.frame containing lon/lat
 coordinates into planar XY coordinates determining the appropriate UTM
 system.
 
 ``` r
+
 trees_irres_xy <- SamsaRaLight::create_xy_from_lonlat(trees_irres)
 
 str(trees_irres_xy)
@@ -126,6 +129,7 @@ After this conversion, tree positions are expressed in meters and the
 inventory can now be validated and visualized correctly.
 
 ``` r
+
 SamsaRaLight::check_inventory(trees_irres_xy$df)
 #> Inventory table successfully validated.
 plot_inventory(trees_irres_xy$df)
@@ -140,6 +144,7 @@ rectangular inventory zone. However, the vertices are also expressed in
 a lon/lat coordinate system and therefore need to be converted.
 
 ``` r
+
 polygon_irres_xy <- SamsaRaLight::create_xy_from_lonlat(
   SamsaRaLight::data_IRRES1$core_polygon
 )
@@ -162,6 +167,7 @@ function as above but adding the core polygon data.frame as a second
 argument.
 
 ``` r
+
 SamsaRaLight::plot_inventory(
   trees_irres_xy$df,
   polygon_irres_xy$df
@@ -183,6 +189,7 @@ returns the minimally corrected polygon and specifies this with a
 message if the polygon has been modified; otherwise, it throws an error.
 
 ``` r
+
 polygon_irres_xy$df <- SamsaRaLight::check_polygon(
   polygon_irres_xy$df,
   trees_irres_xy$df
@@ -205,6 +212,7 @@ Because the projected coordinates follow a conventional GIS orientation
 North corresponds to the positive Y direction.
 
 ``` r
+
 stand_irres <- SamsaRaLight::create_sl_stand(
   trees_inv = SamsaRaLight::data_IRRES1$trees,
   cell_size = 5,
@@ -229,6 +237,7 @@ The stand dimensions are chosen as the **smallest grid (in number of
 cells)** that fully contains the inventory zone:
 
 ``` r
+
 stand_irres$geometry$n_cells_x
 #> [1] 30
 stand_irres$geometry$n_cells_y
@@ -238,6 +247,7 @@ stand_irres$geometry$n_cells_y
 This corresponds to a stand size of:
 
 ``` r
+
 stand_irres$geometry$n_cells_x * stand_irres$geometry$cell_size
 #> [1] 150
 stand_irres$geometry$n_cells_y * stand_irres$geometry$cell_size
@@ -248,6 +258,7 @@ Then, tree coordinates are shifted to a local coordinate system starting
 at zero:
 
 ``` r
+
 stand_irres$transform$shift_x
 #> [1] -710420
 stand_irres$transform$shift_y
@@ -278,6 +289,7 @@ rectangle), which:
     [`plot()`](https://rdrr.io/r/graphics/plot.default.html) function)
 
 ``` r
+
 stand_irres_aarect <- SamsaRaLight::create_sl_stand(
   trees_inv = SamsaRaLight::data_IRRES1$trees,
   cell_size = 5,
@@ -321,6 +333,7 @@ As shown in the previous tutorials, monthly radiation data are retrieved
 using the geographic location of the stand.
 
 ``` r
+
 data_radiations_irres <- SamsaRaLight::get_monthly_radiations(
   latitude  = SamsaRaLight::data_IRRES1$info$latitude,
   longitude = SamsaRaLight::data_IRRES1$info$longitude
@@ -332,6 +345,7 @@ And the simulation is run using
 (here run with the axis-aligned inventory zone).
 
 ``` r
+
 output_irres_aarect <- SamsaRaLight::run_sl(
   sl_stand = stand_irres_aarect,
   monthly_radiations = data_radiations_irres

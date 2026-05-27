@@ -1,6 +1,7 @@
 # Asymmetric crowns in a non-axis-aligned stand
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 #> 
@@ -116,6 +117,7 @@ vertical asymmetry. Each tree provides four directional crown radii
 expansion (`hmax_m`).
 
 ``` r
+
 head(SamsaRaLight::data_bechefa$trees)
 #>   id_tree     species     x    y    dbh_cm crown_type  h_m hbase_m hmax_m rn_m
 #> 1     103       abies 163.1 67.3  68.43663         8E 38.5    16.6   28.2 4.32
@@ -150,6 +152,7 @@ directional radii are internally converted into planar X–Y axis-aligned
 radii according to the value of `north2x`.
 
 ``` r
+
 stand_bechefa <- SamsaRaLight::create_sl_stand(
   trees_inv = SamsaRaLight::data_bechefa$trees,
   
@@ -170,6 +173,7 @@ plot(stand_bechefa)
 ![](3b-complex_cases_bechefa_files/figure-html/unnamed-chunk-4-1.png)
 
 ``` r
+
 plot(stand_bechefa, top_down = TRUE)
 ```
 
@@ -204,6 +208,7 @@ simulation grid**:
   as the inventory zone.
 
 ``` r
+
 stand_bechefa_filled <- SamsaRaLight::create_sl_stand(
   trees_inv = SamsaRaLight::data_bechefa$trees,
   
@@ -230,6 +235,7 @@ inventoried trees (inside the yellow polygon). Added trees are
 identified in the stand object using the logical column `added_to_fill`.
 
 ``` r
+
 table(stand_bechefa_filled$trees$added_to_fill)
 #> 
 #> FALSE  TRUE 
@@ -242,6 +248,7 @@ function, showing that both zones exhibit similar basal area per hectare
 and mean quadratic diameter.
 
 ``` r
+
 summary(stand_bechefa_filled)
 #> 
 #> SamsaRaLight stand summary
@@ -280,6 +287,7 @@ duplicates for rigorous scientific studies for example.
 ## Run SamsaraLight
 
 ``` r
+
 radiations_bechefa <- SamsaRaLight::get_monthly_radiations(
   latitude = SamsaRaLight::data_bechefa$info$latitude,
   longitude = SamsaRaLight::data_bechefa$info$longitude)

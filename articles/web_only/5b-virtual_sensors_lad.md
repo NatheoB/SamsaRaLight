@@ -1,6 +1,7 @@
 # Calibrate the LAD parameter
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 library(ggplot2)
@@ -23,6 +24,7 @@ Here, we will estimate a mean-site LAD on the Cloture dataset, the one
 we used previously with sensors by fixing a LAD at 0.5m2/m3.
 
 ``` r
+
 stand_cloture <- SamsaRaLight::create_sl_stand(
   
   # Tree inventory
@@ -48,6 +50,7 @@ We run a series of simulations in which all trees are assigned the same
 LAD value, spanning a wide range.
 
 ``` r
+
 LADs <- seq(0.001, 5, by = 0.001)
 ```
 
@@ -57,6 +60,7 @@ sensor locations, - Compute the mean residual between observed and
 predicted values.
 
 ``` r
+
 # Here, it is heavy computations, thus load precomputed data that have been created as above
 out_residuals <- readRDS(
   system.file(
@@ -133,6 +137,7 @@ The optimal LAD is defined here as the value minimizing the absolute
 mean residual:
 
 ``` r
+
 best_lad <- out_residuals$lad[which.min(abs(out_residuals$res))]
 
 best_lad
@@ -143,6 +148,7 @@ The following figure shows how residuals vary with LAD. The vertical
 line indicates the best-fitting value.
 
 ``` r
+
 ggplot(out_residuals, aes(y = res, x = lad)) +
   geom_point() +
   geom_hline(yintercept = 0, color = "darkgray") +
@@ -178,6 +184,7 @@ predicted and observed PACL.
 ### Set best LAD values to all trees LAD values
 
 ``` r
+
 trees_inv_bestlad <- SamsaRaLight::data_cloture20$trees %>% 
   dplyr::mutate(crown_lad = best_lad)
 ```
@@ -185,6 +192,7 @@ trees_inv_bestlad <- SamsaRaLight::data_cloture20$trees %>%
 ### Initialise the stand and run SamsaRaLight
 
 ``` r
+
 stand_cloture_bestlad <- SamsaRaLight::create_sl_stand(
   
   # Tree inventory
@@ -218,6 +226,7 @@ out_cloture_bestlad <- SamsaRaLight::run_sl(
 ### Compare PACL values
 
 ``` r
+
 dplyr::left_join(
   
   SamsaRaLight::data_cloture20$sensors %>% 

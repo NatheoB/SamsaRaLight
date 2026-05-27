@@ -1,6 +1,7 @@
 # 4 - Understand ray transmission
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 library(ggplot2)
@@ -92,6 +93,7 @@ and transmission parameters.
 ### Define the stand structure
 
 ``` r
+
 stand_size_x <- 100
 stand_size_y <- 100
 
@@ -112,6 +114,7 @@ Samsara2 model (Courbaud et al. 2015) for estimating crown dimensions
 based on tree size.
 
 ``` r
+
 trees_inv <- trees_inv %>% 
   
   # Compute crown dimensions using allometries
@@ -132,6 +135,7 @@ trees_inv <- trees_inv %>%
 ```
 
 ``` r
+
 plt_heights <- ggplot(trees_inv %>% 
                         dplyr::select(dbh_cm, h_m, hbase_m) %>%
                         tidyr::pivot_longer(c(h_m, hbase_m),
@@ -160,6 +164,7 @@ plt_heights | plt_diameter | plt_volume +
 ### Initialise transmission model parameters
 
 ``` r
+
 trees_inv_transmit <- dplyr::bind_rows(
   
   # Tturbid medium model (leaf area density LAD)
@@ -185,6 +190,7 @@ trees_inv_transmit <- dplyr::bind_rows(
 ### Create virtual stands and run SamsaraLight
 
 ``` r
+
 # Get the monthly radiation data (data_bechefa location)
 latitude <- 50.04
 longitude <- 5.2
@@ -199,6 +205,7 @@ core_polygon_df <- data.frame(
 ```
 
 ``` r
+
 # Here, it is heavy computations, thus load precomputed data that have been created as above
 out_trees <- readRDS(
   system.file(
@@ -256,6 +263,7 @@ The following figures show how intercepted energy varies with crown
 volume.
 
 ``` r
+
 plt_trees_lad <- trees_inv_transmit %>% 
   dplyr::filter(turbid_medium == TRUE) %>% 
   dplyr::left_join(out_trees, by = "id_simu") %>%
@@ -327,6 +335,7 @@ stand structure.
 ### Define the stand structure
 
 ``` r
+
 stand_size_x <- 100
 stand_size_y <- 100
 
@@ -339,6 +348,7 @@ exp_design <- expand.grid(
 ### Recreate a virtual diameter distribution
 
 ``` r
+
 exp_design <- exp_design %>% 
   dplyr::mutate(
     param_k = 1.5,
@@ -389,6 +399,7 @@ trees_inv <- trees_inv %>%
 ```
 
 ``` r
+
 trees_inv %>% 
   dplyr::left_join(exp_design, by = "id_inv") %>% 
   
@@ -408,6 +419,7 @@ trees_inv %>%
 ### Initialise transmission model parameters
 
 ``` r
+
 trees_inv_transmit <- dplyr::bind_rows(
   
   # Turbid medium model (leaf area density LAD)
@@ -434,6 +446,7 @@ trees_inv_transmit <- dplyr::bind_rows(
 ### Create virtual stands and run SamsaraLight
 
 ``` r
+
 # Here, it is heavy computations, thus load precomputed data that have been created as above
 out_stands <- readRDS(
   system.file(
@@ -499,6 +512,7 @@ light (PACL) at the cell level. Results are then summarised across
 stands sharing the same structural characteristics.
 
 ``` r
+
 plt_stands_lad <- trees_inv_transmit %>% 
   dplyr::ungroup() %>% 
   dplyr::filter(turbid_medium == TRUE) %>% 

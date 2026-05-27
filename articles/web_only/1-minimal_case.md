@@ -1,6 +1,7 @@
 # 1 - A first minimal case
 
 ``` r
+
 library(SamsaRaLight)
 library(dplyr)
 ```
@@ -63,11 +64,12 @@ west, all in meters). When considering those type of simple crown shapes
 (“E” or “P”), the user must not provide the `hmax_m` variable, which is
 the height at which the crown radius is maximum. Indeed, it is
 automatically computed during the process, being set to the crown base
-height ($hmax = hbase$) when considering a paraboloidal shape “P”, and
+height ($`hmax = hbase`$) when considering a paraboloidal shape “P”, and
 set at the middle of the crown for an ellipsoidal shape “E”
-($hmax = h - 0.5*(h - hbase)$).
+($`hmax = h - 0.5*(h - hbase)`$).
 
 ``` r
+
 input_trees_inv <- SamsaRaLight::data_prenovel$trees
 head(input_trees_inv)
 #>   id_tree    species       x       y  dbh_cm crown_type     h_m hbase_m hmax_m
@@ -94,6 +96,7 @@ The user can observe its validated inventory using the function
 [`SamsaRaLight::plot_inventory()`](https://natheob.github.io/SamsaRaLight/reference/plot_inventory.md).
 
 ``` r
+
 plot_inventory(input_trees_inv)
 ```
 
@@ -163,6 +166,7 @@ slope). The Tutorial 2 (2 - Understand ray-tracing) also shows how the
 light on the ground varies with stand geometry.
 
 ``` r
+
 input_sl_stand <- SamsaRaLight::create_sl_stand(
   
   # Tree inventory formatted table
@@ -197,11 +201,13 @@ the stand map as the trees are plotted in order of tree height to well
 represent the vertical structure of the stand.
 
 ``` r
+
 print(input_sl_stand)
 #> SamsaRaLight stand of 1 ha with 333 trees and 0 sensors (100 x 100 cells, 1 m)
 ```
 
 ``` r
+
 summary(input_sl_stand)
 #> 
 #> SamsaRaLight stand summary
@@ -233,12 +239,14 @@ summary(input_sl_stand)
 ```
 
 ``` r
+
 plot(input_sl_stand)
 ```
 
 ![](1-minimal_case_files/figure-html/plot_sl_stand-1.png)
 
 ``` r
+
 plot(input_sl_stand, top_down = TRUE)
 ```
 
@@ -258,8 +266,8 @@ are consistent (see the top-down view).
 
 Then, the user needs to define in a data frame the monthly energy
 specific to its plot location. For each month (represented by an integer
-number between 1 and 12), one needs to inform $Hrad$ as the global
-monthly energies (in $MJ.m^{- 2}$), and $DGratio$ as the ratio of
+number between 1 and 12), one needs to inform $`Hrad`$ as the global
+monthly energies (in $`MJ.m^{-2}`$), and $`DGratio`$ as the ratio of
 diffuse energy relative to global energy (needed to represent the
 proportion of diffuse and direct energy). The discretization of diffuse
 and direct rays from the given radiation dataset is discussed in the
@@ -275,6 +283,7 @@ Otherwise, the monthly radiation data frame used in this tutorial
 `SamsaRaLight::data_prenovel$radiations`.
 
 ``` r
+
 # Get the monthly radiation data frame
 input_monthly_radiations <- SamsaRaLight::get_monthly_radiations(
   SamsaRaLight::data_prenovel$info$latitude, 
@@ -326,6 +335,7 @@ do not support OpenMP, parallelisation is disabled and computations run
 in sequential mode (i.e. `parallel_mode = FALSE`).
 
 ``` r
+
 sl_output <- SamsaRaLight::run_sl(
     
     # Mandatory arguments
@@ -383,6 +393,7 @@ proportion of energy on the cell that comes from unobstructed rays,
 i.e. rays that have not been intercepted by any trees).
 
 ``` r
+
 str(sl_output$output$light$cells)
 #> 'data.frame':    10000 obs. of  4 variables:
 #>  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...
@@ -396,7 +407,7 @@ trees, identified by its unique id (`id_tree`). There are 4 output
 variables, which are `e` (for the total energy intercepted by the tree
 in MJ), `epot` (for the potential energy intercepted by the tree without
 considering its neighbors in MJ, i.e. the total energy intercepted if
-the tree was alone with the same crown dimensions), $lci = 1 - e/epot$
+the tree was alone with the same crown dimensions), $`lci = 1 - e/epot`$
 (which is a light competition index and a good proxy for tree dynamics,
 see Beauchamp et al. 2025, representing the real intercepted energy
 compared to the potential energy it could intercept without competition)
@@ -405,13 +416,14 @@ comes from unobstructed rays, i.e. rays that have not been intercepted
 by any other trees).
 
 ``` r
+
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  5 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  413548 276852 225261 89883 233575 ...
-#>  $ e      : num  117282 100888 58740 16554 8306 ...
+#>  $ epot   : num  413020 276836 225132 89770 233549 ...
+#>  $ e      : num  117102 100888 58738 16553 8306 ...
 #>  $ lci    : num  0.716 0.636 0.739 0.816 0.964 ...
-#>  $ eunobs : num  90257 87856 49288 12039 1494 ...
+#>  $ eunobs : num  90129 87856 49288 12039 1494 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -436,11 +448,13 @@ cells relatively to the others, it could be confusing without precise
 legend.
 
 ``` r
+
 print(sl_output)
 #> SamsaRaLight output with 10000 cells, 333 trees and 0 sensors (no detailed output)
 ```
 
 ``` r
+
 summary(sl_output)
 #> 
 #> SamsaRaLight simulation summary
@@ -449,20 +463,20 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :  11236   Min.   :   650.7   Min.   :0.07584  
-#>  1st Qu.: 171437   1st Qu.: 23636.7   1st Qu.:0.58664  
-#>  Median : 307599   Median : 71049.0   Median :0.73869  
-#>  Mean   : 334466   Mean   :118539.0   Mean   :0.70668  
-#>  3rd Qu.: 468711   3rd Qu.:183635.7   3rd Qu.:0.85199  
-#>  Max.   :1044769   Max.   :750822.2   Max.   :0.99319  
+#>  Min.   :  11227   Min.   :   650.7   Min.   :0.07583  
+#>  1st Qu.: 171380   1st Qu.: 23632.9   1st Qu.:0.58652  
+#>  Median : 306488   Median : 71049.0   Median :0.73860  
+#>  Mean   : 334326   Mean   :118512.4   Mean   :0.70663  
+#>  3rd Qu.: 468539   3rd Qu.:183633.1   3rd Qu.:0.85197  
+#>  Max.   :1044676   Max.   :750436.9   Max.   :0.99319  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e                pacl             punobs      
-#>  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  
-#>  1st Qu.: 375.72   1st Qu.:0.08285   1st Qu.:0.3981  
-#>  Median : 559.57   Median :0.12338   Median :0.5677  
-#>  Mean   : 604.63   Mean   :0.13332   Mean   :0.5389  
+#>  Min.   :  71.51   Min.   :0.01577   Min.   :0.0000  
+#>  1st Qu.: 375.82   1st Qu.:0.08287   1st Qu.:0.3981  
+#>  Median : 559.50   Median :0.12337   Median :0.5676  
+#>  Mean   : 604.61   Mean   :0.13331   Mean   :0.5389  
 #>  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7046  
 #>  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  
 #> 
@@ -472,18 +486,21 @@ summary(sl_output)
 ```
 
 ``` r
+
 plot(sl_output)
 ```
 
 ![](1-minimal_case_files/figure-html/plot_sl_output-1.png)
 
 ``` r
+
 plot(sl_output, show_trees = F)
 ```
 
 ![](1-minimal_case_files/figure-html/plot_sl_output_notrees-1.png)
 
 ``` r
+
 plot(sl_output, what_trees = "intercepted", what_cells = "absolute")
 ```
 

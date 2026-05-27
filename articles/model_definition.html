@@ -7,8 +7,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 <title>Model definition • SamsaRaLight</title>
 <script src="../lightswitch.js"></script><script src="../deps/jquery-3.6.0/jquery-3.6.0.min.js"></script><meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-<link href="../deps/bootstrap-5.3.1/bootstrap.min.css" rel="stylesheet">
-<script src="../deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
+<link href="../deps/bootstrap-5.3.8/bootstrap.min.css" rel="stylesheet">
+<script src="../deps/bootstrap-5.3.8/bootstrap.bundle.min.js"></script><link href="../deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="../deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="../deps/headroom-0.11.0/headroom.min.js"></script><script src="../deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="../deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="../deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="../deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="../deps/search-1.0.0/fuse.min.js"></script><script src="../deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="../pkgdown.js"></script><meta property="og:title" content="Model definition">
 </head>
@@ -109,7 +109,7 @@ an ellipsoid, or four quarters of a paraboloid).</p>
 <p>The SamsaraLight ray-tracing model divides annual light into a finite
 number of direct and diffuse rays based on the user’s definition of
 monthly radiation (<em>i.e.</em> global energy in a horizontal plane in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><msup><mi>m</mi><mrow><mo>−</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.m^{-2}</annotation></semantics></math>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><msup><mi>m</mi><mrow><mi>−</mi><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.m^{-2}</annotation></semantics></math>)
 and the ratio of diffuse to global energy for a given month. It then
 calculates the angles, orientation and energy of these rays depending on
 whether they are direct or diffuse<em>.</em> The annual direct rays are
@@ -124,7 +124,7 @@ composed the virtual stand. The energy of each ray, measured in
 megajoules
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi></mrow><annotation encoding="application/x-tex">MJ</annotation></semantics></math>),
 depends on the initial energy of the ray (in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><msup><mi>m</mi><mrow><mo>−</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.m^{-2}</annotation></semantics></math>)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><msup><mi>m</mi><mrow><mi>−</mi><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.m^{-2}</annotation></semantics></math>)
 and the area of the cell. This enabled the continuous plane to be
 considered as a discrete surface, allowing the light reaching the ground
 to be modeled. Therefore, cell size is a proxy for model accuracy:
@@ -212,7 +212,7 @@ The model also estimates the total amount of energy reaching a cell
 centre after attenuation by the above-mentioned crowns of each ray
 directed towards this cell. This is standardised by cell area to give
 the amount of energy reaching the ground per unit area (in
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><msup><mi>m</mi><mrow><mo>−</mo><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.m^{-2}</annotation></semantics></math>).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>M</mi><mi>J</mi><mi>.</mi><msup><mi>m</mi><mrow><mi>−</mi><mn>2</mn></mrow></msup></mrow><annotation encoding="application/x-tex">MJ.m^{-2}</annotation></semantics></math>).
 The SamsaRaLight package also return more detailed output if the user
 specified it: the direct/diffuse energies, the matrices of interceptions
 (i.e. the number of intercepted rays and energies for each tree per

@@ -51,6 +51,7 @@ they are still independent of each other.
 Below is a typical example workflow.
 
 ``` r
+
 library(SamsaRaLight)
 
 # Load example inventory
