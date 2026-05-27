@@ -7,7 +7,7 @@
 #'
 #' @param trees_inv A data.frame with one row per tree and the following columns:
 #' \describe{
-#'   \item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates).}
+#'   \item{id_tree}{Unique identifier of the tree (positive integer, no duplicates).}
 #'   \item{x}{X position of the tree within the stand (numeric, meters, planar coordinates).
 #'     Optional if \code{lon} and \code{lat} are provided.}
 #'   \item{y}{Y position of the tree within the stand (numeric, meters, planar coordinates).
@@ -98,24 +98,30 @@ check_inventory <- function(trees_inv, verbose = TRUE) {
     "Missing required column(s): ", paste(missing_cols, collapse = ", "), call. = FALSE
   )
   
-  ## ---- id uniqueness --------------------------------------------------------
+  ## ---- id uniqueness and positive integer --------------------------------------------------------
   if (anyDuplicated(trees_inv$id_tree)) stop(
     "`id_tree` must contain unique values (no duplicates).", call. = FALSE
   )
   
+    
   ## ---- numeric checks -------------------------------------------------------
-  numeric_cols <- c("dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
+  numeric_cols <- c("id_tree", "dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
   numeric_cols_invalid <- numeric_cols[!vapply(trees_inv[numeric_cols], is.numeric, logical(1))]
   if (length(numeric_cols_invalid) > 0) stop(
     "The following columns must be numeric: ", paste(numeric_cols_invalid, collapse = ", "), call. = FALSE
   )
   
-  pos_cols <- c("dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
+  pos_cols <- c("id_tree", "dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
   pos_cols_invalid <- pos_cols[vapply(trees_inv[pos_cols], function(x) any(x < 0, na.rm = TRUE), logical(1))]
   if (length(pos_cols_invalid) > 0)  stop(
     "The following columns must be non-negative: ", paste(pos_cols_invalid, collapse = ", "), call. = FALSE
   )
   
+  int_cols <- c("id_tree")
+  int_cols_invalid <- int_cols[vapply(trees_inv[int_cols], function(x) any(x%%1 != 0, na.rm = TRUE), logical(1))]
+  if (length(int_cols_invalid) > 0)  stop(
+    "The following columns must be integers: ", paste(int_cols_invalid, collapse = ", "), call. = FALSE
+  )
   
   ## ---- crown type -----------------------------------------------------------
   allowed_crown_types <- c("E", "P", "2E", "8E", "4P")

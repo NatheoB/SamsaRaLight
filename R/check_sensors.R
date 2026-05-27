@@ -7,7 +7,7 @@
 #'
 #' @param sensors A data.frame with one row per sensor and the following columns:
 #' \describe{
-#'   \item{id_sensor}{Unique identifier of the sensor (numeric or character, no duplicates)}
+#'   \item{id_sensor}{Unique identifier of the sensor (positive integer, no duplicates)}
 #'   \item{x}{X position of the sensor (numeric, meters)}
 #'   \item{y}{Y position of the sensor (numeric, meters)}
 #'   \item{h_m}{Height above ground of the sensor (numeric, meters)}
@@ -62,19 +62,24 @@ check_sensors <- function(sensors, verbose = TRUE) {
   }
   
   ## ---- numeric checks -------------------------------------------------------
-  numeric_cols <- c("x", "y", "h_m")
-  non_numeric <- numeric_cols[!vapply(sensors[numeric_cols], is.numeric, logical(1))]
-  if (length(non_numeric) > 0) {
-    stop(
-      "The following columns must be numeric: ",
-      paste(non_numeric, collapse = ", "),
-      call. = FALSE
-    )
-  }
+  numeric_cols <- c("id_sensor", "x", "y", "h_m")
+  numeric_cols_invalid <- numeric_cols[!vapply(sensors[numeric_cols], is.numeric, logical(1))]
+  if (length(numeric_cols_invalid) > 0) stop(
+    "The following columns must be numeric: ", paste(numeric_cols_invalid, collapse = ", "), call. = FALSE
+  )
   
-  if (any(sensors$h_m < 0, na.rm = TRUE)) {
-    stop("Sensor height must be non-negative.", call. = FALSE)
-  }
+  pos_cols <- c("id_sensor", "h_m")
+  pos_cols_invalid <- pos_cols[vapply(sensors[pos_cols], function(x) any(x < 0, na.rm = TRUE), logical(1))]
+  if (length(pos_cols_invalid) > 0)  stop(
+    "The following columns must be non-negative: ", paste(pos_cols_invalid, collapse = ", "), call. = FALSE
+  )
+  
+  int_cols <- c("id_sensor")
+  int_cols_invalid <- int_cols[vapply(sensors[int_cols], function(x) any(x%%1 != 0, na.rm = TRUE), logical(1))]
+  if (length(int_cols_invalid) > 0)  stop(
+    "The following columns must be integers: ", paste(int_cols_invalid, collapse = ", "), call. = FALSE
+  )
+  
   
   ## ---- success --------------------------------------------------------------
   if (verbose) message("Sensors table successfully validated.")
