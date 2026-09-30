@@ -197,7 +197,7 @@ run_sl_advanced <- function(
   if (!detailed_output) {
     out$sensors <- out$sensors %>% dplyr::select(id_sensor, e, pacl, punobs)
     out$cells   <- out$cells %>% dplyr::select(id_cell, e, pacl, punobs)
-    out$trees   <- out$trees %>% dplyr::select(id_tree, epot, e, lci, eunobs)
+    out$trees   <- out$trees %>% dplyr::select(id_tree, epot, e, lci, eunobs, rci)
   }
   
   out_sl <- list(

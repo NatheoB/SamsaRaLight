@@ -652,10 +652,14 @@ private:
 	double crownLAD; // Leaf area density in m2/m3 (for turbid medium method)
 	
 	// Output energies (in MJ)
+	int nDirect; // Number of intercepted direct rays
+	int nUnobstructedDirect; // Number of intercepted direct rays that was not intercepted by a previous other crown
 	double energyDirect; // Energy intercepted by the tree from direct rays
 	double energyPotentialDirect; // Potential energy intercepted by the tree (i.e. without neighbours) from direct rays
 	double energyUnobstructedDirect; // Energy intercepted by the tree only from unobstructed direct rays (i.e. rays that have not been attenuated by other trees before)
 
+	int nDiffuse; // Number of intercepted diffuse rays
+	int nUnobstructedDiffuse; // Number of intercepted diffuse rays that was not intercepted by a previous other crown
 	double energyDiffuse; // Energy intercepted by the tree from diffuse rays
 	double energyPotentialDiffuse; // Potential energy intercepted by the tree (i.e. without neighbours) from diffuse rays
 	double energyUnobstructedDiffuse; // Energy intercepted by the tree only from unobstructed diffuse rays (i.e. rays that have not been attenuated by other trees before)
@@ -819,10 +823,14 @@ public:
 		this->crownOpenness = crown_openness;
 		this->crownLAD = crown_lad;
 
+		this->nDirect = 0;
+		this->nUnobstructedDirect = 0;
 		this->energyDirect = 0.0;
 		this->energyPotentialDirect = 0.0;
 		this->energyUnobstructedDirect = 0.0;
 
+		this->nDiffuse = 0;
+		this->nUnobstructedDiffuse = 0;
 		this->energyDiffuse = 0.0;
 		this->energyPotentialDiffuse = 0.0;
 		this->energyUnobstructedDiffuse = 0.0;
@@ -866,14 +874,17 @@ public:
 	double getCrownOpenness() { return(this->crownOpenness); }
 	double getCrownLAD() { return(this->crownLAD); }
 
+	double getRci() { return( 1.0 - static_cast<double>(this->nUnobstructedDirect + this->nUnobstructedDiffuse) / static_cast<double>(this->nDirect + this->nDiffuse) ); }
 	double getEnergy() { return(this->energyDiffuse + this->energyDirect); }
 	double getEnergyPotential() { return(this->energyPotentialDiffuse + this->energyPotentialDirect); }
 	double getEnergyUnobstructed() { return(this->energyUnobstructedDiffuse + this->energyUnobstructedDirect); }
 
+	double getRciDirect() { return(1.0 - static_cast<double>(this->nUnobstructedDirect) / static_cast<double>(this->nDirect)); }
 	double getEnergyDirect() { return(this->energyDirect); }
 	double getEnergyPotentialDirect() { return(this->energyPotentialDirect); }
 	double getEnergyUnobstructedDirect() { return(this->energyUnobstructedDirect); }
 
+	double getRciDiffuse() { return(1.0 - static_cast<double>(this->nUnobstructedDiffuse) / static_cast<double>(this->nDiffuse)); }
 	double getEnergyDiffuse() { return(this->energyDiffuse); }
 	double getEnergyPotentialDiffuse() { return(this->energyPotentialDiffuse); }
 	double getEnergyUnobstructedDiffuse() { return(this->energyUnobstructedDiffuse); }
@@ -881,10 +892,14 @@ public:
 
 
 	// Setter
+	void addInterceptedRayDirect() { this->nDirect += 1; }
+	void addInterceptedUnobstructedRayDirect() { this->nUnobstructedDirect += 1; }
 	void addEnergyDirect(double e) { this->energyDirect += e; }
 	void addEnergyPotentialDirect(double e) { this->energyPotentialDirect += e; }
 	void addEnergyUnobstructedDirect(double e) { this->energyUnobstructedDirect += e; }
 
+	void addInterceptedRayDiffuse() { this->nDiffuse += 1; }
+	void addInterceptedUnobstructedRayDiffuse() { this->nUnobstructedDiffuse += 1; }
 	void addEnergyDiffuse(double e) { this->energyDiffuse += e; }
 	void addEnergyPotentialDiffuse(double e) { this->energyPotentialDiffuse += e; }
 	void addEnergyUnobstructedDiffuse(double e) { this->energyUnobstructedDiffuse += e; }
@@ -1073,14 +1088,17 @@ public:
 	Trunk& getTrunk() { return(this->trunk); }
 	Crown& getCrown() { return(this->crown); }
 
+	double getCrownRci() { return(this->crown.getRci()); }
 	double getCrownEnergy() { return(this->crown.getEnergy()); }
 	double getCrownEnergyPotential() { return(this->crown.getEnergyPotential()); }
 	double getCrownEnergyUnobstructed() { return(this->crown.getEnergyUnobstructed()); }
 
+	double getCrownRciDirect() { return(this->crown.getRciDirect()); }
 	double getCrownEnergyDirect() { return(this->crown.getEnergyDirect()); }
 	double getCrownEnergyPotentialDirect() { return(this->crown.getEnergyPotentialDirect()); }
 	double getCrownEnergyUnobstructedDirect() { return(this->crown.getEnergyUnobstructedDirect()); }
 
+	double getCrownRciDiffuse() { return(this->crown.getRciDiffuse()); }
 	double getCrownEnergyDiffuse() { return(this->crown.getEnergyDiffuse()); }
 	double getCrownEnergyPotentialDiffuse() { return(this->crown.getEnergyPotentialDiffuse()); }
 	double getCrownEnergyUnobstructedDiffuse() { return(this->crown.getEnergyUnobstructedDiffuse()); }
@@ -2020,18 +2038,24 @@ private:
 				// Add energy intercepted real, potential and unobstructed considering the ray is a diffuse or direct one
 				// We add the energy on a slope as we consider the tree
 				if (ray->isDirect()) {
+					crown.addInterceptedRayDirect();
 					crown.addEnergyPotentialDirect(potential_energy_slope);
 					crown.addEnergyDirect(intercepted_energy_slope);
 
-					if (v_interc[j]->vectIdTree == idtree_first_intercepted)
+					if (v_interc[j]->vectIdTree == idtree_first_intercepted) {
+						crown.addInterceptedUnobstructedRayDirect();
 						crown.addEnergyUnobstructedDirect(potential_energy_slope);
+					}
 				}
 				else {
+					crown.addInterceptedRayDiffuse();
 					crown.addEnergyPotentialDiffuse(potential_energy_slope);
 					crown.addEnergyDiffuse(intercepted_energy_slope);
 
-					if (v_interc[j]->vectIdTree == idtree_first_intercepted)
+					if (v_interc[j]->vectIdTree == idtree_first_intercepted) {
+						crown.addInterceptedUnobstructedRayDiffuse();
 						crown.addEnergyUnobstructedDiffuse(potential_energy_slope);
+					}
 				}
 
 				#ifdef _OPENMP
@@ -2420,13 +2444,17 @@ public:
 		NumericVector epot_direct_trees(n_trees);
 		NumericVector epot_diffuse_trees(n_trees);
 
+		NumericVector lci_trees(n_trees);
+		NumericVector lci_direct_trees(n_trees);
+		NumericVector lci_diffuse_trees(n_trees);
+
 		NumericVector eunobs_trees(n_trees);
 		NumericVector eunobs_direct_trees(n_trees);
 		NumericVector eunobs_diffuse_trees(n_trees);
 
-		NumericVector lci_trees(n_trees);
-		NumericVector lci_direct_trees(n_trees);
-		NumericVector lci_diffuse_trees(n_trees);
+		NumericVector rci_trees(n_trees);
+		NumericVector rci_direct_trees(n_trees);
+		NumericVector rci_diffuse_trees(n_trees);
 
 
 		// Init RCPP vectors/matrices for cells
@@ -2554,6 +2582,10 @@ public:
 						eunobs_direct_trees[itree] = tree->getCrownEnergyUnobstructedDirect();
 						eunobs_diffuse_trees[itree] = tree->getCrownEnergyUnobstructedDiffuse();
 
+						rci_trees[itree] = tree->getCrownRci();
+						rci_direct_trees[itree] = tree->getCrownRciDirect();
+						rci_diffuse_trees[itree] = tree->getCrownRciDiffuse();
+
 						itree++;
 					}
 
@@ -2602,7 +2634,11 @@ public:
 
 			Named("eunobs") = eunobs_trees,
 			Named("eunobs_direct") = eunobs_direct_trees,
-			Named("eunobs_diffuse") = eunobs_diffuse_trees
+			Named("eunobs_diffuse") = eunobs_diffuse_trees,
+
+			Named("rci") = rci_trees,
+			Named("rci_direct") = rci_direct_trees,
+			Named("rci_diffuse") = rci_diffuse_trees
 		);
 
 		DataFrame output_cells = DataFrame::create(
