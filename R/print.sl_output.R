@@ -21,16 +21,12 @@ print.sl_output <- function(x, ...) {
   n_trees   <- if (!is.null(stand$trees))   nrow(stand$trees)   else 0
   n_sensors <- if (!is.null(stand$sensors)) nrow(stand$sensors) else 0
   
-  # Detailed output = rays + interceptions
-  has_detailed <- !is.null(x$output$monthly_rays) &&
-    !is.null(x$output$interceptions)
-  
   cat(
     "SamsaRaLight output with",
     n_cells, "cells,",
     n_trees, "trees and",
     n_sensors, "sensors",
-    if (has_detailed) "(detailed output)\n" else "(no detailed output)\n"
+    if (x$params$detailed_output) "(detailed output)\n" else "(no detailed output)\n"
   )
   
   invisible(x)

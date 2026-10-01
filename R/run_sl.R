@@ -18,9 +18,6 @@
 #' @param sensors_only Logical. If \code{TRUE}, compute light interception only
 #'   for sensors. This can substantially reduce computation time when only
 #'   sensor-level results are required. Defaults to \code{FALSE}.
-#' @param include_input Logical. If \code{TRUE}, include the input
-#'   \code{sl_stand} and \code{monthly_radiations} objects in the returned
-#'   object. Defaults to \code{FALSE}.
 #' @param detailed_output Logical. If \code{TRUE}, retain detailed ray,
 #'   energy, and interception information, including the monthly ray
 #'   discretization and interception matrices. If \code{FALSE}, only the main
@@ -124,7 +121,6 @@ run_sl <- function(
     sl_stand,
     monthly_radiations,
     sensors_only = FALSE,
-    include_input = FALSE,
     detailed_output = FALSE,
     parallel_mode = FALSE,
     n_threads = NULL,
@@ -147,7 +143,6 @@ run_sl <- function(
     soc = TRUE,
     start_day = 1,
     end_day = 365,
-    include_input = include_input,
     detailed_output = detailed_output,
     parallel_mode = parallel_mode,
     n_threads = n_threads,

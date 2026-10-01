@@ -53,9 +53,6 @@
 #' @param end_day Numeric. Last day of the simulated vegetative period,
 #'   between 1 and 365. Must be greater than or equal to \code{start_day}.
 #'   Defaults to \code{365}.
-#' @param include_input Logical. If \code{TRUE}, include the input
-#'   \code{sl_stand} and \code{monthly_radiations} objects in the returned
-#'   object. Defaults to \code{FALSE}.
 #' @param detailed_output Logical. If \code{TRUE}, retain detailed ray,
 #'   energy, and interception information in the output. If \code{FALSE},
 #'   only the main light-interception metrics are retained. Defaults to
@@ -142,7 +139,6 @@ run_sl_advanced <- function(
     soc = TRUE,
     start_day = 1,
     end_day = 365,
-    include_input = FALSE,
     detailed_output = FALSE,
     parallel_mode = FALSE,
     n_threads = NULL,
@@ -270,7 +266,12 @@ run_sl_advanced <- function(
     output = list(
       "light" = out
     ),
+    input = list(
+      "sl_stand" = sl_stand,
+      "monthly_radiations" = monthly_radiations
+    ),
     params = list(
+      "detailed_output" = detailed_output,
       "start_day" = start_day,
       "end_day" = end_day,
       "soc" = soc,
@@ -285,13 +286,6 @@ run_sl_advanced <- function(
       "diffuse_anglestep" = diffuse_anglestep
     )
   )
-  
-  if (include_input) {
-    out_sl$input <- list(
-      "sl_stand" = sl_stand,
-      "monthly_radiations" = monthly_radiations
-    )
-  }
   
   if (detailed_output) {
     out_sl$output$monthly_rays <- monthly_rays
@@ -347,6 +341,10 @@ validate_sl_output <- function(x) {
   # ---- Top-level structure ----
   if (!is.list(x$output)) {
     stop("`x$output` must be a list.", call. = FALSE)
+  }
+  
+  if (!is.list(x$input)) {
+    stop("`x$input` must be a list.", call. = FALSE)
   }
   
   if (!is.list(x$params)) {

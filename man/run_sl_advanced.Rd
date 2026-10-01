@@ -20,7 +20,6 @@ run_sl_advanced(
   soc = TRUE,
   start_day = 1,
   end_day = 365,
-  include_input = FALSE,
   detailed_output = FALSE,
   parallel_mode = FALSE,
   n_threads = NULL,
@@ -87,10 +86,6 @@ between 1 and 365. Defaults to \code{1}.}
 \item{end_day}{Numeric. Last day of the simulated vegetative period,
 between 1 and 365. Must be greater than or equal to \code{start_day}.
 Defaults to \code{365}.}
-
-\item{include_input}{Logical. If \code{TRUE}, include the input
-\code{sl_stand} and \code{monthly_radiations} objects in the returned
-object. Defaults to \code{FALSE}.}
 
 \item{detailed_output}{Logical. If \code{TRUE}, retain detailed ray,
 energy, and interception information in the output. If \code{FALSE},

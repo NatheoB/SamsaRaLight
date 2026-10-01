@@ -8,7 +8,6 @@ run_sl(
   sl_stand,
   monthly_radiations,
   sensors_only = FALSE,
-  include_input = FALSE,
   detailed_output = FALSE,
   parallel_mode = FALSE,
   n_threads = NULL,
@@ -29,10 +28,6 @@ radiation ratio (\code{DGratio}), typically obtained with
 \item{sensors_only}{Logical. If \code{TRUE}, compute light interception only
 for sensors. This can substantially reduce computation time when only
 sensor-level results are required. Defaults to \code{FALSE}.}
-
-\item{include_input}{Logical. If \code{TRUE}, include the input
-\code{sl_stand} and \code{monthly_radiations} objects in the returned
-object. Defaults to \code{FALSE}.}
 
 \item{detailed_output}{Logical. If \code{TRUE}, retain detailed ray,
 energy, and interception information, including the monthly ray

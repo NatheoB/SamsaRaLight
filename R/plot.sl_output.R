@@ -7,6 +7,7 @@
 #' @param what_trees Character; which tree metric to plot. Choices are:
 #'   \describe{
 #'     \item{"compet"}{Light competition index (LCI), reversed viridis scale.}
+#'     \item{"compet_rays"}{Ray competition index (RCI), reversed viridis scale.}
 #'     \item{"intercepted"}{Intercepted energy (MJ).}
 #'     \item{"potential"}{Potential intercepted energy (MJ).}
 #'   }
@@ -37,7 +38,7 @@
 #' @method plot sl_output
 #' 
 plot.sl_output <- function(x, ...,
-                           what_trees = c("compet", "intercepted", "potential"),
+                           what_trees = c("compet", "compet_rays", "intercepted", "potential"),
                            what_cells = c("relative", "absolute"),
                            show_trees = TRUE,
                            direct_energy = NULL) {
@@ -68,7 +69,7 @@ plot.sl_output <- function(x, ...,
   if (!is.null(direct_energy)) {
     
     # Check that detailed output exists
-    if (is.null(x$input$params$detailed_output) || !x$input$params$detailed_output) {
+    if (!x$params$detailed_output) {
       stop(
         "direct_energy was requested, but detailed_output = FALSE.\n",
         "Re-run the simulation with detailed_output = TRUE."
@@ -93,6 +94,7 @@ plot.sl_output <- function(x, ...,
     switch(
       what_trees,
       "compet"      = "lci",
+      "compet_rays" = "rci",
       "intercepted" = "e",
       "potential"   = "epot"
     ),
@@ -103,6 +105,7 @@ plot.sl_output <- function(x, ...,
   # ---- Automatic legend labels ----
   tree_label <- switch(what_trees,
                        "compet" = "TREE\nLight competition index (LCI)",
+                       "compet_rays" = "TREE\nRay competition index (RCI)",
                        "potential" = "TREE\nPotential intercepted energy (MJ)",
                        "intercepted" = "TREE\nIntercepted energy (MJ)")
   
@@ -179,10 +182,10 @@ plot.sl_output <- function(x, ...,
       scale_fill_viridis_c(
         name = tree_label,
         limits = c(
-          ifelse(what_trees == "compet", 0 - epsilon, NA),
-          ifelse(what_trees == "compet", 1 + epsilon, NA)
+          ifelse(what_trees %in% c("compet", "compet_rays"), 0 - epsilon, NA),
+          ifelse(what_trees %in% c("compet", "compet_rays"), 1 + epsilon, NA)
         ),
-        direction = ifelse(what_trees == "compet", -1, 1),
+        direction = ifelse(what_trees %in% c("compet", "compet_rays"), -1, 1),
         guide = guide_colorbar(
           title.position = "top",
           title.hjust = 0.5,
