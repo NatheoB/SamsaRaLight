@@ -19,8 +19,7 @@ check_inventory(trees_inv, verbose = TRUE)
 
   id_tree
 
-  :   Unique identifier of the tree (numeric or character, no
-      duplicates).
+  :   Unique identifier of the tree (positive integer, no duplicates).
 
   x
 

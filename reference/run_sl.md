@@ -1,7 +1,7 @@
 # Run SamsaRaLight radiative balance
 
-This function computes light interception and radiative balance for a
-forest stand using the SamsaRaLight ray-tracing engine.
+Computes light interception and radiative balance for a forest stand
+using the SamsaRaLight ray-tracing engine.
 
 ## Usage
 
@@ -21,96 +21,125 @@ run_sl(
 
 - sl_stand:
 
-  An object of class `"sl_stand"` describing the forest stand, created
-  with
+  An object of class `"sl_stand"` describing the forest stand, typically
+  created with
   [create_sl_stand](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md).
-  It contains trees, sensors, terrain, and grid geometry.
+  It contains tree, sensor, terrain, and grid geometry information.
 
 - monthly_radiations:
 
-  A data.frame of monthly horizontal radiation (`Hrad`, in MJ
-  m\\^{-2}\\) and diffuse-to-global ratio (`DGratio`), typically
-  obtained using
-  [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md)
-  and checked using
-  [check_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md)..
+  A data frame containing monthly horizontal radiation (`Hrad`, in MJ
+  m\\^{-2}\\) and diffuse-to-global radiation ratio (`DGratio`),
+  typically obtained with
+  [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md).
+  The input is validated internally using
+  [check_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md).
 
 - sensors_only:
 
-  Logical. If `TRUE`, compute light interception only for sensors (much
-  faster).
+  Logical. If `TRUE`, compute light interception only for sensors. This
+  can substantially reduce computation time when only sensor-level
+  results are required. Defaults to `FALSE`.
 
 - detailed_output:
 
-  Logical. If `TRUE`, the output contains detailed diffuse/direct
-  energies in the `light` datasets, full interception matrices
-  `interceptions` and output of ray discretization `monthy_rays`. If
-  `FALSE`, only total energies are returned (recommended for most uses).
+  Logical. If `TRUE`, retain detailed ray, energy, and interception
+  information, including the monthly ray discretization and interception
+  matrices. If `FALSE`, only the main light-interception metrics are
+  returned. Defaults to `FALSE`.
 
 - parallel_mode:
 
-  logical. If TRUE, ray–target computations are parallelised using
-  OpenMP. If FALSE, the model runs in single-thread mode. SamsaRaLight
-  uses OpenMP for ray–target parallelisation. To avoid competition
-  between OpenMP and BLAS (matrix algebra libraries), BLAS is
-  automatically forced to single-thread mode during the simulation.
-  Using `parallel_mode = TRUE` is strongly recommended for large stands
-  or fine ray discretisation, as computation time scales almost linearly
-  with the number of available CPU cores.
+  Logical. If `TRUE`, ray–target computations are parallelised using
+  OpenMP. If `FALSE`, the model runs in single-thread mode. BLAS is
+  automatically forced to single-thread mode during the simulation to
+  avoid competition between BLAS and OpenMP. Parallel execution can
+  substantially reduce computation time for large stands or fine ray
+  discretization. Defaults to `FALSE`.
 
 - n_threads:
 
-  integer or NULL. Number of CPU threads to use when
-  `parallel_mode = TRUE`. If NULL (default), OpenMP automatically
-  selects the number of available cores. If provided, must be a positive
-  integer.
+  Integer or `NULL`. Number of CPU threads to use when
+  `parallel_mode = TRUE`. If `NULL`, OpenMP automatically selects the
+  number of available threads. If supplied, must be a positive integer.
+  Defaults to `NULL`.
 
 - verbose:
 
-  Logical; if `TRUE`, informative messages are printed.
+  Logical. If `TRUE`, print informative messages during the simulation,
+  including OpenMP status. Defaults to `TRUE`.
 
 ## Value
 
-An object of class `"sl_output"`, containing:
+An object of class `"sl_output"` (a list) containing:
 
-- light:
+- `output`: A list containing the simulation results:
 
-  A list of data.frames with simulated light interception:
+  - `light`: A list containing light-interception results for trees,
+    ground cells, and sensors.
 
-  - `trees`: light intercepted by trees
+  - `monthly_rays`: The monthly ray discretization and associated
+    radiation energies. Returned only when `detailed_output = TRUE`.
 
-  - `cells`: light received by ground cells
+  - `interceptions`: Detailed interception matrices. Returned only when
+    `detailed_output = TRUE`.
 
-  - `sensors`: light received by sensors
+- `params`: A list containing the simulation parameters, including the
+  simulated period, sky model, ray-discretization parameters, and
+  interception-model parameters.
 
-- info:
+- `input`: A list containing the original `sl_stand` and
+  `monthly_radiations` objects. Returned only when
+  `include_input = TRUE`.
 
-  A list of metadata about the simulation (latitude, sky type, torus
-  use, etc.).
+When `detailed_output = FALSE`, the main output tables contain:
 
-- monthly_rays:
+- `light$sensors`: `id_sensor`, `e`, `pacl`, and `punobs`;
 
-  (only if `detailed_output = TRUE`) Discretization of monthly
-  radiations
+- `light$cells`: `id_cell`, `e`, `pacl`, and `punobs`;
 
-- interceptions:
-
-  (only if `detailed_output = TRUE`) interception matrices between trees
-  and rays for each cell/sensor
+- `light$trees`: `id_tree`, `epot`, `e`, `lci`, `eunobs`, and `rci`.
 
 ## Details
 
-It is the **standard user interface** of SamsaRaLight. Advanced
-ray-tracing and sky discretization parameters are internally set to
-robust defaults and do not need to be provided.
+This function is the standard user interface to SamsaRaLight. Advanced
+ray-tracing, sky-discretization, and interception parameters are
+internally set to standard values and do not need to be provided.
 
-Internally, `run_sl()` calls the advanced engine
-[`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
-with fixed ray-tracing and sky discretization.
+Internally, `run_sl()` calls
+[run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
+using standard ray-tracing, sky-discretization, and interception
+parameters:
 
-You should normally **not** use `SamsaRaLight:::run_sl_advanced()`
-directly unless you are developing new ray-tracing configurations or
-doing methodological work.
+- torus borders are enabled;
+
+- crowns are represented as turbid media;
+
+- the leaf extinction coefficient is `0.5`;
+
+- the clumping factor is `1`;
+
+- trunk interception is enabled;
+
+- the minimum ray altitude angle is `10` degrees;
+
+- direct rays use a starting offset of `0` degrees and an angular step
+  of `5` degrees;
+
+- diffuse rays use an angular step of `15` degrees;
+
+- the Standard Overcast Sky model is used;
+
+- the full year (days 1–365) is simulated.
+
+These defaults are intended for standard SamsaRaLight simulations. Users
+requiring control over these parameters can use
+[run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
+directly.
+
+When `parallel_mode = TRUE`, SamsaRaLight uses OpenMP to parallelise
+ray–target computations. BLAS is configured to use a single thread
+during the simulation to avoid competing parallel execution.
 
 ## See also
 
@@ -118,7 +147,8 @@ doing methodological work.
 [check_inventory](https://natheob.github.io/SamsaRaLight/reference/check_inventory.md),
 [check_sensors](https://natheob.github.io/SamsaRaLight/reference/check_sensors.md),
 [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md),
-[check_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md)
+[check_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md),
+[run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)
 
 ## Examples
 
@@ -144,7 +174,7 @@ out <- run_sl(
 #> SamsaRaLight simulation was run successfully.
 
 str(out)
-#> List of 2
+#> List of 3
 #>  $ output:List of 1
 #>   ..$ light:List of 3
 #>   .. ..$ sensors:'data.frame':   0 obs. of  4 variables:
@@ -154,17 +184,17 @@ str(out)
 #>   .. .. ..$ punobs   : num(0) 
 #>   .. ..$ trees  :'data.frame':   333 obs. of  6 variables:
 #>   .. .. ..$ id_tree: int [1:333] 242 258 272 116 157 37 89 224 241 92 ...
-#>   .. .. ..$ epot   : num [1:333] 414252 682799 27111 409172 759747 ...
-#>   .. .. ..$ e      : num [1:333] 176526 336634 2920 124410 356601 ...
-#>   .. .. ..$ lci    : num [1:333] 0.574 0.507 0.892 0.696 0.531 ...
-#>   .. .. ..$ eunobs : num [1:333] 150381 289384 1853 99050 297234 ...
-#>   .. .. ..$ rci    : num [1:333] 0.689 0.624 0.964 0.842 0.674 ...
+#>   .. .. ..$ epot   : num [1:333] 414830 684177 25792 411076 763878 ...
+#>   .. .. ..$ e      : num [1:333] 176655 338207 1528 123157 359147 ...
+#>   .. .. ..$ lci    : num [1:333] 0.574 0.506 0.941 0.7 0.53 ...
+#>   .. .. ..$ eunobs : num [1:333] 150381 290852 615 97494 299592 ...
+#>   .. .. ..$ rci    : num [1:333] 0.689 0.622 0.976 0.846 0.673 ...
 #>   .. ..$ cells  :'data.frame':   100 obs. of  4 variables:
 #>   .. .. ..$ id_cell: int [1:100] 1 2 3 4 5 6 7 8 9 10 ...
-#>   .. .. ..$ e      : num [1:100] 356 561 872 564 528 ...
-#>   .. .. ..$ pacl   : num [1:100] 0.0784 0.1237 0.1922 0.1243 0.1164 ...
-#>   .. .. ..$ punobs : num [1:100] 0.269 0.625 0.848 0.723 0.369 ...
-#>  $ input :List of 3
+#>   .. .. ..$ e      : num [1:100] 324 553 872 564 528 ...
+#>   .. .. ..$ pacl   : num [1:100] 0.0714 0.122 0.1922 0.1243 0.1164 ...
+#>   .. .. ..$ punobs : num [1:100] 0.238 0.616 0.848 0.723 0.369 ...
+#>  $ input :List of 2
 #>   ..$ sl_stand          :List of 7
 #>   .. ..$ trees       :'data.frame':  333 obs. of  21 variables:
 #>   .. .. ..$ id_tree       : int [1:333] 1 2 3 4 5 6 7 8 9 10 ...
@@ -246,19 +276,19 @@ str(out)
 #>   .. ..$ month  : int [1:12] 1 2 3 4 5 6 7 8 9 10 ...
 #>   .. ..$ Hrad   : num [1:12] 137 206 354 466 535 ...
 #>   .. ..$ DGratio: num [1:12] 0.581 0.507 0.493 0.49 0.509 ...
-#>   ..$ params            :List of 13
-#>   .. ..$ detailed_output   : logi FALSE
-#>   .. ..$ start_day         : num 1
-#>   .. ..$ end_day           : num 365
-#>   .. ..$ soc               : logi TRUE
-#>   .. ..$ use_torus         : logi TRUE
-#>   .. ..$ turbid_medium     : logi TRUE
-#>   .. ..$ extinction_coef   : num 0.5
-#>   .. ..$ clumping_factor   : num 1
-#>   .. ..$ trunk_interception: logi TRUE
-#>   .. ..$ height_anglemin   : num 10
-#>   .. ..$ direct_startoffset: num 0
-#>   .. ..$ direct_anglestep  : num 5
-#>   .. ..$ diffuse_anglestep : num 15
+#>  $ params:List of 13
+#>   ..$ detailed_output   : logi FALSE
+#>   ..$ start_day         : num 1
+#>   ..$ end_day           : num 365
+#>   ..$ soc               : logi TRUE
+#>   ..$ use_torus         : logi TRUE
+#>   ..$ turbid_medium     : logi TRUE
+#>   ..$ extinction_coef   : num 0.5
+#>   ..$ clumping_factor   : num 1
+#>   ..$ trunk_interception: logi TRUE
+#>   ..$ height_anglemin   : num 10
+#>   ..$ direct_startoffset: num 0
+#>   ..$ direct_anglestep  : num 5
+#>   ..$ diffuse_anglestep : num 15
 #>  - attr(*, "class")= chr [1:2] "sl_output" "list"
 ```

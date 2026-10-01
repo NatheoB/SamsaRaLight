@@ -19,8 +19,7 @@ check_sensors(sensors, verbose = TRUE)
 
   id_sensor
 
-  :   Unique identifier of the sensor (numeric or character, no
-      duplicates)
+  :   Unique identifier of the sensor (positive integer, no duplicates)
 
   x
 

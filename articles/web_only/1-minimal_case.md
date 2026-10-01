@@ -366,15 +366,16 @@ use of the package and the model.
 ## Simulation output
 
 The output is a complex S3 R object, with first a list of two elements:
-`$input` (that gathers inputs of the model defined above
-`$input$sl_stand` and `$input$monthly_radiations`, associated to the
-parameters of the simulation `$input$params`) and `$output` that
-essentially contains output light variables at the tree-level
-`output$light$trees` and at the cell-level `output$light$cells`. You can
-also observe `output$light$sensors` that are the light output at a
-located virtual light sensor, but this is discussed in the Tutorial 6
-(6 - Add virtual sensors on the ground). Optionnaly, the user can set
-the
+(1) `$output` that essentially contains output light variables at the
+tree-level `output$light$trees` and at the cell-level
+`output$light$cells`, and (2) `$params` with all of the ray-tracing
+parameters. If the function argument `include_input = TRUE`, thus the
+output object also include a list `$input` that gathers inputs of the
+model defined above `$input$sl_stand` and `$input$monthly_radiations`.
+In the `$output` list, you can also observe `output$light$sensors` that
+are the light output at a located virtual light sensor, but this is
+discussed in the Tutorial 6 (6 - Add virtual sensors on the ground).
+Optionally, the user can set the
 [`run_sl()`](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)
 function argument `detailed_output` to TRUE in order to have more
 information about the rays discretisation and interceptions, but it is
@@ -385,12 +386,15 @@ cell-level output light variables, stored in `output$light`.
 The object `$output$cells` contains output light variables for each
 cell, identified by its unique id (`id_cell`, linked to the input cell
 dataframe `sl_output$input$sl_stand$cells` to retrive cell center
-coordinates). There are 3 output variables, which are `e` (for the
-energy arriving on the cell in MJ/m2), `pacl` (for proportion of above
-light canopy, which is the ratio between the energy arriving on the cell
-and the energy before interception by the trees) and `punobs` (for the
-proportion of energy on the cell that comes from unobstructed rays,
-i.e. rays that have not been intercepted by any trees).
+coordinates). There are 3 output variables:
+
+- `e` (for the energy arriving on the cell in MJ/m2)
+- `pacl` (for proportion of above light canopy, which is the ratio
+  between the energy arriving on the cell and the energy before
+  interception by the trees)
+- `punobs` (for the proportion of energy on the cell that comes from
+  unobstructed rays, i.e. rays that have not been intercepted by any
+  trees).
 
 ``` r
 
@@ -403,27 +407,37 @@ str(sl_output$output$light$cells)
 ```
 
 The object `$output$trees` contains output light variables for each
-trees, identified by its unique id (`id_tree`). There are 4 output
-variables, which are `e` (for the total energy intercepted by the tree
-in MJ), `epot` (for the potential energy intercepted by the tree without
-considering its neighbors in MJ, i.e. the total energy intercepted if
-the tree was alone with the same crown dimensions), $`lci = 1 - e/epot`$
-(which is a light competition index and a good proxy for tree dynamics,
-see Beauchamp et al. 2025, representing the real intercepted energy
-compared to the potential energy it could intercept without competition)
-and `punobs` (for the proportion of energy intercepted by the tree that
-comes from unobstructed rays, i.e. rays that have not been intercepted
-by any other trees).
+trees, identified by its unique id (`id_tree`). There are 5 output
+variables:
+
+- `e` (for the total energy intercepted by the tree in MJ)
+- `epot` (for the potential energy intercepted by the tree without
+  considering its neighbors in MJ, i.e. the total energy intercepted if
+  the tree was alone with the same crown dimensions)
+- $`lci = 1 - e/epot`$ (which is a light competition index and a good
+  proxy for tree dynamics, see Beauchamp et al. 2025, representing the
+  real intercepted energy compared to the potential energy it could
+  intercept without competition)
+- `punobs` (for the proportion of energy intercepted by the tree that
+  comes from unobstructed rays, i.e. rays that have not been intercepted
+  by any other trees)
+- `rci` (for ray competition index, which is defined as 1 - ratio of the
+  number of unobstructed intercepted rays to the total number of
+  intercepted rays, which is a competition index before considering
+  energy absorption by intercepted rays. It was used in Beauchamp et
+  al. (in writing) to predict the effect of light competition on LAD,
+  thus we needed to compute an index that does not include LAD in its
+  computation).
 
 ``` r
 
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  6 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  413463 276859 225284 89900 233586 ...
-#>  $ e      : num  117256 100889 58740 16554 8306 ...
+#>  $ epot   : num  413561 276850 225259 89900 233575 ...
+#>  $ e      : num  117282 100888 58740 16554 8306 ...
 #>  $ lci    : num  0.716 0.636 0.739 0.816 0.964 ...
-#>  $ eunobs : num  90239 87856 49288 12039 1494 ...
+#>  $ eunobs : num  90257 87856 49288 12039 1494 ...
 #>  $ rci    : num  0.857 0.761 0.874 0.908 0.995 ...
 ```
 
@@ -464,19 +478,19 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :  11236   Min.   :   650.7   Min.   :0.07585  
-#>  1st Qu.: 171437   1st Qu.: 23636.7   1st Qu.:0.58661  
-#>  Median : 307563   Median : 71046.7   Median :0.73871  
-#>  Mean   : 334438   Mean   :118529.6   Mean   :0.70667  
-#>  3rd Qu.: 468721   3rd Qu.:183655.6   3rd Qu.:0.85223  
-#>  Max.   :1044815   Max.   :750822.2   Max.   :0.99318  
+#>  Min.   :  11234   Min.   :   650.7   Min.   :0.07584  
+#>  1st Qu.: 171437   1st Qu.: 23636.7   1st Qu.:0.58659  
+#>  Median : 307534   Median : 71047.0   Median :0.73864  
+#>  Mean   : 334464   Mean   :118538.2   Mean   :0.70668  
+#>  3rd Qu.: 468698   3rd Qu.:183654.9   3rd Qu.:0.85199  
+#>  Max.   :1044707   Max.   :750822.2   Max.   :0.99319  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e                pacl             punobs      
 #>  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  
-#>  1st Qu.: 375.74   1st Qu.:0.08285   1st Qu.:0.3981  
-#>  Median : 559.52   Median :0.12337   Median :0.5676  
+#>  1st Qu.: 375.82   1st Qu.:0.08287   1st Qu.:0.3981  
+#>  Median : 559.57   Median :0.12338   Median :0.5676  
 #>  Mean   : 604.63   Mean   :0.13332   Mean   :0.5389  
 #>  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7046  
 #>  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  

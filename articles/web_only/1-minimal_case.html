@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../../index.html">SamsaRaLight</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -418,32 +418,39 @@ model.</p>
 <h2 id="simulation-output">Simulation output<a class="anchor" aria-label="anchor" href="#simulation-output"></a>
 </h2>
 <p>The output is a complex S3 R object, with first a list of two
-elements: <code>$input</code> (that gathers inputs of the model defined
-above <code>$input$sl_stand</code> and
-<code>$input$monthly_radiations</code>, associated to the parameters of
-the simulation <code>$input$params</code>) and <code>$output</code> that
-essentially contains output light variables at the tree-level
-<code>output$light$trees</code> and at the cell-level
-<code>output$light$cells</code>. You can also observe
-<code>output$light$sensors</code> that are the light output at a located
-virtual light sensor, but this is discussed in the Tutorial 6 (6 - Add
-virtual sensors on the ground). Optionnaly, the user can set the
-<code><a href="../../reference/run_sl.html">run_sl()</a></code> function argument <code>detailed_output</code> to
-TRUE in order to have more information about the rays discretisation and
-interceptions, but it is also discussed further in the next tutorial (2
-- Understand ray-tracing). In this tutorial, we will focus here on both
-the tree- and cell-level output light variables, stored in
-<code>output$light</code>.</p>
+elements: (1) <code>$output</code> that essentially contains output
+light variables at the tree-level <code>output$light$trees</code> and at
+the cell-level <code>output$light$cells</code>, and (2)
+<code>$params</code> with all of the ray-tracing parameters. If the
+function argument <code>include_input = TRUE</code>, thus the output
+object also include a list <code>$input</code> that gathers inputs of
+the model defined above <code>$input$sl_stand</code> and
+<code>$input$monthly_radiations</code>. In the <code>$output</code>
+list, you can also observe <code>output$light$sensors</code> that are
+the light output at a located virtual light sensor, but this is
+discussed in the Tutorial 6 (6 - Add virtual sensors on the ground).
+Optionally, the user can set the <code><a href="../../reference/run_sl.html">run_sl()</a></code> function argument
+<code>detailed_output</code> to TRUE in order to have more information
+about the rays discretisation and interceptions, but it is also
+discussed further in the next tutorial (2 - Understand ray-tracing). In
+this tutorial, we will focus here on both the tree- and cell-level
+output light variables, stored in <code>output$light</code>.</p>
 <p>The object <code>$output$cells</code> contains output light variables
 for each cell, identified by its unique id (<code>id_cell</code>, linked
 to the input cell dataframe <code>sl_output$input$sl_stand$cells</code>
-to retrive cell center coordinates). There are 3 output variables, which
-are <code>e</code> (for the energy arriving on the cell in MJ/m2),
-<code>pacl</code> (for proportion of above light canopy, which is the
-ratio between the energy arriving on the cell and the energy before
-interception by the trees) and <code>punobs</code> (for the proportion
-of energy on the cell that comes from unobstructed rays, i.e. rays that
-have not been intercepted by any trees).</p>
+to retrive cell center coordinates). There are 3 output variables:</p>
+<ul>
+<li>
+<code>e</code> (for the energy arriving on the cell in MJ/m2)</li>
+<li>
+<code>pacl</code> (for proportion of above light canopy, which is
+the ratio between the energy arriving on the cell and the energy before
+interception by the trees)</li>
+<li>
+<code>punobs</code> (for the proportion of energy on the cell that
+comes from unobstructed rays, i.e. rays that have not been intercepted
+by any trees).</li>
+</ul>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">cells</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    10000 obs. of  4 variables:</span></span>
@@ -453,26 +460,42 @@ have not been intercepted by any trees).</p>
 <span><span class="co">#&gt;  $ punobs : num  0.357 0.449 0.518 0.479 0.394 ...</span></span></code></pre></div>
 <p>The object <code>$output$trees</code> contains output light variables
 for each trees, identified by its unique id (<code>id_tree</code>).
-There are 4 output variables, which are <code>e</code> (for the total
-energy intercepted by the tree in MJ), <code>epot</code> (for the
-potential energy intercepted by the tree without considering its
-neighbors in MJ, i.e. the total energy intercepted if the tree was alone
-with the same crown dimensions),
+There are 5 output variables:</p>
+<ul>
+<li>
+<code>e</code> (for the total energy intercepted by the tree in
+MJ)</li>
+<li>
+<code>epot</code> (for the potential energy intercepted by the tree
+without considering its neighbors in MJ, i.e. the total energy
+intercepted if the tree was alone with the same crown dimensions)</li>
+<li>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>l</mi><mi>c</mi><mi>i</mi><mo>=</mo><mn>1</mn><mo>−</mo><mi>e</mi><mi>/</mi><mi>e</mi><mi>p</mi><mi>o</mi><mi>t</mi></mrow><annotation encoding="application/x-tex">lci = 1 - e/epot</annotation></semantics></math>
 (which is a light competition index and a good proxy for tree dynamics,
 see Beauchamp et al. 2025, representing the real intercepted energy
-compared to the potential energy it could intercept without competition)
-and <code>punobs</code> (for the proportion of energy intercepted by the
+compared to the potential energy it could intercept without
+competition)</li>
+<li>
+<code>punobs</code> (for the proportion of energy intercepted by the
 tree that comes from unobstructed rays, i.e. rays that have not been
-intercepted by any other trees).</p>
+intercepted by any other trees)</li>
+<li>
+<code>rci</code> (for ray competition index, which is defined as 1 -
+ratio of the number of unobstructed intercepted rays to the total number
+of intercepted rays, which is a competition index before considering
+energy absorption by intercepted rays. It was used in Beauchamp et
+al. (in writing) to predict the effect of light competition on LAD, thus
+we needed to compute an index that does not include LAD in its
+computation).</li>
+</ul>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    333 obs. of  6 variables:</span></span>
 <span><span class="co">#&gt;  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...</span></span>
-<span><span class="co">#&gt;  $ epot   : num  413463 276859 225284 89900 233586 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  117256 100889 58740 16554 8306 ...</span></span>
+<span><span class="co">#&gt;  $ epot   : num  413561 276850 225259 89900 233575 ...</span></span>
+<span><span class="co">#&gt;  $ e      : num  117282 100888 58740 16554 8306 ...</span></span>
 <span><span class="co">#&gt;  $ lci    : num  0.716 0.636 0.739 0.816 0.964 ...</span></span>
-<span><span class="co">#&gt;  $ eunobs : num  90239 87856 49288 12039 1494 ...</span></span>
+<span><span class="co">#&gt;  $ eunobs : num  90257 87856 49288 12039 1494 ...</span></span>
 <span><span class="co">#&gt;  $ rci    : num  0.857 0.761 0.874 0.908 0.995 ...</span></span></code></pre></div>
 <p>The user can observe the output of the SamsaRaLight simulation object
 (<code>sl_output</code> S3 object) using the base functions
@@ -504,19 +527,19 @@ confusing without precise legend.</p>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
 <span><span class="co">#&gt;       epot               e                 lci         </span></span>
-<span><span class="co">#&gt;  Min.   :  11236   Min.   :   650.7   Min.   :0.07585  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 171437   1st Qu.: 23636.7   1st Qu.:0.58661  </span></span>
-<span><span class="co">#&gt;  Median : 307563   Median : 71046.7   Median :0.73871  </span></span>
-<span><span class="co">#&gt;  Mean   : 334438   Mean   :118529.6   Mean   :0.70667  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 468721   3rd Qu.:183655.6   3rd Qu.:0.85223  </span></span>
-<span><span class="co">#&gt;  Max.   :1044815   Max.   :750822.2   Max.   :0.99318  </span></span>
+<span><span class="co">#&gt;  Min.   :  11234   Min.   :   650.7   Min.   :0.07584  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 171437   1st Qu.: 23636.7   1st Qu.:0.58659  </span></span>
+<span><span class="co">#&gt;  Median : 307534   Median : 71047.0   Median :0.73864  </span></span>
+<span><span class="co">#&gt;  Mean   : 334464   Mean   :118538.2   Mean   :0.70668  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 468698   3rd Qu.:183654.9   3rd Qu.:0.85199  </span></span>
+<span><span class="co">#&gt;  Max.   :1044707   Max.   :750822.2   Max.   :0.99319  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
 <span><span class="co">#&gt;        e                pacl             punobs      </span></span>
 <span><span class="co">#&gt;  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 375.74   1st Qu.:0.08285   1st Qu.:0.3981  </span></span>
-<span><span class="co">#&gt;  Median : 559.52   Median :0.12337   Median :0.5676  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 375.82   1st Qu.:0.08287   1st Qu.:0.3981  </span></span>
+<span><span class="co">#&gt;  Median : 559.57   Median :0.12338   Median :0.5676  </span></span>
 <span><span class="co">#&gt;  Mean   : 604.63   Mean   :0.13332   Mean   :0.5389  </span></span>
 <span><span class="co">#&gt;  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7046  </span></span>
 <span><span class="co">#&gt;  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  </span></span>

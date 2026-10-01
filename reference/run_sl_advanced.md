@@ -1,9 +1,10 @@
 # Compute advanced SamsaRaLight radiative balance
 
-This function runs the full light interception and radiative balance
-simulation for a virtual forest stand with advanced parameters. It
-allows customization of ray discretization, sky type and trunk
-interception.
+Runs the full light interception and radiative balance simulation for a
+virtual forest stand with advanced ray-tracing and interception
+parameters. This function provides full control over ray discretization,
+sky model, crown interception model, trunk interception, and parallel
+computation.
 
 ## Usage
 
@@ -35,123 +36,168 @@ run_sl_advanced(
 
 - sl_stand:
 
-  An object of class `"sl_stand"` representing the virtual stand. Each
-  row is a tree with required and optional columns describing crown
-  geometry, height, crown radius, crown openness, LAD, etc. See
+  An object of class `"sl_stand"` representing the virtual forest stand.
+  Each row of `sl_stand$trees` represents a tree, with required and
+  optional columns describing crown geometry, tree height, crown radius,
+  crown openness, leaf area density, and related attributes. See
   [validate_sl_stand](https://natheob.github.io/SamsaRaLight/reference/validate_sl_stand.md).
 
 - monthly_radiations:
 
-  data.frame of monthly horizontal radiation (Hrad) and diffuse to
-  global ratio (DGratio), computed with
+  A data frame containing monthly horizontal radiation (`Hrad`) and
+  diffuse-to-global radiation ratios (`DGratio`), typically computed
+  with
   [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md).
 
 - sensors_only:
 
-  logical, if TRUE, compute interception only for sensors
+  Logical. If `TRUE`, compute light interception only for sensors.
+  Defaults to `FALSE`.
 
 - use_torus:
 
-  logical, if TRUE, use torus system for borders
+  Logical. If `TRUE`, use a torus system to handle stand borders.
+  Defaults to `TRUE`.
 
 - turbid_medium:
 
-  logical, if TRUE, crowns are considered turbid medium (using column
-  `crown_lad`), else porous envelope (using column `crown_openess`)
+  Logical. If `TRUE`, crowns are represented as turbid media using
+  `crown_lad`. If `FALSE`, crowns are represented as porous envelopes
+  using `crown_openess`. Defaults to `TRUE`.
 
 - extinction_coef:
 
   Numeric scalar. Leaf extinction coefficient controlling the
-  probability that a ray is intercepted by foliage. It represents the
-  effective light attenuation per unit leaf area and is linked to
-  average leaf orientation. Higher values increase interception (default
-  = 0.5).
+  attenuation of radiation by foliage. It represents the effective light
+  attenuation per unit leaf area and is related to average leaf
+  orientation. Higher values increase light interception. Defaults to
+  `0.5`.
 
 - clumping_factor:
 
-  Numeric scalar controlling the aggregation of leaves within the crown
-  volume. A value of 1 corresponds to a homogeneous (random) foliage
-  distribution; values \< 1 indicate clumped foliage, and values \> 1
-  indicate more regular spacing. This modifies effective light
-  interception in the turbid medium model (default = 1).
+  Numeric scalar controlling the aggregation of foliage within the crown
+  volume. A value of `1` corresponds to homogeneous foliage
+  distribution, values below `1` indicate clumped foliage, and values
+  above `1` indicate more regular spacing. This parameter affects light
+  interception in the turbid-medium model. Defaults to `1`.
 
 - trunk_interception:
 
-  logical, if TRUE, account for trunk interception
+  Logical. If `TRUE`, account for interception by tree trunks. Defaults
+  to `TRUE`.
 
 - height_anglemin:
 
-  numeric, minimum altitude angle for rays (degrees)
+  Numeric. Minimum altitude angle of rays, in degrees. Defaults to `10`.
 
 - direct_startoffset:
 
-  numeric, starting angle of first direct ray (degrees)
+  Numeric. Starting angle of the first direct ray, in degrees. Defaults
+  to `0`.
 
 - direct_anglestep:
 
-  numeric, hour angle step between direct rays (degrees)
+  Numeric. Angular step between direct rays, in degrees. Defaults to
+  `5`.
 
 - diffuse_anglestep:
 
-  numeric, hour angle step between diffuse rays (degrees)
+  Numeric. Angular step between diffuse rays, in degrees. Defaults to
+  `15`.
 
 - soc:
 
-  logical, if TRUE, use Standard Overcast Sky; if FALSE, Uniform
-  Overcast Sky
+  Logical. If `TRUE`, use the Standard Overcast Sky model; if `FALSE`,
+  use the Uniform Overcast Sky model. Defaults to `TRUE`.
 
 - start_day:
 
-  integer, first day of the vegetative period (1–365)
+  Numeric. First day of the simulated vegetative period, between 1
+  and 365. Defaults to `1`.
 
 - end_day:
 
-  integer, last day of the vegetative period (1–365)
+  Numeric. Last day of the simulated vegetative period, between 1
+  and 365. Must be greater than or equal to `start_day`. Defaults to
+  `365`.
 
 - detailed_output:
 
-  logical, if TRUE, include detailed rays, energies, and interception
-  matrices
+  Logical. If `TRUE`, retain detailed ray, energy, and interception
+  information in the output. If `FALSE`, only the main
+  light-interception metrics are retained. Defaults to `FALSE`.
 
 - parallel_mode:
 
-  logical. If TRUE, ray–target computations are parallelised using
-  OpenMP. If FALSE, the model runs in single-thread mode.
+  Logical. If `TRUE`, ray–target computations are parallelised using
+  OpenMP. If `FALSE`, the model runs in single-thread mode. Defaults to
+  `FALSE`.
 
 - n_threads:
 
-  integer or NULL. Number of CPU threads to use when
-  `parallel_mode = TRUE`. If NULL (default), OpenMP automatically
-  selects the number of available cores. If provided, must be a positive
-  integer.
+  Integer or `NULL`. Number of CPU threads to use when
+  `parallel_mode = TRUE`. If `NULL`, OpenMP automatically selects the
+  number of available threads. If supplied, must be a positive integer.
+  Defaults to `NULL`.
 
 - verbose:
 
-  Logical; if `TRUE`, informative messages are printed.
+  Logical. If `TRUE`, print informative messages during the simulation,
+  including OpenMP status. Defaults to `TRUE`.
 
 ## Value
 
-An object of class `"sl_output"` (list) containing:
+An object of class `"sl_output"` (a list) containing:
 
-- `light`: list with simulation outputs for trees, cells, and sensors
+- `output`: A list containing the simulation results:
 
-- `info`: list with run metadata (latitude, days, sky type, etc.)
+  - `light`: Light-interception results for trees, cells, and sensors.
+    When `detailed_output = FALSE`, these contain the main output
+    metrics only.
 
-- `monthly_rays` (if detailed_output = TRUE): ray discretization per
-  month
+  - `monthly_rays`: The generated monthly ray discretization and
+    associated radiation energies. Returned only when
+    `detailed_output = TRUE`.
 
-- `interceptions` (if detailed_output = TRUE): tree/cell interception
-  matrices
+  - `interceptions`: Detailed tree/cell interception matrices. Returned
+    only when `detailed_output = TRUE`.
+
+- `params`: A list containing the simulation parameters, including the
+  simulated period, sky model, ray discretization, crown interception
+  model, and interception parameters.
+
+- `input`: A list containing the original `sl_stand` and
+  `monthly_radiations` objects. Returned only when
+  `include_input = TRUE`.
+
+When `detailed_output = FALSE`, the main output tables contain:
+
+- `light$sensors`: `id_sensor`, `e`, `pacl`, and `punobs`;
+
+- `light$cells`: `id_cell`, `e`, `pacl`, and `punobs`;
+
+- `light$trees`: `id_tree`, `epot`, `e`, `lci`, `eunobs`, and `rci`.
 
 ## Details
 
-For typical use, see the simpler
-[run_sl](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)
-wrapper that sets standard discretization parameters for most users.
+For typical use, see
+[run_sl](https://natheob.github.io/SamsaRaLight/reference/run_sl.md),
+which provides standard values for the ray-discretization parameters.
 
-This advanced function exposes all ray tracing parameters and is
-intended for users who need full control over ray discretization and
-modeling options. For most users, see
-[run_sl](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)
-which wraps this function with default parameters suitable for standard
-runs.
+This advanced function exposes all ray-tracing parameters used by
+[`create_sl_rays`](https://natheob.github.io/SamsaRaLight/reference/create_sl_rays.md)
+and the interception model used by the underlying C++ simulation. It is
+intended for users who need fine control over ray discretization, sky
+conditions, crown representation, or computational settings.
+
+Before running the simulation, the function validates the stand, monthly
+radiation data, interception-model configuration, logical and numeric
+parameters, simulation period, and number of OpenMP threads.
+
+BLAS and OpenMP thread counts are configured to avoid competing parallel
+execution. When `parallel_mode = TRUE`, the number of OpenMP threads can
+be controlled with `n_threads`.
+
+For most users,
+[run_sl](https://natheob.github.io/SamsaRaLight/reference/run_sl.md) is
+recommended because it provides standard ray-discretization parameters.

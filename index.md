@@ -30,8 +30,8 @@ You can install the development version of SamsaRaLight from
 
 ``` r
 
-install.packages("devtools")
-devtools::install_github("NatheoB/SamsaRaLight")
+install.packages("pak")
+pak::pkg_install("NatheoB/SamsaRaLight")
 ```
 
 ## Citation
