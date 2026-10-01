@@ -9,6 +9,7 @@ if (getRversion() >= "2.15.1") utils::globalVariables(
     "X", "Y", "z", "r", "x_center", "y_center", "z_center", "id_cell",
     "month", "year", "Hrad", "DGratio",
     "added_to_fill", "view", "pos", "r_left_m", "r_right_m",
-    "id_sensor", "e", "pacl", "punobs", "epot", "lci", "eunobs", "zval"
+    "id_sensor", "e", "pacl", "punobs", "epot", "lci", "eunobs", "rci",
+    "zval"
   )
 )
