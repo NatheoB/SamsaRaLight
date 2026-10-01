@@ -1,69 +1,102 @@
 #' Run SamsaRaLight radiative balance
 #'
-#' This function computes light interception and radiative balance for a forest
-#' stand using the SamsaRaLight ray-tracing engine.
+#' Computes light interception and radiative balance for a forest stand using
+#' the SamsaRaLight ray-tracing engine.
 #'
-#' It is the **standard user interface** of SamsaRaLight.  
-#' Advanced ray-tracing and sky discretization parameters are internally set to
-#' robust defaults and do not need to be provided.
+#' This function is the standard user interface to SamsaRaLight. Advanced
+#' ray-tracing, sky-discretization, and interception parameters are internally
+#' set to standard values and do not need to be provided.
 #'
-#' @param sl_stand An object of class \code{"sl_stand"} describing the forest stand,
-#'   created with \link{create_sl_stand}. It contains trees, sensors, terrain,
-#'   and grid geometry.
-#'
-#' @param monthly_radiations A data.frame of monthly horizontal radiation
-#'   (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global ratio
-#'   (\code{DGratio}), typically obtained using
-#'   \link{get_monthly_radiations} and checked using \link{check_monthly_radiations}..
-#'
-#' @param sensors_only Logical.  
-#' If \code{TRUE}, compute light interception only for sensors (much faster).
-#'
-#' @param detailed_output Logical.  
-#' If \code{TRUE}, the output contains detailed diffuse/direct energies in the \code{light} datasets, full
-#' interception matrices \code{interceptions} and output of ray discretization \code{monthy_rays}.  
-#' If \code{FALSE}, only total energies are returned (recommended for most uses).
-#'
-#' @param parallel_mode logical. If TRUE, ray–target computations are parallelised
-#'   using OpenMP. If FALSE, the model runs in single-thread mode. SamsaRaLight uses OpenMP for ray–target parallelisation. To avoid competition
-#'   between OpenMP and BLAS (matrix algebra libraries), BLAS is automatically forced
-#'   to single-thread mode during the simulation. Using \code{parallel_mode = TRUE} is strongly recommended for large stands
-#'   or fine ray discretisation, as computation time scales almost linearly with
-#'   the number of available CPU cores.
-#'   
-#' @param n_threads integer or NULL. Number of CPU threads to use when
-#'   \code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
-#'   the number of available cores. If provided, must be a positive integer.
-#'
-#' @param verbose Logical; if \code{TRUE}, informative messages are printed.
+#' @param sl_stand An object of class \code{"sl_stand"} describing the forest
+#'   stand, typically created with \link{create_sl_stand}. It contains tree,
+#'   sensor, terrain, and grid geometry information.
+#' @param monthly_radiations A data frame containing monthly horizontal
+#'   radiation (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global
+#'   radiation ratio (\code{DGratio}), typically obtained with
+#'   \link{get_monthly_radiations}. The input is validated internally using
+#'   \link{check_monthly_radiations}.
+#' @param sensors_only Logical. If \code{TRUE}, compute light interception only
+#'   for sensors. This can substantially reduce computation time when only
+#'   sensor-level results are required. Defaults to \code{FALSE}.
+#' @param include_input Logical. If \code{TRUE}, include the input
+#'   \code{sl_stand} and \code{monthly_radiations} objects in the returned
+#'   object. Defaults to \code{FALSE}.
+#' @param detailed_output Logical. If \code{TRUE}, retain detailed ray,
+#'   energy, and interception information, including the monthly ray
+#'   discretization and interception matrices. If \code{FALSE}, only the main
+#'   light-interception metrics are returned. Defaults to \code{FALSE}.
+#' @param parallel_mode Logical. If \code{TRUE}, ray--target computations are
+#'   parallelised using OpenMP. If \code{FALSE}, the model runs in
+#'   single-thread mode. BLAS is automatically forced to single-thread mode
+#'   during the simulation to avoid competition between BLAS and OpenMP.
+#'   Parallel execution can substantially reduce computation time for large
+#'   stands or fine ray discretization. Defaults to \code{FALSE}.
+#' @param n_threads Integer or \code{NULL}. Number of CPU threads to use when
+#'   \code{parallel_mode = TRUE}. If \code{NULL}, OpenMP automatically selects
+#'   the number of available threads. If supplied, must be a positive integer.
+#'   Defaults to \code{NULL}.
+#' @param verbose Logical. If \code{TRUE}, print informative messages during
+#'   the simulation, including OpenMP status. Defaults to \code{TRUE}.
 #'
 #' @details
-#' Internally, \code{run_sl()} calls the advanced engine
-#' \code{run_sl_advanced()} with fixed ray-tracing and sky discretization.
+#' Internally, \code{run_sl()} calls \link{run_sl_advanced} using standard
+#' ray-tracing, sky-discretization, and interception parameters:
+#' \itemize{
+#'   \item torus borders are enabled;
+#'   \item crowns are represented as turbid media;
+#'   \item the leaf extinction coefficient is \code{0.5};
+#'   \item the clumping factor is \code{1};
+#'   \item trunk interception is enabled;
+#'   \item the minimum ray altitude angle is \code{10} degrees;
+#'   \item direct rays use a starting offset of \code{0} degrees and an
+#'     angular step of \code{5} degrees;
+#'   \item diffuse rays use an angular step of \code{15} degrees;
+#'   \item the Standard Overcast Sky model is used;
+#'   \item the full year (days 1--365) is simulated.
+#' }
 #'
-#' You should normally **not** use \code{SamsaRaLight:::run_sl_advanced()} directly unless you
-#' are developing new ray-tracing configurations or doing methodological work.
+#' These defaults are intended for standard SamsaRaLight simulations. Users
+#' requiring control over these parameters can use \link{run_sl_advanced}
+#' directly.
 #'
-#' @return An object of class \code{"sl_output"}, containing:
-#' \describe{
-#'   \item{light}{
-#'     A list of data.frames with simulated light interception:
+#' When \code{parallel_mode = TRUE}, SamsaRaLight uses OpenMP to parallelise
+#' ray--target computations. BLAS is configured to use a single thread during
+#' the simulation to avoid competing parallel execution.
+#'
+#' @return An object of class \code{"sl_output"} (a list) containing:
+#' \itemize{
+#'   \item \code{output}: A list containing the simulation results:
 #'     \itemize{
-#'       \item \code{trees}: light intercepted by trees
-#'       \item \code{cells}: light received by ground cells
-#'       \item \code{sensors}: light received by sensors
+#'       \item \code{light}: A list containing light-interception results for
+#'         trees, ground cells, and sensors.
+#'       \item \code{monthly_rays}: The monthly ray discretization and
+#'         associated radiation energies. Returned only when
+#'         \code{detailed_output = TRUE}.
+#'       \item \code{interceptions}: Detailed interception matrices. Returned
+#'         only when \code{detailed_output = TRUE}.
 #'     }
-#'   }
-#'   \item{info}{
-#'     A list of metadata about the simulation (latitude, sky type, torus use, etc.).
-#'   }
-#'   \item{monthly_rays}{(only if \code{detailed_output = TRUE}) Discretization of monthly radiations}
-#'   \item{interceptions}{(only if \code{detailed_output = TRUE}) interception matrices between trees and rays for each cell/sensor}
+#'   \item \code{params}: A list containing the simulation parameters,
+#'     including the simulated period, sky model, ray-discretization
+#'     parameters, and interception-model parameters.
+#'   \item \code{input}: A list containing the original \code{sl_stand} and
+#'     \code{monthly_radiations} objects. Returned only when
+#'     \code{include_input = TRUE}.
+#' }
+#'
+#' When \code{detailed_output = FALSE}, the main output tables contain:
+#' \itemize{
+#'   \item \code{light$sensors}: \code{id_sensor}, \code{e}, \code{pacl},
+#'     and \code{punobs};
+#'   \item \code{light$cells}: \code{id_cell}, \code{e}, \code{pacl},
+#'     and \code{punobs};
+#'   \item \code{light$trees}: \code{id_tree}, \code{epot}, \code{e},
+#'     \code{lci}, \code{eunobs}, and \code{rci}.
 #' }
 #'
 #' @seealso
 #' \link{create_sl_stand}, \link{check_inventory}, \link{check_sensors},
-#' \link{get_monthly_radiations}, \link{check_monthly_radiations}
+#' \link{get_monthly_radiations}, \link{check_monthly_radiations},
+#' \link{run_sl_advanced}
 #'
 #' @examples
 #' data_prenovel <- SamsaRaLight::data_prenovel
@@ -82,14 +115,16 @@
 #'   sl_stand = stand,
 #'   monthly_radiations = data_prenovel$radiations
 #' )
-#' 
+#'
 #' str(out)
 #'
 #' @export
+#' 
 run_sl <- function(
     sl_stand,
     monthly_radiations,
     sensors_only = FALSE,
+    include_input = FALSE,
     detailed_output = FALSE,
     parallel_mode = FALSE,
     n_threads = NULL,
@@ -112,6 +147,7 @@ run_sl <- function(
     soc = TRUE,
     start_day = 1,
     end_day = 365,
+    include_input = include_input,
     detailed_output = detailed_output,
     parallel_mode = parallel_mode,
     n_threads = n_threads,

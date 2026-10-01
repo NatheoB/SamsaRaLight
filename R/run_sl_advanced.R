@@ -1,66 +1,131 @@
 #' Compute advanced SamsaRaLight radiative balance
 #'
-#' This function runs the full light interception and radiative balance
-#' simulation for a virtual forest stand with advanced parameters. It allows
-#' customization of ray discretization, sky type and trunk interception.  
+#' Runs the full light interception and radiative balance simulation for a
+#' virtual forest stand with advanced ray-tracing and interception parameters.
+#' This function provides full control over ray discretization, sky model,
+#' crown interception model, trunk interception, and parallel computation.
 #'
-#' For typical use, see the simpler \link{run_sl} wrapper that sets standard
-#' discretization parameters for most users.
+#' For typical use, see \link{run_sl}, which provides standard values for the
+#' ray-discretization parameters.
 #'
-#' @param sl_stand An object of class \code{"sl_stand"} representing the virtual stand.
-#'   Each row is a tree with required and optional columns describing crown geometry,
-#'   height, crown radius, crown openness, LAD, etc. See \link{validate_sl_stand}.
-#' @param monthly_radiations data.frame of monthly horizontal radiation (Hrad) and
-#'   diffuse to global ratio (DGratio), computed with \link{get_monthly_radiations}.
-#' @param sensors_only logical, if TRUE, compute interception only for sensors
-#' @param use_torus logical, if TRUE, use torus system for borders
-#' @param turbid_medium logical, if TRUE, crowns are considered turbid medium (using column `crown_lad`), else porous envelope (using column `crown_openess`)
-#' @param extinction_coef Numeric scalar. Leaf extinction coefficient controlling
-#'   the probability that a ray is intercepted by foliage. It represents the
-#'   effective light attenuation per unit leaf area and is linked to average
-#'   leaf orientation. Higher values increase interception (default = 0.5).
-#' @param clumping_factor Numeric scalar controlling the aggregation of leaves
-#'   within the crown volume. A value of 1 corresponds to a homogeneous (random)
-#'   foliage distribution; values < 1 indicate clumped foliage, and values > 1
-#'   indicate more regular spacing. This modifies effective light interception
-#'   in the turbid medium model (default = 1).
-#' @param trunk_interception logical, if TRUE, account for trunk interception
-#' @param height_anglemin numeric, minimum altitude angle for rays (degrees)
-#' @param direct_startoffset numeric, starting angle of first direct ray (degrees)
-#' @param direct_anglestep numeric, hour angle step between direct rays (degrees)
-#' @param diffuse_anglestep numeric, hour angle step between diffuse rays (degrees)
-#' @param soc logical, if TRUE, use Standard Overcast Sky; if FALSE, Uniform Overcast Sky
-#' @param start_day integer, first day of the vegetative period (1–365)
-#' @param end_day integer, last day of the vegetative period (1–365)
-#' @param detailed_output logical, if TRUE, include detailed rays, energies, and interception matrices
-#' @param parallel_mode logical. If TRUE, ray–target computations are parallelised
-#'   using OpenMP. If FALSE, the model runs in single-thread mode.
-#' @param n_threads integer or NULL. Number of CPU threads to use when
-#'   \code{parallel_mode = TRUE}. If NULL (default), OpenMP automatically selects
-#'   the number of available cores. If provided, must be a positive integer.
-#' @param verbose Logical; if \code{TRUE}, informative messages are printed.
+#' @param sl_stand An object of class \code{"sl_stand"} representing the virtual
+#'   forest stand. Each row of \code{sl_stand$trees} represents a tree, with
+#'   required and optional columns describing crown geometry, tree height,
+#'   crown radius, crown openness, leaf area density, and related attributes.
+#'   See \link{validate_sl_stand}.
+#' @param monthly_radiations A data frame containing monthly horizontal
+#'   radiation (\code{Hrad}) and diffuse-to-global radiation ratios
+#'   (\code{DGratio}), typically computed with \link{get_monthly_radiations}.
+#' @param sensors_only Logical. If \code{TRUE}, compute light interception
+#'   only for sensors. Defaults to \code{FALSE}.
+#' @param use_torus Logical. If \code{TRUE}, use a torus system to handle
+#'   stand borders. Defaults to \code{TRUE}.
+#' @param turbid_medium Logical. If \code{TRUE}, crowns are represented as
+#'   turbid media using \code{crown_lad}. If \code{FALSE}, crowns are
+#'   represented as porous envelopes using \code{crown_openess}. Defaults to
+#'   \code{TRUE}.
+#' @param extinction_coef Numeric scalar. Leaf extinction coefficient
+#'   controlling the attenuation of radiation by foliage. It represents the
+#'   effective light attenuation per unit leaf area and is related to average
+#'   leaf orientation. Higher values increase light interception. Defaults to
+#'   \code{0.5}.
+#' @param clumping_factor Numeric scalar controlling the aggregation of foliage
+#'   within the crown volume. A value of \code{1} corresponds to homogeneous
+#'   foliage distribution, values below \code{1} indicate clumped foliage,
+#'   and values above \code{1} indicate more regular spacing. This parameter
+#'   affects light interception in the turbid-medium model. Defaults to
+#'   \code{1}.
+#' @param trunk_interception Logical. If \code{TRUE}, account for interception
+#'   by tree trunks. Defaults to \code{TRUE}.
+#' @param height_anglemin Numeric. Minimum altitude angle of rays, in degrees.
+#'   Defaults to \code{10}.
+#' @param direct_startoffset Numeric. Starting angle of the first direct ray,
+#'   in degrees. Defaults to \code{0}.
+#' @param direct_anglestep Numeric. Angular step between direct rays, in
+#'   degrees. Defaults to \code{5}.
+#' @param diffuse_anglestep Numeric. Angular step between diffuse rays, in
+#'   degrees. Defaults to \code{15}.
+#' @param soc Logical. If \code{TRUE}, use the Standard Overcast Sky model;
+#'   if \code{FALSE}, use the Uniform Overcast Sky model. Defaults to
+#'   \code{TRUE}.
+#' @param start_day Numeric. First day of the simulated vegetative period,
+#'   between 1 and 365. Defaults to \code{1}.
+#' @param end_day Numeric. Last day of the simulated vegetative period,
+#'   between 1 and 365. Must be greater than or equal to \code{start_day}.
+#'   Defaults to \code{365}.
+#' @param include_input Logical. If \code{TRUE}, include the input
+#'   \code{sl_stand} and \code{monthly_radiations} objects in the returned
+#'   object. Defaults to \code{FALSE}.
+#' @param detailed_output Logical. If \code{TRUE}, retain detailed ray,
+#'   energy, and interception information in the output. If \code{FALSE},
+#'   only the main light-interception metrics are retained. Defaults to
+#'   \code{FALSE}.
+#' @param parallel_mode Logical. If \code{TRUE}, ray--target computations are
+#'   parallelised using OpenMP. If \code{FALSE}, the model runs in
+#'   single-thread mode. Defaults to \code{FALSE}.
+#' @param n_threads Integer or \code{NULL}. Number of CPU threads to use when
+#'   \code{parallel_mode = TRUE}. If \code{NULL}, OpenMP automatically selects
+#'   the number of available threads. If supplied, must be a positive integer.
+#'   Defaults to \code{NULL}.
+#' @param verbose Logical. If \code{TRUE}, print informative messages during
+#'   the simulation, including OpenMP status. Defaults to \code{TRUE}.
 #'
-#' @return An object of class \code{"sl_output"} (list) containing:
+#' @return An object of class \code{"sl_output"} (a list) containing:
 #' \itemize{
-#'   \item \code{light}: list with simulation outputs for trees, cells, and sensors
-#'   \item \code{info}: list with run metadata (latitude, days, sky type, etc.)
-#'   \item \code{monthly_rays} (if detailed_output = TRUE): ray discretization per month
-#'   \item \code{interceptions} (if detailed_output = TRUE): tree/cell interception matrices
+#'   \item \code{output}: A list containing the simulation results:
+#'     \itemize{
+#'       \item \code{light}: Light-interception results for trees, cells,
+#'         and sensors. When \code{detailed_output = FALSE}, these contain
+#'         the main output metrics only.
+#'       \item \code{monthly_rays}: The generated monthly ray discretization
+#'         and associated radiation energies. Returned only when
+#'         \code{detailed_output = TRUE}.
+#'       \item \code{interceptions}: Detailed tree/cell interception
+#'         matrices. Returned only when \code{detailed_output = TRUE}.
+#'     }
+#'   \item \code{params}: A list containing the simulation parameters,
+#'     including the simulated period, sky model, ray discretization,
+#'     crown interception model, and interception parameters.
+#'   \item \code{input}: A list containing the original \code{sl_stand} and
+#'     \code{monthly_radiations} objects. Returned only when
+#'     \code{include_input = TRUE}.
+#' }
+#'
+#' When \code{detailed_output = FALSE}, the main output tables contain:
+#' \itemize{
+#'   \item \code{light$sensors}: \code{id_sensor}, \code{e}, \code{pacl},
+#'     and \code{punobs};
+#'   \item \code{light$cells}: \code{id_cell}, \code{e}, \code{pacl},
+#'     and \code{punobs};
+#'   \item \code{light$trees}: \code{id_tree}, \code{epot}, \code{e},
+#'     \code{lci}, \code{eunobs}, and \code{rci}.
 #' }
 #'
 #' @details
-#' This advanced function exposes all ray tracing parameters and is intended
-#' for users who need full control over ray discretization and modeling options.
-#' For most users, see \link{run_sl} which wraps this function with default
-#' parameters suitable for standard runs.
+#' This advanced function exposes all ray-tracing parameters used by
+#' \code{\link{create_sl_rays}} and the interception model used by the
+#' underlying C++ simulation. It is intended for users who need fine control
+#' over ray discretization, sky conditions, crown representation, or
+#' computational settings.
+#'
+#' Before running the simulation, the function validates the stand,
+#' monthly radiation data, interception-model configuration, logical and
+#' numeric parameters, simulation period, and number of OpenMP threads.
+#'
+#' BLAS and OpenMP thread counts are configured to avoid competing parallel
+#' execution. When \code{parallel_mode = TRUE}, the number of OpenMP threads
+#' can be controlled with \code{n_threads}.
+#'
+#' For most users, \link{run_sl} is recommended because it provides standard
+#' ray-discretization parameters.
 #'
 #' @importFrom Rcpp sourceCpp
 #' @importFrom dplyr select %>%
-#' 
-#' @useDynLib SamsaRaLight, .registration = TRUE
-#' 
-#' @export
 #'
+#' @useDynLib SamsaRaLight, .registration = TRUE
+#'
+#' @export
+#' 
 run_sl_advanced <- function(
     sl_stand,
     monthly_radiations,
@@ -77,6 +142,7 @@ run_sl_advanced <- function(
     soc = TRUE,
     start_day = 1,
     end_day = 365,
+    include_input = FALSE,
     detailed_output = FALSE,
     parallel_mode = FALSE,
     n_threads = NULL,
@@ -204,26 +270,28 @@ run_sl_advanced <- function(
     output = list(
       "light" = out
     ),
-    input = list(
-      "sl_stand" = sl_stand,
-      "monthly_radiations" = monthly_radiations,
-      "params" = list(
-        "detailed_output" = detailed_output,
-        "start_day" = start_day,
-        "end_day" = end_day,
-        "soc" = soc,
-        "use_torus" = use_torus,
-        "turbid_medium" = turbid_medium,
-        "extinction_coef" = extinction_coef,
-        "clumping_factor" = clumping_factor,
-        "trunk_interception" = trunk_interception,
-        "height_anglemin" = height_anglemin,
-        "direct_startoffset" = direct_startoffset,
-        "direct_anglestep" = direct_anglestep,
-        "diffuse_anglestep" = diffuse_anglestep
-      )
+    params = list(
+      "start_day" = start_day,
+      "end_day" = end_day,
+      "soc" = soc,
+      "use_torus" = use_torus,
+      "turbid_medium" = turbid_medium,
+      "extinction_coef" = extinction_coef,
+      "clumping_factor" = clumping_factor,
+      "trunk_interception" = trunk_interception,
+      "height_anglemin" = height_anglemin,
+      "direct_startoffset" = direct_startoffset,
+      "direct_anglestep" = direct_anglestep,
+      "diffuse_anglestep" = diffuse_anglestep
     )
   )
+  
+  if (include_input) {
+    out_sl$input <- list(
+      "sl_stand" = sl_stand,
+      "monthly_radiations" = monthly_radiations
+    )
+  }
   
   if (detailed_output) {
     out_sl$output$monthly_rays <- monthly_rays
@@ -281,8 +349,8 @@ validate_sl_output <- function(x) {
     stop("`x$output` must be a list.", call. = FALSE)
   }
   
-  if (!is.list(x$input)) {
-    stop("`x$input` must be a list.", call. = FALSE)
+  if (!is.list(x$params)) {
+    stop("`x$params` must be a list.", call. = FALSE)
   }
   
   if (!"light" %in% names(x$output)) {
@@ -311,7 +379,7 @@ validate_sl_output <- function(x) {
   # ---- Minimal required columns ----
   
   # Trees
-  trees_req <- c("id_tree", "e")
+  trees_req <- c("id_tree", "e", "epot", "rci", "lci", "eunobs")
   missing_trees <- setdiff(trees_req, names(light$trees))
   if (length(missing_trees) > 0) {
     stop("`trees` output is missing column(s): ",
@@ -320,7 +388,7 @@ validate_sl_output <- function(x) {
   }
   
   # Cells
-  cells_req <- c("id_cell", "e")
+  cells_req <- c("id_cell", "e", "pacl", "punobs")
   missing_cells <- setdiff(cells_req, names(light$cells))
   if (length(missing_cells) > 0) {
     stop("`cells` output is missing column(s): ",
@@ -329,7 +397,7 @@ validate_sl_output <- function(x) {
   }
   
   # Sensors
-  sensors_req <- c("id_sensor", "e")
+  sensors_req <- c("id_sensor", "e", "pacl", "punobs")
   missing_sensors <- setdiff(sensors_req, names(light$sensors))
   if (length(missing_sensors) > 0) {
     stop("`sensors` output is missing column(s): ",

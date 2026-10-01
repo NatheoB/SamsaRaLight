@@ -32,8 +32,6 @@ test_that("Cloture stand runs correctly", {
   out <- run_sl(
     stand,
     radiations,
-    sensors_only = FALSE,
-    detailed_output = TRUE,
     parallel_mode = FALSE, 
     verbose = FALSE
   )

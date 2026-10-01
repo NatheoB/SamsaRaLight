@@ -9,7 +9,7 @@ check_sensors(sensors, verbose = TRUE)
 \arguments{
 \item{sensors}{A data.frame with one row per sensor and the following columns:
 \describe{
-\item{id_sensor}{Unique identifier of the sensor (numeric or character, no duplicates)}
+\item{id_sensor}{Unique identifier of the sensor (positive integer, no duplicates)}
 \item{x}{X position of the sensor (numeric, meters)}
 \item{y}{Y position of the sensor (numeric, meters)}
 \item{h_m}{Height above ground of the sensor (numeric, meters)}

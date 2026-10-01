@@ -9,7 +9,7 @@ check_inventory(trees_inv, verbose = TRUE)
 \arguments{
 \item{trees_inv}{A data.frame with one row per tree and the following columns:
 \describe{
-\item{id_tree}{Unique identifier of the tree (numeric or character, no duplicates).}
+\item{id_tree}{Unique identifier of the tree (positive integer, no duplicates).}
 \item{x}{X position of the tree within the stand (numeric, meters, planar coordinates).
 Optional if \code{lon} and \code{lat} are provided.}
 \item{y}{Y position of the tree within the stand (numeric, meters, planar coordinates).
