@@ -417,24 +417,32 @@ model.</p>
 <div class="section level2">
 <h2 id="simulation-output">Simulation output<a class="anchor" aria-label="anchor" href="#simulation-output"></a>
 </h2>
-<p>The output is a complex S3 R object, with first a list of two
-elements: (1) <code>$output</code> that essentially contains output
-light variables at the tree-level <code>output$light$trees</code> and at
-the cell-level <code>output$light$cells</code>, and (2)
-<code>$params</code> with all of the ray-tracing parameters. If the
-function argument <code>include_input = TRUE</code>, thus the output
-object also include a list <code>$input</code> that gathers inputs of
-the model defined above <code>$input$sl_stand</code> and
-<code>$input$monthly_radiations</code>. In the <code>$output</code>
-list, you can also observe <code>output$light$sensors</code> that are
-the light output at a located virtual light sensor, but this is
-discussed in the Tutorial 6 (6 - Add virtual sensors on the ground).
-Optionally, the user can set the <code><a href="../../reference/run_sl.html">run_sl()</a></code> function argument
-<code>detailed_output</code> to TRUE in order to have more information
-about the rays discretisation and interceptions, but it is also
-discussed further in the next tutorial (2 - Understand ray-tracing). In
-this tutorial, we will focus here on both the tree- and cell-level
-output light variables, stored in <code>output$light</code>.</p>
+<p>The output is a complex S3 R object, with first a list of three
+elements:</p>
+<ul>
+<li>
+<code>$input</code> that gathers inputs of the model defined above
+<code>$input$sl_stand</code> and
+<code>$input$monthly_radiations</code>
+</li>
+<li>
+<code>$params</code> with all of the ray-tracing parameters</li>
+<li>
+<code>$output</code> that essentially contains output light
+variables at the tree-level <code>output$light$trees</code> and at the
+cell-level <code>output$light$cells</code>
+</li>
+</ul>
+<p>In the <code>$output</code> list, you can also observe
+<code>output$light$sensors</code> that are the light output at a located
+virtual light sensor, but this is discussed in the Tutorial 6 (6 - Add
+virtual sensors on the ground). Optionally, the user can set the
+<code><a href="../../reference/run_sl.html">run_sl()</a></code> function argument <code>detailed_output</code> to
+TRUE in order to have more information about the rays discretisation and
+interceptions, but it is also discussed further in the next tutorial (2
+- Understand ray-tracing). In this tutorial, we will focus here on both
+the tree- and cell-level output light variables, stored in
+<code>output$light</code>.</p>
 <p>The object <code>$output$cells</code> contains output light variables
 for each cell, identified by its unique id (<code>id_cell</code>, linked
 to the input cell dataframe <code>sl_output$input$sl_stand$cells</code>
@@ -455,9 +463,9 @@ by any trees).</li>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">cells</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    10000 obs. of  4 variables:</span></span>
 <span><span class="co">#&gt;  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  405 375 396 390 426 ...</span></span>
-<span><span class="co">#&gt;  $ pacl   : num  0.0893 0.0827 0.0872 0.0859 0.0939 ...</span></span>
-<span><span class="co">#&gt;  $ punobs : num  0.363 0.402 0.487 0.476 0.394 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ e      : num  407 446 451 435 427 ...</span></span>
+<span><span class="co">#&gt;  $ pacl   : num  0.0897 0.0984 0.0995 0.096 0.094 ...</span></span>
+<span><span class="co">#&gt;  $ punobs : num  0.361 0.449 0.547 0.488 0.394 ...</span></span></code></pre></div>
 <p>The object <code>$output$trees</code> contains output light variables
 for each trees, identified by its unique id (<code>id_tree</code>).
 There are 5 output variables:</p>
@@ -492,11 +500,11 @@ computation).</li>
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">sl_output</span><span class="op">$</span><span class="va">output</span><span class="op">$</span><span class="va">light</span><span class="op">$</span><span class="va">trees</span><span class="op">)</span></span>
 <span><span class="co">#&gt; 'data.frame':    333 obs. of  6 variables:</span></span>
 <span><span class="co">#&gt;  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...</span></span>
-<span><span class="co">#&gt;  $ epot   : num  410851 276666 225089 89706 233401 ...</span></span>
-<span><span class="co">#&gt;  $ e      : num  115906 100840 58745 16510 8300 ...</span></span>
-<span><span class="co">#&gt;  $ lci    : num  0.718 0.636 0.739 0.816 0.964 ...</span></span>
-<span><span class="co">#&gt;  $ eunobs : num  89057 87822 49288 11988 1494 ...</span></span>
-<span><span class="co">#&gt;  $ rci    : num  0.859 0.761 0.873 0.908 0.995 ...</span></span></code></pre></div>
+<span><span class="co">#&gt;  $ epot   : num  414092 276662 225161 89839 233323 ...</span></span>
+<span><span class="co">#&gt;  $ e      : num  117721 100869 58752 16604 8303 ...</span></span>
+<span><span class="co">#&gt;  $ lci    : num  0.716 0.635 0.739 0.815 0.964 ...</span></span>
+<span><span class="co">#&gt;  $ eunobs : num  90715 87841 49288 12073 1491 ...</span></span>
+<span><span class="co">#&gt;  $ rci    : num  0.856 0.761 0.874 0.907 0.995 ...</span></span></code></pre></div>
 <p>The user can observe the output of the SamsaRaLight simulation object
 (<code>sl_output</code> S3 object) using the base functions
 <code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code>, <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> and <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code>.
@@ -527,21 +535,21 @@ confusing without precise legend.</p>
 <span><span class="co">#&gt; Trees (crown interception)</span></span>
 <span><span class="co">#&gt; ---------------------------</span></span>
 <span><span class="co">#&gt;       epot               e                 lci         </span></span>
-<span><span class="co">#&gt;  Min.   :  11236   Min.   :   650.5   Min.   :0.07584  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 171331   1st Qu.: 23636.6   1st Qu.:0.58653  </span></span>
-<span><span class="co">#&gt;  Median : 305101   Median : 71044.6   Median :0.73842  </span></span>
-<span><span class="co">#&gt;  Mean   : 334143   Mean   :118473.3   Mean   :0.70656  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 467654   3rd Qu.:183635.0   3rd Qu.:0.85188  </span></span>
-<span><span class="co">#&gt;  Max.   :1044328   Max.   :750800.2   Max.   :0.99318  </span></span>
+<span><span class="co">#&gt;  Min.   :  11225   Min.   :   651.1   Min.   :0.07627  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 171483   1st Qu.: 23641.9   1st Qu.:0.58663  </span></span>
+<span><span class="co">#&gt;  Median : 307837   Median : 71055.6   Median :0.73881  </span></span>
+<span><span class="co">#&gt;  Mean   : 334492   Mean   :118546.1   Mean   :0.70667  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 469181   3rd Qu.:183665.1   3rd Qu.:0.85178  </span></span>
+<span><span class="co">#&gt;  Max.   :1044183   Max.   :750792.7   Max.   :0.99319  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Cells (ground light)</span></span>
 <span><span class="co">#&gt; -------------------</span></span>
 <span><span class="co">#&gt;        e                pacl             punobs      </span></span>
 <span><span class="co">#&gt;  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  </span></span>
-<span><span class="co">#&gt;  1st Qu.: 375.31   1st Qu.:0.08276   1st Qu.:0.3976  </span></span>
-<span><span class="co">#&gt;  Median : 559.17   Median :0.12329   Median :0.5677  </span></span>
-<span><span class="co">#&gt;  Mean   : 604.26   Mean   :0.13324   Mean   :0.5388  </span></span>
-<span><span class="co">#&gt;  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7047  </span></span>
+<span><span class="co">#&gt;  1st Qu.: 376.70   1st Qu.:0.08306   1st Qu.:0.3983  </span></span>
+<span><span class="co">#&gt;  Median : 559.58   Median :0.12338   Median :0.5676  </span></span>
+<span><span class="co">#&gt;  Mean   : 604.88   Mean   :0.13338   Mean   :0.5389  </span></span>
+<span><span class="co">#&gt;  3rd Qu.: 780.22   3rd Qu.:0.17204   3rd Qu.:0.7044  </span></span>
 <span><span class="co">#&gt;  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  </span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; Sensors</span></span>

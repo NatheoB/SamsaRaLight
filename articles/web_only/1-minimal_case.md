@@ -365,13 +365,16 @@ use of the package and the model.
 
 ## Simulation output
 
-The output is a complex S3 R object, with first a list of two elements:
-(1) `$output` that essentially contains output light variables at the
-tree-level `output$light$trees` and at the cell-level
-`output$light$cells`, and (2) `$params` with all of the ray-tracing
-parameters. If the function argument `include_input = TRUE`, thus the
-output object also include a list `$input` that gathers inputs of the
-model defined above `$input$sl_stand` and `$input$monthly_radiations`.
+The output is a complex S3 R object, with first a list of three
+elements:
+
+- `$input` that gathers inputs of the model defined above
+  `$input$sl_stand` and `$input$monthly_radiations`
+- `$params` with all of the ray-tracing parameters
+- `$output` that essentially contains output light variables at the
+  tree-level `output$light$trees` and at the cell-level
+  `output$light$cells`
+
 In the `$output` list, you can also observe `output$light$sensors` that
 are the light output at a located virtual light sensor, but this is
 discussed in the Tutorial 6 (6 - Add virtual sensors on the ground).
@@ -401,9 +404,9 @@ coordinates). There are 3 output variables:
 str(sl_output$output$light$cells)
 #> 'data.frame':    10000 obs. of  4 variables:
 #>  $ id_cell: int  1 2 3 4 5 6 7 8 9 10 ...
-#>  $ e      : num  405 375 396 390 426 ...
-#>  $ pacl   : num  0.0893 0.0827 0.0872 0.0859 0.0939 ...
-#>  $ punobs : num  0.363 0.402 0.487 0.476 0.394 ...
+#>  $ e      : num  407 446 451 435 427 ...
+#>  $ pacl   : num  0.0897 0.0984 0.0995 0.096 0.094 ...
+#>  $ punobs : num  0.361 0.449 0.547 0.488 0.394 ...
 ```
 
 The object `$output$trees` contains output light variables for each
@@ -434,11 +437,11 @@ variables:
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  6 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  410851 276666 225089 89706 233401 ...
-#>  $ e      : num  115906 100840 58745 16510 8300 ...
-#>  $ lci    : num  0.718 0.636 0.739 0.816 0.964 ...
-#>  $ eunobs : num  89057 87822 49288 11988 1494 ...
-#>  $ rci    : num  0.859 0.761 0.873 0.908 0.995 ...
+#>  $ epot   : num  414092 276662 225161 89839 233323 ...
+#>  $ e      : num  117721 100869 58752 16604 8303 ...
+#>  $ lci    : num  0.716 0.635 0.739 0.815 0.964 ...
+#>  $ eunobs : num  90715 87841 49288 12073 1491 ...
+#>  $ rci    : num  0.856 0.761 0.874 0.907 0.995 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -478,21 +481,21 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :  11236   Min.   :   650.5   Min.   :0.07584  
-#>  1st Qu.: 171331   1st Qu.: 23636.6   1st Qu.:0.58653  
-#>  Median : 305101   Median : 71044.6   Median :0.73842  
-#>  Mean   : 334143   Mean   :118473.3   Mean   :0.70656  
-#>  3rd Qu.: 467654   3rd Qu.:183635.0   3rd Qu.:0.85188  
-#>  Max.   :1044328   Max.   :750800.2   Max.   :0.99318  
+#>  Min.   :  11225   Min.   :   651.1   Min.   :0.07627  
+#>  1st Qu.: 171483   1st Qu.: 23641.9   1st Qu.:0.58663  
+#>  Median : 307837   Median : 71055.6   Median :0.73881  
+#>  Mean   : 334492   Mean   :118546.1   Mean   :0.70667  
+#>  3rd Qu.: 469181   3rd Qu.:183665.1   3rd Qu.:0.85178  
+#>  Max.   :1044183   Max.   :750792.7   Max.   :0.99319  
 #> 
 #> Cells (ground light)
 #> -------------------
 #>        e                pacl             punobs      
 #>  Min.   :  71.97   Min.   :0.01587   Min.   :0.0000  
-#>  1st Qu.: 375.31   1st Qu.:0.08276   1st Qu.:0.3976  
-#>  Median : 559.17   Median :0.12329   Median :0.5677  
-#>  Mean   : 604.26   Mean   :0.13324   Mean   :0.5388  
-#>  3rd Qu.: 780.16   3rd Qu.:0.17202   3rd Qu.:0.7047  
+#>  1st Qu.: 376.70   1st Qu.:0.08306   1st Qu.:0.3983  
+#>  Median : 559.58   Median :0.12338   Median :0.5676  
+#>  Mean   : 604.88   Mean   :0.13338   Mean   :0.5389  
+#>  3rd Qu.: 780.22   3rd Qu.:0.17204   3rd Qu.:0.7044  
 #>  Max.   :1525.78   Max.   :0.33643   Max.   :0.9370  
 #> 
 #> Sensors
