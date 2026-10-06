@@ -9,7 +9,7 @@ Visualize ground light and tree energy metrics for a `sl_output` object.
 plot(
   x,
   ...,
-  what_trees = c("compet", "intercepted", "potential"),
+  what_trees = c("compet", "compet_rays", "intercepted", "potential"),
   what_cells = c("relative", "absolute"),
   show_trees = TRUE,
   direct_energy = NULL
@@ -34,6 +34,10 @@ plot(
   "compet"
 
   :   Light competition index (LCI), reversed viridis scale.
+
+  "compet_rays"
+
+  :   Ray competition index (RCI), reversed viridis scale.
 
   "intercepted"
 
