@@ -7,7 +7,7 @@
 \method{plot}{sl_output}(
   x,
   ...,
-  what_trees = c("compet", "intercepted", "potential"),
+  what_trees = c("compet", "compet_rays", "intercepted", "potential"),
   what_cells = c("relative", "absolute"),
   show_trees = TRUE,
   direct_energy = NULL
@@ -21,6 +21,7 @@
 \item{what_trees}{Character; which tree metric to plot. Choices are:
 \describe{
 \item{"compet"}{Light competition index (LCI), reversed viridis scale.}
+\item{"compet_rays"}{Ray competition index (RCI), reversed viridis scale.}
 \item{"intercepted"}{Intercepted energy (MJ).}
 \item{"potential"}{Potential intercepted energy (MJ).}
 }
