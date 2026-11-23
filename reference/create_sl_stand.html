@@ -21,7 +21,7 @@ to match its basal area per hectare."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">SamsaRaLight</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.0.2</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -50,7 +50,6 @@ to match its basal area per hectare."></head><body>
   </ul></li>
 <li class="active nav-item"><a class="nav-link" href="../reference/index.html">Functions</a></li>
 <li class="nav-item"><a class="nav-link" href="../news/index.html">Changelog</a></li>
-<li class="nav-item"><a class="external-link nav-link" href="https://natheob.shinyapps.io/samsaralight/">Try it online !</a></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
 <li class="nav-item"><a class="external-link nav-link" href="https://github.com/natheob/SamsaRaLight/" aria-label="GitHub"><span class="fa fab fa-github fa-lg"></span></a></li>
@@ -196,11 +195,13 @@ returns a fully prepared stand ready for use in the ray-tracing pipeline
 by <a href="check_inventory.html">check_inventory</a>, with the following controlled modifications:</p><ul><li><p>Tree vertical position <code>z</code> is computed from terrain slope and aspect.</p></li>
 <li><p>Crown maximum radius height <code>hmax_m</code> is computed when fixed by crown
 geometry conventions:</p><ul><li><p><code>"P"</code> and <code>"4P"</code>: <code>hmax_m = hbase_m</code></p></li>
-<li><p><code>"E"</code> and <code>"4E"</code>: <code>hmax_m = hbase_m + 0.5 * (h_m - hbase_m)</code></p></li>
+<li><p><code>"E"</code>: <code>hmax_m = hbase_m + 0.5 * (h_m - hbase_m)</code></p></li>
 </ul><p>For crown types <code>"2E"</code> and <code>"8E"</code>, <code>hmax_m</code> must be provided by the user.</p></li>
-<li><p>If missing, column <code>dbh_cm</code> is added and filled with <code>NA</code>.</p></li>
-<li><p>If missing, crown interception properties (e.g. <code>crown_openness</code>,
-<code>crown_lad</code>) are added using default values.</p></li>
+<li><p>For symmetric crown types (<code>"P"</code>, <code>"E"</code>, <code>"2E"</code>), a unique crown
+radius is computed as the mean of the provided radii (<code>rn_m</code>, <code>rs_m</code>,
+<code>re_m</code>, <code>rw_m</code>; <code>NA</code> values ignored).</p></li>
+<li><p>If missing, column <code>crown_openness</code> is added and filled with
+<code>NA</code> (only needed when <code>turbid_medium = FALSE</code>).</p></li>
 </ul><p>All input data.frames (<code>trees_inv</code>, <code>sensors</code>, and <code>core_polygon_df</code>) are
 automatically checked for coordinate type:</p><ul><li><p>If <code>x</code> and <code>y</code> columns exist, they are assumed to be planar.</p></li>
 <li><p>If <code>lon</code> and <code>lat</code> columns exist, they are converted into

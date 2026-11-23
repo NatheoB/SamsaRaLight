@@ -150,15 +150,17 @@ with the following controlled modifications:
 
   - `"P"` and `"4P"`: `hmax_m = hbase_m`
 
-  - `"E"` and `"4E"`: `hmax_m = hbase_m + 0.5 * (h_m - hbase_m)`
+  - `"E"`: `hmax_m = hbase_m + 0.5 * (h_m - hbase_m)`
 
   For crown types `"2E"` and `"8E"`, `hmax_m` must be provided by the
   user.
 
-- If missing, column `dbh_cm` is added and filled with `NA`.
+- For symmetric crown types (`"P"`, `"E"`, `"2E"`), a unique crown
+  radius is computed as the mean of the provided radii (`rn_m`, `rs_m`,
+  `re_m`, `rw_m`; `NA` values ignored).
 
-- If missing, crown interception properties (e.g. `crown_openness`,
-  `crown_lad`) are added using default values.
+- If missing, column `crown_openness` is added and filled with `NA`
+  (only needed when `turbid_medium = FALSE`).
 
 All input data.frames (`trees_inv`, `sensors`, and `core_polygon_df`)
 are automatically checked for coordinate type:

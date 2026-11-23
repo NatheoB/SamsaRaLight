@@ -167,8 +167,7 @@ An object of class `"sl_output"` (a list) containing:
   model, and interception parameters.
 
 - `input`: A list containing the original `sl_stand` and
-  `monthly_radiations` objects. Returned only when
-  `include_input = TRUE`.
+  `monthly_radiations` objects.
 
 When `detailed_output = FALSE`, the main output tables contain:
 

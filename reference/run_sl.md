@@ -89,8 +89,7 @@ An object of class `"sl_output"` (a list) containing:
   interception-model parameters.
 
 - `input`: A list containing the original `sl_stand` and
-  `monthly_radiations` objects. Returned only when
-  `include_input = TRUE`.
+  `monthly_radiations` objects.
 
 When `detailed_output = FALSE`, the main output tables contain:
 
@@ -156,7 +155,7 @@ during the simulation to avoid competing parallel execution.
 data_prenovel <- SamsaRaLight::data_prenovel
 
 stand <- create_sl_stand(
-  trees = data_prenovel$trees,
+  trees_inv = data_prenovel$trees,
   sensors = data_prenovel$sensors,
   cell_size = 10,
   latitude = data_prenovel$info$latitude,
