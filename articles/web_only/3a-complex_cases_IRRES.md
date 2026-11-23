@@ -350,7 +350,7 @@ output_irres_aarect <- SamsaRaLight::run_sl(
   sl_stand = stand_irres_aarect,
   monthly_radiations = data_radiations_irres
 )
-#> parallel mode disabled because OpenMP was not available
+#> parallel mode: DISABLED | Threads = 1 (user) | Cores available = 4
 #> SamsaRaLight simulation was run successfully.
 
 plot(output_irres_aarect)

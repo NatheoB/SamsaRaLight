@@ -129,7 +129,7 @@ output_cloture_filled <- SamsaRaLight::run_sl(
   sl_stand = stand_cloture_filled,
   monthly_radiations = data_radiations_cloture
 )
-#> parallel mode disabled because OpenMP was not available
+#> parallel mode: DISABLED | Threads = 1 (user) | Cores available = 4
 #> SamsaRaLight simulation was run successfully.
 ```
 

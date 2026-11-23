@@ -296,7 +296,7 @@ output_bechefa <- SamsaRaLight::run_sl(
   sl_stand = stand_bechefa_filled,
   monthly_radiations = radiations_bechefa
 )
-#> parallel mode disabled because OpenMP was not available
+#> parallel mode: DISABLED | Threads = 1 (user) | Cores available = 4
 #> SamsaRaLight simulation was run successfully.
 
 plot(output_bechefa)

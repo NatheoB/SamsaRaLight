@@ -170,7 +170,7 @@ out <- run_sl(
   sl_stand = stand,
   monthly_radiations = data_prenovel$radiations
 )
-#> parallel mode disabled because OpenMP was not available
+#> parallel mode: DISABLED | Threads = 1 (user) | Cores available = 4
 #> SamsaRaLight simulation was run successfully.
 
 str(out)
