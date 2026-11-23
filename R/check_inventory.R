@@ -30,7 +30,8 @@
 #'   \item{rs_m}{Crown radius toward South (numeric, meters).}
 #'   \item{re_m}{Crown radius toward East (numeric, meters).}
 #'   \item{rw_m}{Crown radius toward West (numeric, meters).}
-#'   \item{crown_lad}{Leaf Area Density (m2/m3).}
+#'   \item{crown_lad}{Leaf Area Density (m2/m3). Required for turbid medium interception
+#'     (default, and always used in `run_sl()`); optional if `turbid_medium = FALSE` in `run_sl_advanced()`.}
 #'   \item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.
 #'     Required if the argument `turbid_medium = FALSE` in the advanced function `run_sl_advanced()`
 #'     (for porous envelope interception). Otherwise, the basic function `run_sl()` will 
@@ -105,13 +106,16 @@ check_inventory <- function(trees_inv, verbose = TRUE) {
   
     
   ## ---- numeric checks -------------------------------------------------------
-  numeric_cols <- c("id_tree", "dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
+  # crown_lad is optional (only needed for turbid medium interception, checked in run_sl_advanced())
+  numeric_cols <- intersect(c("id_tree", "dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad"),
+                            names(trees_inv))
   numeric_cols_invalid <- numeric_cols[!vapply(trees_inv[numeric_cols], is.numeric, logical(1))]
   if (length(numeric_cols_invalid) > 0) stop(
     "The following columns must be numeric: ", paste(numeric_cols_invalid, collapse = ", "), call. = FALSE
   )
   
-  pos_cols <- c("id_tree", "dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad")
+  pos_cols <- intersect(c("id_tree", "dbh_cm", "h_m", "hbase_m", "rn_m", "rs_m", "re_m", "rw_m", "crown_lad"),
+                        names(trees_inv))
   pos_cols_invalid <- pos_cols[vapply(trees_inv[pos_cols], function(x) any(x < 0, na.rm = TRUE), logical(1))]
   if (length(pos_cols_invalid) > 0)  stop(
     "The following columns must be non-negative: ", paste(pos_cols_invalid, collapse = ", "), call. = FALSE

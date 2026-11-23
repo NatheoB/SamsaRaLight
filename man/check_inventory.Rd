@@ -32,7 +32,8 @@ For other crown types, the column is optional and the value is internally comput
 \item{rs_m}{Crown radius toward South (numeric, meters).}
 \item{re_m}{Crown radius toward East (numeric, meters).}
 \item{rw_m}{Crown radius toward West (numeric, meters).}
-\item{crown_lad}{Leaf Area Density (m2/m3).}
+\item{crown_lad}{Leaf Area Density (m2/m3). Required for turbid medium interception
+(default, and always used in \code{run_sl()}); optional if \code{turbid_medium = FALSE} in \code{run_sl_advanced()}.}
 \item{crown_openness}{Crown openness (unitless), optional if turbid medium interception.
 Required if the argument \code{turbid_medium = FALSE} in the advanced function \code{run_sl_advanced()}
 (for porous envelope interception). Otherwise, the basic function \code{run_sl()} will

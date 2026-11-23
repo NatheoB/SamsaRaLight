@@ -1,7 +1,7 @@
 
 #define _USE_MATH_DEFINES
 
-constexpr double EPSILON = 10e-10; // For rounding errors
+constexpr double EPSILON_TRUNK_BASE = 1e-9; // For rounding errors on the height of the trunk base relative to the target
 constexpr double EPSILON_FRACTION = 1e-10; // For rounding errors in crown fractions (8E and 4P), as in Capsis (F. Andre 2019)
 constexpr double EPSILON_TRUNK = 1e-6; // For rounding errors in trunk bounding box, as in Capsis (SLTrunk)
 
@@ -1057,7 +1057,7 @@ public:
 			this->z + shift.z
 		};
 		// Correct for rounding errors after with equality between trunk base shifted center and target cell center
-		if (std::abs(p0_shift.z) < EPSILON)
+		if (std::abs(p0_shift.z) < EPSILON_TRUNK_BASE)
 			p0_shift.z = 0.0;
 
 		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
@@ -1631,31 +1631,23 @@ public:
 
 			for (int i = 0; i < this->nSensors; i++) {
 
-				// Check if the sensor is within the stand limits
-				if (sensors_x[i] < 0.0 ||
-					sensors_x[i] > this->cellSize * this->nCellsX ||
-					sensors_y[i] < 0.0 ||
-					sensors_y[i] > this->cellSize * this->nCellsY) {
+				// Sensors are within the stand limits (checked in R by validate_sl_stand())
+				// Find the row and column the sensor belong to
+				int sensor_col = findColFromPosX(sensors_x[i]);
+				int sensor_row = findRowFromPosY(sensors_y[i]);
 
-				}
-				else {
-					// Find the row and column the sensor belong to
-					int sensor_col = findColFromPosX(sensors_x[i]);
-					int sensor_row = findRowFromPosY(sensors_y[i]);
-
-					// Create and push the pointor to Sensor new instance
-					// The sensor area is the same as the cell size
-					// Area is not a problem when trating with PACL, but may be considered when analysing absolute values of energy
-					this->sensors.push_back(new Sensor(
-						sensors_x[i], sensors_y[i], // Position of the sensor
-						sensors_z[i], // Z pos of the sensor is the height above the slope
-						sensor_row, sensor_col, // Cell of the sensor
-						e_above_direct_slope_cell, e_above_diffuse_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
-						e_above_direct_horizontal_cell, e_above_diffuse_horizontal_cell, // Same but on a horizontal plane
-						this->nTrees, // Number of trees to initialise the vector of interceptions with trees
-						sensors_id[i] // Id of the sensor
-					));
-				}
+				// Create and push the pointor to Sensor new instance
+				// The sensor area is the same as the cell size
+				// Area is not a problem when trating with PACL, but may be considered when analysing absolute values of energy
+				this->sensors.push_back(new Sensor(
+					sensors_x[i], sensors_y[i], // Position of the sensor
+					sensors_z[i], // Z pos of the sensor is the height above the slope
+					sensor_row, sensor_col, // Cell of the sensor
+					e_above_direct_slope_cell, e_above_diffuse_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
+					e_above_direct_horizontal_cell, e_above_diffuse_horizontal_cell, // Same but on a horizontal plane
+					this->nTrees, // Number of trees to initialise the vector of interceptions with trees
+					sensors_id[i] // Id of the sensor
+				));
 			}
 
 		}

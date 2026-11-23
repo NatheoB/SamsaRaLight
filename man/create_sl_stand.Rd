@@ -121,6 +121,8 @@ radius is computed as the mean of the provided radii (\code{rn_m}, \code{rs_m},
 \code{re_m}, \code{rw_m}; \code{NA} values ignored).
 \item If missing, column \code{crown_openness} is added and filled with
 \code{NA} (only needed when \code{turbid_medium = FALSE}).
+\item If missing, column \code{crown_lad} is added and filled with
+\code{NA} (only needed when \code{turbid_medium = TRUE}, the default).
 }
 
 All input data.frames (\code{trees_inv}, \code{sensors}, and \code{core_polygon_df}) are

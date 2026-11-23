@@ -90,6 +90,8 @@
 #'     \code{re_m}, \code{rw_m}; \code{NA} values ignored).
 #'   \item If missing, column \code{crown_openness} is added and filled with
 #'     \code{NA} (only needed when \code{turbid_medium = FALSE}).
+#'   \item If missing, column \code{crown_lad} is added and filled with
+#'     \code{NA} (only needed when \code{turbid_medium = TRUE}, the default).
 #' }
 #'
 #' All input data.frames (\code{trees_inv}, \code{sensors}, and \code{core_polygon_df}) are
@@ -594,6 +596,13 @@ create_sl_stand <- function(trees_inv,
   }
   
   
+  ## Add crown leaf area density column if missing ----
+  if (!"crown_lad" %in% names(trees_filled)) {
+    trees_filled <- trees_filled %>% 
+      dplyr::mutate(crown_lad = NA_real_)
+  }
+  
+  
   # CONVERT AS DATA.FRAME ----
   trees_filled <- trees_filled %>% as.data.frame()
   
@@ -740,7 +749,7 @@ validate_sl_stand <- function(x) {
   ## Required variables
   required_new_cols <- c("hmax_m",
                          "rxmax_m", "rxmin_m", "rymax_m", "rymin_m",
-                         "crown_openness",
+                         "crown_openness", "crown_lad",
                          "z")
   
   missing_new_cols <- setdiff(required_new_cols, names(x$trees))
