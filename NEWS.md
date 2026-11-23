@@ -1,8 +1,11 @@
 # SamsaRaLight 1.1.0
 
+Corrections following a review of the package code by Claude Code, in comparison with the Capsis SamsaraLight Java library.
+
 * Crown interceptions aligned with the Capsis SamsaraLight library: ray/crown part interceptions with an odd number of interception points are ignored for all crown shapes (previously undefined behaviour for paraboloids), with the Capsis rounding tolerance for crown fractions (`8E`, `4P`) and the Capsis particular cases.
 * Unexpected interceptions are no longer printed in the console from the C++ code (not thread-safe); they are counted and reported in a single R warning.
 * Trunks: correct position (previously uninitialised) and trunk cylinder from the ground to the crown base, as in Capsis (previously up to the tree top). Results change when `trunk_interception = TRUE` (default in `run_sl()`).
+* Trunk interception in the energy balance aligned with Capsis (`SLLighterLegacy`): a trunk intercepts all the remaining energy of the ray, but the crown parts behind it are still counted in the potential energy of their tree (they were previously skipped), and the trunk no longer reduces the potential energy of its own crown. With porous envelopes, a trunk behind a part of its own crown now also stops the ray (previously it let the ray through). Interceptions at equal distance keep their order (stable sort, as in Capsis). This changes `epot`, `lci` and `rci` when `trunk_interception = TRUE`.
 * OpenMP parallelisation is now enabled on Linux and macOS (new `src/Makevars`).
 * Trees or sensors exactly on the upper limits of the stand are assigned to the right grid cell.
 * Symmetric crowns (`P`, `E`, `2E`): the crown radius is now the mean of the provided radii, as announced by `check_inventory()` (previously only `rw_m` was used). Results change for these crowns when their radii differ.

@@ -1955,7 +1955,7 @@ private:
 	}
 
 	void orderInterceptionsRayToTarget(std::vector<interception*>& v_interc) {
-		std::sort(v_interc.begin(), v_interc.end(), [](interception const* i1, interception const* i2) {
+		std::stable_sort(v_interc.begin(), v_interc.end(), [](interception const* i1, interception const* i2) {
 			// Sort by distance to the target cell center, furthest first
 			return (i1->distance > i2->distance);
 			});
@@ -1989,10 +1989,6 @@ private:
 		double current_energy_slope = e_incident_slope_cell;
 		double current_energy_horizontal = e_incident_horizontal_cell;
 
-		// Track if the ray has been intercepted by a trunk
-		// to stop ray path if it is so
-		bool ray_intercepted_by_trunk = false;
-
 		// Track the first intercepted tree has been intercepted, to compute unobstructed energy by the tree
 		// i.e. add energy unobstructed to the crown only if it is the first interception of the ray with a crown
 		int idtree_first_intercepted = -1;
@@ -2012,19 +2008,8 @@ private:
 		int n_interceptions = v_interc.size();
 		for (int j = 0; j < n_interceptions; j++) {
 
-			// If the ray has already intercepted a trunk
-			// Do not run other interception
-			// But still loop on interceptions to delete the pointors
-			if (ray_intercepted_by_trunk) {
-				delete v_interc[j];
-				continue;
-			}
-
-			// First interception with a trunk
-			// Next step, set current energy to 0 by setting intercepted energy to the incident energy
-			if (v_interc[j]->withTrunk) {
-				ray_intercepted_by_trunk = true;
-			}
+			// Is the interception with a trunk (otherwise with a crown part) ?
+			bool is_trunk = v_interc[j]->withTrunk;
 
 			// Get the intercepted crown
 			Crown& crown = stand.getTree(v_interc[j]->vectIdTree)->getCrown();
@@ -2038,8 +2023,15 @@ private:
 			double intercepted_energy_slope = 0.0;
 			double intercepted_energy_horizontal = 0.0;
 
+			// Trunk ==> intercepts all the remaining energy of the ray (as in Capsis)
+			// The following crown parts still intercept a null energy, but their potential energy is computed
+			// The trunk does not modify the potential energy of the crown
+			if (is_trunk) {
+				intercepted_energy_slope = current_energy_slope;
+				intercepted_energy_horizontal = current_energy_horizontal;
+			}
 			// Turbid medium ==> apply beer lambert law
-			if (this->turbidMedium) {
+			else if (this->turbidMedium) {
 
 				// Apply Beer Lambert law on incdent energy attenuated by previous crown parts of the tree, without considering crowns of other competitors
 				potential_energy_slope = this->applyBeerLambert(
@@ -2054,39 +2046,30 @@ private:
 				e_pot_incident[v_interc[j]->vectIdTree] -= potential_energy_slope;
 
 				// Apply beer lambert law on incident ray attenuated by the competitor crowns intercepted the crown
-				intercepted_energy_slope = ray_intercepted_by_trunk ? 
-					current_energy_slope : 
-					this->applyBeerLambert(
-						current_energy_slope,
-						this->extinctionCoef, this->clumpingFactor,
-						crown.getCrownLAD(),
-						v_interc[j]->length);
+				intercepted_energy_slope = this->applyBeerLambert(
+					current_energy_slope,
+					this->extinctionCoef, this->clumpingFactor,
+					crown.getCrownLAD(),
+					v_interc[j]->length);
 
-				intercepted_energy_horizontal = ray_intercepted_by_trunk ? 
-					current_energy_horizontal : 
-					this->applyBeerLambert(
-						current_energy_horizontal,
-						this->extinctionCoef, this->clumpingFactor,
-						crown.getCrownLAD(),
-						v_interc[j]->length);
+				intercepted_energy_horizontal = this->applyBeerLambert(
+					current_energy_horizontal,
+					this->extinctionCoef, this->clumpingFactor,
+					crown.getCrownLAD(),
+					v_interc[j]->length);
 				
 			}
 			// Porous envelop ==> reduce the energy by a fixed amount
 			else {
 				// Be careful, only once per crown (if many crown part, reduce only if crown has not been already intercepted by the ray)
-				// Except the intercepted part is the trunk (to avoid missing trunk interception after a previous interception by another volume of the same tree)
 				if (!is_intercepted[v_interc[j]->vectIdTree]) {
 
 					// Compute potential and intercepted energy if the first crown part is encountered by reducing the incident enrrgy by a fixed amount
 					potential_energy_slope = e_incident_slope_cell * (1 - crown.getCrownOpenness());
 
-					intercepted_energy_slope = ray_intercepted_by_trunk ? 
-						current_energy_slope : 
-						(current_energy_slope * (1 - crown.getCrownOpenness()));
+					intercepted_energy_slope = current_energy_slope * (1 - crown.getCrownOpenness());
 
-					intercepted_energy_horizontal = ray_intercepted_by_trunk ? 
-						current_energy_horizontal : 
-						(current_energy_horizontal * (1 - crown.getCrownOpenness()));
+					intercepted_energy_horizontal = current_energy_horizontal * (1 - crown.getCrownOpenness());
 
 					// Set the tree as being intercepted
 					is_intercepted[v_interc[j]->vectIdTree] = true;
@@ -2109,7 +2092,7 @@ private:
 			// CAREFUL: ONLY IF TARGET IS A CELL 
 			// If it is a sensor, do not consider energy of trees
 			// AND DO NOT ADD IF IT IS AN INTERCEPTION WITH A TRUNK
-			if (!target->isThisSensor() && !ray_intercepted_by_trunk) {
+			if (!target->isThisSensor() && !is_trunk) {
 				#ifdef _OPENMP
 				#pragma omp critical
 				{
