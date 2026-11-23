@@ -2901,12 +2901,8 @@ void sl_set_openmp(bool parallel_mode, int num_threads = -1, bool verbose = true
 void sl_print_openmp_status() {
 
 	#ifdef _OPENMP
-	int runtime_threads = 1;
-	#pragma omp parallel
-	{
-	#pragma omp master
-		runtime_threads = omp_get_num_threads();
-	}
+	// Number of threads used by the next parallel region (dynamic adjustment disabled in sl_set_openmp())
+	int runtime_threads = omp_get_max_threads();
 
 	Rcpp::Rcout <<
 		"parallel mode: "

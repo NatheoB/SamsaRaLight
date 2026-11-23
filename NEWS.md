@@ -11,6 +11,7 @@ Corrections following a review of the package code by Claude Code, in comparison
 * Trees or sensors exactly on the upper limits of the stand are assigned to the right grid cell.
 * Symmetric crowns (`P`, `E`, `2E`): the crown radius is now the mean of the provided radii, as announced by `check_inventory()` (previously only `rw_m` was used). Results change for these crowns when their radii differ.
 * `crown_lad` is no longer required in the tree inventory when crowns are porous envelopes (`turbid_medium = FALSE`).
+* Removed a deprecated OpenMP construct (`master`) reported as a warning by recent compilers.
 * Removed the link to the Shiny application from the website.
 * Documentation fixes.
 
