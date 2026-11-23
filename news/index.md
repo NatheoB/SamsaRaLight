@@ -43,6 +43,8 @@ comparison with the Capsis SamsaraLight Java library.
   [`check_inventory()`](https://natheob.github.io/SamsaRaLight/reference/check_inventory.md)
   (previously only `rw_m` was used). Results change for these crowns
   when their radii differ.
+- `crown_lad` is no longer required in the tree inventory when crowns
+  are porous envelopes (`turbid_medium = FALSE`).
 - Removed the link to the Shiny application from the website.
 - Documentation fixes.
 

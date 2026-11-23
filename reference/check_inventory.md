@@ -89,7 +89,11 @@ check_inventory(trees_inv, verbose = TRUE)
 
   crown_lad
 
-  :   Leaf Area Density (m2/m3).
+  :   Leaf Area Density (m2/m3). Required for turbid medium interception
+      (default, and always used in
+      [`run_sl()`](https://natheob.github.io/SamsaRaLight/reference/run_sl.md));
+      optional if `turbid_medium = FALSE` in
+      [`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md).
 
   crown_openness
 

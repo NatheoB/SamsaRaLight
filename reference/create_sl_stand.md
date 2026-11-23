@@ -162,6 +162,9 @@ with the following controlled modifications:
 - If missing, column `crown_openness` is added and filled with `NA`
   (only needed when `turbid_medium = FALSE`).
 
+- If missing, column `crown_lad` is added and filled with `NA` (only
+  needed when `turbid_medium = TRUE`, the default).
+
 All input data.frames (`trees_inv`, `sensors`, and `core_polygon_df`)
 are automatically checked for coordinate type:
 

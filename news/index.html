@@ -62,6 +62,8 @@
 <li>Crown fractions (<code>8E</code>, <code>4P</code>): paths are now computed exactly when the target lies on a cut plane of the fraction (e.g. trees located exactly on a cell-centre coordinate). A ray running along a cut plane is counted once instead of twice, a target within the rounding tolerance of a cut plane is placed on it, and a cut-plane point coinciding with the target is no longer counted twice (which dropped the interception). Departure from Capsis, which has the same rounding tolerance but not these corrections.</li>
 <li>Trees or sensors exactly on the upper limits of the stand are assigned to the right grid cell.</li>
 <li>Symmetric crowns (<code>P</code>, <code>E</code>, <code>2E</code>): the crown radius is now the mean of the provided radii, as announced by <code><a href="../reference/check_inventory.html">check_inventory()</a></code> (previously only <code>rw_m</code> was used). Results change for these crowns when their radii differ.</li>
+<li>
+<code>crown_lad</code> is no longer required in the tree inventory when crowns are porous envelopes (<code>turbid_medium = FALSE</code>).</li>
 <li>Removed the link to the Shiny application from the website.</li>
 <li>Documentation fixes.</li>
 </ul></div>

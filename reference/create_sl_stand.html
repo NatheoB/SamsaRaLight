@@ -202,6 +202,8 @@ radius is computed as the mean of the provided radii (<code>rn_m</code>, <code>r
 <code>re_m</code>, <code>rw_m</code>; <code>NA</code> values ignored).</p></li>
 <li><p>If missing, column <code>crown_openness</code> is added and filled with
 <code>NA</code> (only needed when <code>turbid_medium = FALSE</code>).</p></li>
+<li><p>If missing, column <code>crown_lad</code> is added and filled with
+<code>NA</code> (only needed when <code>turbid_medium = TRUE</code>, the default).</p></li>
 </ul><p>All input data.frames (<code>trees_inv</code>, <code>sensors</code>, and <code>core_polygon_df</code>) are
 automatically checked for coordinate type:</p><ul><li><p>If <code>x</code> and <code>y</code> columns exist, they are assumed to be planar.</p></li>
 <li><p>If <code>lon</code> and <code>lat</code> columns exist, they are converted into

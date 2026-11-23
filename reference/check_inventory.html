@@ -129,7 +129,8 @@ For other crown types, the column is optional and the value is internally comput
 <dd><p>Crown radius toward West (numeric, meters).</p></dd>
 
 <dt>crown_lad</dt>
-<dd><p>Leaf Area Density (m2/m3).</p></dd>
+<dd><p>Leaf Area Density (m2/m3). Required for turbid medium interception
+(default, and always used in <code><a href="run_sl.html">run_sl()</a></code>); optional if <code>turbid_medium = FALSE</code> in <code><a href="run_sl_advanced.html">run_sl_advanced()</a></code>.</p></dd>
 
 <dt>crown_openness</dt>
 <dd><p>Crown openness (unitless), optional if turbid medium interception.
