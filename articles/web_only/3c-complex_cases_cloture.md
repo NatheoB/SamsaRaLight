@@ -150,12 +150,12 @@ summary(output_cloture_filled)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci        
-#>  Min.   :  28942   Min.   :   694.4   Min.   :0.0906  
-#>  1st Qu.: 136547   1st Qu.: 14394.5   1st Qu.:0.5837  
-#>  Median : 238447   Median : 43593.9   Median :0.7865  
-#>  Mean   : 389005   Mean   :147979.7   Mean   :0.7221  
-#>  3rd Qu.: 617430   3rd Qu.:271994.9   3rd Qu.:0.8961  
-#>  Max.   :1313485   Max.   :815029.7   Max.   :0.9899  
+#>  Min.   :  30904   Min.   :   694.4   Min.   :0.0906  
+#>  1st Qu.: 139463   1st Qu.: 14394.5   1st Qu.:0.5837  
+#>  Median : 244016   Median : 43593.9   Median :0.7868  
+#>  Mean   : 391763   Mean   :147979.7   Mean   :0.7241  
+#>  3rd Qu.: 617430   3rd Qu.:271994.9   3rd Qu.:0.8966  
+#>  Max.   :1319122   Max.   :815029.7   Max.   :0.9900  
 #> 
 #> Cells (ground light)
 #> -------------------

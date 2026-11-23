@@ -435,11 +435,11 @@ variables:
 str(sl_output$output$light$trees)
 #> 'data.frame':    333 obs. of  6 variables:
 #>  $ id_tree: int  116 92 46 273 176 4 272 157 89 29 ...
-#>  $ epot   : num  416762 276887 223441 88086 228627 ...
+#>  $ epot   : num  416762 276978 225573 90451 233721 ...
 #>  $ e      : num  118781 100900 58746 16668 8249 ...
-#>  $ lci    : num  0.715 0.636 0.737 0.811 0.964 ...
+#>  $ lci    : num  0.715 0.636 0.74 0.816 0.965 ...
 #>  $ eunobs : num  91542 87858 49288 12122 1494 ...
-#>  $ rci    : num  0.855 0.761 0.872 0.903 0.995 ...
+#>  $ rci    : num  0.855 0.762 0.874 0.908 0.995 ...
 ```
 
 The user can observe the output of the SamsaRaLight simulation object
@@ -479,12 +479,12 @@ summary(sl_output)
 #> Trees (crown interception)
 #> ---------------------------
 #>       epot               e                 lci         
-#>  Min.   :  10460   Min.   :   594.1   Min.   :0.07583  
-#>  1st Qu.: 166446   1st Qu.: 23499.9   1st Qu.:0.58668  
-#>  Median : 300930   Median : 71055.6   Median :0.73644  
-#>  Mean   : 330766   Mean   :118426.2   Mean   :0.70426  
-#>  3rd Qu.: 466852   3rd Qu.:183718.9   3rd Qu.:0.85001  
-#>  Max.   :1033885   Max.   :750971.5   Max.   :0.99302  
+#>  Min.   :  11236   Min.   :   594.1   Min.   :0.07583  
+#>  1st Qu.: 171559   1st Qu.: 23499.9   1st Qu.:0.58794  
+#>  Median : 308047   Median : 71055.6   Median :0.74010  
+#>  Mean   : 335075   Mean   :118426.2   Mean   :0.70782  
+#>  3rd Qu.: 469793   3rd Qu.:183718.9   3rd Qu.:0.85191  
+#>  Max.   :1045529   Max.   :750971.5   Max.   :0.99379  
 #> 
 #> Cells (ground light)
 #> -------------------

@@ -2,6 +2,9 @@
 
 ## SamsaRaLight 1.1.0
 
+Corrections following a review of the package code by Claude Code, in
+comparison with the Capsis SamsaraLight Java library.
+
 - Crown interceptions aligned with the Capsis SamsaraLight library:
   ray/crown part interceptions with an odd number of interception points
   are ignored for all crown shapes (previously undefined behaviour for
@@ -14,6 +17,15 @@
   from the ground to the crown base, as in Capsis (previously up to the
   tree top). Results change when `trunk_interception = TRUE` (default in
   [`run_sl()`](https://natheob.github.io/SamsaRaLight/reference/run_sl.md)).
+- Trunk interception in the energy balance aligned with Capsis
+  (`SLLighterLegacy`): a trunk intercepts all the remaining energy of
+  the ray, but the crown parts behind it are still counted in the
+  potential energy of their tree (they were previously skipped), and the
+  trunk no longer reduces the potential energy of its own crown. With
+  porous envelopes, a trunk behind a part of its own crown now also
+  stops the ray (previously it let the ray through). Interceptions at
+  equal distance keep their order (stable sort, as in Capsis). This
+  changes `epot`, `lci` and `rci` when `trunk_interception = TRUE`.
 - OpenMP parallelisation is now enabled on Linux and macOS (new
   `src/Makevars`).
 - Trees or sensors exactly on the upper limits of the stand are assigned

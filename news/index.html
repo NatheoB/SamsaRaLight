@@ -53,9 +53,11 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="1.1.0" id="samsaralight-110">SamsaRaLight 1.1.0<a class="anchor" aria-label="anchor" href="#samsaralight-110"></a></h2>
+<p>Corrections following a review of the package code by Claude Code, in comparison with the Capsis SamsaraLight Java library.</p>
 <ul><li>Crown interceptions aligned with the Capsis SamsaraLight library: ray/crown part interceptions with an odd number of interception points are ignored for all crown shapes (previously undefined behaviour for paraboloids), with the Capsis rounding tolerance for crown fractions (<code>8E</code>, <code>4P</code>) and the Capsis particular cases.</li>
 <li>Unexpected interceptions are no longer printed in the console from the C++ code (not thread-safe); they are counted and reported in a single R warning.</li>
 <li>Trunks: correct position (previously uninitialised) and trunk cylinder from the ground to the crown base, as in Capsis (previously up to the tree top). Results change when <code>trunk_interception = TRUE</code> (default in <code><a href="../reference/run_sl.html">run_sl()</a></code>).</li>
+<li>Trunk interception in the energy balance aligned with Capsis (<code>SLLighterLegacy</code>): a trunk intercepts all the remaining energy of the ray, but the crown parts behind it are still counted in the potential energy of their tree (they were previously skipped), and the trunk no longer reduces the potential energy of its own crown. With porous envelopes, a trunk behind a part of its own crown now also stops the ray (previously it let the ray through). Interceptions at equal distance keep their order (stable sort, as in Capsis). This changes <code>epot</code>, <code>lci</code> and <code>rci</code> when <code>trunk_interception = TRUE</code>.</li>
 <li>OpenMP parallelisation is now enabled on Linux and macOS (new <code>src/Makevars</code>).</li>
 <li>Trees or sensors exactly on the upper limits of the stand are assigned to the right grid cell.</li>
 <li>Symmetric crowns (<code>P</code>, <code>E</code>, <code>2E</code>): the crown radius is now the mean of the provided radii, as announced by <code><a href="../reference/check_inventory.html">check_inventory()</a></code> (previously only <code>rw_m</code> was used). Results change for these crowns when their radii differ.</li>
