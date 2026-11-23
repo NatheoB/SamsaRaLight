@@ -28,6 +28,14 @@ comparison with the Capsis SamsaraLight Java library.
   changes `epot`, `lci` and `rci` when `trunk_interception = TRUE`.
 - OpenMP parallelisation is now enabled on Linux and macOS (new
   `src/Makevars`).
+- Crown fractions (`8E`, `4P`): paths are now computed exactly when the
+  target lies on a cut plane of the fraction (e.g. trees located exactly
+  on a cell-centre coordinate). A ray running along a cut plane is
+  counted once instead of twice, a target within the rounding tolerance
+  of a cut plane is placed on it, and a cut-plane point coinciding with
+  the target is no longer counted twice (which dropped the
+  interception). Departure from Capsis, which has the same rounding
+  tolerance but not these corrections.
 - Trees or sensors exactly on the upper limits of the stand are assigned
   to the right grid cell.
 - Symmetric crowns (`P`, `E`, `2E`): the crown radius is now the mean of
