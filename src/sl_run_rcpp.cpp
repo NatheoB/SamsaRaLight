@@ -3,6 +3,7 @@
 
 constexpr double EPSILON = 10e-10; // For rounding errors
 constexpr double EPSILON_FRACTION = 1e-10; // For rounding errors in crown fractions (8E and 4P), as in Capsis (F. Andre 2019)
+constexpr double EPSILON_TRUNK = 1e-6; // For rounding errors in trunk bounding box, as in Capsis (SLTrunk)
 
 #include <vector>
 #include <map>
@@ -27,6 +28,7 @@ static bool g_threads_auto = true;
 // Such interceptions are ignored (as in Capsis) and reported to the user in R (atomic because updated within OpenMP threads)
 static std::atomic<long> g_n_unexpected_ellipsoid(0);
 static std::atomic<long> g_n_unexpected_paraboloid(0);
+static std::atomic<long> g_n_unexpected_trunk(0);
 
 
 // [[Rcpp::plugins(openmp)]]
@@ -979,29 +981,27 @@ class Trunk : public TreeVolume {
 
 private:
 
-	// Position of the trunk (in meters)
-	double x;
-	double y;
-	double z;
+	// Position of the trunk base is stored in TreeVolume (x, y, z)
 
-	// Dimensions of the tree (in meters)
-	double height;
+	// Dimensions of the trunk (in meters)
+	// The trunk is a cylinder from the ground to the crown base (as in Capsis)
+	double crownBase; // Height of the crown base above the trunk base
 	double radius;
 
 private:
 
 	bool isInCylinder(vertex3D p0, vertex3D p) {
-		return (p0.x - p.x) * (p0.x - p.x) + (p0.y - p.y) * (p0.y - p.y) < this->radius * this->radius;
+		return (p0.x - p.x) * (p0.x - p.x) + (p0.y - p.y) * (p0.y - p.y) <= this->radius * this->radius;
 	}
 
 		
 
 public:
-	Trunk(double vectid_tree, double x, double y, double z,
-		double dbh_cm, double height_m) :
+	Trunk(int vectid_tree, double x, double y, double z,
+		double dbh_cm, double crown_base_m) :
 		TreeVolume(vectid_tree, x, y, z)
 	{
-		this->height = height_m;
+		this->crownBase = crown_base_m;
 		this->radius = dbh_cm/200.0; // because radius is in meters
 	}
 
@@ -1046,8 +1046,8 @@ public:
 		vertex3D pc1 = this->getInterceptionPoint(solc1, ray);
 		vertex3D pc2 = this->getInterceptionPoint(solc2, ray);
 
-		// Interception with the top horizontal base of the trunk  
-		double ztop = p0_shift.z + this->height;
+		// Interception with the top horizontal base of the trunk (i.e. the crown base)
+		double ztop = p0_shift.z + this->crownBase;
 		double solztop = ztop / ray->getSinHeightAngle();
 		vertex3D pztop = this->getInterceptionPoint(solztop, ray);
 		pztop.z = ztop;
@@ -1065,38 +1065,52 @@ public:
 		vertex3D p_bbox_min = { p0_shift.x - this->radius, p0_shift.y - this->radius, p0_shift.z };
 		vertex3D p_bbox_max = { p0_shift.x + this->radius, p0_shift.y + this->radius, ztop };
 
+		// Interception points (distance to the target) and their type (to identify particular cases)
 		std::vector<double> sols;
+		std::vector<solutionType> sols_type;
+		auto add_sol = [&sols, &sols_type](double sol, solutionType type) {
+			sols.push_back(sol);
+			sols_type.push_back(type);
+		};
 
-		// The first interception point with the full ellipsoid is in the trunk
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0 && pc1.z >= p0_shift.z) 
-			sols.push_back(solc1);
+		// The first interception point with the infinite cylinder is in the trunk
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, EPSILON_TRUNK) && pc1.z >= 0.0 && pc1.z >= p0_shift.z) 
+			add_sol(solc1, SOL_SURFACE);
 
-		// The second interception point with the full ellipsoid is in the trunk
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0 && pc2.z >= p0_shift.z)
-			sols.push_back(solc2);
+		// The second interception point with the infinite cylinder is in the trunk
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, EPSILON_TRUNK) && pc2.z >= 0.0 && pc2.z >= p0_shift.z)
+			add_sol(solc2, SOL_SURFACE);
 
 		// The ray intersects the ground or top horizontal plane of the trunk
 		if (this->isInCylinder(p0_shift, pztop) && ztop >= 0.0 && ztop >= p0_shift.z)
-			sols.push_back(solztop);
+			add_sol(solztop, SOL_PLANE);
 		if (this->isInCylinder(p0_shift, pzbot) && p0_shift.z >= 0.0)
-			sols.push_back(solzbot);
+			add_sol(solzbot, SOL_PLANE);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInCylinder(p0_shift, ptarget) && ptarget.z != pzbot.z && ptarget.z != pztop.z)
-			sols.push_back(0.0);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, EPSILON_TRUNK) && this->isInCylinder(p0_shift, ptarget) && ptarget.z != pzbot.z && ptarget.z != pztop.z)
+			add_sol(0.0, SOL_TARGET);
 
 
 		// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
 		int nsols = sols.size();
 
-		// Did not intersect the trunk
-		if (nsols == 0) { return(nullptr); }
-
-		// If not 0 or 2 solutions ==> problem
-	/*	if (sols.size() != 2) {
-			Rcpp::Rcout << "Trunk - Not 0 or 2 solutions - " << nsols << std::endl;
-			return nullptr;
-		}*/
+		// No interception if not 2 solutions (as in Capsis)
+		// 0: no interception, 1 or 3: particular case (zero-length interception) or unexpected case (counted and reported in R)
+		//   Particular cases (as in Capsis SLTrunk):
+		//   1. the crown base (top of the trunk) is at the height of the target point
+		//   2. the only point is on the trunk surface, at the height of the target point or of the crown base
+		if (nsols != 2) {
+			bool particular_case = (ztop == 0.0);
+			if (nsols == 1 && sols_type[0] == SOL_SURFACE) {
+				double z_sol = this->getInterceptionPoint(sols[0], ray).z;
+				if (z_sol == 0.0 || z_sol == ztop) { particular_case = true; }
+			}
+			if (nsols > 0 && !particular_case) {
+				g_n_unexpected_trunk++;
+			}
+			return(nullptr);
+		}
 
 		// Distance between target cell and middle point between two interceptions
 		// Length is the length of the ray path across the crown
@@ -1138,7 +1152,7 @@ public:
 
 		crown(vectid, crown_type, x_crown, y_crown, z, h, hbase, hmax, cr_ymax, cr_xmax, cr_ymin, cr_xmin,
 			crown_openness, crown_lad),
-		trunk(vectid, x, y, z, dbh, h)
+		trunk(vectid, x, y, z, dbh, hbase)
 	{
 		this->vectId = vectid;
 		this->id = id;
@@ -2786,6 +2800,7 @@ List sl_run_rcpp(
 	// Reset the counters of unexpected interceptions
 	g_n_unexpected_ellipsoid = 0;
 	g_n_unexpected_paraboloid = 0;
+	g_n_unexpected_trunk = 0;
 
 	// Initialize the model
 	Model sl_model = Model(
@@ -2816,7 +2831,8 @@ List sl_run_rcpp(
 	// Add the number of interceptions ignored because of an unexpected number of interception points
 	output.push_back(NumericVector::create(
 		_["ellipsoid"] = static_cast<double>(g_n_unexpected_ellipsoid.load()),
-		_["paraboloid"] = static_cast<double>(g_n_unexpected_paraboloid.load())),
+		_["paraboloid"] = static_cast<double>(g_n_unexpected_paraboloid.load()),
+		_["trunk"] = static_cast<double>(g_n_unexpected_trunk.load())),
 		"n_unexpected_interceptions");
 
 	return(output);

@@ -263,10 +263,11 @@ run_sl_advanced <- function(
 
   if (sum(n_unexpected) > 0) {
     warning(sprintf(
-      paste0("%s ray/crown interception(s) with an unexpected number of interception points ",
-             "were ignored, as in Capsis (ellipsoids: %s, paraboloids: %s). ",
-             "This may come from rays crossing crown edges."),
-      sum(n_unexpected), n_unexpected[["ellipsoid"]], n_unexpected[["paraboloid"]]),
+      paste0("%s ray/tree interception(s) with an unexpected number of interception points ",
+             "were ignored, as in Capsis (ellipsoids: %s, paraboloids: %s, trunks: %s). ",
+             "This may come from rays crossing crown or trunk edges."),
+      sum(n_unexpected), n_unexpected[["ellipsoid"]], n_unexpected[["paraboloid"]],
+      n_unexpected[["trunk"]]),
       call. = FALSE)
   }
   
