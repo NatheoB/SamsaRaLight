@@ -45,6 +45,8 @@ comparison with the Capsis SamsaraLight Java library.
   when their radii differ.
 - `crown_lad` is no longer required in the tree inventory when crowns
   are porous envelopes (`turbid_medium = FALSE`).
+- Removed a deprecated OpenMP construct (`master`) reported as a warning
+  by recent compilers.
 - Removed the link to the Shiny application from the website.
 - Documentation fixes.
 
