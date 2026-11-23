@@ -84,8 +84,7 @@
 #'     including the simulated period, sky model, ray discretization,
 #'     crown interception model, and interception parameters.
 #'   \item \code{input}: A list containing the original \code{sl_stand} and
-#'     \code{monthly_radiations} objects. Returned only when
-#'     \code{include_input = TRUE}.
+#'     \code{monthly_radiations} objects.
 #' }
 #'
 #' When \code{detailed_output = FALSE}, the main output tables contain:

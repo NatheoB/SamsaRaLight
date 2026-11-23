@@ -9,7 +9,7 @@ template:
 
 navbar:
   structure:
-    left: [home, model, start, tutorials, functions, news, shiny]
+    left: [home, model, start, tutorials, functions, news]
     right: [search, github]
 
   components:
@@ -62,8 +62,4 @@ navbar:
     functions:
       text: Functions
       href: reference/index.html
-      
-    shiny:
-      text: Try it online !
-      href: https://natheob.shinyapps.io/samsaralight/
 

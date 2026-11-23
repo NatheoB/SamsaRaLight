@@ -1801,8 +1801,10 @@ public:
 		return(-d * cos(azimuth_xy - this->bottomAzimuth) * tan(this->slope));
 	}
 
-	int findColFromPosX(double x) { return((int)(x / this->cellSize)); }
-	int findRowFromPosY(double y) { return(this->nCellsY - (int)(y / this->cellSize) - 1); }
+	// Column and row of the cell containing a point
+	// A point exactly on the upper x (or y) limit of the stand belongs to the last column (or first row)
+	int findColFromPosX(double x) { return(std::min((int)(x / this->cellSize), this->nCellsX - 1)); }
+	int findRowFromPosY(double y) { return(std::max(this->nCellsY - (int)(y / this->cellSize) - 1, 0)); }
 
 
 };

@@ -113,12 +113,14 @@ by \link{check_inventory}, with the following controlled modifications:
 geometry conventions:
 \itemize{
 \item \code{"P"} and \code{"4P"}: \code{hmax_m = hbase_m}
-\item \code{"E"} and \code{"4E"}: \code{hmax_m = hbase_m + 0.5 * (h_m - hbase_m)}
+\item \code{"E"}: \code{hmax_m = hbase_m + 0.5 * (h_m - hbase_m)}
 }
 For crown types \code{"2E"} and \code{"8E"}, \code{hmax_m} must be provided by the user.
-\item If missing, column \code{dbh_cm} is added and filled with \code{NA}.
-\item If missing, crown interception properties (e.g. \code{crown_openness},
-\code{crown_lad}) are added using default values.
+\item For symmetric crown types (\code{"P"}, \code{"E"}, \code{"2E"}), a unique crown
+radius is computed as the mean of the provided radii (\code{rn_m}, \code{rs_m},
+\code{re_m}, \code{rw_m}; \code{NA} values ignored).
+\item If missing, column \code{crown_openness} is added and filled with
+\code{NA} (only needed when \code{turbid_medium = FALSE}).
 }
 
 All input data.frames (\code{trees_inv}, \code{sensors}, and \code{core_polygon_df}) are

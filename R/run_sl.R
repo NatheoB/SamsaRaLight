@@ -76,8 +76,7 @@
 #'     including the simulated period, sky model, ray-discretization
 #'     parameters, and interception-model parameters.
 #'   \item \code{input}: A list containing the original \code{sl_stand} and
-#'     \code{monthly_radiations} objects. Returned only when
-#'     \code{include_input = TRUE}.
+#'     \code{monthly_radiations} objects.
 #' }
 #'
 #' When \code{detailed_output = FALSE}, the main output tables contain:
@@ -99,7 +98,7 @@
 #' data_prenovel <- SamsaRaLight::data_prenovel
 #'
 #' stand <- create_sl_stand(
-#'   trees = data_prenovel$trees,
+#'   trees_inv = data_prenovel$trees,
 #'   sensors = data_prenovel$sensors,
 #'   cell_size = 10,
 #'   latitude = data_prenovel$info$latitude,

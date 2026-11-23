@@ -82,12 +82,14 @@
 #'     geometry conventions:
 #'     \itemize{
 #'       \item \code{"P"} and \code{"4P"}: \code{hmax_m = hbase_m}
-#'       \item \code{"E"} and \code{"4E"}: \code{hmax_m = hbase_m + 0.5 * (h_m - hbase_m)}
+#'       \item \code{"E"}: \code{hmax_m = hbase_m + 0.5 * (h_m - hbase_m)}
 #'     }
 #'     For crown types \code{"2E"} and \code{"8E"}, \code{hmax_m} must be provided by the user.
-#'   \item If missing, column \code{dbh_cm} is added and filled with \code{NA}.
-#'   \item If missing, crown interception properties (e.g. \code{crown_openness},
-#'     \code{crown_lad}) are added using default values.
+#'   \item For symmetric crown types (\code{"P"}, \code{"E"}, \code{"2E"}), a unique crown
+#'     radius is computed as the mean of the provided radii (\code{rn_m}, \code{rs_m},
+#'     \code{re_m}, \code{rw_m}; \code{NA} values ignored).
+#'   \item If missing, column \code{crown_openness} is added and filled with
+#'     \code{NA} (only needed when \code{turbid_medium = FALSE}).
 #' }
 #'
 #' All input data.frames (\code{trees_inv}, \code{sensors}, and \code{core_polygon_df}) are
@@ -414,10 +416,14 @@ create_sl_stand <- function(trees_inv,
   # CONVERT THE CROWN RADII IN XY PLAN ----
   
   ## Symmetric crown (P and E) or only vertical asymmetry (2E) ----
-  # Here all radii are equal and has been checked before to be equal
-  # Radii are equal, thus NSEW geographic = XY planar, no matter north2x
+  # A unique crown radius is computed as the mean of the provided radii (NA ignored),
+  # as announced in check_inventory()
+  # Radii are thus equal, and NSEW geographic = XY planar, no matter north2x
   horizontal_sym_trees <- trees_shifted$crown_type %in% c("P", "E", "2E")
-  radius_horizontal_sym_trees <- trees_shifted$rw_m[horizontal_sym_trees]
+  radius_horizontal_sym_trees <- rowMeans(
+    trees_shifted[horizontal_sym_trees, c("rn_m", "rs_m", "re_m", "rw_m"), drop = FALSE],
+    na.rm = TRUE
+  )
   
   trees_shifted$rxmax_m[horizontal_sym_trees] <- radius_horizontal_sym_trees
   trees_shifted$rxmin_m[horizontal_sym_trees] <- radius_horizontal_sym_trees
@@ -569,7 +575,7 @@ create_sl_stand <- function(trees_inv,
         
         # Symmetric and assymetric ellipsoidal crowns 
         # with fixed mid-height maximum radius
-        crown_type %in% c("E", "4E") ~ hbase_m + 0.5 * (h_m - hbase_m),
+        crown_type == "E" ~ hbase_m + 0.5 * (h_m - hbase_m),
         
         # Symmetric and asymetric ellipsoidal crowns 
         # with user-defined hmax
