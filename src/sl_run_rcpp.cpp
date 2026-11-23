@@ -346,6 +346,24 @@ public:
 			this->z + shift.z
 		};
 
+		// Target point on a vertical cut plane of a crown fraction (within rounding errors): set it exactly on the plane
+		// (avoids ambiguous interception points within the tolerance on both sides of the plane)
+		if (this->is8th) {
+			if (std::abs(p0_shift.x) <= EPSILON_FRACTION) { p0_shift.x = 0.0; }
+			if (std::abs(p0_shift.y) <= EPSILON_FRACTION) { p0_shift.y = 0.0; }
+		}
+
+		// Ray lying in a vertical cut plane of a crown fraction (x = x0 or y = y0):
+		// the ray runs along the boundary between two fractions, which would both count the same path.
+		// The path is only attributed to the fraction on the positive side of the plane, and the cut plane
+		// is not considered as an interception point (departure from Capsis, which counts the path twice)
+		bool ray_in_plane_x = this->is8th && p0_shift.x == 0.0 &&
+			std::abs(ray->getCosHeightAngle() * ray->getCosAzimuth()) <= EPSILON_FRACTION;
+		bool ray_in_plane_y = this->is8th && p0_shift.y == 0.0 &&
+			std::abs(ray->getCosHeightAngle() * ray->getSinAzimuth()) <= EPSILON_FRACTION;
+
+		if ((ray_in_plane_x && this->a < 0.0) || (ray_in_plane_y && this->b < 0.0)) { return(nullptr); }
+
 		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
 		// Equation giving distance between ray intersection with (*tree) crown and target cell center
 		// Compute a, b and c coefficients
@@ -457,18 +475,21 @@ public:
 
 		// The ray intersects the Z horizontal plane of the eight ellipsoid
 		if (this->isSemi) {
-			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, tolerance) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0)
+			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, tolerance) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0 &&
+				!(this->is8th && this->areEquals(pz0, ptarget)))
 				add_sol(solz0, SOL_PLANE);
 		}
 
 		// Add interception with the verticla planes of the 8th ellipsoid
 		if (this->is8th) {
 			// The ray intersects the X vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, tolerance) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0))
+			if (!ray_in_plane_x && this->isInBBox(p_bbox_min, p_bbox_max, px0, tolerance) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0) &&
+				!this->areEquals(px0, ptarget))
 				add_sol(solx0, SOL_PLANE);
 
 			// The ray intersects the Y vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, tolerance) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0))
+			if (!ray_in_plane_y && this->isInBBox(p_bbox_min, p_bbox_max, py0, tolerance) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0) &&
+				!this->areEquals(py0, ptarget))
 				add_sol(soly0, SOL_PLANE);
 		}
 
@@ -554,6 +575,24 @@ public:
 
 		// Get the Z-coordinate of the base plane of the shifted paraboloid
 		double zbase = p0_shift.z - this->h;
+
+		// Target point on a vertical cut plane of a crown fraction (within rounding errors): set it exactly on the plane
+		// (avoids ambiguous interception points within the tolerance on both sides of the plane)
+		if (this->is4th) {
+			if (std::abs(p0_shift.x) <= EPSILON_FRACTION) { p0_shift.x = 0.0; }
+			if (std::abs(p0_shift.y) <= EPSILON_FRACTION) { p0_shift.y = 0.0; }
+		}
+
+		// Ray lying in a vertical cut plane of a crown fraction (x = x0 or y = y0):
+		// the ray runs along the boundary between two fractions, which would both count the same path.
+		// The path is only attributed to the fraction on the positive side of the plane, and the cut plane
+		// is not considered as an interception point (departure from Capsis, which counts the path twice)
+		bool ray_in_plane_x = this->is4th && p0_shift.x == 0.0 &&
+			std::abs(ray->getCosHeightAngle() * ray->getCosAzimuth()) <= EPSILON_FRACTION;
+		bool ray_in_plane_y = this->is4th && p0_shift.y == 0.0 &&
+			std::abs(ray->getCosHeightAngle() * ray->getSinAzimuth()) <= EPSILON_FRACTION;
+
+		if ((ray_in_plane_x && this->a < 0.0) || (ray_in_plane_y && this->b < 0.0)) { return(nullptr); }
 		
 
 		// FIND SOLUTION OF THE QUADRATIC EQUATION (A * x * x + B * x + C = 0)
@@ -664,11 +703,13 @@ public:
 		// Add interception with the verticla planes of the 4th paraboloid
 		if (this->is4th) {
 			// The ray intersects the X vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, tolerance) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pbase))
+			if (!ray_in_plane_x && this->isInBBox(p_bbox_min, p_bbox_max, px0, tolerance) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pbase) &&
+				!this->areEquals(px0, ptarget))
 				add_sol(solx0, SOL_PLANE);
 
 			// The ray intersects the Y vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, tolerance) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pbase) && !this->areEquals(py0, px0))
+			if (!ray_in_plane_y && this->isInBBox(p_bbox_min, p_bbox_max, py0, tolerance) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pbase) && !this->areEquals(py0, px0) &&
+				!this->areEquals(py0, ptarget))
 				add_sol(soly0, SOL_PLANE);
 		}
 
