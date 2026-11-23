@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 
 constexpr double EPSILON = 10e-10; // For rounding errors
+constexpr double EPSILON_FRACTION = 1e-10; // For rounding errors in crown fractions (8E and 4P), as in Capsis (F. Andre 2019)
 
 #include <vector>
 #include <map>
@@ -9,6 +10,7 @@ constexpr double EPSILON = 10e-10; // For rounding errors
 #include <cmath>
 #include <limits>
 #include <algorithm>
+#include <atomic>
 
 #include <Rcpp.h>
 using namespace Rcpp;
@@ -20,6 +22,11 @@ using namespace Rcpp;
 static bool g_parallel_enabled = false;
 static int  g_num_threads = 1;
 static bool g_threads_auto = true;
+
+// Number of ray / crown part interceptions with an odd number of interception points that are not a known particular case
+// Such interceptions are ignored (as in Capsis) and reported to the user in R (atomic because updated within OpenMP threads)
+static std::atomic<long> g_n_unexpected_ellipsoid(0);
+static std::atomic<long> g_n_unexpected_paraboloid(0);
 
 
 // [[Rcpp::plugins(openmp)]]
@@ -35,6 +42,9 @@ struct vertex3D {
 	double y = 0.0;
 	double z = 0.0;
 };
+
+// Type of an interception point between a ray and a crown part (used to identify particular cases, as in Capsis)
+enum solutionType { SOL_SURFACE, SOL_TARGET, SOL_PLANE };
 
 struct interception {
 
@@ -198,23 +208,56 @@ protected:
 		return(point);
 	}
 
-	// Two points are equal
+	// Two points are equal (used to avoid duplicated points in crown fractions)
 	bool areEquals(vertex3D p1, vertex3D p2) {
-		return(std::abs(p1.x - p2.x) < EPSILON &&
-			std::abs(p1.y - p2.y) < EPSILON &&
-			std::abs(p1.z - p2.z) < EPSILON);
+		return(std::abs(p1.x - p2.x) < EPSILON_FRACTION &&
+			std::abs(p1.y - p2.y) < EPSILON_FRACTION &&
+			std::abs(p1.z - p2.z) < EPSILON_FRACTION);
 	}
 
 	// Functions for finding if a point is in a volume
-	bool isInBBox(vertex3D pmin, vertex3D pmax, vertex3D p) {
+	// tolerance accounts for rounding errors (only used for crown fractions, as in Capsis; 0 otherwise)
+	bool isInBBox(vertex3D pmin, vertex3D pmax, vertex3D p, double tolerance = 0.0) {
 
-		return (pmin.x <= p.x && p.x <= pmax.x &&
-			pmin.y <= p.y && p.y <= pmax.y &&
-			pmin.z <= p.z && p.z <= pmax.z);
+		return (pmin.x <= p.x + tolerance && p.x <= pmax.x + tolerance &&
+			pmin.y <= p.y + tolerance && p.y <= pmax.y + tolerance &&
+			pmin.z <= p.z + tolerance && p.z <= pmax.z + tolerance);
+	}
 
-		/*return (pmin.x - p.x <= EPSILON && p.x - pmax.x <= EPSILON &&
-			pmin.y - p.y <= EPSILON && p.y - pmax.y <= EPSILON &&
-			pmin.z - p.z <= EPSILON && p.z - pmax.z <= EPSILON);*/
+	// Is the point on the periphery of the bounding box (with tolerance for rounding errors, as in Capsis)
+	bool isOnBBoxPeriphery(vertex3D pmin, vertex3D pmax, vertex3D p, double tolerance) {
+		return (std::abs(pmin.x - p.x) <= tolerance || std::abs(p.x - pmax.x) <= tolerance ||
+			std::abs(pmin.y - p.y) <= tolerance || std::abs(p.y - pmax.y) <= tolerance ||
+			std::abs(pmin.z - p.z) <= tolerance || std::abs(p.z - pmax.z) <= tolerance);
+	}
+
+	// Is an odd number of interception points with a crown part an expected particular case (as in Capsis) ?
+	// Particular cases are zero-length interceptions. As any odd number of points, they are ignored,
+	// but only the unexpected cases are counted and reported to the user
+	//   1. the top of the crown part is at the height of the target point
+	//   2. the only point is on the crown surface at the target point (z = 0), the other root is below the target
+	//   3. (crown fractions) the only point is the target point, on the periphery of the bounding box
+	//   4. (crown fractions) the ray crosses an axis of the crown fraction (two cut-plane points are equal)
+	bool isParticularCase(int nsols, solutionType sol_type, double sol, Ray* ray, double z_top, bool is_fraction,
+		vertex3D pmin, vertex3D pmax, vertex3D ptarget, vertex3D px0, vertex3D py0, vertex3D pz0, double tolerance) {
+
+		// Case 1
+		if (z_top == 0.0) { return(true); }
+
+		// Cases 2 to 4 only concern a single interception point
+		if (nsols != 1) { return(false); }
+
+		// Case 2
+		if (sol_type == SOL_SURFACE) { return(this->getInterceptionPoint(sol, ray).z == 0.0); }
+
+		// Cases 3 and 4 only for crown fractions
+		if (!is_fraction) { return(false); }
+
+		// Case 3
+		if (sol_type == SOL_TARGET && this->isOnBBoxPeriphery(pmin, pmax, ptarget, tolerance)) { return(true); }
+
+		// Case 4
+		return(this->areEquals(py0, px0) || this->areEquals(pz0, px0) || this->areEquals(pz0, py0));
 	}
 
 public:
@@ -387,49 +430,58 @@ public:
 			p_bbox_max = { xa_add, yb_add, zc_add };
 		}
 
+		// Tolerance for rounding errors in the bounding box tests, only for crown fractions (as in Capsis)
+		double tolerance = this->is8th ? EPSILON_FRACTION : 0.0;
 
+		// Interception points (distance to the target) and their type (to identify particular cases)
 		std::vector<double> sols;
+		std::vector<solutionType> sols_type;
+		auto add_sol = [&sols, &sols_type](double sol, solutionType type) {
+			sols.push_back(sol);
+			sols_type.push_back(type);
+		};
 
 		// The first interception point with the full ellipsoid is in the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0)
-			sols.push_back(solc1);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, tolerance) && pc1.z >= 0.0)
+			add_sol(solc1, SOL_SURFACE);
 
 		// The second interception point with the full ellipsoid is in the eight ellipsoid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0)
-			sols.push_back(solc2);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, tolerance) && pc2.z >= 0.0)
+			add_sol(solc2, SOL_SURFACE);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInEllipsoid(p0_shift, ptarget))
-			sols.push_back(0.0);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, tolerance) && this->isInEllipsoid(p0_shift, ptarget))
+			add_sol(0.0, SOL_TARGET);
 
 		// The ray intersects the Z horizontal plane of the eight ellipsoid
 		if (this->isSemi) {
-			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0)
-				sols.push_back(solz0);
+			if (this->isInBBox(p_bbox_min, p_bbox_max, pz0, tolerance) && this->isInEllipsoid(p0_shift, pz0) && pz0.z > 0.0)
+				add_sol(solz0, SOL_PLANE);
 		}
 
 		// Add interception with the verticla planes of the 8th ellipsoid
 		if (this->is8th) {
 			// The ray intersects the X vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0))
-				sols.push_back(solx0);
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, tolerance) && this->isInEllipsoid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pz0))
+				add_sol(solx0, SOL_PLANE);
 
 			// The ray intersects the Y vertical plane of the eight ellipsoid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0))
-				sols.push_back(soly0);
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, tolerance) && this->isInEllipsoid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pz0) && !this->areEquals(py0, px0))
+				add_sol(soly0, SOL_PLANE);
 		}
 
 
 		// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
 		int nsols = sols.size();
 
-		// intersected the ellipse outside the half quarter
-		if (nsols == 0) { return(nullptr); }
-
-		// If not 0 or 2 solutions ==> problem
-		if (sols.size() != 2) {
-			Rcpp::Rcout << "Ellipsoid - Not 0 or 2 solutions - " << nsols << std::endl;
-			return nullptr;
+		// No interception if not 2 solutions (as in Capsis)
+		// 0: no interception, 1 or 3: particular case (zero-length interception) or unexpected case (counted and reported in R)
+		if (nsols != 2) {
+			if (nsols > 0 && !this->isParticularCase(nsols, sols_type[0], sols[0], ray, p_bbox_max.z, this->is8th,
+				p_bbox_min, p_bbox_max, ptarget, px0, py0, pz0, tolerance)) {
+				g_n_unexpected_ellipsoid++;
+			}
+			return(nullptr);
 		}
 
 		// Distance between target cell and middle point between two interceptions
@@ -578,47 +630,59 @@ public:
 			p_bbox_max = { xa_add, yb_add, p0_shift.z };
 		}
 
+		// Tolerance for rounding errors in the bounding box tests, only for crown fractions (as in Capsis)
+		double tolerance = this->is4th ? EPSILON_FRACTION : 0.0;
+
+		// Interception points (distance to the target) and their type (to identify particular cases)
 		std::vector<double> sols;
+		std::vector<solutionType> sols_type;
+		auto add_sol = [&sols, &sols_type](double sol, solutionType type) {
+			sols.push_back(sol);
+			sols_type.push_back(type);
+		};
 
 		// The first interception point with the the infinite paraboloid is in the paraboloidal crown
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1) && pc1.z >= 0.0)
-			sols.push_back(solc1);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc1, tolerance) && pc1.z >= 0.0)
+			add_sol(solc1, SOL_SURFACE);
 
 		// The second interception point with the infinite paraboloid is in the paraboloidal crown
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2) && pc2.z >= 0.0)
-			sols.push_back(solc2);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pc2, tolerance) && pc2.z >= 0.0)
+			add_sol(solc2, SOL_SURFACE);
 
 		// The ray intersects the Z horizontal base of the paraboloid
-		if (this->isInBBox(p_bbox_min, p_bbox_max, pbase) && this->isInParaboloid(p0_shift, pbase) && pbase.z > 0.0)
-			sols.push_back(solbase);
+		if (this->isInBBox(p_bbox_min, p_bbox_max, pbase, tolerance) && this->isInParaboloid(p0_shift, pbase) && pbase.z > 0.0)
+			add_sol(solbase, SOL_PLANE);
 
 		// The ray intersects the center of the target cell
-		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget) && this->isInParaboloid(p0_shift, ptarget))
-			sols.push_back(0.0);
+		// (for a 4th of paraboloid, the target must also be above the base plane, as in Capsis)
+		if (this->isInBBox(p_bbox_min, p_bbox_max, ptarget, tolerance) && this->isInParaboloid(p0_shift, ptarget) &&
+			(!this->is4th || ptarget.z >= pbase.z))
+			add_sol(0.0, SOL_TARGET);
 
 		// Add interception with the verticla planes of the 4th paraboloid
 		if (this->is4th) {
 			// The ray intersects the X vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, px0) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pbase))
-				sols.push_back(solx0);
+			if (this->isInBBox(p_bbox_min, p_bbox_max, px0, tolerance) && this->isInParaboloid(p0_shift, px0) && px0.z > 0.0 && !this->areEquals(px0, pbase))
+				add_sol(solx0, SOL_PLANE);
 
 			// The ray intersects the Y vertical plane of the fourth paraboloid
-			if (this->isInBBox(p_bbox_min, p_bbox_max, py0) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pbase) && !this->areEquals(py0, px0))
-				sols.push_back(soly0);
+			if (this->isInBBox(p_bbox_min, p_bbox_max, py0, tolerance) && this->isInParaboloid(p0_shift, py0) && py0.z > 0.0 && !this->areEquals(py0, pbase) && !this->areEquals(py0, px0))
+				add_sol(soly0, SOL_PLANE);
 		}
 
 
 		// FIND PATH LENGTH AND DISTANCE TO CELL CENTER
 		int nsols = sols.size();
 
-		// intersected the parabol outside the half quarter
-		if (nsols == 0) { return(nullptr); }
-
-		// If not 0 or 2 solutions ==> problem
-		/*if (sols.size() != 2) {
-			Rcpp::Rcout << "Paraboloid crown - Not 0 or 2 solutions - " << nsols << std::endl;
-			return nullptr;
-		}*/
+		// No interception if not 2 solutions (as in Capsis)
+		// 0: no interception, 1 or 3: particular case (zero-length interception) or unexpected case (counted and reported in R)
+		if (nsols != 2) {
+			if (nsols > 0 && !this->isParticularCase(nsols, sols_type[0], sols[0], ray, p_bbox_max.z, this->is4th,
+				p_bbox_min, p_bbox_max, ptarget, px0, py0, pbase, tolerance)) {
+				g_n_unexpected_paraboloid++;
+			}
+			return(nullptr);
+		}
 
 		// Distance between target cell and middle point between two interceptions
 		// Length is the length of the ray path across the crown
@@ -2719,6 +2783,10 @@ List sl_run_rcpp(
 	bool trunk_interception
 )
 {
+	// Reset the counters of unexpected interceptions
+	g_n_unexpected_ellipsoid = 0;
+	g_n_unexpected_paraboloid = 0;
+
 	// Initialize the model
 	Model sl_model = Model(
 		trees,
@@ -2744,6 +2812,12 @@ List sl_run_rcpp(
 
 	// Convert the output into R format
 	List output = sl_model.exportResults();
+
+	// Add the number of interceptions ignored because of an unexpected number of interception points
+	output.push_back(NumericVector::create(
+		_["ellipsoid"] = static_cast<double>(g_n_unexpected_ellipsoid.load()),
+		_["paraboloid"] = static_cast<double>(g_n_unexpected_paraboloid.load())),
+		"n_unexpected_interceptions");
 
 	return(output);
 }

@@ -255,6 +255,20 @@ run_sl_advanced <- function(
   # PREPARE OUTPUT ----
   interceptions <- out$interceptions
   out$interceptions <- NULL
+
+  # Interceptions with an odd number of interception points that are not a known particular case
+  # (ignored as in Capsis, but reported to the user)
+  n_unexpected <- out$n_unexpected_interceptions
+  out$n_unexpected_interceptions <- NULL
+
+  if (sum(n_unexpected) > 0) {
+    warning(sprintf(
+      paste0("%s ray/crown interception(s) with an unexpected number of interception points ",
+             "were ignored, as in Capsis (ellipsoids: %s, paraboloids: %s). ",
+             "This may come from rays crossing crown edges."),
+      sum(n_unexpected), n_unexpected[["ellipsoid"]], n_unexpected[["paraboloid"]]),
+      call. = FALSE)
+  }
   
   if (!detailed_output) {
     out$sensors <- out$sensors %>% dplyr::select(id_sensor, e, pacl, punobs)
