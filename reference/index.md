@@ -30,6 +30,9 @@
 - [`create_xy_from_lonlat()`](https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.md)
   : Create planar (x, y) coordinates from longitude / latitude
 
+- [`estimate_pacl_from_geometry()`](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md)
+  : Estimate the light on sensors and cells from a precomputed geometry
+
 - [`get_bottom_azimut()`](https://natheob.github.io/SamsaRaLight/reference/get_bottom_azimut.md)
   : Compute bottom azimut
 
@@ -47,6 +50,9 @@
 
 - [`plot_inventory()`](https://natheob.github.io/SamsaRaLight/reference/plot_inventory.md)
   : Plot a from-above view of a tree inventory
+
+- [`precompute_sl_geometry()`](https://natheob.github.io/SamsaRaLight/reference/precompute_sl_geometry.md)
+  : Precompute the geometry of light interception in a stand
 
 - [`print(`*`<sl_output>`*`)`](https://natheob.github.io/SamsaRaLight/reference/print.sl_output.md)
   :

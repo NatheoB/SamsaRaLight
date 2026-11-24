@@ -36,23 +36,26 @@ run_sl_advanced(
 
 - sl_stand:
 
-  An object of class `"sl_stand"` representing the virtual forest stand.
-  Each row of `sl_stand$trees` represents a tree, with required and
-  optional columns describing crown geometry, tree height, crown radius,
-  crown openness, leaf area density, and related attributes. See
-  [validate_sl_stand](https://natheob.github.io/SamsaRaLight/reference/validate_sl_stand.md).
+  An object of class `"sl_stand"` describing the forest stand, typically
+  created with
+  [create_sl_stand](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md).
+  It contains tree, sensor, terrain, and grid geometry information (see
+  [validate_sl_stand](https://natheob.github.io/SamsaRaLight/reference/validate_sl_stand.md)).
 
 - monthly_radiations:
 
-  A data frame containing monthly horizontal radiation (`Hrad`) and
-  diffuse-to-global radiation ratios (`DGratio`), typically computed
-  with
+  A data frame containing monthly horizontal radiation (`Hrad`, in MJ
+  m\\^{-2}\\) and diffuse-to-global radiation ratio (`DGratio`),
+  typically obtained with
   [get_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.md).
+  The input is validated internally using
+  [check_monthly_radiations](https://natheob.github.io/SamsaRaLight/reference/check_monthly_radiations.md).
 
 - sensors_only:
 
-  Logical. If `TRUE`, compute light interception only for sensors.
-  Defaults to `FALSE`.
+  Logical. If `TRUE`, compute light interception only for sensors. This
+  can substantially reduce computation time when only sensor-level
+  results are required. Defaults to `FALSE`.
 
 - use_torus:
 
@@ -124,14 +127,18 @@ run_sl_advanced(
 - detailed_output:
 
   Logical. If `TRUE`, retain detailed ray, energy, and interception
-  information in the output. If `FALSE`, only the main
-  light-interception metrics are retained. Defaults to `FALSE`.
+  information, including the monthly ray discretization and interception
+  matrices. If `FALSE`, only the main light-interception metrics are
+  returned. Defaults to `FALSE`.
 
 - parallel_mode:
 
   Logical. If `TRUE`, ray–target computations are parallelised using
-  OpenMP. If `FALSE`, the model runs in single-thread mode. Defaults to
-  `FALSE`.
+  OpenMP. If `FALSE`, the model runs in single-thread mode. BLAS is
+  automatically forced to single-thread mode during the simulation to
+  avoid competition between BLAS and OpenMP. Parallel execution can
+  substantially reduce computation time for large stands or fine ray
+  discretization. Defaults to `FALSE`.
 
 - n_threads:
 

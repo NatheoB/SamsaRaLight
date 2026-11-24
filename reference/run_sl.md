@@ -24,7 +24,8 @@ run_sl(
   An object of class `"sl_stand"` describing the forest stand, typically
   created with
   [create_sl_stand](https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.md).
-  It contains tree, sensor, terrain, and grid geometry information.
+  It contains tree, sensor, terrain, and grid geometry information (see
+  [validate_sl_stand](https://natheob.github.io/SamsaRaLight/reference/validate_sl_stand.md)).
 
 - monthly_radiations:
 

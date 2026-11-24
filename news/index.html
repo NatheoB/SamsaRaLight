@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">SamsaRaLight</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -52,7 +52,13 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="1.1.0" id="samsaralight-110">SamsaRaLight 1.1.0<a class="anchor" aria-label="anchor" href="#samsaralight-110"></a></h2>
+<h2 class="pkg-version" data-toc-text="development version" id="samsaralight-development-version">SamsaRaLight (development version)<a class="anchor" aria-label="anchor" href="#samsaralight-development-version"></a></h2>
+<ul><li>New functions <code><a href="../reference/precompute_sl_geometry.html">precompute_sl_geometry()</a></code> and <code><a href="../reference/estimate_pacl_from_geometry.html">estimate_pacl_from_geometry()</a></code> to estimate the light on sensors and cells many times for the same stand with different crown properties (e.g. calibration of crown LAD). The part of the ray tracing that does not depend on crown LAD or openness (crowns crossed by each ray, path lengths, trunks) is computed once; the light on sensors and cells is then estimated for any crown LAD or openness, extinction coefficient, clumping factor and trunk interception, with the same results as <code><a href="../reference/run_sl_advanced.html">run_sl_advanced()</a></code> up to rounding errors and 100 to 500 times faster on the package datasets. Light intercepted by trees cannot be estimated from the geometry.</li>
+<li>Internal: argument checks, OpenMP set-up and the warning on unexpected interceptions are shared by <code><a href="../reference/run_sl_advanced.html">run_sl_advanced()</a></code> and <code><a href="../reference/precompute_sl_geometry.html">precompute_sl_geometry()</a></code>; the C++ function <code>sl_run_rcpp()</code> is renamed <code>run_sl_rcpp()</code>.</li>
+<li>Documentation: <code><a href="../reference/run_sl.html">run_sl()</a></code> inherits its parameters from <code><a href="../reference/run_sl_advanced.html">run_sl_advanced()</a></code>, whose parameter descriptions were harmonised.</li>
+</ul></div>
+    <div class="section level2">
+<h2 class="pkg-version" data-toc-text="1.1.0" id="samsaralight-110">SamsaRaLight 1.1.0<a class="anchor" aria-label="anchor" href="#samsaralight-110"></a></h2><p class="text-muted">CRAN release: 2026-11-23</p>
 <p>Corrections following a review of the package code by Claude Code, in comparison with the Capsis SamsaraLight Java library.</p>
 <ul><li>Crown interceptions aligned with the Capsis SamsaraLight library: ray/crown part interceptions with an odd number of interception points are ignored for all crown shapes (previously undefined behaviour for paraboloids), with the Capsis rounding tolerance for crown fractions (<code>8E</code>, <code>4P</code>) and the Capsis particular cases.</li>
 <li>Unexpected interceptions are no longer printed in the console from the C++ code (not thread-safe); they are counted and reported in a single R warning.</li>

@@ -28,6 +28,7 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/create_sl_rays.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/create_sl_stand.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/create_xy_from_lonlat.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/get_bottom_azimut.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/get_monthly_radiations.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/get_utm_epsg.html</loc></url>
@@ -38,6 +39,7 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_inventory.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_orientation_compass.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/plot_slope_profile.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/precompute_sl_geometry.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/print.sl_output.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/print.sl_stand.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/rotate_vec_ccw.html</loc></url>
@@ -50,6 +52,7 @@
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/summary.sl_output.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/summary.sl_stand.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/validate_interception_model.html</loc></url>
+<url><loc>https://natheob.github.io/SamsaRaLight/reference/validate_sl_geometry.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/validate_sl_output.html</loc></url>
 <url><loc>https://natheob.github.io/SamsaRaLight/reference/validate_sl_stand.html</loc></url>
 </urlset>
