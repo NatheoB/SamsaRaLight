@@ -7,33 +7,7 @@
 #' ray-tracing, sky-discretization, and interception parameters are internally
 #' set to standard values and do not need to be provided.
 #'
-#' @param sl_stand An object of class \code{"sl_stand"} describing the forest
-#'   stand, typically created with \link{create_sl_stand}. It contains tree,
-#'   sensor, terrain, and grid geometry information.
-#' @param monthly_radiations A data frame containing monthly horizontal
-#'   radiation (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global
-#'   radiation ratio (\code{DGratio}), typically obtained with
-#'   \link{get_monthly_radiations}. The input is validated internally using
-#'   \link{check_monthly_radiations}.
-#' @param sensors_only Logical. If \code{TRUE}, compute light interception only
-#'   for sensors. This can substantially reduce computation time when only
-#'   sensor-level results are required. Defaults to \code{FALSE}.
-#' @param detailed_output Logical. If \code{TRUE}, retain detailed ray,
-#'   energy, and interception information, including the monthly ray
-#'   discretization and interception matrices. If \code{FALSE}, only the main
-#'   light-interception metrics are returned. Defaults to \code{FALSE}.
-#' @param parallel_mode Logical. If \code{TRUE}, ray--target computations are
-#'   parallelised using OpenMP. If \code{FALSE}, the model runs in
-#'   single-thread mode. BLAS is automatically forced to single-thread mode
-#'   during the simulation to avoid competition between BLAS and OpenMP.
-#'   Parallel execution can substantially reduce computation time for large
-#'   stands or fine ray discretization. Defaults to \code{FALSE}.
-#' @param n_threads Integer or \code{NULL}. Number of CPU threads to use when
-#'   \code{parallel_mode = TRUE}. If \code{NULL}, OpenMP automatically selects
-#'   the number of available threads. If supplied, must be a positive integer.
-#'   Defaults to \code{NULL}.
-#' @param verbose Logical. If \code{TRUE}, print informative messages during
-#'   the simulation, including OpenMP status. Defaults to \code{TRUE}.
+#' @inheritParams run_sl_advanced
 #'
 #' @details
 #' Internally, \code{run_sl()} calls \link{run_sl_advanced} using standard

@@ -10,9 +10,9 @@ Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
 Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 #endif
 
-// sl_run_rcpp
-List sl_run_rcpp(DataFrame trees, DataFrame sensors, bool sensors_only, DataFrame cells, DataFrame rays, double e_direct_above_slope_m2, double e_diffuse_above_slope_m2, double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus, bool turbid_medium, double extinction_coef, double clumping_factor, bool trunk_interception);
-RcppExport SEXP _SamsaRaLight_sl_run_rcpp(SEXP treesSEXP, SEXP sensorsSEXP, SEXP sensors_onlySEXP, SEXP cellsSEXP, SEXP raysSEXP, SEXP e_direct_above_slope_m2SEXP, SEXP e_diffuse_above_slope_m2SEXP, SEXP e_direct_above_horizontal_m2SEXP, SEXP e_diffuse_above_horizontal_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP extinction_coefSEXP, SEXP clumping_factorSEXP, SEXP trunk_interceptionSEXP) {
+// run_sl_rcpp
+List run_sl_rcpp(DataFrame trees, DataFrame sensors, bool sensors_only, DataFrame cells, DataFrame rays, double e_direct_above_slope_m2, double e_diffuse_above_slope_m2, double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus, bool turbid_medium, double extinction_coef, double clumping_factor, bool trunk_interception);
+RcppExport SEXP _SamsaRaLight_run_sl_rcpp(SEXP treesSEXP, SEXP sensorsSEXP, SEXP sensors_onlySEXP, SEXP cellsSEXP, SEXP raysSEXP, SEXP e_direct_above_slope_m2SEXP, SEXP e_diffuse_above_slope_m2SEXP, SEXP e_direct_above_horizontal_m2SEXP, SEXP e_diffuse_above_horizontal_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP, SEXP turbid_mediumSEXP, SEXP extinction_coefSEXP, SEXP clumping_factorSEXP, SEXP trunk_interceptionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -36,7 +36,57 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type extinction_coef(extinction_coefSEXP);
     Rcpp::traits::input_parameter< double >::type clumping_factor(clumping_factorSEXP);
     Rcpp::traits::input_parameter< bool >::type trunk_interception(trunk_interceptionSEXP);
-    rcpp_result_gen = Rcpp::wrap(sl_run_rcpp(trees, sensors, sensors_only, cells, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, extinction_coef, clumping_factor, trunk_interception));
+    rcpp_result_gen = Rcpp::wrap(run_sl_rcpp(trees, sensors, sensors_only, cells, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus, turbid_medium, extinction_coef, clumping_factor, trunk_interception));
+    return rcpp_result_gen;
+END_RCPP
+}
+// precompute_sl_geometry_rcpp
+List precompute_sl_geometry_rcpp(DataFrame trees, DataFrame sensors, bool sensors_only, DataFrame cells, DataFrame rays, double e_direct_above_slope_m2, double e_diffuse_above_slope_m2, double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2, double slope, double north_to_x_cw, double aspect, double cell_size, double n_cells_x, double n_cells_y, bool use_torus);
+RcppExport SEXP _SamsaRaLight_precompute_sl_geometry_rcpp(SEXP treesSEXP, SEXP sensorsSEXP, SEXP sensors_onlySEXP, SEXP cellsSEXP, SEXP raysSEXP, SEXP e_direct_above_slope_m2SEXP, SEXP e_diffuse_above_slope_m2SEXP, SEXP e_direct_above_horizontal_m2SEXP, SEXP e_diffuse_above_horizontal_m2SEXP, SEXP slopeSEXP, SEXP north_to_x_cwSEXP, SEXP aspectSEXP, SEXP cell_sizeSEXP, SEXP n_cells_xSEXP, SEXP n_cells_ySEXP, SEXP use_torusSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< DataFrame >::type trees(treesSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type sensors(sensorsSEXP);
+    Rcpp::traits::input_parameter< bool >::type sensors_only(sensors_onlySEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type cells(cellsSEXP);
+    Rcpp::traits::input_parameter< DataFrame >::type rays(raysSEXP);
+    Rcpp::traits::input_parameter< double >::type e_direct_above_slope_m2(e_direct_above_slope_m2SEXP);
+    Rcpp::traits::input_parameter< double >::type e_diffuse_above_slope_m2(e_diffuse_above_slope_m2SEXP);
+    Rcpp::traits::input_parameter< double >::type e_direct_above_horizontal_m2(e_direct_above_horizontal_m2SEXP);
+    Rcpp::traits::input_parameter< double >::type e_diffuse_above_horizontal_m2(e_diffuse_above_horizontal_m2SEXP);
+    Rcpp::traits::input_parameter< double >::type slope(slopeSEXP);
+    Rcpp::traits::input_parameter< double >::type north_to_x_cw(north_to_x_cwSEXP);
+    Rcpp::traits::input_parameter< double >::type aspect(aspectSEXP);
+    Rcpp::traits::input_parameter< double >::type cell_size(cell_sizeSEXP);
+    Rcpp::traits::input_parameter< double >::type n_cells_x(n_cells_xSEXP);
+    Rcpp::traits::input_parameter< double >::type n_cells_y(n_cells_ySEXP);
+    Rcpp::traits::input_parameter< bool >::type use_torus(use_torusSEXP);
+    rcpp_result_gen = Rcpp::wrap(precompute_sl_geometry_rcpp(trees, sensors, sensors_only, cells, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus));
+    return rcpp_result_gen;
+END_RCPP
+}
+// estimate_pacl_from_geometry_rcpp
+NumericMatrix estimate_pacl_from_geometry_rcpp(NumericVector targets_e_unobs_direct, NumericVector targets_e_unobs_diffuse, IntegerVector pairs_target, IntegerVector pairs_ray, LogicalVector pairs_blocked, IntegerVector pairs_ntrees, IntegerVector crossings_pair, IntegerVector crossings_tree, NumericVector crossings_length, NumericVector rays_e_horizontal, LogicalVector rays_direct, NumericVector tree_coef, bool turbid_medium, bool trunk_interception);
+RcppExport SEXP _SamsaRaLight_estimate_pacl_from_geometry_rcpp(SEXP targets_e_unobs_directSEXP, SEXP targets_e_unobs_diffuseSEXP, SEXP pairs_targetSEXP, SEXP pairs_raySEXP, SEXP pairs_blockedSEXP, SEXP pairs_ntreesSEXP, SEXP crossings_pairSEXP, SEXP crossings_treeSEXP, SEXP crossings_lengthSEXP, SEXP rays_e_horizontalSEXP, SEXP rays_directSEXP, SEXP tree_coefSEXP, SEXP turbid_mediumSEXP, SEXP trunk_interceptionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericVector >::type targets_e_unobs_direct(targets_e_unobs_directSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type targets_e_unobs_diffuse(targets_e_unobs_diffuseSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type pairs_target(pairs_targetSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type pairs_ray(pairs_raySEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type pairs_blocked(pairs_blockedSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type pairs_ntrees(pairs_ntreesSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type crossings_pair(crossings_pairSEXP);
+    Rcpp::traits::input_parameter< IntegerVector >::type crossings_tree(crossings_treeSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type crossings_length(crossings_lengthSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type rays_e_horizontal(rays_e_horizontalSEXP);
+    Rcpp::traits::input_parameter< LogicalVector >::type rays_direct(rays_directSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type tree_coef(tree_coefSEXP);
+    Rcpp::traits::input_parameter< bool >::type turbid_medium(turbid_mediumSEXP);
+    Rcpp::traits::input_parameter< bool >::type trunk_interception(trunk_interceptionSEXP);
+    rcpp_result_gen = Rcpp::wrap(estimate_pacl_from_geometry_rcpp(targets_e_unobs_direct, targets_e_unobs_diffuse, pairs_target, pairs_ray, pairs_blocked, pairs_ntrees, crossings_pair, crossings_tree, crossings_length, rays_e_horizontal, rays_direct, tree_coef, turbid_medium, trunk_interception));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -63,7 +113,9 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_SamsaRaLight_sl_run_rcpp", (DL_FUNC) &_SamsaRaLight_sl_run_rcpp, 20},
+    {"_SamsaRaLight_run_sl_rcpp", (DL_FUNC) &_SamsaRaLight_run_sl_rcpp, 20},
+    {"_SamsaRaLight_precompute_sl_geometry_rcpp", (DL_FUNC) &_SamsaRaLight_precompute_sl_geometry_rcpp, 16},
+    {"_SamsaRaLight_estimate_pacl_from_geometry_rcpp", (DL_FUNC) &_SamsaRaLight_estimate_pacl_from_geometry_rcpp, 14},
     {"_SamsaRaLight_sl_set_openmp", (DL_FUNC) &_SamsaRaLight_sl_set_openmp, 3},
     {"_SamsaRaLight_sl_print_openmp_status", (DL_FUNC) &_SamsaRaLight_sl_print_openmp_status, 0},
     {NULL, NULL, 0}

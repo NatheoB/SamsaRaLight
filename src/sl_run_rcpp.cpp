@@ -63,6 +63,35 @@ struct interception {
 	bool withTrunk = false;
 };
 
+// Geometry of the rays toward a set of targets (sensors or cells), independent from the crown LAD and openness
+// Pairs = ray x target pairs intercepted at least once (indices start at 1, as in R), in the order of the targets
+// Crossings = crowns crossed by the ray of each pair (path length summed over crown parts and torus copies), linked to their pair by its index
+struct geometryTargets {
+
+	// Targets
+	std::vector<int> targetsId;
+	std::vector<double> eUnobsDirect; // Energy of unobstructed direct rays (in MJ/m2 on a horizontal plane)
+	std::vector<double> eUnobsDiffuse; // Energy of unobstructed diffuse rays (in MJ/m2 on a horizontal plane)
+
+	// Pairs
+	std::vector<int> pairsTarget;
+	std::vector<int> pairsRay;
+	std::vector<int> pairsBlocked; // Is the ray intercepted by a trunk ?
+	std::vector<int> pairsNTrees; // Number of crowns crossed (i.e. number of crossings of the pair)
+
+	// Crossings
+	std::vector<int> crossingsPair; // Index of the pair (row in the pairs)
+	std::vector<int> crossingsTree;
+	std::vector<double> crossingsLength;
+};
+
+// Rays used in the geometry
+struct geometryRays {
+	std::vector<double> eHorizontal; // Energy of the ray above canopy (in MJ/m2 on a horizontal plane)
+	std::vector<double> eSlope; // Energy of the ray above canopy (in MJ/m2 on the slope plane)
+	std::vector<int> direct; // Is the ray a direct one ?
+};
+
 class Ray {
 
 private:
@@ -1874,6 +1903,11 @@ private:
 	// i.e. do not cast rays towards cells and do not predict tree energy interception
 	bool sensorsOnly;
 
+	// Geometry of the rays toward the sensors and cells, independent from the crown LAD and openness (see computeGeometry())
+	geometryRays raysGeometry;
+	geometryTargets sensorsGeometry;
+	geometryTargets cellsGeometry;
+
 
 
 private:
@@ -2202,6 +2236,123 @@ private:
 		return(incident_energy * (1 - exp(-extinction_coef * clumping_factor * leaf_area_density * path_length)));
 	}
 
+	// Geometry of the rays toward a set of targets (sensors or cells), independent from the crown LAD and openness
+	// For each ray x target pair intercepted at least once: the trees whose crown is crossed, the path length across
+	// each crown, and whether a trunk intercepts the ray.
+	// The order of interceptions is not stored: the energy reaching a target is the product of the transmittances
+	// of the crossed crowns (turbid medium or porous envelop), or null if a trunk intercepts the ray (when considered).
+	geometryTargets computeGeometryTargets(std::vector<Target*>& targets, std::vector<int>& targets_id,
+		std::vector<double>& rays_e) {
+
+		int n_trees = this->stand.getNTrees();
+		int n_rays = this->rays.getNRays();
+		int n_targets = targets.size();
+
+		// Buffers per target, filled in parallel and merged in the order of the targets (output independent from the number of threads)
+		std::vector<std::vector<int>> pairs_ray(n_targets);
+		std::vector<std::vector<int>> pairs_blocked(n_targets);
+		std::vector<std::vector<int>> pairs_ntrees(n_targets);
+		std::vector<std::vector<int>> crossings_pair(n_targets);
+		std::vector<std::vector<int>> crossings_tree(n_targets);
+		std::vector<std::vector<double>> crossings_length(n_targets);
+
+		geometryTargets geometry;
+		geometry.targetsId = targets_id;
+		geometry.eUnobsDirect.assign(n_targets, 0.0);
+		geometry.eUnobsDiffuse.assign(n_targets, 0.0);
+
+		#ifdef _OPENMP
+		#pragma omp parallel for schedule(static)
+		#endif
+		for (int k = 0; k < n_targets; k++) {
+
+			Target* target = targets[k];
+
+			// Path length across each crossed crown for the current ray
+			std::vector<double> length_tree(n_trees, 0.0);
+			std::vector<bool> is_crossed(n_trees, false);
+			std::vector<int> trees_crossed;
+
+			for (int i = 0; i < n_rays; i++) {
+
+				Ray* ray = this->rays.getRay(i);
+
+				std::vector<interception*> v_interc = this->findInterceptionsRayToTarget(ray, target);
+
+				// Unobstructed ray: its whole energy reaches the target whatever the crown properties
+				// (energy on a horizontal plane for sensors, on the slope plane for cells, as in exportResults())
+				if (v_interc.empty()) {
+					if (this->raysGeometry.direct[i]) {
+						geometry.eUnobsDirect[k] += rays_e[i];
+					}
+					else {
+						geometry.eUnobsDiffuse[k] += rays_e[i];
+					}
+					continue;
+				}
+
+				// Sum the path lengths per tree (several crown parts, or several torus copies of the same tree)
+				// A crown is counted as crossed even with a null path length (porous envelop attenuates the ray at the first crown part)
+				// Crowns are stored even if a trunk intercepts the ray: the trunk rule is applied when computing the energy
+				bool blocked = false;
+				int n_interceptions = v_interc.size();
+				for (int j = 0; j < n_interceptions; j++) {
+					if (v_interc[j]->withTrunk) {
+						blocked = true;
+					}
+					else {
+						int t = v_interc[j]->vectIdTree;
+						if (!is_crossed[t]) {
+							is_crossed[t] = true;
+							trees_crossed.push_back(t);
+						}
+						length_tree[t] += v_interc[j]->length;
+					}
+					delete v_interc[j];
+				}
+
+				// Store the pair and its crossed crowns
+				int n_crossed = trees_crossed.size();
+
+				pairs_ray[k].push_back(i + 1);
+				pairs_blocked[k].push_back(blocked);
+				pairs_ntrees[k].push_back(n_crossed);
+
+				// Index of the pair among the pairs of the target (shifted to the index among all the pairs when merging the targets)
+				int pair_target = pairs_ray[k].size();
+
+				for (int m = 0; m < n_crossed; m++) {
+					int t = trees_crossed[m];
+					crossings_pair[k].push_back(pair_target);
+					crossings_tree[k].push_back(t + 1);
+					crossings_length[k].push_back(length_tree[t]);
+					length_tree[t] = 0.0;
+					is_crossed[t] = false;
+				}
+				trees_crossed.clear();
+			}
+		}
+
+		// Merge the buffers of the targets
+		for (int k = 0; k < n_targets; k++) {
+
+			// Number of pairs of the previous targets
+			int n_pairs_previous = geometry.pairsTarget.size();
+			for (int pair_target : crossings_pair[k]) {
+				geometry.crossingsPair.push_back(n_pairs_previous + pair_target);
+			}
+
+			geometry.pairsTarget.insert(geometry.pairsTarget.end(), pairs_ray[k].size(), k + 1);
+			geometry.pairsRay.insert(geometry.pairsRay.end(), pairs_ray[k].begin(), pairs_ray[k].end());
+			geometry.pairsBlocked.insert(geometry.pairsBlocked.end(), pairs_blocked[k].begin(), pairs_blocked[k].end());
+			geometry.pairsNTrees.insert(geometry.pairsNTrees.end(), pairs_ntrees[k].begin(), pairs_ntrees[k].end());
+			geometry.crossingsTree.insert(geometry.crossingsTree.end(), crossings_tree[k].begin(), crossings_tree[k].end());
+			geometry.crossingsLength.insert(geometry.crossingsLength.end(), crossings_length[k].begin(), crossings_length[k].end());
+		}
+
+		return(geometry);
+	}
+
 
 public:
 
@@ -2381,6 +2532,97 @@ public:
 				}
 			}
 		}
+	}
+
+	void computeGeometry() {
+
+		// Geometry of the rays toward the sensors and the cells, independent from the crown LAD and openness (see precompute_sl_geometry())
+		// Counterpart of computeInterceptions(): cells are considered only if not sensorsOnly
+
+		// Energy of each ray above canopy on a horizontal plane and on the slope plane (in MJ/m2),
+		// as in summarizeInterceptionsRayToTarget(), and type of ray (direct or diffuse)
+		int n_rays = this->rays.getNRays();
+		this->raysGeometry.eHorizontal.assign(n_rays, 0.0);
+		this->raysGeometry.eSlope.assign(n_rays, 0.0);
+		this->raysGeometry.direct.assign(n_rays, 0);
+
+		for (int i = 0; i < n_rays; i++) {
+			Ray* ray = this->rays.getRay(i);
+			double scalar_slope = cos(stand.getSlope()) * ray->getSinHeightAngle() +
+				sin(stand.getSlope()) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
+			double scalar_horizontal = cos(0.0) * ray->getSinHeightAngle() +
+				sin(0.0) * ray->getCosHeightAngle() * cos(ray->getAzimuth() - stand.getBottomAzimuth());
+			this->raysGeometry.eSlope[i] = scalar_slope * ray->getIncidentEnergy();
+			this->raysGeometry.eHorizontal[i] = scalar_horizontal * ray->getIncidentEnergy();
+			this->raysGeometry.direct[i] = ray->isDirect();
+		}
+
+		// Geometry toward the sensors
+		if (this->stand.areThereSensors()) {
+			int n_sensors = this->stand.getNSensors();
+			std::vector<Target*> sensors;
+			std::vector<int> sensors_id;
+			for (int s = 0; s < n_sensors; s++) {
+				Sensor* sensor = this->stand.getSensor(s);
+				sensors.push_back(sensor);
+				sensors_id.push_back(sensor->getIdSensor());
+			}
+			this->sensorsGeometry = this->computeGeometryTargets(sensors, sensors_id, this->raysGeometry.eHorizontal);
+		}
+
+		// Geometry toward the cells, row by row
+		if (!this->sensorsOnly) {
+			std::vector<Target*> cells;
+			std::vector<int> cells_id;
+			for (int r = 0; r < this->stand.getNCellsY(); r++) {
+				for (int c = 0; c < this->stand.getNCellsX(); c++) {
+					Cell* cell = this->stand.getCell(r, c);
+					cells.push_back(cell);
+					cells_id.push_back(cell->getIdCell());
+				}
+			}
+			this->cellsGeometry = this->computeGeometryTargets(cells, cells_id, this->raysGeometry.eSlope);
+		}
+	}
+
+	List exportGeometry() {
+
+		// Convert the geometry computed by computeGeometry() into R format (only function creating Rcpp objects for the geometry)
+
+		// Convert the geometry toward a set of targets (NULL if not computed)
+		auto export_targets = [](geometryTargets& geometry, bool is_computed, std::string name_id) -> SEXP {
+
+			if (!is_computed) { return(R_NilValue); }
+
+			return(List::create(
+				Named("targets") = DataFrame::create(
+					Named(name_id) = IntegerVector(geometry.targetsId.begin(), geometry.targetsId.end()),
+					Named("e_unobs_direct") = NumericVector(geometry.eUnobsDirect.begin(), geometry.eUnobsDirect.end()),
+					Named("e_unobs_diffuse") = NumericVector(geometry.eUnobsDiffuse.begin(), geometry.eUnobsDiffuse.end())
+				),
+				Named("pairs") = DataFrame::create(
+					Named("target") = IntegerVector(geometry.pairsTarget.begin(), geometry.pairsTarget.end()),
+					Named("ray") = IntegerVector(geometry.pairsRay.begin(), geometry.pairsRay.end()),
+					Named("blocked") = LogicalVector(geometry.pairsBlocked.begin(), geometry.pairsBlocked.end()),
+					Named("n_trees") = IntegerVector(geometry.pairsNTrees.begin(), geometry.pairsNTrees.end())
+				),
+				Named("crossings") = DataFrame::create(
+					Named("pair") = IntegerVector(geometry.crossingsPair.begin(), geometry.crossingsPair.end()),
+					Named("tree") = IntegerVector(geometry.crossingsTree.begin(), geometry.crossingsTree.end()),
+					Named("length") = NumericVector(geometry.crossingsLength.begin(), geometry.crossingsLength.end())
+				)
+			));
+		};
+
+		return(List::create(
+			Named("sensors") = export_targets(this->sensorsGeometry, this->stand.areThereSensors(), "id_sensor"),
+			Named("cells") = export_targets(this->cellsGeometry, !this->sensorsOnly, "id_cell"),
+			Named("rays") = DataFrame::create(
+				Named("e_horizontal") = NumericVector(this->raysGeometry.eHorizontal.begin(), this->raysGeometry.eHorizontal.end()),
+				Named("e_slope") = NumericVector(this->raysGeometry.eSlope.begin(), this->raysGeometry.eSlope.end()),
+				Named("direct") = LogicalVector(this->raysGeometry.direct.begin(), this->raysGeometry.direct.end())
+			)
+		));
 	}
 
 	List exportResults() {
@@ -2801,7 +3043,7 @@ public:
 
 
 // [[Rcpp::export]]
-List sl_run_rcpp(
+List run_sl_rcpp(
 	DataFrame trees,
 	DataFrame sensors, bool sensors_only,
 	DataFrame cells,
@@ -2852,6 +3094,148 @@ List sl_run_rcpp(
 		_["paraboloid"] = static_cast<double>(g_n_unexpected_paraboloid.load()),
 		_["trunk"] = static_cast<double>(g_n_unexpected_trunk.load())),
 		"n_unexpected_interceptions");
+
+	return(output);
+}
+
+
+// [[Rcpp::export]]
+List precompute_sl_geometry_rcpp(
+	DataFrame trees,
+	DataFrame sensors, bool sensors_only,
+	DataFrame cells,
+	DataFrame rays,
+	double e_direct_above_slope_m2, double e_diffuse_above_slope_m2,
+	double e_direct_above_horizontal_m2, double e_diffuse_above_horizontal_m2,
+	double slope, double north_to_x_cw, double aspect,
+	double cell_size, double n_cells_x, double n_cells_y,
+	bool use_torus
+)
+{
+	// Reset the counters of unexpected interceptions
+	g_n_unexpected_ellipsoid = 0;
+	g_n_unexpected_paraboloid = 0;
+	g_n_unexpected_trunk = 0;
+
+	// Initialize the model
+	// The interception model (turbid medium, extinction and clumping) is not used by the geometry
+	// Trunks are always considered: whether they intercept the rays is chosen in estimate_pacl_from_geometry()
+	Model sl_model = Model(
+		trees,
+		sensors, sensors_only,
+		cells,
+		rays,
+		e_direct_above_slope_m2, e_diffuse_above_slope_m2,
+		e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
+		slope, north_to_x_cw, aspect,
+		cell_size, n_cells_x, n_cells_y,
+		use_torus,
+		true, 0.5, 1.0,
+		true
+	);
+
+	// [OPTIMIZATION]: find the extend of possible interception of each ray (as in run_sl_rcpp())
+	sl_model.findPotentialRelCells();
+
+	// Crowns crossed by each ray toward each target
+	sl_model.computeGeometry();
+
+	// Convert the geometry into R format
+	List output = sl_model.exportGeometry();
+
+	// Add the number of interceptions ignored because of an unexpected number of interception points
+	output.push_back(NumericVector::create(
+		_["ellipsoid"] = static_cast<double>(g_n_unexpected_ellipsoid.load()),
+		_["paraboloid"] = static_cast<double>(g_n_unexpected_paraboloid.load()),
+		_["trunk"] = static_cast<double>(g_n_unexpected_trunk.load())),
+		"n_unexpected_interceptions");
+
+	return(output);
+}
+
+
+// Energies above each target from a precomputed geometry (see precompute_sl_geometry())
+// Pure C++, reading the R vectors through pointers (no copy of the geometry at each call)
+// tree_coef: extinction coefficient x clumping factor x LAD (turbid medium) or crown openness (porous envelop), per tree
+// Returns a column-major matrix n_targets x 4 (in MJ/m2 on a horizontal plane):
+// energy intercepted from direct rays, from diffuse rays, and energy of unobstructed direct rays, diffuse rays
+std::vector<double> computeTargetsEnergiesFromGeometry(
+	int n_targets, const double* targets_e_unobs_direct, const double* targets_e_unobs_diffuse,
+	int n_pairs, const int* pairs_target, const int* pairs_ray, const int* pairs_blocked, const int* pairs_ntrees,
+	int n_crossings, const int* crossings_pair, const int* crossings_tree, const double* crossings_length,
+	const double* rays_e_horizontal, const int* rays_direct,
+	const double* tree_coef, bool turbid_medium, bool trunk_interception)
+{
+	// Attenuation of each pair by its crossed crowns
+	// Turbid medium: optical depth (sum of extinction x clumping x LAD x path length), transmittance = exp(-depth)
+	// Porous envelop: transmittance = product of the openness of the crossed crowns (once per crown)
+	std::vector<double> attenuation(n_pairs, turbid_medium ? 0.0 : 1.0);
+
+	for (int c = 0; c < n_crossings; c++) {
+		int p = crossings_pair[c] - 1;
+		double coef = tree_coef[crossings_tree[c] - 1];
+		if (turbid_medium) {
+			attenuation[p] += coef * crossings_length[c];
+		}
+		else {
+			attenuation[p] *= coef;
+		}
+	}
+
+	// Energies of the targets: intercepted (columns 0 and 1), unobstructed (columns 2 and 3)
+	std::vector<double> energies(n_targets * 4, 0.0);
+	for (int k = 0; k < n_targets; k++) {
+		energies[2 * n_targets + k] = targets_e_unobs_direct[k];
+		energies[3 * n_targets + k] = targets_e_unobs_diffuse[k];
+	}
+
+	for (int p = 0; p < n_pairs; p++) {
+
+		int k = pairs_target[p] - 1;
+		int r = pairs_ray[p] - 1;
+		int col = rays_direct[r] ? 0 : 1;
+
+		// Ray intercepted by a trunk (if considered): no energy transmitted
+		if (trunk_interception && pairs_blocked[p]) {
+			energies[col * n_targets + k] += rays_e_horizontal[r];
+		}
+		// Ray intercepted only by trunks, not considered: unobstructed ray (as in run_sl_rcpp() without trunks)
+		else if (pairs_ntrees[p] == 0) {
+			energies[(col + 2) * n_targets + k] += rays_e_horizontal[r];
+		}
+		// Ray attenuated by the crossed crowns
+		else {
+			double transmittance = turbid_medium ? exp(-attenuation[p]) : attenuation[p];
+			energies[col * n_targets + k] += rays_e_horizontal[r] * (1.0 - transmittance);
+		}
+	}
+
+	return(energies);
+}
+
+
+// [[Rcpp::export]]
+NumericMatrix estimate_pacl_from_geometry_rcpp(
+	NumericVector targets_e_unobs_direct, NumericVector targets_e_unobs_diffuse,
+	IntegerVector pairs_target, IntegerVector pairs_ray, LogicalVector pairs_blocked, IntegerVector pairs_ntrees,
+	IntegerVector crossings_pair, IntegerVector crossings_tree, NumericVector crossings_length,
+	NumericVector rays_e_horizontal, LogicalVector rays_direct,
+	NumericVector tree_coef, bool turbid_medium, bool trunk_interception
+)
+{
+	int n_targets = targets_e_unobs_direct.size();
+
+	// Compute the energies without copying the geometry (R logical vectors are stored as integers)
+	std::vector<double> energies = computeTargetsEnergiesFromGeometry(
+		n_targets, targets_e_unobs_direct.begin(), targets_e_unobs_diffuse.begin(),
+		pairs_target.size(), pairs_target.begin(), pairs_ray.begin(), pairs_blocked.begin(), pairs_ntrees.begin(),
+		crossings_pair.size(), crossings_pair.begin(), crossings_tree.begin(), crossings_length.begin(),
+		rays_e_horizontal.begin(), rays_direct.begin(),
+		tree_coef.begin(), turbid_medium, trunk_interception);
+
+	// Convert into R format
+	NumericMatrix output(n_targets, 4, energies.begin());
+	colnames(output) = CharacterVector::create("e_intercepted_direct", "e_intercepted_diffuse", "e_unobs_direct", "e_unobs_diffuse");
 
 	return(output);
 }

@@ -8,16 +8,18 @@
 #' For typical use, see \link{run_sl}, which provides standard values for the
 #' ray-discretization parameters.
 #'
-#' @param sl_stand An object of class \code{"sl_stand"} representing the virtual
-#'   forest stand. Each row of \code{sl_stand$trees} represents a tree, with
-#'   required and optional columns describing crown geometry, tree height,
-#'   crown radius, crown openness, leaf area density, and related attributes.
-#'   See \link{validate_sl_stand}.
+#' @param sl_stand An object of class \code{"sl_stand"} describing the forest
+#'   stand, typically created with \link{create_sl_stand}. It contains tree,
+#'   sensor, terrain, and grid geometry information (see
+#'   \link{validate_sl_stand}).
 #' @param monthly_radiations A data frame containing monthly horizontal
-#'   radiation (\code{Hrad}) and diffuse-to-global radiation ratios
-#'   (\code{DGratio}), typically computed with \link{get_monthly_radiations}.
-#' @param sensors_only Logical. If \code{TRUE}, compute light interception
-#'   only for sensors. Defaults to \code{FALSE}.
+#'   radiation (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global
+#'   radiation ratio (\code{DGratio}), typically obtained with
+#'   \link{get_monthly_radiations}. The input is validated internally using
+#'   \link{check_monthly_radiations}.
+#' @param sensors_only Logical. If \code{TRUE}, compute light interception only
+#'   for sensors. This can substantially reduce computation time when only
+#'   sensor-level results are required. Defaults to \code{FALSE}.
 #' @param use_torus Logical. If \code{TRUE}, use a torus system to handle
 #'   stand borders. Defaults to \code{TRUE}.
 #' @param turbid_medium Logical. If \code{TRUE}, crowns are represented as
@@ -54,12 +56,15 @@
 #'   between 1 and 365. Must be greater than or equal to \code{start_day}.
 #'   Defaults to \code{365}.
 #' @param detailed_output Logical. If \code{TRUE}, retain detailed ray,
-#'   energy, and interception information in the output. If \code{FALSE},
-#'   only the main light-interception metrics are retained. Defaults to
-#'   \code{FALSE}.
+#'   energy, and interception information, including the monthly ray
+#'   discretization and interception matrices. If \code{FALSE}, only the main
+#'   light-interception metrics are returned. Defaults to \code{FALSE}.
 #' @param parallel_mode Logical. If \code{TRUE}, ray--target computations are
 #'   parallelised using OpenMP. If \code{FALSE}, the model runs in
-#'   single-thread mode. Defaults to \code{FALSE}.
+#'   single-thread mode. BLAS is automatically forced to single-thread mode
+#'   during the simulation to avoid competition between BLAS and OpenMP.
+#'   Parallel execution can substantially reduce computation time for large
+#'   stands or fine ray discretization. Defaults to \code{FALSE}.
 #' @param n_threads Integer or \code{NULL}. Number of CPU threads to use when
 #'   \code{parallel_mode = TRUE}. If \code{NULL}, OpenMP automatically selects
 #'   the number of available threads. If supplied, must be a positive integer.
@@ -146,51 +151,24 @@ run_sl_advanced <- function(
   
   # ---- ARGUMENTS CHECKS ----
   
-  # sl_stand
-  validate_sl_stand(sl_stand)
-  
-  # monthly_radiations
-  check_monthly_radiations(monthly_radiations, verbose = FALSE)
-  
-  # Logical arguments
-  for (arg_name in c("sensors_only", "use_torus", "turbid_medium", "trunk_interception",
-                     "soc", "detailed_output", "parallel_mode", "verbose")) {
-    arg_val <- get(arg_name)
-    if (!is.logical(arg_val) || length(arg_val) != 1 || is.na(arg_val)) {
-      stop(sprintf("`%s` must be a single TRUE or FALSE.", arg_name), call. = FALSE)
-    }
-  }
-  
-  # Numeric scalar arguments
-  for (arg_name in c("extinction_coef", "clumping_factor",
-                     "height_anglemin", "direct_startoffset",
-                     "direct_anglestep", "diffuse_anglestep")) {
-    arg_val <- get(arg_name)
-    if (!is.numeric(arg_val) || length(arg_val) != 1 || is.na(arg_val)) {
-      stop(sprintf("`%s` must be a single numeric value.", arg_name), call. = FALSE)
-    }
-  }
-  
-  # Days
-  if (!is.numeric(start_day) || length(start_day) != 1 || start_day < 1 || start_day > 365) {
-    stop("`start_day` must be a single number between 1 and 365.", call. = FALSE)
-  }
-  if (!is.numeric(end_day) || length(end_day) != 1 || end_day < 1 || end_day > 365) {
-    stop("`end_day` must be a single number between 1 and 365.", call. = FALSE)
-  }
-  if (end_day < start_day) {
-    stop("`end_day` cannot be smaller than `start_day`.", call. = FALSE)
-  }
-  
-  # Parallel threads
-  if (!is.null(n_threads)) {
-    if (!is.numeric(n_threads) || length(n_threads) != 1 || is.na(n_threads)) {
-      stop("`n_threads` must be a single integer or NULL.", call. = FALSE)
-    }
-    if (n_threads < 1 || n_threads %% 1 != 0) {
-      stop("`n_threads` must be a positive integer.", call. = FALSE)
-    }
-  }
+  check_sl_run_args(
+    sl_stand,
+    monthly_radiations,
+    logical_args = list(
+      sensors_only = sensors_only, use_torus = use_torus,
+      turbid_medium = turbid_medium, trunk_interception = trunk_interception,
+      soc = soc, detailed_output = detailed_output,
+      parallel_mode = parallel_mode, verbose = verbose
+    ),
+    numeric_args = list(
+      extinction_coef = extinction_coef, clumping_factor = clumping_factor,
+      height_anglemin = height_anglemin, direct_startoffset = direct_startoffset,
+      direct_anglestep = direct_anglestep, diffuse_anglestep = diffuse_anglestep
+    ),
+    start_day = start_day,
+    end_day = end_day,
+    n_threads = n_threads
+  )
   
   # Interception model checks
   validate_interception_model(sl_stand$trees, turbid_medium)
@@ -214,21 +192,11 @@ run_sl_advanced <- function(
   
   # RUN C++ SIMULATION ----
 
-  ## Prevent BLAS and OpenMP fighting ----
-  RhpcBLASctl::blas_set_num_threads(1)
-  RhpcBLASctl::omp_set_num_threads(1)
-
-  ## Set parallel ----
-  if (is.null(n_threads)) n_threads <- -1L
-  sl_set_openmp(parallel_mode = parallel_mode, 
-                num_threads = as.integer(n_threads),
-                verbose = verbose)
-  
-  if (verbose) sl_print_openmp_status()
-  
+  ## Set parallel (BLAS single-threaded, OpenMP threads) ----
+  set_sl_parallel(parallel_mode, n_threads, verbose)
   
   ## Run the model ----
-  out <- sl_run_rcpp(
+  out <- run_sl_rcpp(
     sl_stand$trees, 
     sl_stand$sensors, 
     sensors_only,
@@ -257,18 +225,8 @@ run_sl_advanced <- function(
 
   # Interceptions with an odd number of interception points that are not a known particular case
   # (ignored as in Capsis, but reported to the user)
-  n_unexpected <- out$n_unexpected_interceptions
+  warn_sl_unexpected_interceptions(out$n_unexpected_interceptions)
   out$n_unexpected_interceptions <- NULL
-
-  if (sum(n_unexpected) > 0) {
-    warning(sprintf(
-      paste0("%s ray/tree interception(s) with an unexpected number of interception points ",
-             "were ignored, as in Capsis (ellipsoids: %s, paraboloids: %s, trunks: %s). ",
-             "This may come from rays crossing crown or trunk edges."),
-      sum(n_unexpected), n_unexpected[["ellipsoid"]], n_unexpected[["paraboloid"]],
-      n_unexpected[["trunk"]]),
-      call. = FALSE)
-  }
   
   if (!detailed_output) {
     out$sensors <- out$sensors %>% dplyr::select(id_sensor, e, pacl, punobs)

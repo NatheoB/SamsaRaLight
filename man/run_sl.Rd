@@ -17,7 +17,8 @@ run_sl(
 \arguments{
 \item{sl_stand}{An object of class \code{"sl_stand"} describing the forest
 stand, typically created with \link{create_sl_stand}. It contains tree,
-sensor, terrain, and grid geometry information.}
+sensor, terrain, and grid geometry information (see
+\link{validate_sl_stand}).}
 
 \item{monthly_radiations}{A data frame containing monthly horizontal
 radiation (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global

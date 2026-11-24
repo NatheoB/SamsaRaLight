@@ -1,3 +1,9 @@
+# SamsaRaLight (development version)
+
+* New functions `precompute_sl_geometry()` and `estimate_pacl_from_geometry()` to estimate the light on sensors and cells many times for the same stand with different crown properties (e.g. calibration of crown LAD). The part of the ray tracing that does not depend on crown LAD or openness (crowns crossed by each ray, path lengths, trunks) is computed once; the light on sensors and cells is then estimated for any crown LAD or openness, extinction coefficient, clumping factor and trunk interception, with the same results as `run_sl_advanced()` up to rounding errors and 100 to 500 times faster on the package datasets. Light intercepted by trees cannot be estimated from the geometry.
+* Internal: argument checks, OpenMP set-up and the warning on unexpected interceptions are shared by `run_sl_advanced()` and `precompute_sl_geometry()`; the C++ function `sl_run_rcpp()` is renamed `run_sl_rcpp()`.
+* Documentation: `run_sl()` inherits its parameters from `run_sl_advanced()`, whose parameter descriptions were harmonised.
+
 # SamsaRaLight 1.1.0
 
 Corrections following a review of the package code by Claude Code, in comparison with the Capsis SamsaraLight Java library.

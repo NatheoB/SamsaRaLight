@@ -191,3 +191,131 @@ rotate_vec_ccw <- function(x, y, theta) {
   )
 }
 
+
+#' Check the arguments common to the SamsaRaLight runs
+#'
+#' Validates the stand, the monthly radiations, the logical and numeric scalar
+#' arguments, the simulated period and the number of OpenMP threads
+#' (used by \link{run_sl_advanced} and \link{precompute_sl_geometry}).
+#'
+#' @param sl_stand An object of class \code{"sl_stand"}.
+#' @param monthly_radiations A data frame of monthly radiations.
+#' @param logical_args Named list of the arguments that must be a single TRUE or FALSE.
+#' @param numeric_args Named list of the arguments that must be a single numeric value.
+#' @param start_day,end_day First and last day of the simulated period.
+#' @param n_threads Number of OpenMP threads, or \code{NULL}.
+#'
+#' @return Invisibly \code{TRUE}, or an error.
+#'
+#' @noRd
+check_sl_run_args <- function(sl_stand,
+                              monthly_radiations,
+                              logical_args,
+                              numeric_args,
+                              start_day,
+                              end_day,
+                              n_threads) {
+
+  # sl_stand
+  validate_sl_stand(sl_stand)
+
+  # monthly_radiations
+  check_monthly_radiations(monthly_radiations, verbose = FALSE)
+
+  # Logical arguments
+  for (arg_name in names(logical_args)) {
+    arg_val <- logical_args[[arg_name]]
+    if (!is.logical(arg_val) || length(arg_val) != 1 || is.na(arg_val)) {
+      stop(sprintf("`%s` must be a single TRUE or FALSE.", arg_name), call. = FALSE)
+    }
+  }
+
+  # Numeric scalar arguments
+  for (arg_name in names(numeric_args)) {
+    arg_val <- numeric_args[[arg_name]]
+    if (!is.numeric(arg_val) || length(arg_val) != 1 || is.na(arg_val)) {
+      stop(sprintf("`%s` must be a single numeric value.", arg_name), call. = FALSE)
+    }
+  }
+
+  # Days
+  if (!is.numeric(start_day) || length(start_day) != 1 || start_day < 1 || start_day > 365) {
+    stop("`start_day` must be a single number between 1 and 365.", call. = FALSE)
+  }
+  if (!is.numeric(end_day) || length(end_day) != 1 || end_day < 1 || end_day > 365) {
+    stop("`end_day` must be a single number between 1 and 365.", call. = FALSE)
+  }
+  if (end_day < start_day) {
+    stop("`end_day` cannot be smaller than `start_day`.", call. = FALSE)
+  }
+
+  # Parallel threads
+  if (!is.null(n_threads)) {
+    if (!is.numeric(n_threads) || length(n_threads) != 1 || is.na(n_threads)) {
+      stop("`n_threads` must be a single integer or NULL.", call. = FALSE)
+    }
+    if (n_threads < 1 || n_threads %% 1 != 0) {
+      stop("`n_threads` must be a positive integer.", call. = FALSE)
+    }
+  }
+
+  invisible(TRUE)
+}
+
+
+#' Set the parallel computation of the SamsaRaLight C++ code
+#'
+#' Forces BLAS and R-level OpenMP to a single thread (to avoid competing
+#' parallel execution), then sets the OpenMP threads used by the C++ code.
+#'
+#' @param parallel_mode Logical. Parallelise with OpenMP?
+#' @param n_threads Number of OpenMP threads, or \code{NULL} (automatic).
+#' @param verbose Logical. Print the OpenMP status?
+#'
+#' @return Invisibly \code{NULL}.
+#'
+#' @noRd
+set_sl_parallel <- function(parallel_mode, n_threads, verbose) {
+
+  ## Prevent BLAS and OpenMP fighting ----
+  RhpcBLASctl::blas_set_num_threads(1)
+  RhpcBLASctl::omp_set_num_threads(1)
+
+  ## Set parallel ----
+  if (is.null(n_threads)) n_threads <- -1L
+  sl_set_openmp(parallel_mode = parallel_mode,
+                num_threads = as.integer(n_threads),
+                verbose = verbose)
+
+  if (verbose) sl_print_openmp_status()
+
+  invisible(NULL)
+}
+
+
+#' Warn about the interceptions ignored by the C++ code
+#'
+#' Interceptions with an odd number of interception points that are not a
+#' known particular case are ignored, as in Capsis, and reported to the user
+#' in a single warning.
+#'
+#' @param n_unexpected Named numeric vector of the number of ignored
+#'   interceptions (\code{ellipsoid}, \code{paraboloid}, \code{trunk}).
+#'
+#' @return Invisibly \code{NULL}.
+#'
+#' @noRd
+warn_sl_unexpected_interceptions <- function(n_unexpected) {
+
+  if (sum(n_unexpected) > 0) {
+    warning(sprintf(
+      paste0("%s ray/tree interception(s) with an unexpected number of interception points ",
+             "were ignored, as in Capsis (ellipsoids: %s, paraboloids: %s, trunks: %s). ",
+             "This may come from rays crossing crown or trunk edges."),
+      sum(n_unexpected), n_unexpected[["ellipsoid"]], n_unexpected[["paraboloid"]],
+      n_unexpected[["trunk"]]),
+      call. = FALSE)
+  }
+
+  invisible(NULL)
+}

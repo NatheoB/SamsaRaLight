@@ -27,18 +27,20 @@ run_sl_advanced(
 )
 }
 \arguments{
-\item{sl_stand}{An object of class \code{"sl_stand"} representing the virtual
-forest stand. Each row of \code{sl_stand$trees} represents a tree, with
-required and optional columns describing crown geometry, tree height,
-crown radius, crown openness, leaf area density, and related attributes.
-See \link{validate_sl_stand}.}
+\item{sl_stand}{An object of class \code{"sl_stand"} describing the forest
+stand, typically created with \link{create_sl_stand}. It contains tree,
+sensor, terrain, and grid geometry information (see
+\link{validate_sl_stand}).}
 
 \item{monthly_radiations}{A data frame containing monthly horizontal
-radiation (\code{Hrad}) and diffuse-to-global radiation ratios
-(\code{DGratio}), typically computed with \link{get_monthly_radiations}.}
+radiation (\code{Hrad}, in MJ m\eqn{^{-2}}) and diffuse-to-global
+radiation ratio (\code{DGratio}), typically obtained with
+\link{get_monthly_radiations}. The input is validated internally using
+\link{check_monthly_radiations}.}
 
-\item{sensors_only}{Logical. If \code{TRUE}, compute light interception
-only for sensors. Defaults to \code{FALSE}.}
+\item{sensors_only}{Logical. If \code{TRUE}, compute light interception only
+for sensors. This can substantially reduce computation time when only
+sensor-level results are required. Defaults to \code{FALSE}.}
 
 \item{use_torus}{Logical. If \code{TRUE}, use a torus system to handle
 stand borders. Defaults to \code{TRUE}.}
@@ -88,13 +90,16 @@ between 1 and 365. Must be greater than or equal to \code{start_day}.
 Defaults to \code{365}.}
 
 \item{detailed_output}{Logical. If \code{TRUE}, retain detailed ray,
-energy, and interception information in the output. If \code{FALSE},
-only the main light-interception metrics are retained. Defaults to
-\code{FALSE}.}
+energy, and interception information, including the monthly ray
+discretization and interception matrices. If \code{FALSE}, only the main
+light-interception metrics are returned. Defaults to \code{FALSE}.}
 
 \item{parallel_mode}{Logical. If \code{TRUE}, ray--target computations are
 parallelised using OpenMP. If \code{FALSE}, the model runs in
-single-thread mode. Defaults to \code{FALSE}.}
+single-thread mode. BLAS is automatically forced to single-thread mode
+during the simulation to avoid competition between BLAS and OpenMP.
+Parallel execution can substantially reduce computation time for large
+stands or fine ray discretization. Defaults to \code{FALSE}.}
 
 \item{n_threads}{Integer or \code{NULL}. Number of CPU threads to use when
 \code{parallel_mode = TRUE}. If \code{NULL}, OpenMP automatically selects
