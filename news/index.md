@@ -28,6 +28,11 @@
   inherits its parameters from
   [`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md),
   whose parameter descriptions were harmonised.
+- [`estimate_pacl_from_geometry()`](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md)
+  is about 5 times faster when called repeatedly on small geometries
+  (output built with [`list2DF()`](https://rdrr.io/r/base/list2DF.html)
+  instead of [`data.frame()`](https://rdrr.io/r/base/data.frame.html)),
+  with identical results.
 
 ## SamsaRaLight 1.1.0
 
