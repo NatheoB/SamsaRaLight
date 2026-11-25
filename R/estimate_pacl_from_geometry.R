@@ -119,17 +119,10 @@ estimate_pacl_from_geometry <- function(
   # on a horizontal plane for sensors, on the slope plane for cells
   estimate_targets <- function(geom, name_id, rays_e, e_above_direct, e_above_diffuse) {
 
-    # Columns of the output of run_sl_advanced()
-    cols <- c(name_id, "e", "e_direct", "e_diffuse",
-              "pacl", "pacl_direct", "pacl_diffuse",
-              "punobs", "punobs_direct", "punobs_diffuse")
-
-    # Targets not computed in the geometry: empty data frame
+    # Targets not computed in the geometry: no target
     if (is.null(geom)) {
-      empty_cols <- replicate(length(cols), numeric(0), simplify = FALSE)
-      names(empty_cols) <- cols
-      out <- as.data.frame(empty_cols)
-      out[[name_id]] <- integer(0)
+      ids <- integer(0)
+      e_direct <- e_diffuse <- e_unobs_direct <- e_unobs_diffuse <- numeric(0)
     } else {
 
       energies <- estimate_pacl_from_geometry_rcpp(
@@ -140,27 +133,32 @@ estimate_pacl_from_geometry <- function(
         as.numeric(tree_coef), turbid_medium, trunk_interception
       )
 
+      ids <- geom$targets[[name_id]]
       e_direct <- e_above_direct - energies[, "e_intercepted_direct"]
       e_diffuse <- e_above_diffuse - energies[, "e_intercepted_diffuse"]
-      e <- e_direct + e_diffuse
-
-      out <- data.frame(
-        geom$targets[[name_id]],
-        e = e,
-        e_direct = e_direct,
-        e_diffuse = e_diffuse,
-        pacl = e / (e_above_direct + e_above_diffuse),
-        pacl_direct = e_direct / e_above_direct,
-        pacl_diffuse = e_diffuse / e_above_diffuse,
-        punobs = (energies[, "e_unobs_direct"] + energies[, "e_unobs_diffuse"]) / e,
-        punobs_direct = energies[, "e_unobs_direct"] / e_direct,
-        punobs_diffuse = energies[, "e_unobs_diffuse"] / e_diffuse
-      )
-      names(out)[1] <- name_id
+      e_unobs_direct <- energies[, "e_unobs_direct"]
+      e_unobs_diffuse <- energies[, "e_unobs_diffuse"]
     }
 
-    if (!detailed_output) out <- out[, c(name_id, "e", "pacl", "punobs")]
-    out
+    e <- e_direct + e_diffuse
+    pacl <- e / (e_above_direct + e_above_diffuse)
+    punobs <- (e_unobs_direct + e_unobs_diffuse) / e
+
+    # Columns of the output of run_sl_advanced(), built as a list of vectors then converted with list2DF()
+    # (much faster than data.frame() when the function is called many times, e.g. in a calibration)
+    if (detailed_output) {
+      out <- list(ids, e, e_direct, e_diffuse,
+                  pacl, e_direct / e_above_direct, e_diffuse / e_above_diffuse,
+                  punobs, e_unobs_direct / e_direct, e_unobs_diffuse / e_diffuse)
+      names(out) <- c(name_id, "e", "e_direct", "e_diffuse",
+                      "pacl", "pacl_direct", "pacl_diffuse",
+                      "punobs", "punobs_direct", "punobs_diffuse")
+    } else {
+      out <- list(ids, e, pacl, punobs)
+      names(out) <- c(name_id, "e", "pacl", "punobs")
+    }
+
+    list2DF(out)
   }
 
   list(
