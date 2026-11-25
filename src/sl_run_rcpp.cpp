@@ -1323,8 +1323,6 @@ private:
 public:
 	Target(double x, double y, double z, 
 		int row, int col, 
-		double e_above_direct_slope, double e_above_diffuse_slope,
-		double e_above_direct_horizontal, double e_above_diffuse_horizontal,
 		int n_total_trees,
 		bool is_sensor) :
 
@@ -1352,11 +1350,11 @@ public:
 		this->row = row;
 		this->col = col;
 
-		// The energy will be decreased by successive interception by the above trees
-		this->energyDirectSlope = e_above_direct_slope;
-		this->energyDiffuseSlope = e_above_diffuse_slope;
-		this->energyDirectHorizontal = e_above_direct_horizontal;
-		this->energyDiffuseHorizontal = e_above_diffuse_horizontal;
+		// The energy will be increased by the energy transmitted to the target by each ray (as in Capsis SLLighterLegacy)
+		this->energyDirectSlope = 0.0;
+		this->energyDiffuseSlope = 0.0;
+		this->energyDirectHorizontal = 0.0;
+		this->energyDiffuseHorizontal = 0.0;
 
 		// The energy will be increased by the total energy of rays that thave been not been intercepted at least once by a tree
 		this->energyUnobstructedDirectSlope = 0.0;
@@ -1458,6 +1456,16 @@ public:
 		this->energyUnobstructedDiffuseHorizontal += e_above_horizontal;
 	}
 
+	void addTransmittedEnergiesDirect(double e_slope, double e_horizontal) {
+		this->energyDirectSlope += e_slope;
+		this->energyDirectHorizontal += e_horizontal;
+	}
+
+	void addTransmittedEnergiesDiffuse(double e_slope, double e_horizontal) {
+		this->energyDiffuseSlope += e_slope;
+		this->energyDiffuseHorizontal += e_horizontal;
+	}
+
 
 	//void resetEnergy() { this->energy = 0.0; }
 
@@ -1472,20 +1480,16 @@ public:
 		}
 
 		void interceptEnergyDirectSlope(double e, int vect_id_tree) {
-			this->energyDirectSlope -= e;
 			this->interceptionsTreesEnergyDirectSlope[vect_id_tree] += e;
 		}
 		void interceptEnergyDirectHorizontal(double e, int vect_id_tree) {
-			this->energyDirectHorizontal -= e;
 			this->interceptionsTreesEnergyDirectHorizontal[vect_id_tree] += e;
 		}
 
 		void interceptEnergyDiffuseSlope(double e, int vect_id_tree) {
-			this->energyDiffuseSlope -= e;
 			this->interceptionsTreesEnergyDiffuseSlope[vect_id_tree] += e;
 		}
 		void interceptEnergyDiffuseHorizontal(double e, int vect_id_tree) {
-			this->energyDiffuseHorizontal -= e;
 			this->interceptionsTreesEnergyDiffuseHorizontal[vect_id_tree] += e;
 		}
 };
@@ -1500,13 +1504,9 @@ private:
 public:
 	Sensor(double x, double y, double z, 
 		int row, int col,
-		double e_above_direct_slope, double e_above_diffuse_slope,
-		double e_above_direct_horizontal, double e_above_diffuse_horizontal,
 		int n_total_trees,
 		int id_sensor) :
 		Target(x, y, z, row, col,
-			e_above_direct_slope, e_above_diffuse_slope,
-			e_above_direct_horizontal, e_above_diffuse_horizontal,
 			n_total_trees,
 			true)
 	{
@@ -1538,13 +1538,9 @@ private:
 public:
 	Cell(double x, double y, double z, 
 		int row, int col, 
-		double e_above_direct_slope, double e_above_diffuse_slope,
-		double e_above_direct_horizontal, double e_above_diffuse_horizontal,
 		int n_total_trees,
 		int id_cell) :
 		Target(x, y, z, row, col, 
-			e_above_direct_slope, e_above_diffuse_slope,
-			e_above_direct_horizontal, e_above_diffuse_horizontal,
 			n_total_trees,
 			false)
 	{
@@ -1609,8 +1605,6 @@ private:
 
 public:
 	Stand(DataFrame trees, DataFrame sensors, DataFrame cells,
-		double e_above_direct_slope_m2, double e_above_diffuse_slope_m2,
-		double e_above_direct_horizontal_m2, double e_above_diffuse_horizontal_m2,
 		double slope, double north_to_x_cw, double aspect,
 		double cell_size, double n_cells_x, double n_cells_y, 
 		bool use_torus
@@ -1643,13 +1637,6 @@ public:
 		this->areSensors = this->nSensors > 0;
 
 
-		// Get energy above canopy that is coming toward a cell
-		double e_above_direct_slope_cell = e_above_direct_slope_m2 * this->cellAreaSlope;
-		double e_above_diffuse_slope_cell = e_above_diffuse_slope_m2 * this->cellAreaSlope;
-		double e_above_direct_horizontal_cell = e_above_direct_horizontal_m2 * this->cellAreaHorizontal;
-		double e_above_diffuse_horizontal_cell = e_above_diffuse_horizontal_m2 * this->cellAreaHorizontal;
-
-
 		// Create vector of sensors from the sensors R DataFrame, if sensors are specified
 		if (this->areSensors) {
 
@@ -1672,8 +1659,6 @@ public:
 					sensors_x[i], sensors_y[i], // Position of the sensor
 					sensors_z[i], // Z pos of the sensor is the height above the slope
 					sensor_row, sensor_col, // Cell of the sensor
-					e_above_direct_slope_cell, e_above_diffuse_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
-					e_above_direct_horizontal_cell, e_above_diffuse_horizontal_cell, // Same but on a horizontal plane
 					this->nTrees, // Number of trees to initialise the vector of interceptions with trees
 					sensors_id[i] // Id of the sensor
 				));
@@ -1730,8 +1715,6 @@ public:
 				cells_in_row.push_back(new Cell(
 					x, y, z, // Position of the cell center
 					r, c, // Row and column of the cell within the stand grid system
-					e_above_direct_slope_cell, e_above_diffuse_slope_cell, // Direct and diffuse energy coming from above the canopy on the slope
-					e_above_direct_horizontal_cell, e_above_diffuse_horizontal_cell, // Same but on a horizontal plane
 					this->nTrees, // Number of trees to initialise the vector of interceptions with trees
 					cell_id // Id of the cell
 				));
@@ -2194,9 +2177,7 @@ private:
 			}
 
 
-			// Remove the intercepted energy by the crown from the total energy above the target
-			// (it is easier to decrease the energy coming from above along interceptions)
-			// (than to add current energy of the ray coming to the target at the end of the interceptions)
+			// Record the energy intercepted by the tree for the target (interceptions with each tree)
 			// Modifying the target is not a critical task for parallelisation as we iterate over independent cells/sensors
 			// The first argument specify if the ray is unobstructed or not, thus the inverse of the ray has already been intercepted
 			// Precise the id in the tree vector that have intercepted the ray, to modify the vectors of interceptions with trees
@@ -2217,6 +2198,15 @@ private:
 
 			// Delete interception pointer
 			delete v_interc[j];
+		}
+
+		// Add the energy transmitted by the ray to the target (whole energy of the ray if unobstructed, null if a trunk intercepts it)
+		// As in Capsis SLLighterLegacy, the energy of a target is the sum of the energies reaching it along the traced rays
+		if (ray->isDirect()) {
+			target->addTransmittedEnergiesDirect(current_energy_slope, current_energy_horizontal);
+		}
+		else {
+			target->addTransmittedEnergiesDiffuse(current_energy_slope, current_energy_horizontal);
 		}
 
 		// Increase the unobstructed energy of the target if the ray has not been intercepted
@@ -2369,7 +2359,6 @@ public:
 		bool trunk_interception) :
 
 		stand(trees, sensors, cells,
-			e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2,
 			slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus),
 		rays(rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2)
 	{
@@ -2686,6 +2675,12 @@ public:
 			pacl_direct_sensors[s] = e_direct_sensors[s] / this->rays.getEnergyDirectAboveHorizontalM2();
 			pacl_diffuse_sensors[s] = e_diffuse_sensors[s] / this->rays.getEnergyDiffuseAboveHorizontalM2();
 
+			// Relative energies on a horizontal plane capped at 1, as in Capsis SLLighterLegacy
+			// (the traced rays and the energy above canopy on a horizontal plane do not cover the same sky directions on a slope)
+			if (pacl_sensors[s] > 1.0) pacl_sensors[s] = 1.0;
+			if (pacl_direct_sensors[s] > 1.0) pacl_direct_sensors[s] = 1.0;
+			if (pacl_diffuse_sensors[s] > 1.0) pacl_diffuse_sensors[s] = 1.0;
+
 			punobs_sensors[s] = sensor->getEnergyUnobstructedHorizontal() / sensor->getEnergyHorizontal();
 			punobs_direct_sensors[s] = sensor->getEnergyUnobstructedDirectHorizontal() / sensor->getEnergyDirectHorizontal();
 			punobs_diffuse_sensors[s] = sensor->getEnergyUnobstructedDiffuseHorizontal() / sensor->getEnergyDiffuseHorizontal();
@@ -2858,6 +2853,10 @@ public:
 					pacl_cells[icell] = e_cells[icell] / this->rays.getEnergyAboveSlopeM2();
 					pacl_direct_cells[icell] = e_direct_cells[icell] / this->rays.getEnergyDirectAboveSlopeM2();
 					pacl_diffuse_cells[icell] = e_diffuse_cells[icell] / this->rays.getEnergyDiffuseAboveSlopeM2();
+
+					// Direct and diffuse relative energies on the slope plane capped at 1, as in Capsis SLLighterLegacy (not the total)
+					if (pacl_direct_cells[icell] > 1.0) pacl_direct_cells[icell] = 1.0;
+					if (pacl_diffuse_cells[icell] > 1.0) pacl_diffuse_cells[icell] = 1.0;
 
 					punobs_cells[icell] = cell->getEnergyUnobstructedSlope() / cell->getEnergySlope();
 					punobs_direct_cells[icell] = cell->getEnergyUnobstructedDirectSlope() / cell->getEnergyDirectSlope();
@@ -3152,94 +3151,6 @@ List precompute_sl_geometry_rcpp(
 
 	return(output);
 }
-
-
-// Energies above each target from a precomputed geometry (see precompute_sl_geometry())
-// Pure C++, reading the R vectors through pointers (no copy of the geometry at each call)
-// tree_coef: extinction coefficient x clumping factor x LAD (turbid medium) or crown openness (porous envelop), per tree
-// Returns a column-major matrix n_targets x 4 (in MJ/m2 on a horizontal plane):
-// energy intercepted from direct rays, from diffuse rays, and energy of unobstructed direct rays, diffuse rays
-std::vector<double> computeTargetsEnergiesFromGeometry(
-	int n_targets, const double* targets_e_unobs_direct, const double* targets_e_unobs_diffuse,
-	int n_pairs, const int* pairs_target, const int* pairs_ray, const int* pairs_blocked, const int* pairs_ntrees,
-	int n_crossings, const int* crossings_pair, const int* crossings_tree, const double* crossings_length,
-	const double* rays_e_horizontal, const int* rays_direct,
-	const double* tree_coef, bool turbid_medium, bool trunk_interception)
-{
-	// Attenuation of each pair by its crossed crowns
-	// Turbid medium: optical depth (sum of extinction x clumping x LAD x path length), transmittance = exp(-depth)
-	// Porous envelop: transmittance = product of the openness of the crossed crowns (once per crown)
-	std::vector<double> attenuation(n_pairs, turbid_medium ? 0.0 : 1.0);
-
-	for (int c = 0; c < n_crossings; c++) {
-		int p = crossings_pair[c] - 1;
-		double coef = tree_coef[crossings_tree[c] - 1];
-		if (turbid_medium) {
-			attenuation[p] += coef * crossings_length[c];
-		}
-		else {
-			attenuation[p] *= coef;
-		}
-	}
-
-	// Energies of the targets: intercepted (columns 0 and 1), unobstructed (columns 2 and 3)
-	std::vector<double> energies(n_targets * 4, 0.0);
-	for (int k = 0; k < n_targets; k++) {
-		energies[2 * n_targets + k] = targets_e_unobs_direct[k];
-		energies[3 * n_targets + k] = targets_e_unobs_diffuse[k];
-	}
-
-	for (int p = 0; p < n_pairs; p++) {
-
-		int k = pairs_target[p] - 1;
-		int r = pairs_ray[p] - 1;
-		int col = rays_direct[r] ? 0 : 1;
-
-		// Ray intercepted by a trunk (if considered): no energy transmitted
-		if (trunk_interception && pairs_blocked[p]) {
-			energies[col * n_targets + k] += rays_e_horizontal[r];
-		}
-		// Ray intercepted only by trunks, not considered: unobstructed ray (as in run_sl_rcpp() without trunks)
-		else if (pairs_ntrees[p] == 0) {
-			energies[(col + 2) * n_targets + k] += rays_e_horizontal[r];
-		}
-		// Ray attenuated by the crossed crowns
-		else {
-			double transmittance = turbid_medium ? exp(-attenuation[p]) : attenuation[p];
-			energies[col * n_targets + k] += rays_e_horizontal[r] * (1.0 - transmittance);
-		}
-	}
-
-	return(energies);
-}
-
-
-// [[Rcpp::export]]
-NumericMatrix estimate_pacl_from_geometry_rcpp(
-	NumericVector targets_e_unobs_direct, NumericVector targets_e_unobs_diffuse,
-	IntegerVector pairs_target, IntegerVector pairs_ray, LogicalVector pairs_blocked, IntegerVector pairs_ntrees,
-	IntegerVector crossings_pair, IntegerVector crossings_tree, NumericVector crossings_length,
-	NumericVector rays_e_horizontal, LogicalVector rays_direct,
-	NumericVector tree_coef, bool turbid_medium, bool trunk_interception
-)
-{
-	int n_targets = targets_e_unobs_direct.size();
-
-	// Compute the energies without copying the geometry (R logical vectors are stored as integers)
-	std::vector<double> energies = computeTargetsEnergiesFromGeometry(
-		n_targets, targets_e_unobs_direct.begin(), targets_e_unobs_diffuse.begin(),
-		pairs_target.size(), pairs_target.begin(), pairs_ray.begin(), pairs_blocked.begin(), pairs_ntrees.begin(),
-		crossings_pair.size(), crossings_pair.begin(), crossings_tree.begin(), crossings_length.begin(),
-		rays_e_horizontal.begin(), rays_direct.begin(),
-		tree_coef.begin(), turbid_medium, trunk_interception);
-
-	// Convert into R format
-	NumericMatrix output(n_targets, 4, energies.begin());
-	colnames(output) = CharacterVector::create("e_intercepted_direct", "e_intercepted_diffuse", "e_unobs_direct", "e_unobs_diffuse");
-
-	return(output);
-}
-
 
 
 // [[Rcpp::export]]

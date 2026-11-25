@@ -75,7 +75,9 @@ For each ray toward each target, the energy reaching the target is the
 energy of the ray above the canopy times the transmittance of the crossed
 crowns: \eqn{\exp(-k \Omega \sum LAD \times length)} for turbid media, or
 the product of the crown openness for porous envelopes. It is null if a
-trunk intercepts the ray and \code{trunk_interception = TRUE}.
+trunk intercepts the ray and \code{trunk_interception = TRUE}. As in
+\link{run_sl_advanced}, the energy of a target is the sum of these
+energies over the traced rays, and relative energies are capped at 1.
 }
 \examples{
 data_prenovel <- SamsaRaLight::data_prenovel

@@ -13,8 +13,10 @@ validate_sl_geometry(x)
 Invisibly \code{TRUE}, or an error.
 }
 \description{
-Checks the structure of an object created by \link{precompute_sl_geometry},
-and the links between its tables (indices of targets, rays, pairs and
-trees, and number of crowns crossed per pair).
+Checks the structure of an object created by \link{precompute_sl_geometry}
+(format version 2): its components, the links between \code{targets},
+\code{pairs}, \code{rays} and \code{trees}, and the dimensions and
+content of the matrices \code{L}, \code{C} and \code{W}, for the pairs
+not intercepted and intercepted by a trunk.
 }
 \keyword{internal}

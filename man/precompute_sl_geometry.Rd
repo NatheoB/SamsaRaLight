@@ -83,36 +83,51 @@ An object of class \code{"sl_geometry"} (a list), to be used in
 \link{estimate_pacl_from_geometry}, and that can be saved with
 \code{saveRDS()}. It contains:
 \itemize{
+\item \code{trees}: One row per tree (\code{id_tree}), in the order of
+\code{sl_stand$trees}, which is the order of the columns of the
+matrices \code{L} and \code{C}.
+\item \code{rays}: One row per ray (\code{id_ray}, \code{azimut},
+\code{height_angle}, \code{direct}, \code{e_incident} as created for
+\link{run_sl_advanced}), with its energy above the canopy on a
+horizontal plane (\code{e_horizontal}) and on the slope plane
+(\code{e_slope}), in MJ/m2.
+\item \code{energies}: Energies above the canopy (direct and diffuse, on
+the slope plane and on a horizontal plane), as computed for
+\link{run_sl_advanced}.
 \item \code{sensors}, \code{cells}: The geometry toward the sensors and
 the cells (\code{NULL} if there are no sensors, or if
-\code{sensors_only = TRUE} for the cells). Each one is a list with:
+\code{sensors_only = TRUE} for the cells). Energies are on a horizontal
+plane for sensors and on the slope plane for cells, as in
+\link{run_sl_advanced}. Each one is a list with:
 \itemize{
 \item \code{targets}: One row per target (\code{id_sensor} or
 \code{id_cell}), with the energy of the rays reaching the target
 without crossing any crown or trunk (\code{e_unobs_direct},
-\code{e_unobs_diffuse}, in MJ/m2 on a horizontal plane for sensors
-and on the slope plane for cells, as in \link{run_sl_advanced}).
+\code{e_unobs_diffuse}, in MJ/m2).
 \item \code{pairs}: One row per ray x target pair intercepted at
-least once by a crown or a trunk, with the index of the target
-(\code{target}, row in \code{targets}) and of the ray (\code{ray},
-row in \code{rays}), whether a trunk intercepts the ray
-(\code{blocked}), and the number of crowns crossed
-(\code{n_trees}).
-\item \code{crossings}: One row per crown crossed by the ray of a
-pair, with the index of the pair (\code{pair}, row in
-\code{pairs}), of the tree (\code{tree}, row in
-\code{sl_stand$trees}) and the path length across the crown
-(\code{length}, in m, summed over crown parts).
+least once by a crown, and not by a trunk, with the index of the
+target (\code{target}, row in \code{targets}) and of the ray
+(\code{ray}, row in \code{rays}), and the number of crowns
+crossed (\code{n_trees}).
+\item \code{L}: Sparse matrix (pairs x trees) of the path length of
+the ray of each pair across each crown (in m, summed over crown
+parts and torus copies of the tree).
+\item \code{C}: Sparse pattern matrix (pairs x trees) of the crowns
+crossed by the ray of each pair (a crown is crossed even if the
+path length is null, e.g. a ray tangent to the crown, which matters
+for porous envelopes).
+\item \code{W}: Sparse matrix (targets x pairs) of the energy above
+the canopy of the ray of each pair (in MJ/m2), i.e. the energy that
+would reach the target if the crossed crowns were transparent.
+\item \code{trunks}: The same \code{pairs}, \code{L}, \code{C} and
+\code{W} for the ray x target pairs intercepted by a trunk (with
+\code{n_trees = 0} if no crown is crossed). They bring no energy if
+\code{trunk_interception = TRUE} in
+\link{estimate_pacl_from_geometry}, and are kept apart so that
+they are not computed in this case.
 }
-\item \code{rays}: One row per ray, with its energy above the canopy
-(in MJ/m2, on a horizontal plane \code{e_horizontal} and on the slope
-plane \code{e_slope}) and its type (\code{direct}).
-\item \code{id_tree}: Identifiers of the trees, in the order of
-\code{sl_stand$trees} (order of the crown LAD or openness to give in
-\link{estimate_pacl_from_geometry}).
-\item \code{energies}: Energies above the canopy, as computed for
-\link{run_sl_advanced}.
-\item \code{params}: The settings used to compute the geometry.
+\item \code{params}: The settings used to compute the geometry, and the
+version of the format of the object (\code{format_version}).
 }
 The object should not be modified: filter the output of
 \link{estimate_pacl_from_geometry} instead.

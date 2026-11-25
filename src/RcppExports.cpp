@@ -66,30 +66,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// estimate_pacl_from_geometry_rcpp
-NumericMatrix estimate_pacl_from_geometry_rcpp(NumericVector targets_e_unobs_direct, NumericVector targets_e_unobs_diffuse, IntegerVector pairs_target, IntegerVector pairs_ray, LogicalVector pairs_blocked, IntegerVector pairs_ntrees, IntegerVector crossings_pair, IntegerVector crossings_tree, NumericVector crossings_length, NumericVector rays_e_horizontal, LogicalVector rays_direct, NumericVector tree_coef, bool turbid_medium, bool trunk_interception);
-RcppExport SEXP _SamsaRaLight_estimate_pacl_from_geometry_rcpp(SEXP targets_e_unobs_directSEXP, SEXP targets_e_unobs_diffuseSEXP, SEXP pairs_targetSEXP, SEXP pairs_raySEXP, SEXP pairs_blockedSEXP, SEXP pairs_ntreesSEXP, SEXP crossings_pairSEXP, SEXP crossings_treeSEXP, SEXP crossings_lengthSEXP, SEXP rays_e_horizontalSEXP, SEXP rays_directSEXP, SEXP tree_coefSEXP, SEXP turbid_mediumSEXP, SEXP trunk_interceptionSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< NumericVector >::type targets_e_unobs_direct(targets_e_unobs_directSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type targets_e_unobs_diffuse(targets_e_unobs_diffuseSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type pairs_target(pairs_targetSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type pairs_ray(pairs_raySEXP);
-    Rcpp::traits::input_parameter< LogicalVector >::type pairs_blocked(pairs_blockedSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type pairs_ntrees(pairs_ntreesSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type crossings_pair(crossings_pairSEXP);
-    Rcpp::traits::input_parameter< IntegerVector >::type crossings_tree(crossings_treeSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type crossings_length(crossings_lengthSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type rays_e_horizontal(rays_e_horizontalSEXP);
-    Rcpp::traits::input_parameter< LogicalVector >::type rays_direct(rays_directSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type tree_coef(tree_coefSEXP);
-    Rcpp::traits::input_parameter< bool >::type turbid_medium(turbid_mediumSEXP);
-    Rcpp::traits::input_parameter< bool >::type trunk_interception(trunk_interceptionSEXP);
-    rcpp_result_gen = Rcpp::wrap(estimate_pacl_from_geometry_rcpp(targets_e_unobs_direct, targets_e_unobs_diffuse, pairs_target, pairs_ray, pairs_blocked, pairs_ntrees, crossings_pair, crossings_tree, crossings_length, rays_e_horizontal, rays_direct, tree_coef, turbid_medium, trunk_interception));
-    return rcpp_result_gen;
-END_RCPP
-}
 // sl_set_openmp
 void sl_set_openmp(bool parallel_mode, int num_threads, bool verbose);
 RcppExport SEXP _SamsaRaLight_sl_set_openmp(SEXP parallel_modeSEXP, SEXP num_threadsSEXP, SEXP verboseSEXP) {
@@ -115,7 +91,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_SamsaRaLight_run_sl_rcpp", (DL_FUNC) &_SamsaRaLight_run_sl_rcpp, 20},
     {"_SamsaRaLight_precompute_sl_geometry_rcpp", (DL_FUNC) &_SamsaRaLight_precompute_sl_geometry_rcpp, 16},
-    {"_SamsaRaLight_estimate_pacl_from_geometry_rcpp", (DL_FUNC) &_SamsaRaLight_estimate_pacl_from_geometry_rcpp, 14},
     {"_SamsaRaLight_sl_set_openmp", (DL_FUNC) &_SamsaRaLight_sl_set_openmp, 3},
     {"_SamsaRaLight_sl_print_openmp_status", (DL_FUNC) &_SamsaRaLight_sl_print_openmp_status, 0},
     {NULL, NULL, 0}

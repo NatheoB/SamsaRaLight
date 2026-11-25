@@ -156,6 +156,16 @@ underlying C++ simulation. It is intended for users who need fine control
 over ray discretization, sky conditions, crown representation, or
 computational settings.
 
+As in the Capsis SamsaraLight library, the energy of a sensor or cell
+(\code{e}) is the sum of the energies reaching it along the traced rays,
+and \code{pacl} is this energy divided by the energy above the canopy (on a
+horizontal plane for sensors, on the slope plane for cells). On a slope,
+rays are traced only if they reach the slope with an angle above
+\code{height_anglemin}, so the sky directions hidden by the slope do not
+bring energy to the sensors. Relative energies are capped at 1, as in
+Capsis (\code{pacl}, \code{pacl_direct} and \code{pacl_diffuse} for
+sensors; \code{pacl_direct} and \code{pacl_diffuse} for cells).
+
 Before running the simulation, the function validates the stand,
 monthly radiation data, interception-model configuration, logical and
 numeric parameters, simulation period, and number of OpenMP threads.

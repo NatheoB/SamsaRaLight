@@ -9,10 +9,6 @@ precompute_sl_geometry_rcpp <- function(trees, sensors, sensors_only, cells, ray
     .Call(`_SamsaRaLight_precompute_sl_geometry_rcpp`, trees, sensors, sensors_only, cells, rays, e_direct_above_slope_m2, e_diffuse_above_slope_m2, e_direct_above_horizontal_m2, e_diffuse_above_horizontal_m2, slope, north_to_x_cw, aspect, cell_size, n_cells_x, n_cells_y, use_torus)
 }
 
-estimate_pacl_from_geometry_rcpp <- function(targets_e_unobs_direct, targets_e_unobs_diffuse, pairs_target, pairs_ray, pairs_blocked, pairs_ntrees, crossings_pair, crossings_tree, crossings_length, rays_e_horizontal, rays_direct, tree_coef, turbid_medium, trunk_interception) {
-    .Call(`_SamsaRaLight_estimate_pacl_from_geometry_rcpp`, targets_e_unobs_direct, targets_e_unobs_diffuse, pairs_target, pairs_ray, pairs_blocked, pairs_ntrees, crossings_pair, crossings_tree, crossings_length, rays_e_horizontal, rays_direct, tree_coef, turbid_medium, trunk_interception)
-}
-
 sl_set_openmp <- function(parallel_mode, num_threads = -1L, verbose = TRUE) {
     invisible(.Call(`_SamsaRaLight_sl_set_openmp`, parallel_mode, num_threads, verbose))
 }

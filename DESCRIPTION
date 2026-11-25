@@ -1,6 +1,6 @@
 Package: SamsaRaLight
 Title: Simulate Tree Light Transmission Using Ray-Tracing
-Version: 1.1.0.9000
+Version: 1.1.0.9001
 Authors@R: 
   c(
     person("Natheo", "Beauchamp", email = "beauchamp.natheo@gmail.com",
@@ -37,6 +37,7 @@ Imports:
     ggplot2,
     grid,
     httr,
+    Matrix,
     patchwork,
     Rcpp (>= 1.1.0),
     RhpcBLASctl,

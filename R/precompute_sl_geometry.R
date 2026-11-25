@@ -39,41 +39,58 @@
 #'   \link{estimate_pacl_from_geometry}, and that can be saved with
 #'   \code{saveRDS()}. It contains:
 #' \itemize{
+#'   \item \code{trees}: One row per tree (\code{id_tree}), in the order of
+#'     \code{sl_stand$trees}, which is the order of the columns of the
+#'     matrices \code{L} and \code{C}.
+#'   \item \code{rays}: One row per ray (\code{id_ray}, \code{azimut},
+#'     \code{height_angle}, \code{direct}, \code{e_incident} as created for
+#'     \link{run_sl_advanced}), with its energy above the canopy on a
+#'     horizontal plane (\code{e_horizontal}) and on the slope plane
+#'     (\code{e_slope}), in MJ/m2.
+#'   \item \code{energies}: Energies above the canopy (direct and diffuse, on
+#'     the slope plane and on a horizontal plane), as computed for
+#'     \link{run_sl_advanced}.
 #'   \item \code{sensors}, \code{cells}: The geometry toward the sensors and
 #'     the cells (\code{NULL} if there are no sensors, or if
-#'     \code{sensors_only = TRUE} for the cells). Each one is a list with:
+#'     \code{sensors_only = TRUE} for the cells). Energies are on a horizontal
+#'     plane for sensors and on the slope plane for cells, as in
+#'     \link{run_sl_advanced}. Each one is a list with:
 #'     \itemize{
 #'       \item \code{targets}: One row per target (\code{id_sensor} or
 #'         \code{id_cell}), with the energy of the rays reaching the target
 #'         without crossing any crown or trunk (\code{e_unobs_direct},
-#'         \code{e_unobs_diffuse}, in MJ/m2 on a horizontal plane for sensors
-#'         and on the slope plane for cells, as in \link{run_sl_advanced}).
+#'         \code{e_unobs_diffuse}, in MJ/m2).
 #'       \item \code{pairs}: One row per ray x target pair intercepted at
-#'         least once by a crown or a trunk, with the index of the target
-#'         (\code{target}, row in \code{targets}) and of the ray (\code{ray},
-#'         row in \code{rays}), whether a trunk intercepts the ray
-#'         (\code{blocked}), and the number of crowns crossed
-#'         (\code{n_trees}).
-#'       \item \code{crossings}: One row per crown crossed by the ray of a
-#'         pair, with the index of the pair (\code{pair}, row in
-#'         \code{pairs}), of the tree (\code{tree}, row in
-#'         \code{sl_stand$trees}) and the path length across the crown
-#'         (\code{length}, in m, summed over crown parts).
+#'         least once by a crown, and not by a trunk, with the index of the
+#'         target (\code{target}, row in \code{targets}) and of the ray
+#'         (\code{ray}, row in \code{rays}), and the number of crowns
+#'         crossed (\code{n_trees}).
+#'       \item \code{L}: Sparse matrix (pairs x trees) of the path length of
+#'         the ray of each pair across each crown (in m, summed over crown
+#'         parts and torus copies of the tree).
+#'       \item \code{C}: Sparse pattern matrix (pairs x trees) of the crowns
+#'         crossed by the ray of each pair (a crown is crossed even if the
+#'         path length is null, e.g. a ray tangent to the crown, which matters
+#'         for porous envelopes).
+#'       \item \code{W}: Sparse matrix (targets x pairs) of the energy above
+#'         the canopy of the ray of each pair (in MJ/m2), i.e. the energy that
+#'         would reach the target if the crossed crowns were transparent.
+#'       \item \code{trunks}: The same \code{pairs}, \code{L}, \code{C} and
+#'         \code{W} for the ray x target pairs intercepted by a trunk (with
+#'         \code{n_trees = 0} if no crown is crossed). They bring no energy if
+#'         \code{trunk_interception = TRUE} in
+#'         \link{estimate_pacl_from_geometry}, and are kept apart so that
+#'         they are not computed in this case.
 #'     }
-#'   \item \code{rays}: One row per ray, with its energy above the canopy
-#'     (in MJ/m2, on a horizontal plane \code{e_horizontal} and on the slope
-#'     plane \code{e_slope}) and its type (\code{direct}).
-#'   \item \code{id_tree}: Identifiers of the trees, in the order of
-#'     \code{sl_stand$trees} (order of the crown LAD or openness to give in
-#'     \link{estimate_pacl_from_geometry}).
-#'   \item \code{energies}: Energies above the canopy, as computed for
-#'     \link{run_sl_advanced}.
-#'   \item \code{params}: The settings used to compute the geometry.
+#'   \item \code{params}: The settings used to compute the geometry, and the
+#'     version of the format of the object (\code{format_version}).
 #' }
 #' The object should not be modified: filter the output of
 #' \link{estimate_pacl_from_geometry} instead.
 #'
 #' @seealso \link{estimate_pacl_from_geometry}, \link{run_sl_advanced}
+#'
+#' @importFrom Matrix sparseMatrix
 #'
 #' @examples
 #' data_prenovel <- SamsaRaLight::data_prenovel
@@ -186,13 +203,52 @@ precompute_sl_geometry <- function(
   # (ignored as in Capsis, but reported to the user)
   warn_sl_unexpected_interceptions(out$n_unexpected_interceptions)
 
+  # Geometry toward a set of targets as sparse matrices (NULL if not computed),
+  # with the pairs intercepted by a trunk kept apart (in trunks)
+  # crossings: one row per crown crossed by the ray of a pair (pair, tree, length), as exported by the C++
+  n_trees <- nrow(sl_stand$trees)
+  as_matrices <- function(geom, rays_e) {
+
+    if (is.null(geom)) return(NULL)
+
+    n_targets <- nrow(geom$targets)
+    pairs <- geom$pairs
+    crossings <- geom$crossings
+
+    # Pairs selected by keep, with their crossings (pairs renumbered within the selection)
+    select_pairs <- function(keep) {
+
+      n_pairs <- sum(keep)
+      index <- cumsum(keep)
+      keep_crossings <- keep[crossings$pair]
+
+      list(
+        pairs = data.frame(target = pairs$target[keep], ray = pairs$ray[keep], n_trees = pairs$n_trees[keep]),
+        L = Matrix::sparseMatrix(i = index[crossings$pair[keep_crossings]], j = crossings$tree[keep_crossings],
+                                 x = crossings$length[keep_crossings], dims = c(n_pairs, n_trees)),
+        C = Matrix::sparseMatrix(i = index[crossings$pair[keep_crossings]], j = crossings$tree[keep_crossings],
+                                 dims = c(n_pairs, n_trees)),
+        W = Matrix::sparseMatrix(i = pairs$target[keep], j = seq_len(n_pairs), x = rays_e[pairs$ray[keep]],
+                                 dims = c(n_targets, n_pairs))
+      )
+    }
+
+    c(list(targets = geom$targets), select_pairs(!pairs$blocked), list(trunks = select_pairs(pairs$blocked)))
+  }
+
+  # Rays as created for run_sl_advanced(), with their energy above the canopy on both planes (computed in C++)
+  rays <- monthly_rays$rays[, c("id_ray", "azimut", "height_angle", "direct", "e_incident")]
+  rays$e_horizontal <- out$rays$e_horizontal
+  rays$e_slope <- out$rays$e_slope
+
   sl_geometry <- list(
-    sensors = out$sensors,
-    cells = out$cells,
-    rays = out$rays,
-    id_tree = sl_stand$trees$id_tree,
+    trees = data.frame(id_tree = sl_stand$trees$id_tree),
+    rays = rays,
     energies = monthly_rays$energies,
+    sensors = as_matrices(out$sensors, rays$e_horizontal),
+    cells = as_matrices(out$cells, rays$e_slope),
     params = list(
+      "format_version" = 2L,
       "sensors_only" = sensors_only,
       "start_day" = start_day,
       "end_day" = end_day,
@@ -216,9 +272,11 @@ precompute_sl_geometry <- function(
 
 #' Validate an sl_geometry object
 #'
-#' Checks the structure of an object created by \link{precompute_sl_geometry},
-#' and the links between its tables (indices of targets, rays, pairs and
-#' trees, and number of crowns crossed per pair).
+#' Checks the structure of an object created by \link{precompute_sl_geometry}
+#' (format version 2): its components, the links between \code{targets},
+#' \code{pairs}, \code{rays} and \code{trees}, and the dimensions and
+#' content of the matrices \code{L}, \code{C} and \code{W}, for the pairs
+#' not intercepted and intercepted by a trunk.
 #'
 #' @param x An object of class \code{"sl_geometry"}.
 #'
@@ -233,7 +291,12 @@ validate_sl_geometry <- function(x) {
     stop("Object must inherit from class 'sl_geometry'.", call. = FALSE)
   }
 
-  required <- c("sensors", "cells", "rays", "id_tree", "energies", "params")
+  if (!identical(x$params$format_version, 2L)) {
+    stop("`sl_geometry` was created by an older version of SamsaRaLight: ",
+         "compute it again with precompute_sl_geometry().", call. = FALSE)
+  }
+
+  required <- c("trees", "rays", "energies", "sensors", "cells", "params")
   missing <- setdiff(required, names(x))
   if (length(missing) > 0) {
     stop("Missing element(s) in `sl_geometry`: ", paste(missing, collapse = ", "), call. = FALSE)
@@ -244,32 +307,52 @@ validate_sl_geometry <- function(x) {
   }
 
   n_rays <- nrow(x$rays)
-  n_trees <- length(x$id_tree)
+  n_trees <- nrow(x$trees)
 
-  # ---- Links between the tables, for sensors and cells ----
+  # ---- Links between the tables and the matrices, for sensors and cells ----
   for (type in c("sensors", "cells")) {
 
     geom <- x[[type]]
     if (is.null(geom)) next
 
     n_targets <- nrow(geom$targets)
-    n_pairs <- nrow(geom$pairs)
 
-    if (any(geom$pairs$target < 1 | geom$pairs$target > n_targets)) {
-      stop(sprintf("Indices of targets out of range in `sl_geometry$%s$pairs`.", type), call. = FALSE)
+    # Pairs not intercepted (geom) and intercepted (geom$trunks) by a trunk
+    for (block in c("pairs", "trunks")) {
+
+      b <- if (block == "pairs") geom else geom$trunks
+      n_pairs <- nrow(b$pairs)
+      where <- if (block == "pairs") type else paste0(type, "$trunks")
+      err <- function(msg) stop(sprintf("%s in `sl_geometry$%s`.", msg, where), call. = FALSE)
+
+      # Pairs
+      if (any(b$pairs$target < 1 | b$pairs$target > n_targets)) err("Indices of targets out of range in `pairs`")
+      if (any(b$pairs$ray < 1 | b$pairs$ray > n_rays)) err("Indices of rays out of range in `pairs`")
+
+      # Matrices: classes and dimensions
+      if (!inherits(b$L, "dgCMatrix") || !identical(dim(b$L), c(n_pairs, n_trees))) {
+        err("`L` must be a sparse matrix (dgCMatrix) of dimensions pairs x trees")
+      }
+      if (!inherits(b$C, "ngCMatrix") || !identical(dim(b$C), c(n_pairs, n_trees))) {
+        err("`C` must be a sparse pattern matrix (ngCMatrix) of dimensions pairs x trees")
+      }
+      if (!inherits(b$W, "dgCMatrix") || !identical(dim(b$W), c(n_targets, n_pairs))) {
+        err("`W` must be a sparse matrix (dgCMatrix) of dimensions targets x pairs")
+      }
+
+      # Content: crowns crossed per pair, non-negative path lengths, one target per pair (column of W)
+      if (!identical(as.integer(Matrix::rowSums(b$C)), b$pairs$n_trees)) {
+        err("Number of crowns crossed per pair inconsistent between `pairs` and `C`")
+      }
+      if (any(b$L@x < 0)) err("Negative path lengths in `L`")
+      if (!identical(diff(b$W@p), rep(1L, n_pairs)) || !identical(b$W@i + 1L, b$pairs$target)) {
+        err("Each column of `W` must have a single value, in the row of the target of the pair")
+      }
     }
-    if (any(geom$pairs$ray < 1 | geom$pairs$ray > n_rays)) {
-      stop(sprintf("Indices of rays out of range in `sl_geometry$%s$pairs`.", type), call. = FALSE)
-    }
-    if (any(geom$crossings$pair < 1 | geom$crossings$pair > n_pairs)) {
-      stop(sprintf("Indices of pairs out of range in `sl_geometry$%s$crossings`.", type), call. = FALSE)
-    }
-    if (any(geom$crossings$tree < 1 | geom$crossings$tree > n_trees)) {
-      stop(sprintf("Indices of trees out of range in `sl_geometry$%s$crossings`.", type), call. = FALSE)
-    }
-    if (!identical(tabulate(geom$crossings$pair, nbins = n_pairs), geom$pairs$n_trees)) {
-      stop(sprintf("Number of crowns crossed per pair inconsistent between `pairs` and `crossings` in `sl_geometry$%s`.", type),
-           call. = FALSE)
+
+    # Pairs not intercepted by a trunk cross at least one crown (otherwise they would be unobstructed rays)
+    if (any(geom$pairs$n_trees == 0)) {
+      stop(sprintf("Pairs crossing no crown and no trunk in `sl_geometry$%s$pairs`.", type), call. = FALSE)
     }
   }
 
