@@ -28,11 +28,33 @@
   inherits its parameters from
   [`run_sl_advanced()`](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md),
   whose parameter descriptions were harmonised.
-- [`estimate_pacl_from_geometry()`](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md)
-  is about 5 times faster when called repeatedly on small geometries
-  (output built with [`list2DF()`](https://rdrr.io/r/base/list2DF.html)
-  instead of [`data.frame()`](https://rdrr.io/r/base/data.frame.html)),
-  with identical results.
+- Energy of sensors on sloping stands aligned with Capsis
+  (`SLLighterLegacy`): the energy of a sensor or cell is now the sum of
+  the energies reaching it along the traced rays. It was previously the
+  energy above the canopy minus the intercepted energy, which counted as
+  received the energy of the sky directions that are not traced because
+  they are hidden by the slope (rays are traced only if they reach the
+  slope with an angle above `height_anglemin`), and missed the low rays
+  traced below this angle on the downhill side. Results change only for
+  sensors (horizontal plane) on sloping stands, by a constant per stand
+  (e.g. PACL −0.0003 for `data_IRRES1`, up to −0.12 on steep stands in
+  our tests); cells, trees and flat stands are unchanged. As in Capsis,
+  relative energies are capped at 1 (`pacl`, `pacl_direct` and
+  `pacl_diffuse` for sensors; `pacl_direct` and `pacl_diffuse` for
+  cells). Same change in
+  [`estimate_pacl_from_geometry()`](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md).
+- The geometry computed by
+  [`precompute_sl_geometry()`](https://natheob.github.io/SamsaRaLight/reference/precompute_sl_geometry.md)
+  is stored as sparse matrices (new dependency on the package `Matrix`):
+  path lengths of the rays across the crowns, crowns crossed, and
+  energies of the rays reaching each target, with the rays intercepted
+  by a trunk kept apart.
+  [`estimate_pacl_from_geometry()`](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md)
+  computes the light on sensors and cells from these matrices in R
+  (sparse matrix products), which is fast enough to be called many
+  times, e.g. on many stands in a calibration. Geometries are not
+  compatible between development versions: compute them again with
+  [`precompute_sl_geometry()`](https://natheob.github.io/SamsaRaLight/reference/precompute_sl_geometry.md).
 
 ## SamsaRaLight 1.1.0
 

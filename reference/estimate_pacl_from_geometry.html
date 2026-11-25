@@ -19,7 +19,7 @@ trees cannot be estimated from the geometry."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">SamsaRaLight</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -158,7 +158,9 @@ these targets was not computed.</p>
 energy of the ray above the canopy times the transmittance of the crossed
 crowns: \(\exp(-k \Omega \sum LAD \times length)\) for turbid media, or
 the product of the crown openness for porous envelopes. It is null if a
-trunk intercepts the ray and <code>trunk_interception = TRUE</code>.</p>
+trunk intercepts the ray and <code>trunk_interception = TRUE</code>. As in
+<a href="run_sl_advanced.html">run_sl_advanced</a>, the energy of a target is the sum of these
+energies over the traced rays, and relative energies are capped at 1.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

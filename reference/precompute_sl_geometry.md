@@ -124,39 +124,57 @@ An object of class `"sl_geometry"` (a list), to be used in
 and that can be saved with
 [`saveRDS()`](https://rdrr.io/r/base/readRDS.html). It contains:
 
+- `trees`: One row per tree (`id_tree`), in the order of
+  `sl_stand$trees`, which is the order of the columns of the matrices
+  `L` and `C`.
+
+- `rays`: One row per ray (`id_ray`, `azimut`, `height_angle`, `direct`,
+  `e_incident` as created for
+  [run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)),
+  with its energy above the canopy on a horizontal plane
+  (`e_horizontal`) and on the slope plane (`e_slope`), in MJ/m2.
+
+- `energies`: Energies above the canopy (direct and diffuse, on the
+  slope plane and on a horizontal plane), as computed for
+  [run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md).
+
 - `sensors`, `cells`: The geometry toward the sensors and the cells
   (`NULL` if there are no sensors, or if `sensors_only = TRUE` for the
-  cells). Each one is a list with:
+  cells). Energies are on a horizontal plane for sensors and on the
+  slope plane for cells, as in
+  [run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md).
+  Each one is a list with:
 
   - `targets`: One row per target (`id_sensor` or `id_cell`), with the
     energy of the rays reaching the target without crossing any crown or
-    trunk (`e_unobs_direct`, `e_unobs_diffuse`, in MJ/m2 on a horizontal
-    plane for sensors and on the slope plane for cells, as in
-    [run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md)).
+    trunk (`e_unobs_direct`, `e_unobs_diffuse`, in MJ/m2).
 
   - `pairs`: One row per ray x target pair intercepted at least once by
-    a crown or a trunk, with the index of the target (`target`, row in
-    `targets`) and of the ray (`ray`, row in `rays`), whether a trunk
-    intercepts the ray (`blocked`), and the number of crowns crossed
-    (`n_trees`).
+    a crown, and not by a trunk, with the index of the target (`target`,
+    row in `targets`) and of the ray (`ray`, row in `rays`), and the
+    number of crowns crossed (`n_trees`).
 
-  - `crossings`: One row per crown crossed by the ray of a pair, with
-    the index of the pair (`pair`, row in `pairs`), of the tree (`tree`,
-    row in `sl_stand$trees`) and the path length across the crown
-    (`length`, in m, summed over crown parts).
+  - `L`: Sparse matrix (pairs x trees) of the path length of the ray of
+    each pair across each crown (in m, summed over crown parts and torus
+    copies of the tree).
 
-- `rays`: One row per ray, with its energy above the canopy (in MJ/m2,
-  on a horizontal plane `e_horizontal` and on the slope plane `e_slope`)
-  and its type (`direct`).
+  - `C`: Sparse pattern matrix (pairs x trees) of the crowns crossed by
+    the ray of each pair (a crown is crossed even if the path length is
+    null, e.g. a ray tangent to the crown, which matters for porous
+    envelopes).
 
-- `id_tree`: Identifiers of the trees, in the order of `sl_stand$trees`
-  (order of the crown LAD or openness to give in
-  [estimate_pacl_from_geometry](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md)).
+  - `W`: Sparse matrix (targets x pairs) of the energy above the canopy
+    of the ray of each pair (in MJ/m2), i.e. the energy that would reach
+    the target if the crossed crowns were transparent.
 
-- `energies`: Energies above the canopy, as computed for
-  [run_sl_advanced](https://natheob.github.io/SamsaRaLight/reference/run_sl_advanced.md).
+  - `trunks`: The same `pairs`, `L`, `C` and `W` for the ray x target
+    pairs intercepted by a trunk (with `n_trees = 0` if no crown is
+    crossed). They bring no energy if `trunk_interception = TRUE` in
+    [estimate_pacl_from_geometry](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md),
+    and are kept apart so that they are not computed in this case.
 
-- `params`: The settings used to compute the geometry.
+- `params`: The settings used to compute the geometry, and the version
+  of the format of the object (`format_version`).
 
 The object should not be modified: filter the output of
 [estimate_pacl_from_geometry](https://natheob.github.io/SamsaRaLight/reference/estimate_pacl_from_geometry.md)
@@ -218,19 +236,28 @@ geometry <- precompute_sl_geometry(
 
 str(geometry, max.level = 2)
 #> List of 6
-#>  $ sensors : NULL
-#>  $ cells   :List of 3
-#>   ..$ targets  :'data.frame':    100 obs. of  3 variables:
-#>   ..$ pairs    :'data.frame':    46314 obs. of  4 variables:
-#>   ..$ crossings:'data.frame':    204871 obs. of  3 variables:
-#>  $ rays    :'data.frame':    491 obs. of  3 variables:
+#>  $ trees   :'data.frame':    333 obs. of  1 variable:
+#>   ..$ id_tree: int [1:333] 1 2 3 4 5 6 7 8 9 10 ...
+#>  $ rays    :'data.frame':    491 obs. of  7 variables:
+#>   ..$ id_ray      : int [1:491] 1 2 3 4 5 6 7 8 9 10 ...
+#>   ..$ azimut      : num [1:491] 4.96 4.9 4.82 4.75 4.67 ...
+#>   ..$ height_angle: num [1:491] 0.111 0.156 0.198 0.237 0.273 ...
+#>   ..$ direct      : logi [1:491] TRUE TRUE TRUE TRUE TRUE TRUE ...
+#>   ..$ e_incident  : num [1:491] 8.62 8.62 8.62 8.62 8.62 ...
 #>   ..$ e_horizontal: num [1:491] 0.959 1.343 1.699 2.026 2.321 ...
 #>   ..$ e_slope     : num [1:491] 1.82 2.21 2.57 2.89 3.18 ...
-#>   ..$ direct      : logi [1:491] TRUE TRUE TRUE TRUE TRUE TRUE ...
-#>  $ id_tree : int [1:333] 1 2 3 4 5 6 7 8 9 10 ...
 #>  $ energies: Named num [1:4] 2440 2095 2289 2061
 #>   ..- attr(*, "names")= chr [1:4] "slope_direct" "slope_diffuse" "horizontal_direct" "horizontal_diffuse"
-#>  $ params  :List of 9
+#>  $ sensors : NULL
+#>  $ cells   :List of 6
+#>   ..$ targets:'data.frame':  100 obs. of  3 variables:
+#>   ..$ pairs  :'data.frame':  38647 obs. of  3 variables:
+#>   ..$ L      :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+#>   ..$ C      :Formal class 'ngCMatrix' [package "Matrix"] with 5 slots
+#>   ..$ W      :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots
+#>   ..$ trunks :List of 4
+#>  $ params  :List of 10
+#>   ..$ format_version    : int 2
 #>   ..$ sensors_only      : logi FALSE
 #>   ..$ start_day         : num 1
 #>   ..$ end_day           : num 365

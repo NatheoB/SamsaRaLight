@@ -13,7 +13,7 @@ crown interception model, trunk interception, and parallel computation."></head>
 
     <a class="navbar-brand me-2" href="../index.html">SamsaRaLight</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -246,6 +246,15 @@ ray-discretization parameters.</p>
 underlying C++ simulation. It is intended for users who need fine control
 over ray discretization, sky conditions, crown representation, or
 computational settings.</p>
+<p>As in the Capsis SamsaraLight library, the energy of a sensor or cell
+(<code>e</code>) is the sum of the energies reaching it along the traced rays,
+and <code>pacl</code> is this energy divided by the energy above the canopy (on a
+horizontal plane for sensors, on the slope plane for cells). On a slope,
+rays are traced only if they reach the slope with an angle above
+<code>height_anglemin</code>, so the sky directions hidden by the slope do not
+bring energy to the sensors. Relative energies are capped at 1, as in
+Capsis (<code>pacl</code>, <code>pacl_direct</code> and <code>pacl_diffuse</code> for
+sensors; <code>pacl_direct</code> and <code>pacl_diffuse</code> for cells).</p>
 <p>Before running the simulation, the function validates the stand,
 monthly radiation data, interception-model configuration, logical and
 numeric parameters, simulation period, and number of OpenMP threads.</p>

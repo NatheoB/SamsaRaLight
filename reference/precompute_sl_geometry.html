@@ -21,7 +21,7 @@ many times with different LAD values."></head><body>
 
     <a class="navbar-brand me-2" href="../index.html">SamsaRaLight</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9000</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">1.1.0.9001</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -189,34 +189,49 @@ the simulation, including OpenMP status. Defaults to <code>TRUE</code>.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>An object of class <code>"sl_geometry"</code> (a list), to be used in
 <a href="estimate_pacl_from_geometry.html">estimate_pacl_from_geometry</a>, and that can be saved with
-<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>. It contains:</p><ul><li><p><code>sensors</code>, <code>cells</code>: The geometry toward the sensors and
+<code><a href="https://rdrr.io/r/base/readRDS.html" class="external-link">saveRDS()</a></code>. It contains:</p><ul><li><p><code>trees</code>: One row per tree (<code>id_tree</code>), in the order of
+<code>sl_stand$trees</code>, which is the order of the columns of the
+matrices <code>L</code> and <code>C</code>.</p></li>
+<li><p><code>rays</code>: One row per ray (<code>id_ray</code>, <code>azimut</code>,
+<code>height_angle</code>, <code>direct</code>, <code>e_incident</code> as created for
+<a href="run_sl_advanced.html">run_sl_advanced</a>), with its energy above the canopy on a
+horizontal plane (<code>e_horizontal</code>) and on the slope plane
+(<code>e_slope</code>), in MJ/m2.</p></li>
+<li><p><code>energies</code>: Energies above the canopy (direct and diffuse, on
+the slope plane and on a horizontal plane), as computed for
+<a href="run_sl_advanced.html">run_sl_advanced</a>.</p></li>
+<li><p><code>sensors</code>, <code>cells</code>: The geometry toward the sensors and
 the cells (<code>NULL</code> if there are no sensors, or if
-<code>sensors_only = TRUE</code> for the cells). Each one is a list with:</p><ul><li><p><code>targets</code>: One row per target (<code>id_sensor</code> or
+<code>sensors_only = TRUE</code> for the cells). Energies are on a horizontal
+plane for sensors and on the slope plane for cells, as in
+<a href="run_sl_advanced.html">run_sl_advanced</a>. Each one is a list with:</p><ul><li><p><code>targets</code>: One row per target (<code>id_sensor</code> or
 <code>id_cell</code>), with the energy of the rays reaching the target
 without crossing any crown or trunk (<code>e_unobs_direct</code>,
-<code>e_unobs_diffuse</code>, in MJ/m2 on a horizontal plane for sensors
-and on the slope plane for cells, as in <a href="run_sl_advanced.html">run_sl_advanced</a>).</p></li>
+<code>e_unobs_diffuse</code>, in MJ/m2).</p></li>
 <li><p><code>pairs</code>: One row per ray x target pair intercepted at
-least once by a crown or a trunk, with the index of the target
-(<code>target</code>, row in <code>targets</code>) and of the ray (<code>ray</code>,
-row in <code>rays</code>), whether a trunk intercepts the ray
-(<code>blocked</code>), and the number of crowns crossed
-(<code>n_trees</code>).</p></li>
-<li><p><code>crossings</code>: One row per crown crossed by the ray of a
-pair, with the index of the pair (<code>pair</code>, row in
-<code>pairs</code>), of the tree (<code>tree</code>, row in
-<code>sl_stand$trees</code>) and the path length across the crown
-(<code>length</code>, in m, summed over crown parts).</p></li>
+least once by a crown, and not by a trunk, with the index of the
+target (<code>target</code>, row in <code>targets</code>) and of the ray
+(<code>ray</code>, row in <code>rays</code>), and the number of crowns
+crossed (<code>n_trees</code>).</p></li>
+<li><p><code>L</code>: Sparse matrix (pairs x trees) of the path length of
+the ray of each pair across each crown (in m, summed over crown
+parts and torus copies of the tree).</p></li>
+<li><p><code>C</code>: Sparse pattern matrix (pairs x trees) of the crowns
+crossed by the ray of each pair (a crown is crossed even if the
+path length is null, e.g. a ray tangent to the crown, which matters
+for porous envelopes).</p></li>
+<li><p><code>W</code>: Sparse matrix (targets x pairs) of the energy above
+the canopy of the ray of each pair (in MJ/m2), i.e. the energy that
+would reach the target if the crossed crowns were transparent.</p></li>
+<li><p><code>trunks</code>: The same <code>pairs</code>, <code>L</code>, <code>C</code> and
+<code>W</code> for the ray x target pairs intercepted by a trunk (with
+<code>n_trees = 0</code> if no crown is crossed). They bring no energy if
+<code>trunk_interception = TRUE</code> in
+<a href="estimate_pacl_from_geometry.html">estimate_pacl_from_geometry</a>, and are kept apart so that
+they are not computed in this case.</p></li>
 </ul></li>
-<li><p><code>rays</code>: One row per ray, with its energy above the canopy
-(in MJ/m2, on a horizontal plane <code>e_horizontal</code> and on the slope
-plane <code>e_slope</code>) and its type (<code>direct</code>).</p></li>
-<li><p><code>id_tree</code>: Identifiers of the trees, in the order of
-<code>sl_stand$trees</code> (order of the crown LAD or openness to give in
-<a href="estimate_pacl_from_geometry.html">estimate_pacl_from_geometry</a>).</p></li>
-<li><p><code>energies</code>: Energies above the canopy, as computed for
-<a href="run_sl_advanced.html">run_sl_advanced</a>.</p></li>
-<li><p><code>params</code>: The settings used to compute the geometry.</p></li>
+<li><p><code>params</code>: The settings used to compute the geometry, and the
+version of the format of the object (<code>format_version</code>).</p></li>
 </ul><p>The object should not be modified: filter the output of
 <a href="estimate_pacl_from_geometry.html">estimate_pacl_from_geometry</a> instead.</p>
     </div>
@@ -271,19 +286,28 @@ the cells is not needed.</p>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/str.html" class="external-link">str</a></span><span class="op">(</span><span class="va">geometry</span>, max.level <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> List of 6</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ sensors : NULL</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cells   :List of 3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ targets  :'data.frame':	100 obs. of  3 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pairs    :'data.frame':	46314 obs. of  4 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ crossings:'data.frame':	204871 obs. of  3 variables:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rays    :'data.frame':	491 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ trees   :'data.frame':	333 obs. of  1 variable:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id_tree: int [1:333] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ rays    :'data.frame':	491 obs. of  7 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ id_ray      : int [1:491] 1 2 3 4 5 6 7 8 9 10 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ azimut      : num [1:491] 4.96 4.9 4.82 4.75 4.67 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ height_angle: num [1:491] 0.111 0.156 0.198 0.237 0.273 ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ direct      : logi [1:491] TRUE TRUE TRUE TRUE TRUE TRUE ...</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ e_incident  : num [1:491] 8.62 8.62 8.62 8.62 8.62 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ e_horizontal: num [1:491] 0.959 1.343 1.699 2.026 2.321 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ e_slope     : num [1:491] 1.82 2.21 2.57 2.89 3.18 ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ direct      : logi [1:491] TRUE TRUE TRUE TRUE TRUE TRUE ...</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ id_tree : int [1:333] 1 2 3 4 5 6 7 8 9 10 ...</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  $ energies: Named num [1:4] 2440 2095 2289 2061</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..- attr(*, "names")= chr [1:4] "slope_direct" "slope_diffuse" "horizontal_direct" "horizontal_diffuse"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  $ params  :List of 9</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ sensors : NULL</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ cells   :List of 6</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ targets:'data.frame':	100 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ pairs  :'data.frame':	38647 obs. of  3 variables:</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ L      :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ C      :Formal class 'ngCMatrix' [package "Matrix"] with 5 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ W      :Formal class 'dgCMatrix' [package "Matrix"] with 6 slots</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ trunks :List of 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  $ params  :List of 10</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ format_version    : int 2</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ sensors_only      : logi FALSE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ start_day         : num 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   ..$ end_day           : num 365</span>

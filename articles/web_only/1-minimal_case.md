@@ -490,11 +490,12 @@ summary(sl_output)
 #> -------------------
 #>        e               pacl             punobs      
 #>  Min.   :   0.0   Min.   :0.00000   Min.   :0.0000  
-#>  1st Qu.: 348.6   1st Qu.:0.07687   1st Qu.:0.4044  
-#>  Median : 527.2   Median :0.11625   Median :0.5785  
-#>  Mean   : 576.0   Mean   :0.12701   Mean   :0.5440  
-#>  3rd Qu.: 750.4   3rd Qu.:0.16546   3rd Qu.:0.7135  
+#>  1st Qu.: 348.6   1st Qu.:0.07687   1st Qu.:0.4056  
+#>  Median : 527.2   Median :0.11625   Median :0.5797  
+#>  Mean   : 576.0   Mean   :0.12701   Mean   :0.5453  
+#>  3rd Qu.: 750.4   3rd Qu.:0.16546   3rd Qu.:0.7137  
 #>  Max.   :1524.4   Max.   :0.33613   Max.   :0.9388  
+#>                                     NAs    :24      
 #> 
 #> Sensors
 #> -------
